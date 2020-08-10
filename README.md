@@ -1,9 +1,9 @@
 # CRITERIA-1D/GEO
-CRITERIA-1D is a one-dimensional model simulating the soil water balance and the crop development (shell script).
+CRITERIA-1D is a one-dimensional model simulating the soil water balance and the crop development (console application).
 
 CRITERIA-GEO is a GIS interface for managing CRITERIA-1D geographical input/output: crop map, soil map, meteorological grid and simulation units.
 
-CROP_EDITOR and SOIL_EDITOR are GUI interfaces to manage crop and soil parameters of the model.
+CROP_EDITOR and SOIL_EDITOR are tools to manage crop and soil parameters of the model.
 
 ## How to compile
 Dependencies:
