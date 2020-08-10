@@ -20,11 +20,12 @@ qmake
 nmake clean
 nmake release
 
-:: build WG
-cd ..\Makeall_WG
+:: build criteriaOutput
+cd ..\..\tools\Makeall_CriteriaOutput
 qmake
 nmake clean
 nmake release
+
 
 :: copy executables
 cd ..\..\DEPLOY
@@ -33,13 +34,14 @@ cd CRITERIA1D\bin
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
-copy ..\..\..\bin\WG\release\WG.exe
+copy ..\..\..\tools\criteriaOutput\release\criteriaOutput.exe
+
 
 :: deploy
 windeployqt CRITERIA1D.exe
 windeployqt CROP_EDITOR.exe
 windeployqt SOIL_EDITOR.exe
-windeployqt WG.exe
+windeployqt criteriaOutput.exe
 
 :: copy img files
 cd ..
@@ -55,11 +57,6 @@ mkdir DATA\SOIL
 cd DATA\SOIL
 xcopy /Y ..\..\..\..\DATA\SOIL\*.* 
 
-:: copy WG data
-cd ..\..\
-mkdir DATA\WG
-cd DATA\WG
-xcopy /s /Y ..\..\..\..\bin\WG\DATA\*.*
 
 :: copy kiwifruit project
 cd ..\..\
