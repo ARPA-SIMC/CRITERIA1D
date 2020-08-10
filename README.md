@@ -11,17 +11,18 @@ Dependencies:
 Build:
 - deploy [..]
 
+## CROP_EDITOR
+#### bin/Makeall_CROP_EDITOR
+crop editor is a tool to [..]
+
+![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
+
 ## SOIL_EDITOR
 #### bin/Makeall_SOIL_EDITOR
 Soil editor is a tool to show/edit soil data, including water retention and hydrologic conductivity curves, using modified Van Genuchten - Mualem model.
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
 
-## CROP_EDITOR
-#### bin/Makeall_CROP_EDITOR
-crop editor is a tool to [..]
-
-![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
 
 ## HEAT1D 
 #### bin/Makeall_HEAT1D
