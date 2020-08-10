@@ -15,7 +15,7 @@ Build:
 #### bin/Makeall_SOIL_EDITOR
 Soil editor is a tool to show/edit soil data, including water retention and hydrologic conductivity curves, using modified Van Genuchten - Mualem model.
 
-![](https://github.com/ARPA-SIMC/CRITERIA3D/blob/master/DOC/img/soilWidget.png)
+![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilWidget.png)
 
 ## CROP_EDITOR
 #### bin/Makeall_CROP_EDITOR
