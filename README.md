@@ -1,9 +1,11 @@
 # CRITERIA-1D/GEO
-CRITERIA-1D is a one-dimensional model simulating the soil water balance and the crop development.
+CRITERIA-1D is a one-dimensional model simulating the soil water balance and the crop development (shell script).
 
 CRITERIA-GEO is a GIS interface for managing CRITERIA-1D geographical input/output: crop map, soil map, meteorological grid and simulation units.
 
-## How to compile CRITERIA-1D/GEO
+CROP_EDITOR and SOIL_EDITOR are GUI interfaces to manage crop and soil parameters of the model.
+
+## How to compile
 Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
 - [MapGraphics library](https://github.com/raptorswing/MapGraphics) (modified version): build with Qt Creator the project *mapGraphics/MapGraphics.pro*
