@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<ISISMapperColourRamp>
+  <LastModified>11/01/2019 00:00:00</LastModified>
+  <FormatVersion>3.0</FormatVersion>
+  <Type>Colour_Ramp_Categorised</Type>
+  <file_attribs />
+  <ClassificationFieldID>-1</ClassificationFieldID>
+  <ClassificationField />
+  <ColourSchema>
+    <Type>VectorPolygon</Type>
+    <MinimumValue>Non un numero reale</MinimumValue>
+    <MaximumValue>Non un numero reale</MaximumValue>
+    <Style>Colour_Ramp_Categorised</Style>
+    <Single>True</Single>
+    <NumberOfColorSets>0</NumberOfColorSets>
+    <UseTransparentNoDataColour>True</UseTransparentNoDataColour>
+    <NoDataColour>Color_Named:Black</NoDataColour>
+    <NoDataValue>-9999</NoDataValue>
+    <ColourSets />
+    <StyleSet>
+      <DefaultStyle>
+        <HatchBackGroundTransparent>True</HatchBackGroundTransparent>
+        <HatchStyleID>0</HatchStyleID>
+        <DrawFilling>False</DrawFilling>
+        <FillType>1</FillType>
+        <DrawOutLine>True</DrawOutLine>
+        <HatchBackgroundColour>Color_Named:White</HatchBackgroundColour>
+        <LineThickness>1</LineThickness>
+        <LineLineStippleID>0</LineLineStippleID>
+        <VertexSize>3</VertexSize>
+        <VertexShapeID>0</VertexShapeID>
+        <VertexColour>Color_ARGB:255:70:192:175</VertexColour>
+        <DrawVertex>False</DrawVertex>
+        <DrawVertexFilling>True</DrawVertexFilling>
+        <LineColour>Color_ARGB:255:0:0:0</LineColour>
+        <FillColour>Color_ARGB:255:17:1:60</FillColour>
+        <VectoreStyleSelected>CH.Water.SDK.IMColourEditor.SelectionSet</VectoreStyleSelected>
+        <SingleColour>Color_Named:Blue</SingleColour>
+        <UseSingleColour>True</UseSingleColour>
+        <UseRandomColour>True</UseRandomColour>
+        <SelectedStyle>CH.Water.SDK.IMColourEditor.SelectionSet</SelectedStyle>
+        <UseAdvancedStyle>False</UseAdvancedStyle>
+        <StyleType>VectorPolygon</StyleType>
+        <Transparency>255</Transparency>
+      </DefaultStyle>
+      <SelectedStyle>
+        <LineWidth>1</LineWidth>
+        <Transparency>255</Transparency>
+        <Colour>Color_Named:Yellow</Colour>
+        <LColour>Color_Named:Yellow</LColour>
+      </SelectedStyle>
+    </StyleSet>
+  </ColourSchema>
+  <Labels>
+    <LabelSet>
+      <LabelPositioningAtShape>lpCenter</LabelPositioningAtShape>
+      <FieldID>0</FieldID>
+      <RotationFieldID />
+      <Visible>False</Visible>
+      <AvoidCollisions>True</AvoidCollisions>
+      <DynamicVisiblity>False</DynamicVisiblity>
+      <RemoveDuplicates>False</RemoveDuplicates>
+      <ScaleLabels>False</ScaleLabels>
+      <UseWidthLimits>False</UseWidthLimits>
+      <MinVisibleScale>0</MinVisibleScale>
+      <MaxVisibleScale>100000000</MaxVisibleScale>
+      <MinDrawingSize>1</MinDrawingSize>
+      <LabelOptions>
+        <Priority>0</Priority>
+        <Name />
+        <Expression />
+        <Visible>False</Visible>
+        <OffsetX>0</OffsetX>
+        <OffsetY>0</OffsetY>
+        <Alignment>laCenter</Alignment>
+        <LineOrientation>lorHorizontal</LineOrientation>
+        <FontName>Arial</FontName>
+        <FontSize>12</FontSize>
+        <FontItalic>False</FontItalic>
+        <FontBold>False</FontBold>
+        <FontUnderline>False</FontUnderline>
+        <FontStrikeOut>False</FontStrikeOut>
+        <FontColor>8388608</FontColor>
+        <FontColor2>8388608</FontColor2>
+        <FontGradientMode>gmNone</FontGradientMode>
+        <FontTransparency>255</FontTransparency>
+        <FontOutlineVisible>False</FontOutlineVisible>
+        <ShadowVisible>False</ShadowVisible>
+        <HaloVisible>False</HaloVisible>
+        <FontOutlineColor>8388608</FontOutlineColor>
+        <ShadowColor>16777215</ShadowColor>
+        <HaloColor>11823615</HaloColor>
+        <FontOutlineWidth>1</FontOutlineWidth>
+        <ShadowOffsetX>2</ShadowOffsetX>
+        <ShadowOffsetY>2</ShadowOffsetY>
+        <HaloSize>1</HaloSize>
+        <FrameType>lfRectangle</FrameType>
+        <FrameOutlineColor>9868950</FrameOutlineColor>
+        <FrameBackColor>14745599</FrameBackColor>
+        <FrameBackColor2>15130800</FrameBackColor2>
+        <FrameGradientMode>gmNone</FrameGradientMode>
+        <FrameOutlineStyle>dsSolid</FrameOutlineStyle>
+        <FrameOutlineWidth>1</FrameOutlineWidth>
+        <FramePaddingX>10</FramePaddingX>
+        <FramePaddingY>0</FramePaddingY>
+        <FrameTransparency>255</FrameTransparency>
+        <InboxAlignment>laCenter</InboxAlignment>
+        <FrameVisible>False</FrameVisible>
+        <Enabled>True</Enabled>
+        <FontSize2>14</FontSize2>
+      </LabelOptions>
+    </LabelSet>
+  </Labels>
+</ISISMapperColourRamp>
