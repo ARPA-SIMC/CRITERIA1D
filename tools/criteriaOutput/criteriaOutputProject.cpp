@@ -487,12 +487,15 @@ int CriteriaOutputProject::writeCsvOutputUnit(unsigned int unitIndex)
                             selectRes = computeDTX(dbDataHistorical, idCase, periodTDX , computation, firstDate, lastDate, &resVector);
                             if (selectRes == ERROR_INCOMPLETE_DTX)
                             {
-                                res = NODATA;
-                                skip = true;
-                                break;
+                                if (year != historicalFirstDate.year())
+                                {
+                                    res = NODATA;
+                                    skip = true;
+                                    break;
+                                }
                             }
                         }
-                        if (selectRes != CRIT3D_OK)
+                        if (selectRes != CRIT3D_OK && selectRes != ERROR_INCOMPLETE_DTX)
                         {
                             return selectRes;
                         }
