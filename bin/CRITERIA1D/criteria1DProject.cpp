@@ -526,11 +526,11 @@ int Criteria1DProject::compute(QString dateOfForecast)
     bool isErrorModel = false;
     bool isErrorSoil = false;
     bool isErrorCrop = false;
-    long nrUnitsComputed = 0;
+    unsigned int nrUnitsComputed = 0;
 
     try
     {
-        for (int i = 0; i < unitList.size(); i++)
+        for (unsigned int i = 0; i < unitList.size(); i++)
         {
             // CROP
             unitList[i].idCrop = getCropFromClass(&(criteriaSimulation.dbCrop), "crop_class", "id_class",

@@ -1,11 +1,11 @@
-#-----------------------------------------------------
+#---------------------------------------------------------
 #
 #   CRITERIA1D
+#   1D model for soil water balance and crop development
+
+#   This project is part of CRITERIA-1D distribution
 #
-#   Water balance 1D
-#   This project is part of CRITERIA1D distribution
-#
-#-----------------------------------------------------
+#---------------------------------------------------------
 
 
 QT -= gui

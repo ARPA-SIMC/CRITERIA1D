@@ -1,10 +1,10 @@
 #-----------------------------------------------------------
 #
 #   criteriaOutput
-#   post-processing of CRITERIA1D output
+#   post-processing of CRITERIA-1D output
 #   to csv or shapefile
 #
-#   This project is part of CRITERIA1D distribution
+#   This project is part of CRITERIA-1D distribution
 #
 #-----------------------------------------------------------
 

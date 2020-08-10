@@ -7,7 +7,7 @@
 #   See gdal.pri for more info
 #   Comment CONFIG += GDAL to compile without GDAL library
 #
-#   This project is part of CRITERIA-3D distribution
+#   This project is part of CRITERIA-1D distribution
 #
 #-----------------------------------------------------------------------------
 
