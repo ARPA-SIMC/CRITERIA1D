@@ -6,8 +6,8 @@
 #include "commonConstants.h"
 #include "utilities.h"
 
-#define TEST_HISTORICAL
-//#define TEST_TODAY
+//#define TEST_HISTORICAL
+#define TEST_TODAY
 //#define TEST_PAST
 //#define TEST_KIWIFRUIT
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         #else
             #ifdef TEST_HISTORICAL
                 //settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_historical_xml.ini";
-                    settingsFileName = path + "PROJECT/INCOLTO/Incolto_historical_xml.ini";
+                settingsFileName = path + "PROJECT/INCOLTO/Incolto_historical_xml.ini";
             #else
                 #if defined(TEST_TODAY) || defined(TEST_PAST)
                     //settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_xml.ini";
@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
         myProject.logError();
         return myResult;
     }
-    // last data: yesterday
-    myProject.criteriaSimulation.lastSimulationDate = forecastDate.addDays(-1);
+    // date of last observed data: yesterday
+    myProject.criteriaSimulation.lastObservedDate = forecastDate.addDays(-1);
 
     // computation unit list
     if (! loadUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))
@@ -91,12 +91,15 @@ int main(int argc, char *argv[])
     }
     myProject.logInfo("\nQuery result: " + QString::number(myProject.unitList.size()) + " distinct computation units.\n");
 
-    // initialize output
-    if (!myProject.initializeCsvOutputFile(dateOfForecast))
-        return ERROR_DBOUTPUT;
+    // initialize output (seasonal forecast)
+    if (myProject.criteriaSimulation.isSeasonalForecast)
+    {
+        if (!myProject.initializeCsvOutputFile())
+            return ERROR_DBOUTPUT;
+    }
 
     // COMPUTE
-    myResult = myProject.compute(dateOfForecast);
+    myResult = myProject.compute();
     myProject.logInfo("\nEND");
 
     return myResult;
