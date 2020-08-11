@@ -1,9 +1,9 @@
 # CRITERIA-1D/GEO
-CRITERIA-1D is a one-dimensional model simulating the soil water balance and the crop development (console application).
+CRITERIA-1D (console application) is a one-dimensional model simulating the soil water balance and the crop development.
 
 CRITERIA-GEO is a GIS interface for managing CRITERIA-1D geographical input/output: crop map, soil map, meteorological grid and simulation units.
 
-CROP_EDITOR and SOIL_EDITOR are tools to manage crop and soil parameters of the model.
+CROP_EDITOR and SOIL_EDITOR are tools to manage the model crop parameters and soil properties.
 
 ## How to compile CRITERIA-1D
 Dependencies:
@@ -24,7 +24,7 @@ Crop editor is a tool to manage crop parameters and try effects on model output 
 
 ## SOIL_EDITOR
 #### bin/Makeall_SOIL_EDITOR
-Soil editor is a tool to show/edit soil data, including water retention and hydrologic conductivity curves, using modified Van Genuchten - Mualem model.
+Soil editor is a tool to show/edit soil properties, including water retention and hydrologic conductivity curves, using modified Van Genuchten - Mualem model.
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
 
