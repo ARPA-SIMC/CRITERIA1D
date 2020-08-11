@@ -1,13 +1,18 @@
 :: build CRITERIA-1D
 :: run on Qt shell (MINGW version) 
 
-:: build CRITERIA1D
-cd ..\bin\Makeall_CRITERIA1D
+:: build csvToMeteoDb
+cd ..\tools\csvToMeteoDb
 qmake
 mingw32-make release
 
-:: build CROP_EDITOR
-cd ..\Makeall_CROP_EDITOR
+:: build criteriaOutput
+cd ..\Makeall_CriteriaOutput
+qmake
+mingw32-make release
+
+:: build CRITERIA1D
+cd ..\..\bin\Makeall_CRITERIA1D
 qmake
 mingw32-make release
 
@@ -16,25 +21,30 @@ cd ..\Makeall_SOIL_EDITOR
 qmake
 mingw32-make release
 
-:: build criteriaOutput
-cd ..\..\tools\Makeall_CriteriaOutput
+:: build CROP_EDITOR
+cd ..\Makeall_CROP_EDITOR
 qmake
 mingw32-make release
+
 
 :: copy executables
 cd ..\..\DEPLOY
 mkdir CRITERIA1D\bin
 cd CRITERIA1D\bin
-copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
-copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
-copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
+copy ..\..\..\tools\csvToMeteoDb\release\csvToMeteoDb.exe
 copy ..\..\..\tools\criteriaOutput\release\criteriaOutput.exe
+copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
+copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
+copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
+
 
 :: deploy
-windeployqt CRITERIA1D.exe
-windeployqt CROP_EDITOR.exe
-windeployqt SOIL_EDITOR.exe
+windeployqt csvToMeteoDb.exe
 windeployqt criteriaOutput.exe
+windeployqt CRITERIA1D.exe
+windeployqt SOIL_EDITOR.exe
+windeployqt CROP_EDITOR.exe
+
 
 :: copy img files
 cd ..
