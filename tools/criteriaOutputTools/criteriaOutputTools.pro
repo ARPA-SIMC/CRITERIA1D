@@ -1,6 +1,6 @@
 #-----------------------------------------------------------
 #
-#   criteriaOutput
+#   CriteriaOutput
 #   post-processing of CRITERIA-1D output
 #   to csv or shapefile
 #
@@ -16,20 +16,20 @@ TEMPLATE = app
 
 unix:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/CRITERIAOUTPUT
+        TARGET = debug/CriteriaOutput
     } else {
-        TARGET = release/CRITERIAOUTPUT
+        TARGET = release/CriteriaOutput
     }
 }
 macx:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/CRITERIAOUTPUT
+        TARGET = debug/CriteriaOutput
     } else {
-        TARGET = release/CRITERIAOUTPUT
+        TARGET = release/CriteriaOutput
     }
 }
 win32:{
-    TARGET = CRITERIAOUTPUT
+    TARGET = CriteriaOutput
 }
 
 # The following define makes your compiler emit warnings if you use

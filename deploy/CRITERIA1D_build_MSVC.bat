@@ -34,7 +34,7 @@ cd CRITERIA1D\bin
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
-copy ..\..\..\tools\criteriaOutput\release\criteriaOutput.exe
+copy ..\..\..\tools\criteriaOutput\release\CriteriaOutput.exe
 
 
 :: deploy

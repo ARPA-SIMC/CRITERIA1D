@@ -31,16 +31,16 @@ mingw32-make release
 cd ..\..\DEPLOY
 mkdir CRITERIA1D\bin
 cd CRITERIA1D\bin
-copy ..\..\..\tools\csvToMeteoDb\release\csvToMeteoDb.exe
-copy ..\..\..\tools\criteriaOutput\release\criteriaOutput.exe
+copy ..\..\..\tools\csvToMeteoDb\release\CsvToMeteoDb.exe
+copy ..\..\..\tools\criteriaOutput\release\CriteriaOutput.exe
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
 copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
 
 
 :: deploy
-windeployqt csvToMeteoDb.exe
-windeployqt criteriaOutput.exe
+windeployqt CsvToMeteoDb.exe
+windeployqt CriteriaOutput.exe
 windeployqt CRITERIA1D.exe
 windeployqt SOIL_EDITOR.exe
 windeployqt CROP_EDITOR.exe

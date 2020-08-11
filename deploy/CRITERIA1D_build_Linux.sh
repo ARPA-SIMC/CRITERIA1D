@@ -70,8 +70,8 @@ function make_appimage {
 wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
 chmod +x linuxqtdeploy
 
-make_appimage csvToMeteoDb
-make_appimage CRITERIAOUTPUT
+make_appimage CsvToMeteoDb
+make_appimage CriteriaOutput
 make_appimage CRITERIA1D
 make_appimage CROP_EDITOR
 make_appimage SOIL_EDITOR

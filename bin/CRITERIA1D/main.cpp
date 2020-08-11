@@ -6,8 +6,8 @@
 #include "commonConstants.h"
 #include "utilities.h"
 
-//#define TEST_HISTORICAL
-#define TEST_TODAY
+#define TEST_HISTORICAL
+//#define TEST_TODAY
 //#define TEST_PAST
 //#define TEST_KIWIFRUIT
 
@@ -31,10 +31,12 @@ int main(int argc, char *argv[])
             settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
         #else
             #ifdef TEST_HISTORICAL
-                settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_historical_xml.ini";
+                //settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_historical_xml.ini";
+                    settingsFileName = path + "PROJECT/INCOLTO/Incolto_historical_xml.ini";
             #else
                 #if defined(TEST_TODAY) || defined(TEST_PAST)
-                    settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_xml.ini";
+                    //settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_xml.ini";
+                    settingsFileName = path + "PROJECT/INCOLTO/Incolto.ini";
                 #else
                     myProject.logInfo("USAGE: CRITERIA1D project.ini\n");
                     return ERROR_SETTINGS_MISSING;

@@ -1,6 +1,6 @@
 #-----------------------------------------------------------
 #
-#   csvToMeteoDb
+#   CsvToMeteoDb
 #   This project is part of CRITERIA1D distribution
 #
 #-----------------------------------------------------------
@@ -13,20 +13,20 @@ TEMPLATE = app
 
 unix:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/csvToMeteoDb
+        TARGET = debug/CsvToMeteoDb
     } else {
-        TARGET = release/csvToMeteoDb
+        TARGET = release/CsvToMeteoDb
     }
 }
 macx:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/csvToMeteoDb
+        TARGET = debug/CsvToMeteoDb
     } else {
-        TARGET = release/csvToMeteoDb
+        TARGET = release/CsvToMeteoDb
     }
 }
 win32:{
-    TARGET = csvToMeteoDb
+    TARGET = CsvToMeteoDb
 }
 
 
