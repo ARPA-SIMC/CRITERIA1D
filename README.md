@@ -13,11 +13,12 @@ Build:
 - Windows (MS Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
 - Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat
 - Linux: run deploy/CRITERIA1D_build_Linux.sh
+
 Distribution will be created in deploy/CRITERIA1D
 
 ## CROP_EDITOR
 #### bin/Makeall_CROP_EDITOR
-Crop editor is a tool to manage crop model parameters and try effects on simulation output (Leaf Area Index, evaporation and transpiration, root density, soil moisture and irrigation water needs). 
+Crop editor is a tool to manage crop parameters and try effects on model output (Leaf Area Index, evaporation and transpiration, root density, soil moisture and irrigation water needs). 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
 
@@ -26,7 +27,6 @@ Crop editor is a tool to manage crop model parameters and try effects on simulat
 Soil editor is a tool to show/edit soil data, including water retention and hydrologic conductivity curves, using modified Van Genuchten - Mualem model.
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
-
 
 ## HEAT1D 
 #### bin/Makeall_HEAT1D
@@ -39,4 +39,4 @@ Graphs are produced using the Qwt plot library (http://qwt.sourceforge.net) whic
 CRITERIA-1D has been developed under contract issued by 
 ARPAE Hydro-Meteo-Climate Service, Emilia-Romagna, Italy: http://www.arpae.it/sim/
 
-The executables (*CRITERIA1D, CRITERIAGEO, TEST_EDITOR, SOIL_EDITOR*) are released under the GNU GPL license, libreries (*agrolib*) are released under the GNU LGPL license.
+The executables (*CRITERIA1D, CRITERIAGEO, TEST_EDITOR, SOIL_EDITOR, HEAT1D*) are released under the GNU GPL license, libreries (*agrolib*) are released under the GNU LGPL license.
