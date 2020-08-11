@@ -4,6 +4,22 @@
 QT_DIR=/opt/Qt/5.12.8/gcc_64/
 QMAKE=$QT_DIR/bin/qmake
 
+# build csvToMeteoDb
+cd ../tools/csvToMeteoDb
+$QMAKE csvToMeteoDb.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile qmake_all 
+make 
+
+cd -
+
+# build CRITERIAOUTPUT
+cd ../tools/Makeall_CriteriaOutput
+$QMAKE Makeall_CriteriaOutput.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile qmake_all 
+make 
+
+cd -
+
 # build CRITERIA1D
 cd ../bin/Makeall_CRITERIA1D
 $QMAKE Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
@@ -23,14 +39,6 @@ cd -
 # build SOIL_EDITOR
 cd ../bin/Makeall_SOIL_EDITOR
 $QMAKE Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
-make -f Makefile qmake_all 
-make
-
-cd -
-
-# build WG
-cd ../bin/Makeall_WG
-$QMAKE Makeall_WG.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile qmake_all 
 make
 
@@ -62,10 +70,12 @@ function make_appimage {
 wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
 chmod +x linuxqtdeploy
 
+make_appimage csvToMeteoDb
+make_appimage CRITERIAOUTPUT
 make_appimage CRITERIA1D
 make_appimage CROP_EDITOR
 make_appimage SOIL_EDITOR
-make_appimage WG
+
 
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
@@ -82,10 +92,6 @@ cp -r ../DOC/img/textural_soil.png CRITERIA1D/DOC/img
 mkdir CRITERIA1D/DATA
 mkdir CRITERIA1D/DATA/SOIL
 cp -r ../DATA/SOIL/* CRITERIA1D/DATA/SOIL
-
-# copy WG data
-mkdir CRITERIA1D/DATA/WG
-cp -r ../bin/WG/DATA/* CRITERIA1D/DATA/WG
 
 # copy kiwifruit project
 mkdir CRITERIA1D/DATA/PROJECT

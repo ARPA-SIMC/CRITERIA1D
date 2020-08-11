@@ -16,20 +16,20 @@ TEMPLATE = app
 
 unix:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/criteriaOutputTools
+        TARGET = debug/CRITERIAOUTPUT
     } else {
-        TARGET = release/criteriaOutputTools
+        TARGET = release/CRITERIAOUTPUT
     }
 }
 macx:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/criteriaOutputTools
+        TARGET = debug/CRITERIAOUTPUT
     } else {
-        TARGET = release/criteriaOutputTools
+        TARGET = release/CRITERIAOUTPUT
     }
 }
 win32:{
-    TARGET = criteriaOutputTools
+    TARGET = CRITERIAOUTPUT
 }
 
 # The following define makes your compiler emit warnings if you use
