@@ -18,7 +18,7 @@ Distribution will be created in deploy/CRITERIA1D
 
 ## CROP_EDITOR
 #### bin/Makeall_CROP_EDITOR
-Crop editor is a tool to manage crop parameters and try effects on model output (Leaf Area Index, evaporation and transpiration, root density, soil moisture and irrigation water needs). 
+Crop editor is a tool to manage the crop parameters, try the model and show the main output (Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs). 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
 
