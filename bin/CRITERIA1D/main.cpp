@@ -6,8 +6,8 @@
 #include "commonConstants.h"
 #include "utilities.h"
 
-#define TEST_HISTORICAL
-//#define TEST_TODAY
+//#define TEST_HISTORICAL
+#define TEST_TODAY
 //#define TEST_PAST
 //#define TEST_KIWIFRUIT
 
