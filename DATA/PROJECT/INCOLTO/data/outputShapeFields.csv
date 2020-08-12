@@ -1,7 +1,0 @@
-output field (shapefile), input variable (csv), field type, field lenght, decimals nr.
-CROP,CROP,STRING,20,
-deficit,deficit,FLOAT,10,1
-FcstPrec7d,forecast7daysPrec,FLOAT,10,1
-FcstETc7d,forecast7daysETc,FLOAT,10,1
-FcstIrr7d,forecast7daysIRR,FLOAT,10,1
-PrevIrrTot,previousAllSeasonIRR,FLOAT,10,1
