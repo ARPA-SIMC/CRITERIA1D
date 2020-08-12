@@ -3,17 +3,14 @@
 #include <QDir>
 #include <QDateTime>
 #include <QSettings>
-#include <QDebug>
-#include <iostream>
 
 #include "commonConstants.h"
 #include "basicMath.h"
-#include "utilities.h"
 #include "cropDbQuery.h"
 #include "soilDbTools.h"
 #include "criteria1DProject.h"
+#include "utilities.h"
 
-using namespace std;
 
 Criteria1DProject::Criteria1DProject()
 {
