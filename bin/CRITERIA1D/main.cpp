@@ -9,7 +9,7 @@
 //#define TEST_HISTORICAL
 //#define TEST_TODAY
 //#define TEST_PAST
-//#define TEST_KIWIFRUIT
+//#define TEST_SQLITE
 
 
 int main(int argc, char *argv[])
@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
     {
         QString path;
         if (! searchDataPath(&path)) return -1;
-        #ifdef TEST_KIWIFRUIT
-            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
+        #ifdef TEST_SQLITE
+            settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_sqlite.ini";
         #else
             #ifdef TEST_HISTORICAL
                 settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_historical_xml.ini";
