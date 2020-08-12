@@ -1,6 +1,10 @@
 output var name, var name, reference day, computation, nr days, climate computation, parameter 1, parameter 2
-readilyAvailableWater,AW,-1,,,,,
+readilyAvailableWater,RAW,-1,,,,,
+readilyAvailableWater_percentile,RAW,-1,,,PERCENTILE,,7
 deficit,DEFICIT,-1,,,,,
 DT30,DT30,-1,,,,,
 DT90,DT90,-1,,,,,
 DT180,DT180,-1,,,,,
+DT30_percentile,DT30,-1,,,PERCENTILE,5,7
+DT90_percentile,DT90,-1,,,PERCENTILE,5,7
+DT180_percentile,DT180,-1,,,PERCENTILE,5,7
