@@ -146,13 +146,13 @@ bool Criteria1DProject::readSettings()
     if (dbOutputName.left(1) == ".")
         dbOutputName = path + dbOutputName;
 
-    // seasonal or short-term forecast
+    // FORECAST (seasonal or short-term)
     projectSettings->endGroup();
     projectSettings->beginGroup("forecast");
 
     criteriaSimulation.isSeasonalForecast = projectSettings->value("isSeasonalForecast",0).toBool();
     criteriaSimulation.isShortTermForecast = projectSettings->value("isShortTermForecast",0).toBool();
-    if ((criteriaSimulation.isSeasonalForecast) || (criteriaSimulation.isShortTermForecast))
+    if (criteriaSimulation.isSeasonalForecast)
     {
         outputCsvFileName = projectSettings->value("output").toString();
 
@@ -331,18 +331,13 @@ int Criteria1DProject::openAllDatabase()
 }
 
 
-bool Criteria1DProject::initializeCsvOutputFile(QString dateOfForecast)
+bool Criteria1DProject::initializeCsvOutputFile()
 {
-    if ((criteriaSimulation.isSeasonalForecast) || (criteriaSimulation.isShortTermForecast))
+    if (criteriaSimulation.isSeasonalForecast)
     {
-        if (!QDir(outputCsvPath).exists())
-            QDir().mkdir(outputCsvPath);
-
-        // add date to filename (only for ShortTermForecast)
-        if (criteriaSimulation.isShortTermForecast)
+        if (! QDir(outputCsvPath).exists())
         {
-            outputCsvFileName = outputCsvFileName.left(outputCsvFileName.length()-4);
-            outputCsvFileName += "_" + dateOfForecast + ".csv";
+            QDir().mkdir(outputCsvPath);
         }
 
         outputFile.open(outputCsvFileName.toStdString().c_str(), std::ios::out | std::ios::trunc);
@@ -356,12 +351,7 @@ bool Criteria1DProject::initializeCsvOutputFile(QString dateOfForecast)
             logInfo("Output file: " + outputCsvFileName + "\n");
         }
 
-        if (criteriaSimulation.isSeasonalForecast)
-            outputFile << "ID_CASE,CROP,SOIL,METEO,p5,p25,p50,p75,p95\n";
-
-        else if(criteriaSimulation.isShortTermForecast)
-            outputFile << "dateForecast,ID_CASE,CROP,SOIL,METEO,deficit,readilyAvailableWater,"
-                           "forecast7daysPrec,forecast7daysETc,forecast7daysIRR,previousAllSeasonIRR\n";
+        outputFile << "ID_CASE,CROP,SOIL,METEO,p5,p25,p50,p75,p95\n";
     }
 
     return true;
@@ -404,124 +394,7 @@ bool Criteria1DProject::runSeasonalForecast(unsigned int index, double irriRatio
 }
 
 
-bool Criteria1DProject::runShortTermForecast(QString dateForecastStr, unsigned int index, double irriRatio)
-{
-    if (! criteriaSimulation.runModel(unitList[index], projectError))
-    {
-        logError();
-        return false;
-    }
-
-    std::string idCaseStr = unitList[index].idCase.toStdString();
-
-    // last Observed day: day before
-    Crit3DDate lastObservedDate = Crit3DDate(dateForecastStr.toStdString()).addDays(-1);
-    int lastIndex = criteriaSimulation.myCase.meteoPoint.nrObsDataDaysD - criteriaSimulation.daysOfForecast - 1;
-    Crit3DDate firstDate = criteriaSimulation.myCase.meteoPoint.obsDataD[0].date;
-    Crit3DDate lastDate = criteriaSimulation.myCase.meteoPoint.obsDataD[lastIndex].date;
-    if (lastObservedDate < firstDate || lastObservedDate > lastDate)
-    {
-        logError(" wrong date.");
-        return false;
-    }
-
-    std::string lastObservedDateStr = lastObservedDate.toStdString();
-    std::string lastDateOfForecast = lastObservedDate.addDays(criteriaSimulation.daysOfForecast).toStdString();
-
-    // first date for annual irrigation
-    Crit3DDate firstDateAllSeason;
-    if (criteriaSimulation.firstSeasonMonth <= lastObservedDate.month)
-    {
-        firstDateAllSeason = Crit3DDate(1, criteriaSimulation.firstSeasonMonth, lastObservedDate.year);
-    }
-    else
-    {
-        firstDateAllSeason = Crit3DDate(1, criteriaSimulation.firstSeasonMonth, lastObservedDate.year - 1);
-    }
-
-    std::string firstDateAllSeasonStr = firstDateAllSeason.toStdString();
-
-    double prec = NODATA;
-    double maxTranspiration = NODATA;
-    double forecastIrrigation = NODATA;
-    double previousIrrigation = NODATA;
-    double readilyAvailWater = NODATA;
-    double deficit = NODATA;
-
-    std::string mySQLstr = "SELECT SUM(PREC) AS prec,"
-                        " SUM(TRANSP_MAX) AS maxTransp, SUM(IRRIGATION) AS irr"
-                        " FROM '" + idCaseStr + "'"
-                        " WHERE DATE > '" + lastObservedDateStr + "'"
-                        " AND DATE <= '" + lastDateOfForecast + "'";
-
-    QString mySQL = QString::fromStdString(mySQLstr);
-
-    QSqlQuery myQuery = criteriaSimulation.dbOutput.exec(mySQL);
-
-    if (myQuery.lastError().type() != QSqlError::NoError)
-    {
-        logError(mySQL + "\n" + myQuery.lastError().text());
-    }
-    else
-    {
-        myQuery.last();
-        prec = myQuery.value("prec").toDouble();
-        maxTranspiration = myQuery.value("maxTransp").toDouble();
-        forecastIrrigation = myQuery.value("irr").toDouble();
-    }
-
-    mySQLstr = "SELECT RAW, DEFICIT FROM '"
-            + idCaseStr + "'"
-            " WHERE DATE = '" + lastObservedDateStr + "'";
-
-    mySQL = QString::fromStdString(mySQLstr);
-
-    myQuery = criteriaSimulation.dbOutput.exec(mySQL);
-
-    if (myQuery.lastError().type() != QSqlError::NoError)
-        logError(mySQL + "\n" + myQuery.lastError().text());
-    else
-    {
-        myQuery.last();
-        readilyAvailWater = myQuery.value("RAW").toDouble();
-        deficit = myQuery.value("DEFICIT").toDouble();
-    }
-
-    mySQLstr = "SELECT SUM(IRRIGATION) AS previousIrrigation FROM '"
-            + idCaseStr + "'"
-            " WHERE DATE <= '" + lastObservedDateStr + "'"
-            " AND DATE >= '" + firstDateAllSeasonStr + "'";
-
-    mySQL = QString::fromStdString(mySQLstr);
-
-    myQuery = criteriaSimulation.dbOutput.exec(mySQL);
-
-    if (myQuery.lastError().type() != QSqlError::NoError)
-        logError(mySQL + "\n" + myQuery.lastError().text());
-    else
-    {
-        myQuery.last();
-        previousIrrigation = myQuery.value("previousIrrigation").toDouble();
-    }
-
-    outputFile << dateForecastStr.toStdString();
-    outputFile << "," << unitList[index].idCase.toStdString();
-    outputFile << "," << unitList[index].idCrop.toStdString();
-    outputFile << "," << unitList[index].idSoil.toStdString();
-    outputFile << "," << unitList[index].idMeteo.toStdString();
-    outputFile << "," << QString::number(deficit,'f',2).toStdString();
-    outputFile << "," << QString::number(readilyAvailWater,'f',1).toStdString();
-    outputFile << "," << QString::number(prec,'f',1).toStdString();
-    outputFile << "," << QString::number(maxTranspiration,'f',1).toStdString();
-    outputFile << "," << forecastIrrigation * irriRatio;
-    outputFile << "," << previousIrrigation * irriRatio << "\n";
-    outputFile.flush();
-
-    return true;
-}
-
-
-int Criteria1DProject::compute(QString dateOfForecast)
+int Criteria1DProject::compute()
 {
     bool isErrorModel = false;
     bool isErrorSoil = false;
@@ -569,31 +442,26 @@ int Criteria1DProject::compute(QString dateOfForecast)
                     nrUnitsComputed++;
                 else
                     isErrorModel = true;
-
-                continue;
             }
-
-            if(criteriaSimulation.isShortTermForecast)
-            {
-                if (runShortTermForecast(dateOfForecast, i, irriRatio))
-                    nrUnitsComputed++;
-                else
-                    isErrorModel = true;
-
-                continue;
-            }
-
-            if (criteriaSimulation.runModel(unitList[i], projectError))
-                nrUnitsComputed++;
             else
             {
-                projectError = "Unit: " + unitList[i].idCase + " - " + projectError;
-                logError();
-                isErrorModel = true;
+                if (criteriaSimulation.runModel(unitList[i], projectError))
+                {
+                    nrUnitsComputed++;
+                }
+                else
+                {
+                    projectError = "Unit: " + unitList[i].idCase + " - " + projectError;
+                    logError();
+                    isErrorModel = true;
+                }
             }
         }
 
-        outputFile.close();
+        if (criteriaSimulation.isSeasonalForecast)
+        {
+            outputFile.close();
+        }
 
     } catch (std::exception &e)
     {

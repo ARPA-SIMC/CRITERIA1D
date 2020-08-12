@@ -72,7 +72,7 @@
 
             void initialize();
             int initializeProject(QString myFileName);
-            bool initializeCsvOutputFile(QString dateOfForecast);
+            bool initializeCsvOutputFile();
 
             bool readSettings();
             int openAllDatabase();
@@ -80,9 +80,8 @@
             void closeProject();
             void closeAllDatabase();
 
-            int compute(QString dateOfForecast);
+            int compute();
             bool runSeasonalForecast(unsigned int index, double irriRatio);
-            bool runShortTermForecast(QString dateForecast, unsigned int index, double irriRatio);
 
             bool setLogFile();
             void logInfo(QString logStr);
