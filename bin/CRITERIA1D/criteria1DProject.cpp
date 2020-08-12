@@ -25,7 +25,7 @@ void Criteria1DProject::initialize()
     isProjectLoaded = false;
 
     path = "";
-    name = "";
+    projectName = "";
     logFileName = "";
     outputCsvFileName = "";
     outputCsvPath = "";
@@ -46,7 +46,7 @@ void Criteria1DProject::closeProject()
 {
     if (isProjectLoaded)
     {
-        logInfo("Close Project...");
+        logger.writeInfo("Close Project...");
         closeAllDatabase();
         logFile.close();
 
@@ -62,7 +62,7 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
 
     if (settingsFileName == "")
     {
-        logError("Missing settings File.");
+        logger.writeError("Missing settings File.");
         return ERROR_SETTINGS_MISSING;
     }
 
@@ -86,7 +86,7 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
     if (!readSettings())
         return ERROR_SETTINGS_MISSINGDATA;
 
-    setLogFile();
+    logger.setLog(path, projectName);
 
     int myError = openAllDatabase();
     if (myError != CRIT3D_OK)
@@ -111,7 +111,7 @@ bool Criteria1DProject::readSettings()
     projectSettings->beginGroup("project");
 
     path += projectSettings->value("path","").toString();
-    name += projectSettings->value("name","").toString();
+    projectName += projectSettings->value("name","").toString();
 
     dbCropName = projectSettings->value("db_crop","").toString();
     if (dbCropName.left(1) == ".")
@@ -192,7 +192,7 @@ int Criteria1DProject::openAllDatabase()
 {
     closeAllDatabase();
 
-    logInfo ("Crop DB: " + dbCropName);
+    logger.writeInfo ("Crop DB: " + dbCropName);
     if (! QFile(dbCropName).exists())
     {
         projectError = "DB Crop file doesn't exist";
@@ -209,7 +209,7 @@ int Criteria1DProject::openAllDatabase()
         return ERROR_DBPARAMETERS;
     }
 
-    logInfo ("Soil DB: " + dbSoilName);
+    logger.writeInfo ("Soil DB: " + dbSoilName);
     if (! QFile(dbSoilName).exists())
     {
         projectError = "Soil DB file doesn't exist";
@@ -226,7 +226,7 @@ int Criteria1DProject::openAllDatabase()
         return ERROR_DBSOIL;
     }
 
-    logInfo ("Meteo DB: " + dbMeteoName);
+    logger.writeInfo ("Meteo DB: " + dbMeteoName);
     if (! QFile(dbMeteoName).exists())
     {
         projectError = "Meteo points DB file doesn't exist";
@@ -265,7 +265,7 @@ int Criteria1DProject::openAllDatabase()
     // meteo forecast
     if (criteriaSimulation.isShortTermForecast)
     {
-        logInfo ("Forecast DB: " + dbForecastName);
+        logger.writeInfo ("Forecast DB: " + dbForecastName);
         if (! QFile(dbForecastName).exists())
         {
             projectError = "DBforecast file doesn't exist";
@@ -306,7 +306,7 @@ int Criteria1DProject::openAllDatabase()
     if (! criteriaSimulation.isSeasonalForecast)
     {
         QFile::remove(dbOutputName);
-        logInfo ("Output DB: " + dbOutputName);
+        logger.writeInfo ("Output DB: " + dbOutputName);
         criteriaSimulation.dbOutput = QSqlDatabase::addDatabase("QSQLITE", "output");
         criteriaSimulation.dbOutput.setDatabaseName(dbOutputName);
 
@@ -324,7 +324,7 @@ int Criteria1DProject::openAllDatabase()
     }
 
     // db units
-    logInfo ("Units DB: " + dbUnitsName);
+    logger.writeInfo ("Units DB: " + dbUnitsName);
 
 
     return CRIT3D_OK;
@@ -343,12 +343,12 @@ bool Criteria1DProject::initializeCsvOutputFile()
         outputFile.open(outputCsvFileName.toStdString().c_str(), std::ios::out | std::ios::trunc);
         if ( outputFile.fail())
         {
-            logError("open failure: " + QString(strerror(errno)) + '\n');
+            logger.writeError("open failure: " + QString(strerror(errno)) + '\n');
             return false;
         }
         else
         {
-            logInfo("Output file: " + outputCsvFileName + "\n");
+            logger.writeInfo("Output file: " + outputCsvFileName + "\n");
         }
 
         outputFile << "ID_CASE,CROP,SOIL,METEO,p5,p25,p50,p75,p95\n";
@@ -371,7 +371,7 @@ bool Criteria1DProject::runSeasonalForecast(unsigned int index, double irriRatio
 
     if (! criteriaSimulation.runModel(unitList[index], projectError))
     {
-        logError();
+        logger.writeError(projectError);
         return false;
     }
 
@@ -410,7 +410,7 @@ int Criteria1DProject::compute()
                                                          unitList[i].idCropClass, &(projectError)).toUpper();
             if (unitList[i].idCrop == "")
             {
-                logInfo("Unit " + unitList[i].idCase + " " + unitList[i].idCropClass + " ***** missing CROP *****");
+                logger.writeInfo("Unit " + unitList[i].idCase + " " + unitList[i].idCropClass + " ***** missing CROP *****");
                 isErrorCrop = true;
                 continue;
             }
@@ -420,7 +420,7 @@ int Criteria1DProject::compute()
                                                             unitList[i].idCropClass, &(projectError)));
             if ((criteriaSimulation.isSeasonalForecast || criteriaSimulation.isShortTermForecast) && (int(irriRatio) == int(NODATA)))
             {
-                logInfo("Unit " + unitList[i].idCase + " " + unitList[i].idCropClass + " ***** missing IRRIGATION RATIO *****");
+                logger.writeInfo("Unit " + unitList[i].idCase + " " + unitList[i].idCropClass + " ***** missing IRRIGATION RATIO *****");
                 continue;
             }
 
@@ -428,13 +428,13 @@ int Criteria1DProject::compute()
             unitList[i].idSoil = getIdSoilString(&(criteriaSimulation.dbSoil), unitList[i].idSoilNumber, &(projectError));
             if (unitList[i].idSoil == "")
             {
-                logInfo("Unit " + unitList[i].idCase + " Soil nr." + QString::number(unitList[i].idSoilNumber) + " ***** missing SOIL *****");
+                logger.writeInfo("Unit " + unitList[i].idCase + " Soil nr." + QString::number(unitList[i].idSoilNumber) + " ***** missing SOIL *****");
                 isErrorSoil = true;
                 continue;
             }
 
             //LC a regime togliere questa info che rallenta tantissimo
-            //logInfo("Unit " + unitList[i].idCase +" "+ unitList[i].idCrop +" "+ unitList[i].idSoil +" "+ unitList[i].idMeteo);
+            //logger.writeInfo("Unit " + unitList[i].idCase +" "+ unitList[i].idCrop +" "+ unitList[i].idSoil +" "+ unitList[i].idMeteo);
 
             if (criteriaSimulation.isSeasonalForecast)
             {
@@ -452,7 +452,7 @@ int Criteria1DProject::compute()
                 else
                 {
                     projectError = "Unit: " + unitList[i].idCase + " - " + projectError;
-                    logError();
+                    logger.writeError(projectError);
                     isErrorModel = true;
                 }
             }
@@ -496,52 +496,5 @@ int Criteria1DProject::compute()
     }
 
     return CRIT3D_OK;
-}
-
-
-//-------------------
-//
-//   LOG functions
-//
-//-------------------
-
-bool Criteria1DProject::setLogFile()
-{
-    if (!QDir(path + "log").exists())
-         QDir().mkdir(path + "log");
-
-    QString myDate = QDateTime().currentDateTime().toString("yyyy-MM-dd hh.mm");
-    QString fileName = name + "_" + myDate + ".txt";
-
-    logFileName = path + "log/" + fileName;
-    std::cout << "SWB PROCESSOR - log file created:\n" << logFileName.toStdString() << std::endl;
-
-    logFile.open(logFileName.toStdString().c_str());
-    return (logFile.is_open());
-}
-
-
-void Criteria1DProject::logInfo(QString logStr)
-{
-    if (logFile.is_open())
-        logFile << logStr.toStdString() << std::endl;
-
-    std::cout << logStr.toStdString() << std::endl;
-}
-
-
-void Criteria1DProject::logError()
-{
-    if (logFile.is_open())
-        logFile << "----ERROR!----\n" << projectError.toStdString() << std::endl;
-
-    std::cout << "----ERROR!----\n" << projectError.toStdString() << std::endl << std::endl;
-}
-
-
-void Criteria1DProject::logError(QString myErrorStr)
-{
-    projectError = myErrorStr;
-    logError();
 }
 

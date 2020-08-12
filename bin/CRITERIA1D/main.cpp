@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
                     settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_xml.ini";
                     //settingsFileName = path + "PROJECT/INCOLTO/Incolto.ini";
                 #else
-                    myProject.logInfo("USAGE: CRITERIA1D project.ini [date]\n");
+                    myProject.logger.writeInfo("USAGE: CRITERIA1D project.ini [date]\n");
                     return ERROR_SETTINGS_MISSING;
                 #endif
             #endif
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     QDate forecastDate = QDate::fromString(dateOfForecast, "yyyy-MM-dd");
     if (! forecastDate.isValid())
     {
-        myProject.logError("Wrong date format: " + dateOfForecast +"\nRequested format is: YYYY-MM-DD");
+        myProject.logger.writeError("Wrong date format: " + dateOfForecast +"\nRequested format is: YYYY-MM-DD");
         return ERROR_WRONGDATE;
     }
 
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     int myResult = myProject.initializeProject(settingsFileName);
     if (myResult != CRIT3D_OK)
     {
-        myProject.logError();
+        myProject.logger.writeError(myProject.projectError);
         return myResult;
     }
     // date of last observed data: yesterday
@@ -86,10 +86,10 @@ int main(int argc, char *argv[])
     // computation unit list
     if (! loadUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))
     {
-        myProject.logError();
+        myProject.logger.writeError(myProject.projectError);
         return ERROR_READ_UNITS;
     }
-    myProject.logInfo("\nQuery result: " + QString::number(myProject.unitList.size()) + " distinct computation units.\n");
+    myProject.logger.writeInfo("Query result: " + QString::number(myProject.unitList.size()) + " distinct computation units.\n");
 
     // initialize output (seasonal forecast)
     if (myProject.criteriaSimulation.isSeasonalForecast)
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
     // COMPUTE
     myResult = myProject.compute();
-    myProject.logInfo("\nEND");
+    myProject.logger.writeInfo("END");
 
     return myResult;
 }

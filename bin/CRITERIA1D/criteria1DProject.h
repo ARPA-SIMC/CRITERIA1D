@@ -4,6 +4,9 @@
     #ifndef CRITERIA1DSIMULATION_H
         #include "criteria1DSimulation.h"
     #endif
+    #ifndef LOGGER_H
+        #include "logger.h"
+    #endif
 
     #include <fstream>
 
@@ -42,7 +45,7 @@
     {
         public:
             QString path;
-            QString name;
+            QString projectName;
             QString configFileName;
 
             QString dbCropName;
@@ -55,6 +58,8 @@
 
             QString logFileName;
             std::ofstream logFile;
+            Logger logger;
+
             std::ofstream outputFile;
 
             bool isProjectLoaded;
@@ -82,11 +87,6 @@
 
             int compute();
             bool runSeasonalForecast(unsigned int index, double irriRatio);
-
-            bool setLogFile();
-            void logInfo(QString logStr);
-            void logError();
-            void logError(QString myErrorStr);
     };
 
 #endif // CRITERIA1DPROJECT
