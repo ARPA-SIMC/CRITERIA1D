@@ -1,13 +1,13 @@
     
-	Build CRITERIA1D 
+## 	Build CRITERIA1D 
  
  
-*** Dependencies
+### 	Dependencies
 
 	Qt libraries: Qt 5.x or following is needed (download also QtCharts).
  
  
-*** Notes for Windows
+### 	Notes for Windows
  
 	Compiler:
 	MSVC = Microsoft Visual C++ compiler
@@ -25,4 +25,4 @@
 	- vcvarsall.bat x64
  
 
-*** Notes for Linux
+### 	Notes for Linux
