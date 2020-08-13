@@ -60,7 +60,7 @@ function make_appimage {
     mkdir appimage/usr/share
     mkdir appimage/usr/share/applications
     cp ../bin/$1/release/$1 appimage/usr/bin/$1
-    cp $1.desktop appimage/usr/share/applications/
+    cp linuxDeploy/$1.desktop appimage/usr/share/applications/
 
     ./linuxqtdeploy appimage/usr/share/applications/$1.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
