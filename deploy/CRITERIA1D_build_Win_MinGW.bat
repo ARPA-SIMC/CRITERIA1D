@@ -5,37 +5,37 @@
 
 :: build csvToMeteoDb
 cd ..\tools\csvToMeteoDb
-qmake 
-mingw32-make clean
-mingw32-make release
+qmake -platform win32-g++
+mingw32-make --silent clean
+mingw32-make --silent release
 
 :: build criteriaOutput
 cd ..\Makeall_CriteriaOutput
-qmake 
-mingw32-make distclean
-qmake
-mingw32-make release
+qmake -platform win32-g++ 
+mingw32-make --silent distclean
+qmake -platform win32-g++
+mingw32-make --silent release
 
 :: build CRITERIA1D
 cd ..\..\bin\Makeall_CRITERIA1D
-qmake 
-mingw32-make distclean
-qmake
-mingw32-make release
+qmake -platform win32-g++ 
+mingw32-make --silent distclean
+qmake -platform win32-g++
+mingw32-make --silent release
 
 :: build SOIL_EDITOR
 cd ..\Makeall_SOIL_EDITOR
-qmake 
-mingw32-make distclean
-qmake
-mingw32-make release
+qmake -platform win32-g++ 
+mingw32-make --silent distclean
+qmake -platform win32-g++
+mingw32-make --silent release
 
 :: build CROP_EDITOR
 cd ..\Makeall_CROP_EDITOR
-qmake 
-mingw32-make distclean
-qmake
-mingw32-make release
+qmake -platform win32-g++ 
+mingw32-make --silent distclean
+qmake -platform win32-g++
+mingw32-make --silent release
 
 
 :: copy executables
