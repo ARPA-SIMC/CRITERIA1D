@@ -8,6 +8,7 @@
 :: build csvToMeteoDb
 cd ..\tools\csvToMeteoDb
 qmake
+nmake clean
 nmake release
 
 :: build criteriaOutput
