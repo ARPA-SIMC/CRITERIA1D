@@ -5,36 +5,32 @@
 
 :: build csvToMeteoDb
 cd ..\tools\csvToMeteoDb
-qmake -platform win32-g++
+qmake -platform win32-g++ CONFIG+=release
 mingw32-make --silent clean
 mingw32-make --silent release
 
 :: build criteriaOutput
 cd ..\Makeall_CriteriaOutput
-qmake -platform win32-g++ 
-mingw32-make --silent distclean
-qmake -platform win32-g++
+qmake -platform win32-g++ CONFIG+=release
+mingw32-make --silent clean
 mingw32-make --silent release
 
 :: build CRITERIA1D
 cd ..\..\bin\Makeall_CRITERIA1D
-qmake -platform win32-g++ 
-mingw32-make --silent distclean
-qmake -platform win32-g++
+qmake -platform win32-g++ CONFIG+=release
+mingw32-make --silent clean
 mingw32-make --silent release
 
 :: build SOIL_EDITOR
 cd ..\Makeall_SOIL_EDITOR
-qmake -platform win32-g++ 
-mingw32-make --silent distclean
-qmake -platform win32-g++
+qmake -platform win32-g++ CONFIG+=release
+mingw32-make --silent clean
 mingw32-make --silent release
 
 :: build CROP_EDITOR
 cd ..\Makeall_CROP_EDITOR
-qmake -platform win32-g++ 
-mingw32-make --silent distclean
-qmake -platform win32-g++
+qmake -platform win32-g++ CONFIG+=release
+mingw32-make --silent clean
 mingw32-make --silent release
 
 
@@ -47,6 +43,19 @@ copy ..\..\..\tools\criteriaOutputTools\release\CriteriaOutput.exe
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
 copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
+
+
+:: CLEAN distribution
+cd ..\..\..\tools\csvToMeteoDb
+mingw32-make --silent distclean
+cd ..\Makeall_CriteriaOutput
+mingw32-make --silent distclean
+cd ..\..\bin\Makeall_CRITERIA1D
+mingw32-make --silent distclean
+cd ..\Makeall_CROP_EDITOR
+mingw32-make --silent distclean
+cd ..\Makeall_SOIL_EDITOR
+mingw32-make --silent distclean
 
 
 :: deploy

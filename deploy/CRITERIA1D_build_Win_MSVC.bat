@@ -7,31 +7,31 @@
 
 :: build csvToMeteoDb
 cd ..\tools\csvToMeteoDb
-qmake
+qmake CONFIG+=release
 nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build criteriaOutput
 cd ..\Makeall_CriteriaOutput
-qmake
+qmake CONFIG+=release
 nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build CRITERIA-1D
 cd ..\..\bin\Makeall_CRITERIA1D
-qmake
+qmake CONFIG+=release
 nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build CROP_EDITOR
 cd ..\Makeall_CROP_EDITOR
-qmake
+qmake CONFIG+=release
 nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build SOIL_EDITOR
 cd ..\Makeall_SOIL_EDITOR
-qmake
+qmake CONFIG+=release
 nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
