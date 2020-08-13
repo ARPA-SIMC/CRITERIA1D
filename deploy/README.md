@@ -4,7 +4,7 @@
  
 ###	Dependencies
 
-	Qt libraries: Qt 5.x or following is needed (download also QtCharts).
+	Qt libraries: Qt 5.12 or following is needed (download also QtCharts).
  
  
 ###	Notes for Windows
@@ -25,10 +25,10 @@
 	> vcvarsall.bat x64
  
 
-### Notes for Linux
+###	Notes for Linux
 
-        Compiler:gcc v.6 or later
-        Qt version 5.12 or later
+	Compiler:gcc v.6 or later
+	Qt version 5.12 or later
         
-        build:
-        - execute CRITERIA1D_build_Linux.sh
+	build:
+	- execute CRITERIA1D_build_Linux.sh
