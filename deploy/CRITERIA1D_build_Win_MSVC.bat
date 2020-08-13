@@ -8,36 +8,36 @@
 :: build csvToMeteoDb
 cd ..\tools\csvToMeteoDb
 qmake
-nmake clean
-nmake release
+nmake /S /NOLOGO clean
+nmake /S /NOLOGO release
 
 :: build criteriaOutput
 cd ..\Makeall_CriteriaOutput
 qmake 
-nmake distclean
+nmake /S /NOLOGO distclean
 qmake
-nmake release
+nmake /S /NOLOGO release
 
 :: build CRITERIA-1D
 cd ..\..\bin\Makeall_CRITERIA1D
 qmake 
-nmake distclean
+nmake /S /NOLOGO distclean
 qmake
-nmake release
+nmake /S /NOLOGO release
 
 :: build CROP_EDITOR
 cd ..\Makeall_CROP_EDITOR
 qmake 
-nmake distclean
+nmake /S /NOLOGO distclean
 qmake
-nmake release
+nmake /S /NOLOGO release
 
 :: build SOIL_EDITOR
 cd ..\Makeall_SOIL_EDITOR
 qmake 
-nmake distclean
+nmake /S /NOLOGO distclean
 qmake
-nmake release
+nmake /S /NOLOGO release
 
 
 :: copy executables
