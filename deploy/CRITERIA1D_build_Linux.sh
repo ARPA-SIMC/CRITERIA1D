@@ -53,7 +53,7 @@ function make_appimage {
     cp ../DOC/img/saveButton.png appimage
     cp ../DOC/img/updateButton.png appimage
     cp ../DOC/img/textural_soil.png appimage
-    cp ../DOC/img/CRITERIA3D_icon.png appimage/$1.png
+    cp ../DOC/img/CRITERIA1D_icon.png appimage/$1.png
     mkdir appimage/usr
     mkdir appimage/usr/bin
     echo 'Place executable here' > appimage/usr/bin/README
