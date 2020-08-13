@@ -48,16 +48,12 @@ copy ..\..\..\tools\csvToMeteoDb\release\CsvToMeteoDb.exe
 :: CLEAN distribution
 cd ..\..\..\tools\csvToMeteoDb
 nmake /S /NOLOGO distclean
-
 cd ..\Makeall_CriteriaOutput
 nmake /S /NOLOGO distclean
-
 cd ..\..\bin\Makeall_CRITERIA1D
 nmake /S /NOLOGO distclean
-
 cd ..\Makeall_CROP_EDITOR
 nmake /S /NOLOGO distclean
-
 cd ..\Makeall_SOIL_EDITOR
 nmake /S /NOLOGO distclean
 
