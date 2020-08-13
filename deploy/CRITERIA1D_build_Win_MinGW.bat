@@ -1,5 +1,7 @@
 :: build CRITERIA-1D
 :: run on Qt shell (MINGW version) 
+:: inside deploy directory (cd [local path]\CRITERIA1D\deploy)
+
 
 :: build csvToMeteoDb
 cd ..\tools\csvToMeteoDb
@@ -32,7 +34,7 @@ cd ..\..\DEPLOY
 mkdir CRITERIA1D\bin
 cd CRITERIA1D\bin
 copy ..\..\..\tools\csvToMeteoDb\release\CsvToMeteoDb.exe
-copy ..\..\..\tools\criteriaOutput\release\CriteriaOutput.exe
+copy ..\..\..\tools\criteriaOutputTools\release\CriteriaOutput.exe
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
 copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
