@@ -5,27 +5,30 @@
 
 :: build csvToMeteoDb
 cd ..\tools\csvToMeteoDb
-qmake
+qmake csvToMeteoDb.pro CONFIG+=release
+mingw32-make clean
 mingw32-make release
 
 :: build criteriaOutput
 cd ..\Makeall_CriteriaOutput
-qmake
+qmake Makeall_CriteriaOutput.pro CONFIG+=release
+mingw32-make clean
 mingw32-make release
 
 :: build CRITERIA1D
 cd ..\..\bin\Makeall_CRITERIA1D
-qmake
+qmake Makeall_CRITERIA1D.pro CONFIG+=release
+mingw32-make clean
 mingw32-make release
 
 :: build SOIL_EDITOR
 cd ..\Makeall_SOIL_EDITOR
-qmake
+qmake Makeall_SOIL_EDITOR.pro CONFIG+=release
 mingw32-make release
 
 :: build CROP_EDITOR
 cd ..\Makeall_CROP_EDITOR
-qmake
+qmake Makeall_CROP_EDITOR.pro CONFIG+=release
 mingw32-make release
 
 
@@ -70,3 +73,5 @@ xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\kiwifruit\*.*
 
 :: return to deploy directory
 cd ..\..\..\..\
+
+

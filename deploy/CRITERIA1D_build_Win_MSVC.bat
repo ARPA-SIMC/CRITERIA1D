@@ -12,23 +12,32 @@ nmake release
 
 :: build criteriaOutput
 cd ..\Makeall_CriteriaOutput
+qmake 
+nmake distclean
 qmake
 nmake release
 
 :: build CRITERIA-1D
 cd ..\..\bin\Makeall_CRITERIA1D
+qmake 
+nmake distclean
 qmake
 nmake release
 
 :: build CROP_EDITOR
 cd ..\Makeall_CROP_EDITOR
+qmake 
+nmake distclean
 qmake
 nmake release
 
 :: build SOIL_EDITOR
 cd ..\Makeall_SOIL_EDITOR
+qmake 
+nmake distclean
 qmake
 nmake release
+
 
 :: copy executables
 cd ..\..\deploy
