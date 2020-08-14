@@ -10,7 +10,7 @@
 
 void usage()
 {
-    std::cout << "\n" << "Usage: criteriaOutput.exe CSV|SHAPEFILE project.ini [date]\n";
+    std::cout << "\n" << "Usage: criteriaOutput.exe CSV|SHAPEFILE|AGGREGATION project.ini [date]\n";
 }
 
 
@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
         #ifdef TEST
                 if (! searchDataPath(&myProject.dataPath)) return -1;
 
-                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/nitrati.ini";
+                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/bollAgro_cut.ini";
                 //dateComputationStr = "2020-08-13";
                 dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-                operation = "SHAPEFILE";
+                operation = "CSV";
         #else
                 usage();
                 return 1;
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     {
         operation = argv[1];
         operation = operation.toUpper();
-        if (operation != "CSV" && operation != "SHAPEFILE")
+        if (operation != "CSV" && operation != "SHAPEFILE" && operation != "AGGREGATION")
         {
             myProject.logger.writeError("Wrong parameter: " + operation);
             usage();
@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
     // check date
     QDate dateComputation = QDate::fromString(dateComputationStr, "yyyy-MM-dd");
     if (! dateComputation.isValid())
-
     {
         myProject.logger.writeError("Wrong date format. Requested format is: YYYY-MM-DD");
         return ERROR_WRONGDATE;
@@ -88,44 +87,9 @@ int main(int argc, char *argv[])
 
     myProject.logger.writeInfo("computation date: " + dateComputationStr);
 
-    bool createShapeAfterCsv = false;
-
     if (operation == "SHAPEFILE")
     {
-        if (! myProject.createShapeFile())
-        {
-            if (myProject.projectError.contains("CSV data not exists"))
-            {
-                //make csv
-                operation = "CSV";
-                createShapeAfterCsv = true;
-            }
-            else
-            {
-                return ERROR_SHAPEFILE;
-            }
-        }
-    }
-
-    if (operation == "CSV")
-    {
-        // computation unit list
-        if (! loadUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))
-        {
-            myProject.logger.writeError(myProject.projectError);
-            return ERROR_READ_UNITS;
-        }
-        myProject.logger.writeInfo("Query result: " + QString::number(myProject.unitList.size()) + " distinct computation units.");
-
-        // initialize output
-        if (!myProject.initializeCsvOutputFile())
-        {
-            myProject.logger.writeError(myProject.projectError);
-            return ERROR_PARSERCSV;
-        }
-
-        // initialize output
-        myResult = myProject.writeCsvOutput();
+        int myResult = myProject.createShapeFile();
         if (myResult != CRIT3D_OK)
         {
             myProject.logger.writeError(myProject.projectError);
@@ -133,11 +97,13 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (createShapeAfterCsv)
+    if (operation == "CSV")
     {
-        if (! myProject.createShapeFile())
+        int myResult = myProject.createCsvFile();
+        if (myResult != CRIT3D_OK)
         {
-            return ERROR_SHAPEFILE;
+            myProject.logger.writeError(myProject.projectError);
+            return myResult;
         }
     }
 
