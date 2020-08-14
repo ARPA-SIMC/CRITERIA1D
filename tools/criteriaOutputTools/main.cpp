@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
                 settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/nitrati.ini";
                 //dateComputationStr = "2020-08-11";
                 dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-                operation = "CSV";
+                operation = "SHAPEFILE";
         #else
                 usage();
                 return 1;
@@ -88,6 +88,25 @@ int main(int argc, char *argv[])
 
     myProject.logger.writeInfo("computation date: " + dateComputationStr);
 
+    bool createShapeAfterCsv = false;
+
+    if (operation == "SHAPEFILE")
+    {
+        if (! myProject.createShapeFile())
+        {
+            if (myProject.projectError.contains("CSV data not exists"))
+            {
+                //make csv
+                operation = "CSV";
+                createShapeAfterCsv = true;
+            }
+            else
+            {
+                return ERROR_SHAPEFILE;
+            }
+        }
+    }
+
     if (operation == "CSV")
     {
         // computation unit list
@@ -114,14 +133,21 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (operation == "SHAPEFILE")
+    if (createShapeAfterCsv)
     {
         if (! myProject.createShapeFile())
+        {
             return ERROR_SHAPEFILE;
+        }
     }
 
     myProject.logger.writeInfo("END");
 
     return CRIT3D_OK;
+}
+
+bool csvOperation()
+{
+
 }
 
