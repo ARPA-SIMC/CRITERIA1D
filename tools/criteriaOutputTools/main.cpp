@@ -65,8 +65,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    bool isCsv = (operation == "CSV");
-
     // check date
     QDate dateComputation = QDate::fromString(dateComputationStr, "yyyy-MM-dd");
     if (! dateComputation.isValid())
@@ -78,7 +76,7 @@ int main(int argc, char *argv[])
     if (settingsFileName.left(1) == ".")
         settingsFileName = appPath + settingsFileName;
 
-    int myResult = myProject.initializeProject(settingsFileName, dateComputation, isCsv);
+    int myResult = myProject.initializeProject(settingsFileName, dateComputation);
     if (myResult != CRIT3D_OK)
     {
         myProject.logger.writeError(myProject.projectError);
