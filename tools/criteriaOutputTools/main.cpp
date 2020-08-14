@@ -146,8 +146,3 @@ int main(int argc, char *argv[])
     return CRIT3D_OK;
 }
 
-bool csvOperation()
-{
-
-}
-

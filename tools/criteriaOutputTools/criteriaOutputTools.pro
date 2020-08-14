@@ -9,7 +9,7 @@
 #-----------------------------------------------------------
 
 QT -= gui
-QT += core sql
+QT += core widgets sql
 
 CONFIG += console
 TEMPLATE = app
@@ -44,13 +44,15 @@ SOURCES += \
     main.cpp
 
 
-INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/crop \
-                ../../agrolib/criteriaModel ../../agrolib/utilities ../../agrolib/shapeHandler ../../agrolib/criteriaOutput
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/crop ../../agrolib/gis \
+                ../../agrolib/criteriaModel ../../agrolib/utilities ../../agrolib/shapeHandler ../../agrolib/shapeUtilities \
+                ../../agrolib/criteriaOutput
 
 
 CONFIG(debug, debug|release) {
 
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
+    LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
@@ -59,6 +61,7 @@ CONFIG(debug, debug|release) {
 } else {
 
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
+    LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
