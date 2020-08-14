@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
                 settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/bollAgro_cut.ini";
                 //dateComputationStr = "2020-08-13";
                 dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-                operation = "CSV";
+                operation = "SHAPEFILE";
         #else
                 usage();
                 return 1;
