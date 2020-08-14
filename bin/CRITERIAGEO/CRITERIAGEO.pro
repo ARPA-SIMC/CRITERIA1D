@@ -24,16 +24,40 @@ INCLUDEPATH +=  ../../mapGraphics \
 
 CONFIG += debug_and_release
 
+    win32:{
+        CONFIG(debug, debug|release) {
+            LIBS += -L../../mapGraphics/debug -lMapGraphics
+        } else {
+            LIBS += -L../../mapGraphics/release -lMapGraphics
+        }
+    }
+    unix:{
+        LIBS += -L../../mapGraphics/release -lMapGraphics
+    }
+
+# comment to compile without GDAL library
+CONFIG += GDAL
+
+GDAL {
+    DEFINES += GDAL
+    INCLUDEPATH += ../../agrolib/gdalHandler
+
+    include(../../agrolib/gdal.pri)
+
+    CONFIG(debug, debug|release) {
+        LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
+    } else {
+        LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
+    }
+}
 
 CONFIG(debug, debug|release) {
-    LIBS += -L../../mapGraphics/debug -lMapGraphics
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/gis/debug -lgis
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
 } else {
-    LIBS += -L../../mapGraphics/release -lMapGraphics
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/gis/release -lgis
@@ -77,20 +101,4 @@ SOURCES += \
 FORMS += \
     mainWindow.ui
 
-
-# comment to compile without GDAL library
-# CONFIG += GDAL
-
-GDAL {
-    DEFINES += GDAL
-    INCLUDEPATH += ../../agrolib/gdalHandler
-
-    include(../../agrolib/gdal.pri)
-
-    CONFIG(debug, debug|release) {
-        LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
-    } else {
-        LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
-    }
-}
-
+include(../../agrolib/gdal.pri)

@@ -34,6 +34,7 @@
 
 #ifdef GDAL
     #include "gdalRasterFunctions.h"
+    #include "gdalShapeFunctions.h"
 #endif
 
 #include <QMessageBox>
@@ -152,6 +153,7 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
     }
     else
     {
+        #ifdef GDAL
         if (computeUcmIntersection(ucm, crop, soil, meteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr, showInfo))
         {
             addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), ucm->getUtmZone());
@@ -162,6 +164,11 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
             logError(errorStr);
             return false;
         }
+        #else
+            errorStr = "GDAL not defined";
+            logError(errorStr);
+            return false;
+        #endif
     }
 
 }
