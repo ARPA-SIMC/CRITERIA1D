@@ -226,7 +226,7 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
 bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fileCsvRef, QString outputName)
 {
     Crit3DShapeHandler* shapeHandler = (objectList.at(unsigned(pos)))->getShapeHandler();
-    std::string errorStr;
+    QString errorStr;
 
     bool found = false;
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
@@ -244,7 +244,7 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
     }
 
     Crit3DShapeHandler outputShape;
-    if (shapeFromCsv(shapeHandler, &outputShape, fileCsv, fileCsvRef, outputName, &errorStr, true))
+    if (shapeFromCsv(shapeHandler, &outputShape, fileCsv, fileCsvRef, outputName, errorStr, true))
     {
         return true;
     }
