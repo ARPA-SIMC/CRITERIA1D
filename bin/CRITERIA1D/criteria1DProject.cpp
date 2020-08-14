@@ -143,6 +143,12 @@ bool Criteria1DProject::readSettings()
     if (dbOutputName.left(1) == ".")
         dbOutputName = path + dbOutputName;
 
+    criteriaSimulation.firstSimulationDate = projectSettings->value("firstDate",0).toDate();
+    if (criteriaSimulation.firstSimulationDate.isValid())
+    {
+        criteriaSimulation.useAllMeteoData = false;
+    }
+
     // FORECAST (seasonal or short-term)
     projectSettings->endGroup();
     projectSettings->beginGroup("forecast");
@@ -162,12 +168,6 @@ bool Criteria1DProject::readSettings()
     if (criteriaSimulation.isShortTermForecast)
     {
         criteriaSimulation.daysOfForecast = projectSettings->value("daysOfForecast",0).toInt();
-    }
-
-    criteriaSimulation.firstSimulationDate = projectSettings->value("firstDate",0).toDate();
-    if (criteriaSimulation.firstSimulationDate.isValid())
-    {
-        criteriaSimulation.useAllMeteoData = false;
     }
 
     projectSettings->endGroup();

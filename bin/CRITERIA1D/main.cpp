@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
                 //settingsFileName = path + "PROJECT/INCOLTO/Incolto_historical_xml.ini";
             #else
                 #if defined(TEST_TODAY) || defined(TEST_PAST)
-                    //settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_xml.ini";
-                    settingsFileName = path + "PROJECT/INCOLTO/Incolto.ini";
+                    settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_xml.ini";
+                    //settingsFileName = path + "PROJECT/INCOLTO/Incolto.ini";
                 #else
                     myProject.logger.writeInfo("USAGE: CRITERIA1D project.ini [date]\n");
                     return ERROR_SETTINGS_MISSING;
