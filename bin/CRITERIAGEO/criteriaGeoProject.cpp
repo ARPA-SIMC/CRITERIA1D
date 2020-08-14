@@ -244,7 +244,7 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
     }
 
     Crit3DShapeHandler outputShape;
-    if (shapeFromCsv(shapeHandler, &outputShape, fileCsv, fileCsvRef, outputName, errorStr, true))
+    if (shapeFromCsv(shapeHandler, &outputShape, fileCsv, fileCsvRef, outputName, errorStr))
     {
         return true;
     }
