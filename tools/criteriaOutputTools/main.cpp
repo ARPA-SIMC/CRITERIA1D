@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
         #ifdef TEST
                 if (! searchDataPath(&myProject.dataPath)) return -1;
 
-                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/bollAgro_cut.ini";
+                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/nitrati.ini";
                 //dateComputationStr = "2020-08-13";
                 dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-                operation = "SHAPEFILE";
+                operation = "AGGREGATION";
         #else
                 usage();
                 return 1;
@@ -87,28 +87,28 @@ int main(int argc, char *argv[])
 
     myProject.logger.writeInfo("computation date: " + dateComputationStr);
 
-    if (operation == "SHAPEFILE")
+    if (operation == "AGGREGATION")
     {
-        int myResult = myProject.createShapeFile();
-        if (myResult != CRIT3D_OK)
-        {
-            myProject.logger.writeError(myProject.projectError);
-            return myResult;
-        }
+        myResult = myProject.createAggregationFile();
+    }
+    else if (operation == "SHAPEFILE")
+    {
+        myResult = myProject.createShapeFile();
+    }
+    else if (operation == "CSV")
+    {
+        myResult = myProject.createCsvFile();
     }
 
-    if (operation == "CSV")
+    if (myResult != CRIT3D_OK)
     {
-        int myResult = myProject.createCsvFile();
-        if (myResult != CRIT3D_OK)
-        {
-            myProject.logger.writeError(myProject.projectError);
-            return myResult;
-        }
+        myProject.logger.writeError(myProject.projectError);
+        return myResult;
     }
-
-    myProject.logger.writeInfo("END");
-
-    return CRIT3D_OK;
+    else
+    {
+        myProject.logger.writeInfo("END");
+        return CRIT3D_OK;
+    }
 }
 
