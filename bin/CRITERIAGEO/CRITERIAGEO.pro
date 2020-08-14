@@ -70,7 +70,6 @@ HEADERS += \
     ../../agrolib/graphics/mapGraphicsRasterObject.h \
     ../../agrolib/graphics/mapGraphicsShapeObject.h \
     ../../agrolib/graphics/colorLegend.h \
-    ../../agrolib/project/formInfo.h \
     criteriaGeoProject.h \
     dialogSelectField.h \
     dialogShapeProperties.h \
@@ -85,7 +84,6 @@ SOURCES += \
     ../../agrolib/graphics/mapGraphicsRasterObject.cpp \
     ../../agrolib/graphics/mapGraphicsShapeObject.cpp \
     ../../agrolib/graphics/colorLegend.cpp \
-    ../../agrolib/project/formInfo.cpp \
     criteriaGeoProject.cpp \
     dialogSelectField.cpp \
     dialogShapeProperties.cpp \
