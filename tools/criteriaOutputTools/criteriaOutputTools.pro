@@ -44,7 +44,7 @@ SOURCES += \
     main.cpp
 
 
-INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/crop ../../agrolib/gis \
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop ../../agrolib/gis \
                 ../../agrolib/criteriaModel ../../agrolib/utilities ../../agrolib/shapeHandler ../../agrolib/shapeUtilities \
                 ../../agrolib/criteriaOutput
 
@@ -55,6 +55,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/utilities/debug -lutilities
+    LIBS += -L../../agrolib/gis/debug -lgis
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
 
@@ -64,6 +65,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/utilities/release -lutilities
+    LIBS += -L../../agrolib/gis/release -lgis
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
 } 
