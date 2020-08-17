@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
     if (operation == "PRECOMPUTE_DTX")
     {
-        myResult = myProject.precomputeDtx();
+        //myResult = myProject.precomputeDtx();
     }
     else if (operation == "CSV")
     {
