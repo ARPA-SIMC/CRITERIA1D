@@ -307,7 +307,7 @@ int Criteria1DProject::openAllDatabase()
         criteriaSimulation.dbOutput = QSqlDatabase::addDatabase("QSQLITE", "output");
         criteriaSimulation.dbOutput.setDatabaseName(dbOutputName);
 
-        QString outputDbPath = getFilePath(outputCsvFileName);
+        QString outputDbPath = getFilePath(dbOutputName);
         if (!QDir(outputDbPath).exists())
              QDir().mkdir(outputDbPath);
 
