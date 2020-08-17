@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     myProject.logger.writeInfo("computation date: " + dateComputationStr);
 
 
-    if (operation == "PECOMPUTE_DTX")
+    if (operation == "PRECOMPUTE_DTX")
     {
         myResult = myProject.precomputeDtx();
     }
