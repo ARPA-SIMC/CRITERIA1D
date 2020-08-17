@@ -37,6 +37,6 @@ Graphs are produced using the Qwt plot library (http://qwt.sourceforge.net) whic
 
 ## License
 CRITERIA-1D has been developed under contract issued by 
-ARPAE Hydro-Meteo-Climate Service, Emilia-Romagna, Italy: http://www.arpae.it/sim/
+[ARPAE Hydro-Meteo-Climate Service](https://github.com/ARPA-SIMC), Emilia-Romagna, Italy
 
 The executables (*CRITERIA1D, CRITERIAGEO, TEST_EDITOR, SOIL_EDITOR, HEAT1D*) are released under the GNU GPL license, libreries (*agrolib*) are released under the GNU LGPL license.
