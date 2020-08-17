@@ -10,7 +10,7 @@
 
 void usage()
 {
-    std::cout << "\n" << "Usage: criteriaOutput.exe CSV|SHAPEFILE|AGGREGATION project.ini [date]\n";
+    std::cout << "\n" << "Usage: criteriaOutput.exe PRECOMPUTE_DTX|CSV|SHAPEFILE|AGGREGATION project.ini [date]\n";
 }
 
 
@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
         #ifdef TEST
                 if (! searchDataPath(&myProject.dataPath)) return -1;
 
-                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/nitrati.ini";
+                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/bollAgro_cut.ini";
                 //dateComputationStr = "2020-08-13";
                 dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-                operation = "AGGREGATION";
+                operation = "PRECOMPUTE_DTX";
         #else
                 usage();
                 return 1;
@@ -40,7 +40,8 @@ int main(int argc, char *argv[])
     {
         operation = argv[1];
         operation = operation.toUpper();
-        if (operation != "CSV" && operation != "SHAPEFILE" && operation != "AGGREGATION")
+        if (operation != "PRECOMPUTE_DTX" && operation != "CSV"
+            && operation != "SHAPEFILE" && operation != "AGGREGATION")
         {
             myProject.logger.writeError("Wrong parameter: " + operation);
             usage();
@@ -82,20 +83,24 @@ int main(int argc, char *argv[])
         myProject.logger.writeError(myProject.projectError);
         return myResult;
     }
-
     myProject.logger.writeInfo("computation date: " + dateComputationStr);
 
-    if (operation == "AGGREGATION")
+
+    if (operation == "PECOMPUTE_DTX")
     {
-        myResult = myProject.createAggregationFile();
+        myResult = myProject.precomputeDtx();
+    }
+    else if (operation == "CSV")
+    {
+        myResult = myProject.createCsvFile();
     }
     else if (operation == "SHAPEFILE")
     {
         myResult = myProject.createShapeFile();
     }
-    else if (operation == "CSV")
+    else if (operation == "AGGREGATION")
     {
-        myResult = myProject.createCsvFile();
+        myResult = myProject.createAggregationFile();
     }
 
     if (myResult != CRIT3D_OK)
