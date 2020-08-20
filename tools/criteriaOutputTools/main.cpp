@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
         #ifdef TEST
                 if (! searchDataPath(&myProject.dataPath)) return -1;
 
-                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/nitrati.ini";
+                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/bollAgro_cut.ini";
                 dateComputationStr = "2020-08-13";
                 //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-                operation = "CSV";
+                operation = "PRECOMPUTE_DTX";
         #else
                 usage();
                 return 1;
