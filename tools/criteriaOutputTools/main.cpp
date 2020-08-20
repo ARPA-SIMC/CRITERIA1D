@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
         #ifdef TEST
                 if (! searchDataPath(&myProject.dataPath)) return -1;
 
-                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/bollAgro_cut.ini";
+                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/nitrati.ini";
                 dateComputationStr = "2020-08-13";
                 //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
                 operation = "CSV";
@@ -101,6 +101,12 @@ int main(int argc, char *argv[])
     else if (operation == "AGGREGATION")
     {
         myResult = myProject.createAggregationFile();
+    }
+    else
+    {
+        myProject.logger.writeError("Wrong operation: " + operation);
+        usage();
+        return 1;
     }
 
     if (myResult != CRIT3D_OK)
