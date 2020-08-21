@@ -117,7 +117,7 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler *shape, QString f
 
     if (field == "Shape ID")
     {
-        fillRasterWithShapeNumber(newRaster, shape, showInfo);
+        fillRasterWithShapeNumber(newRaster, shape);
     }
     else
     {
@@ -140,7 +140,7 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
 
     if (isPrevailing)
     {
-        if (computeUcmPrevailing(ucm, crop, soil, meteo, idCrop, idSoil, idMeteo, cellSize, ucmFileName, &errorStr, showInfo))
+        if (computeUcmPrevailing(*ucm, *crop, *soil, *meteo, idCrop, idSoil, idMeteo, cellSize, ucmFileName, errorStr, showInfo))
         {
             addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), ucm->getUtmZone());
             return true;
