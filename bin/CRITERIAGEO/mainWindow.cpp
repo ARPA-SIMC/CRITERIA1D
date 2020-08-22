@@ -30,7 +30,6 @@
 #include "dialogUcmPrevailing.h"
 #include "dialogUcmIntersection.h"
 #include "dbfTableDialog.h"
-#include "ucmUtilities.h"
 #include "commonConstants.h"
 
 #ifdef GDAL
@@ -725,28 +724,27 @@ void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
     }
     else
     {
-
         int pos = ui->checkList->row(itemSelected);
-        QString fileCsv = QFileDialog::getOpenFileName(this, tr("Open CSV Data file"), "", tr("CSV files (*.csv)"));
+        QString fileCsv = QFileDialog::getOpenFileName(this, tr("Open CSV data file"), "", tr("CSV files (*.csv)"));
 
         if (fileCsv == "")
         {
-            QMessageBox::information(nullptr, "Select CSV Data to read", "missing CSV Data");
+            QMessageBox::information(nullptr, "Select CSV data to read", "missing CSV data");
             return;
         }
 
-        QString fileCsvRef = QFileDialog::getOpenFileName(this, tr("Open CSV output format"), "", tr("CSV files (*.csv)"));
+        QString fileCsvRef = QFileDialog::getOpenFileName(this, tr("Open output format"), "", tr("CSV files (*.csv)"));
 
         if (fileCsvRef == "")
         {
-            QMessageBox::information(nullptr, "Select CSV output format", "missing CSV file");
+            QMessageBox::information(nullptr, "Select output format", "missing CSV file");
             return;
         }
 
-        QString outputName = QFileDialog::getSaveFileName(this, tr("Save Shapefile"), "", tr("shp files (*.shp)"));
+        QString outputName = QFileDialog::getSaveFileName(this, tr("Save Shapefile as"), "", tr("shp files (*.shp)"));
         if (outputName == "")
         {
-            QMessageBox::information(nullptr, "Insert output name", "missing shape name");
+            QMessageBox::information(nullptr, "Insert output name", "missing shapefile name");
             return;
         }
 

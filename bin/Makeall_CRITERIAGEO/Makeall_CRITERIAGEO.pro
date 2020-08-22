@@ -2,6 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS =       ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
                 ../../agrolib/shapeHandler ../../agrolib/gdalHandler ../../agrolib/shapeUtilities \
-                ../CRITERIAGEO
+                ../../agrolib/utilities ../CRITERIAGEO
 
 CONFIG += ordered
