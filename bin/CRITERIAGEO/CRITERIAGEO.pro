@@ -53,12 +53,14 @@ GDAL {
 
 CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
+    LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/gis/debug -lgis
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
 } else {
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
+    LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/gis/release -lgis
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
