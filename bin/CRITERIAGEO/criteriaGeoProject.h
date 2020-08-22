@@ -31,7 +31,7 @@
 
         void getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo);
 
-        bool createShapeFromCsv(int pos, QString fileCsv, QString fileCsvRef, QString outputName);
+        bool createShapeFromCsv(int pos, QString fileCsv, QString fileCsvRef, QString outputFileName);
 
         bool extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bool showInfo);
 

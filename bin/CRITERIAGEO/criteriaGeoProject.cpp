@@ -237,7 +237,7 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
 }
 
 
-bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fileCsvRef, QString outputName)
+bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fileCsvRef, QString outputFileName)
 {
     Crit3DShapeHandler* shapeHandler = (objectList.at(unsigned(pos)))->getShapeHandler();
     QString errorStr;
@@ -257,16 +257,17 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
         return false;
     }
 
-    Crit3DShapeHandler outputShape;
-    if (shapeFromCsv(*shapeHandler, outputShape, fileCsv, fileCsvRef, outputName, errorStr))
-    {
-        return true;
-    }
-    else
-    {
+    FormInfo formInfo;
+    formInfo.start("Create shapefile...", 0);
+
+    bool isOk = shapeFromCsv(*shapeHandler, fileCsv, fileCsvRef, outputFileName, errorStr);
+
+    formInfo.close();
+
+    if (!isOk)
         logError(errorStr);
-        return false;
-    }
+
+    return isOk;
 }
 
 
