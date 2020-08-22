@@ -615,7 +615,7 @@ void MainWindow::on_actionRasterize_shape_triggered()
         DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, true, true);
         if (numericField.result() == QDialog::Accepted)
         {
-            myProject.getRasterFromShape(myObject->getShapeHandler(), numericField.getFieldSelected(),
+            myProject.getRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(),
                                          numericField.getOutputName(), numericField.getCellSize(), true);
             addRasterObject(myProject.objectList.back());
             this->updateMaps();

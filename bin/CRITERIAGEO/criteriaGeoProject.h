@@ -29,7 +29,7 @@
         void addRaster(gis::Crit3DRasterGrid *myRaster, QString fileName, int utmZone);
         void addShapeFile(Crit3DShapeHandler *myShape, QString fileName, int utmZone);
 
-        void getRasterFromShape(Crit3DShapeHandler *shape, QString field, QString outputName, double cellSize, bool showInfo);
+        void getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo);
 
         bool createShapeFromCsv(int pos, QString fileCsv, QString fileCsvRef, QString outputName);
 

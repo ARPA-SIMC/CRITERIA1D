@@ -110,10 +110,16 @@ bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath)
 }
 
 
-void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler *shape, QString field, QString outputName, double cellSize, bool showInfo)
+void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo)
 {
-    gis::Crit3DRasterGrid *newRaster = new(gis::Crit3DRasterGrid);
+    gis::Crit3DRasterGrid newRaster;
     initializeRasterFromShape(shape, newRaster, cellSize);
+
+    FormInfo formInfo;
+    if (showInfo)
+    {
+        formInfo.start("Create raster...", 0);
+    }
 
     if (field == "Shape ID")
     {
@@ -121,12 +127,18 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler *shape, QString f
     }
     else
     {
-        fillRasterWithField(newRaster, shape, field.toStdString(), showInfo);
+        fillRasterWithField(newRaster, shape, field.toStdString());
     }
 
-    gis::updateMinMaxRasterGrid(newRaster);
-    setTemperatureScale(newRaster->colorScale);
-    addRaster(newRaster, outputName, shape->getUtmZone());
+    gis::updateMinMaxRasterGrid(&newRaster);
+    setTemperatureScale(newRaster.colorScale);
+
+    if (showInfo) formInfo.setText("Add raster to map...");
+
+    addRaster(&newRaster, outputName, shape.getUtmZone());
+
+    if (showInfo) formInfo.close();
+
 }
 
 
@@ -213,7 +225,7 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
     FormInfo formInfo;
     if (showInfo) formInfo.start("Extract UCM list in " + dbName, 0);
 
-    bool result = writeUcmListToDb(shapeHandler, dbName, &errorStr);
+    bool result = writeUcmListToDb(*shapeHandler, dbName, errorStr);
 
     if (showInfo) formInfo.close();
 
@@ -244,7 +256,7 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
     }
 
     Crit3DShapeHandler outputShape;
-    if (shapeFromCsv(shapeHandler, &outputShape, fileCsv, fileCsvRef, outputName, errorStr))
+    if (shapeFromCsv(*shapeHandler, outputShape, fileCsv, fileCsvRef, outputName, errorStr))
     {
         return true;
     }
