@@ -6,13 +6,11 @@ CRITERIA-GEO is a GIS interface for managing geographical input/output of the mo
 CROP_EDITOR and SOIL_EDITOR are tools to manage and test the crop and soil parameters of the model.
 
 ## CROP_EDITOR
-#### bin/Makeall_CROP_EDITOR
 Crop editor is a tool to manage the crop parameters, test the model and show the main output (Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs). 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
 
 ## SOIL_EDITOR
-#### bin/Makeall_SOIL_EDITOR
 Soil editor is a tool to edit the soil properties. It uses a modified Van Genuchten - Mualem model to estimate the water retention and hydraulic conductivity curves. 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
