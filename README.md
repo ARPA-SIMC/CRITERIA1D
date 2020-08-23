@@ -5,17 +5,6 @@ CRITERIA-GEO is a GIS interface for managing geographical input/output of the mo
 
 CROP_EDITOR and SOIL_EDITOR are tools to manage and test the crop and soil parameters of the model.
 
-## How to compile CRITERIA-1D
-Dependencies:
-- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
-
-Build:
-- Linux: run deploy/CRITERIA1D_build_Linux.sh
-- Windows (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
-- Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat
-
-The distribution will be created in deploy/CRITERIA1D
-
 ## CROP_EDITOR
 #### bin/Makeall_CROP_EDITOR
 Crop editor is a tool to manage the crop parameters, test the model and show the main output (Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs). 
@@ -33,6 +22,16 @@ Soil editor is a tool to edit the soil properties. It uses a modified Van Genuch
 HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D domain. Users can set fixed or variable atmospheric boundary conditions and soil parameters. Output graph results include soil temperature, soil water content, heat fluxes (diffusive and latent), liquid (isothermal and thermal) and vapor (isothermal and thermal) water fluxes.  
 Graphs are produced using the Qwt plot library (http://qwt.sourceforge.net) which should be compiled before usage.
 
+## How to compile the CRITERIA-1D distribution
+Dependencies:
+- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
+
+Build:
+- Linux: run deploy/CRITERIA1D_build_Linux.sh
+- Windows (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
+- Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat
+
+The distribution will be created in deploy/CRITERIA1D
 
 
 ## License
