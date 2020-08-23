@@ -1,5 +1,5 @@
 # CRITERIA-1D/GEO
-CRITERIA-1D (console application) is a soil water balance model simulating one-dimensional water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different level of detail. It requires as input daily meteorological data (temperature and precipitation) and daily data of watertable depth to estimate the capillary rise.
+CRITERIA-1D is a soil water balance model simulating one-dimensional water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different level of detail. It requires as input daily meteorological data (temperature and precipitation) and daily data of watertable depth to estimate the capillary rise.
 
 CRITERIA-GEO is a GIS interface for managing geographical input/output of the model: crop map, soil map, meteorological grid and computation units map. A computation unit is defined as a different combination of crop, soil and meteo data. 
 
