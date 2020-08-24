@@ -27,7 +27,9 @@ int main(int argc, char *argv[])
         #ifdef TEST
                 if (! searchDataPath(&myProject.dataPath)) return -1;
 
-                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/nitrati.ini";
+                //settingsFileName = myProject.dataPath + "PROJECT/INCOLTO_new/bollAgro.ini";
+                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO_new/nitrati.ini";
+                //settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/bollAgro_cut.ini";
                 dateComputationStr = "2020-08-13";
                 //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
                 operation = "AGGREGATION";
