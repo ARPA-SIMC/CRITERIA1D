@@ -1,30 +1,17 @@
 # CRITERIA-1D/GEO
-CRITERIA-1D (console application) is a one-dimensional model simulating the soil water balance and the crop development.
+CRITERIA-1D is a soil water balance model simulating one-dimensional water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different level of detail. It requires as input daily meteorological data (temperature and precipitation) and daily data of watertable depth to estimate the capillary rise.
 
-CRITERIA-GEO is a GIS interface for managing CRITERIA-1D geographical input/output: crop map, soil map, meteorological grid and simulation units.
+CRITERIA-GEO is a GIS interface for managing geographical input/output of the model: crop map, soil map, meteorological grid and computation units map. A computation unit is defined as a different combination of crop, soil and meteo data. 
 
-CROP_EDITOR and SOIL_EDITOR are tools to manage the model crop parameters and soil properties.
-
-## How to compile CRITERIA-1D
-Dependencies:
-- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
-
-Build:
-- Windows (MS Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
-- Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat
-- Linux: run deploy/CRITERIA1D_build_Linux.sh
-
-Distribution will be created in deploy/CRITERIA1D
+CROP_EDITOR and SOIL_EDITOR are tools to manage and test the crop and soil parameters of the model.
 
 ## CROP_EDITOR
-#### bin/Makeall_CROP_EDITOR
-Crop editor is a tool to manage the crop parameters, try the model and show the main output (Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs). 
+Crop editor is a tool to manage the crop parameters, test the model and show the main output (Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs). 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
 
 ## SOIL_EDITOR
-#### bin/Makeall_SOIL_EDITOR
-Soil editor is a tool to show/edit soil properties, including water retention and hydrologic conductivity curves, using modified Van Genuchten - Mualem model.
+Soil editor is a tool to edit the soil properties. It uses a modified Van Genuchten - Mualem model to estimate the water retention and hydraulic conductivity curves. 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
 
@@ -33,6 +20,16 @@ Soil editor is a tool to show/edit soil properties, including water retention an
 HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D domain. Users can set fixed or variable atmospheric boundary conditions and soil parameters. Output graph results include soil temperature, soil water content, heat fluxes (diffusive and latent), liquid (isothermal and thermal) and vapor (isothermal and thermal) water fluxes.  
 Graphs are produced using the Qwt plot library (http://qwt.sourceforge.net) which should be compiled before usage.
 
+## How to compile the CRITERIA-1D distribution
+Dependencies:
+- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
+
+Build:
+- Linux: run deploy/CRITERIA1D_build_Linux.sh
+- Windows (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
+- Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat
+
+The distribution will be created in deploy/CRITERIA1D
 
 
 ## License
