@@ -5,6 +5,7 @@
 #include "criteria1DProject.h"
 #include "commonConstants.h"
 #include "utilities.h"
+#include <iostream>
 
 //#define TEST_HISTORICAL
 //#define TEST_TODAY
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
                 #if defined(TEST_TODAY) || defined(TEST_PAST)
                     settingsFileName = path + "PROJECT/INCOLTO/Incolto_xml.ini";
                 #else
-                    myProject.logger.writeInfo("USAGE: CRITERIA1D project.ini [date]\n");
+                    std::cout << "USAGE: CRITERIA1D project.ini [date]\n";
                     return ERROR_SETTINGS_MISSING;
                 #endif
             #endif

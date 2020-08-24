@@ -10,7 +10,7 @@
 
 void usage()
 {
-    std::cout << "\n" << "Usage: criteriaOutput.exe PRECOMPUTE_DTX|CSV|SHAPEFILE|AGGREGATION project.ini [date]\n";
+    std::cout << "\n" << "USAGE: criteriaOutput.exe PRECOMPUTE_DTX|CSV|SHAPEFILE|AGGREGATION project.ini [date]\n";
 }
 
 
