@@ -31,11 +31,10 @@ int main(int argc, char *argv[])
             settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_sqlite.ini";
         #else
             #ifdef TEST_HISTORICAL
-                settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_historical_xml.ini";
-                //settingsFileName = path + "PROJECT/INCOLTO/Incolto_historical_xml.ini";
+                settingsFileName = path + "PROJECT/INCOLTO/Incolto_historical_xml.ini";
             #else
                 #if defined(TEST_TODAY) || defined(TEST_PAST)
-                    settingsFileName = path + "PROJECT/INCOLTO/Incolto_cut_xml.ini";
+                    settingsFileName = path + "PROJECT/INCOLTO/Incolto_xml.ini";
                 #else
                     myProject.logger.writeInfo("USAGE: CRITERIA1D project.ini [date]\n");
                     return ERROR_SETTINGS_MISSING;
@@ -88,7 +87,7 @@ int main(int argc, char *argv[])
         myProject.logger.writeError(myProject.projectError);
         return ERROR_READ_UNITS;
     }
-    myProject.logger.writeInfo("Query result: " + QString::number(myProject.unitList.size()) + " distinct computation units.\n");
+    myProject.logger.writeInfo("Query result: " + QString::number(myProject.unitList.size()) + " distinct computation units.");
 
     // initialize output (seasonal forecast)
     if (myProject.criteriaSimulation.isSeasonalForecast)
@@ -97,8 +96,11 @@ int main(int argc, char *argv[])
             return ERROR_DBOUTPUT;
     }
 
-    // COMPUTE
+    // Computation
+    myProject.logger.writeInfo("Computation...");
+
     myResult = myProject.compute();
+
     myProject.logger.writeInfo("END");
 
     return myResult;
