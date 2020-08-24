@@ -9,7 +9,7 @@
 
 //#define TEST_HISTORICAL
 //#define TEST_TODAY
-//#define TEST_PAST
+#define TEST_PAST
 //#define TEST_SQLITE
 
 
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
                 settingsFileName = path + "PROJECT/INCOLTO/Incolto_historical_xml.ini";
             #else
                 #if defined(TEST_TODAY) || defined(TEST_PAST)
-                    settingsFileName = path + "PROJECT/INCOLTO/Incolto_xml.ini";
+                    settingsFileName = path + "PROJECT/INCOLTO/Incolto.ini";
                 #else
                     std::cout << "USAGE: CRITERIA1D project.ini [date]\n";
                     return ERROR_SETTINGS_MISSING;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
             dateOfForecast = "2020-01-01";
         #else
             #ifdef TEST_PAST
-                dateOfForecast = "2020-07-01";
+                dateOfForecast = "2020-08-13";
             #else
                 dateOfForecast = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
             #endif
