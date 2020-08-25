@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
             settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
         #else
             #ifdef TEST_HISTORICAL
-                settingsFileName = path + "PROJECT/INCOLTO/Incolto_historical_xml.ini";
+                settingsFileName = path + "PROJECT/INCOLTO/Incolto_storico.ini";
             #else
                 #if defined(TEST_TODAY) || defined(TEST_PAST)
                     settingsFileName = path + "PROJECT/INCOLTO/Incolto.ini";
