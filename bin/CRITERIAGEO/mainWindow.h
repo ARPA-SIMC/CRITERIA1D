@@ -90,6 +90,7 @@
         void removeRaster(GisObject* myObject);
         void removeShape(GisObject* myObject);
         void setShapeStyle(GisObject* myObject);
+        void exportToGeotiff(GisObject* myObject);
 
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
         RasterObject* getRasterObject(GisObject* myObject);
