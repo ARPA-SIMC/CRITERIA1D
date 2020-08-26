@@ -491,7 +491,9 @@ void MainWindow::exportToGeoTIFF(GisObject* myObject)
     {
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
         DBFFieldType fieldType = myObject->getShapeHandler()->getFieldType(fieldName);
-        // TO DO
+        std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
+        int result = myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName);
+
     }
 }
 
