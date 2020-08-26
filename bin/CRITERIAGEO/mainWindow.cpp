@@ -484,7 +484,7 @@ void MainWindow::setShapeStyle(GisObject* myObject)
     }
 }
 
-void MainWindow::exportToGeotiff(GisObject* myObject)
+void MainWindow::exportToGeoTIFF(GisObject* myObject)
 {
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, false);
     if (shapeFieldDialog.result() == QDialog::Accepted)
@@ -514,7 +514,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         submenu.addAction("Attribute table");
         submenu.addSeparator();
         submenu.addAction("Set style");
-        submenu.addAction("Export to geotiff");
+        submenu.addAction("Export to GeoTIFF");
     }
     else if (myObject->type == gisObjectRaster)
     {
@@ -563,9 +563,9 @@ void MainWindow::itemMenuRequested(const QPoint point)
         {
             setShapeStyle(myObject);
         }
-        else if (rightClickItem->text().contains("Export to geotiff"))
+        else if (rightClickItem->text().contains("Export to GeoTIFF"))
         {
-            exportToGeotiff(myObject);
+            exportToGeoTIFF(myObject);
         }
         else if (rightClickItem->text().contains("Save as"))
         {
