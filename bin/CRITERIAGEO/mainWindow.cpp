@@ -484,17 +484,21 @@ void MainWindow::setShapeStyle(GisObject* myObject)
     }
 }
 
-void MainWindow::exportToGeoTIFF(GisObject* myObject)
+bool MainWindow::exportToGeoTIFF(GisObject* myObject)
 {
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, false);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
-        DBFFieldType fieldType = myObject->getShapeHandler()->getFieldType(fieldName);
         std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
-        int result = myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName);
-
+        if (!myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName))
+        {
+            QMessageBox::critical(nullptr, "ERROR!", "GDAL Error");
+            return false;
+        }
+        return true;
     }
+    return true;
 }
 
 
