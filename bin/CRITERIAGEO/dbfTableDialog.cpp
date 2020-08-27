@@ -23,6 +23,7 @@ DbfTableDialog::DbfTableDialog(Crit3DShapeHandler* shapeHandler, QString fileNam
     addCol = editMenu->addAction(tr("Insert column"));
     deleteCol = editMenu->addAction(tr("Delete column"));
     editMenu->addSeparator();
+    copy = editMenu->addAction(tr("Copy all"));
     save = editMenu->addAction(tr("Save changes"));
     menuBar->addMenu(editMenu);
 
@@ -96,6 +97,7 @@ DbfTableDialog::DbfTableDialog(Crit3DShapeHandler* shapeHandler, QString fileNam
     connect(deleteRow, &QAction::triggered, [=](){ this->removeRowClicked(); });
     connect(addCol, &QAction::triggered, [=](){ this->addColClicked(); });
     connect(deleteCol, &QAction::triggered, [=](){ this->removeColClicked(); });
+    connect(copy, &QAction::triggered, [=](){ this->copyAllClicked(); });
     connect(save, &QAction::triggered, [=](){ this->saveChangesClicked(); });
 
     connect(m_DBFTableWidget->horizontalHeader(), &QHeaderView::sectionClicked, [=](int index){ this->horizontalHeaderClick(index); });
@@ -307,6 +309,10 @@ void DbfTableDialog::closeEvent(QCloseEvent *event)
     QDialog::closeEvent(event);
 }
 
+void DbfTableDialog::copyAllClicked()
+{
+    // TO DO
+}
 
 void DbfTableDialog::saveChangesClicked()
 {

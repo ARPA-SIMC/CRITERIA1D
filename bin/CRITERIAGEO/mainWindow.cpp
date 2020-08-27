@@ -484,6 +484,23 @@ void MainWindow::setShapeStyle(GisObject* myObject)
     }
 }
 
+bool MainWindow::exportToGeoTIFF(GisObject* myObject)
+{
+    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, false);
+    if (shapeFieldDialog.result() == QDialog::Accepted)
+    {
+        std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
+        std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
+        if (!myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName))
+        {
+            QMessageBox::critical(nullptr, "ERROR!", "GDAL Error");
+            return false;
+        }
+        return true;
+    }
+    return true;
+}
+
 
 void MainWindow::itemMenuRequested(const QPoint point)
 {
@@ -503,6 +520,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         submenu.addAction("Attribute table");
         submenu.addSeparator();
         submenu.addAction("Set style");
+        submenu.addAction("Export to GeoTIFF");
     }
     else if (myObject->type == gisObjectRaster)
     {
@@ -550,6 +568,10 @@ void MainWindow::itemMenuRequested(const QPoint point)
         else if (rightClickItem->text().contains("Set style"))
         {
             setShapeStyle(myObject);
+        }
+        else if (rightClickItem->text().contains("Export to GeoTIFF"))
+        {
+            exportToGeoTIFF(myObject);
         }
         else if (rightClickItem->text().contains("Save as"))
         {

@@ -25,6 +25,7 @@ class DbfTableDialog : public QDialog
     QAction *deleteRow;
     QAction *addCol;
     QAction *deleteCol;
+    QAction *copy;
     QAction *save;
     QStringList labels;
     QStringList m_DBFTableHeader;
@@ -38,6 +39,7 @@ class DbfTableDialog : public QDialog
         void removeColClicked();
         void cellChanged(int row, int column);
         void closeEvent(QCloseEvent *);
+        void copyAllClicked();
         void saveChangesClicked();
         void horizontalHeaderClick(int index);
         void verticalHeaderClick(int index);

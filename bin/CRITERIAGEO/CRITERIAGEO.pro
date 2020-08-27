@@ -42,13 +42,12 @@ GDAL {
     DEFINES += GDAL
     INCLUDEPATH += ../../agrolib/gdalHandler
 
-    include(../../agrolib/gdal.pri)
-
     CONFIG(debug, debug|release) {
         LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
     } else {
         LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
     }
+    include(../../agrolib/gdal.pri)
 }
 
 CONFIG(debug, debug|release) {

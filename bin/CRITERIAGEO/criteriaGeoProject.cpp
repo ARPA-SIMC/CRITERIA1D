@@ -270,6 +270,14 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
     return isOk;
 }
 
+bool CriteriaGeoProject::createGeoTIFF(QString shapeFileName, std::string shapeField)
+{
+    std::string errorStr;
+    QString geoTIFFName = shapeFileName;
+    geoTIFFName.replace("shp","tiff");
+    return shapeToGeoTIFF(shapeFileName, shapeField, geoTIFFName, &errorStr);
+}
+
 
 //--------------------------------------------------------------
 // LOG
