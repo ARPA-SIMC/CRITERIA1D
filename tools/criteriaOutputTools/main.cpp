@@ -6,7 +6,7 @@
 #include "utilities.h"
 #include <iostream>
 
-//#define TEST
+#define TEST
 
 void usage()
 {
@@ -28,10 +28,10 @@ int main(int argc, char *argv[])
             QString dataPath;
             if (! searchDataPath(&dataPath)) return -1;
 
-            settingsFileName = dataPath + "PROJECT/INCOLTO/nitrati.ini";
-            dateComputationStr = "2020-08-13";
-            //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-            operation = "AGGREGATION";
+            settingsFileName = dataPath + "PROJECT/INCOLTO/bollAgro.ini";
+            //dateComputationStr = "2020-08-13";
+            dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
+            operation = "SHAPEFILE";
         #else
             usage();
             return 1;
@@ -85,7 +85,6 @@ int main(int argc, char *argv[])
         return myResult;
     }
     myProject.logger.writeInfo("computation date: " + dateComputationStr);
-
 
     if (operation == "PRECOMPUTE_DTX")
     {

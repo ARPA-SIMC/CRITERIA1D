@@ -1,5 +1,4 @@
 #include <QCoreApplication>
-#include <QDir>
 #include <QDateTime>
 
 #include "criteria1DProject.h"
@@ -20,7 +19,7 @@ int main(int argc, char *argv[])
     Criteria1DProject myProject;
 
     QString appPath = myApp.applicationDirPath() + "/";
-    QString settingsFileName, dateOfForecast;
+    QString settingsFileName, computationDateStr;
 
     if (argc > 1)
         settingsFileName = argv[1];
@@ -46,26 +45,26 @@ int main(int argc, char *argv[])
 
     if (argc > 2)
     {
-        dateOfForecast = argv[2];
+        computationDateStr = argv[2];
     }
     else
     {
         #ifdef TEST_HISTORICAL
-            dateOfForecast = "2020-01-01";
+            computationDateStr = "2020-01-01";
         #else
             #ifdef TEST_PAST
-                dateOfForecast = "2020-08-13";
+                computationDateStr = "2020-08-13";
             #else
-                dateOfForecast = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
+                computationDateStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
             #endif
         #endif
     }
 
     // check date
-    QDate forecastDate = QDate::fromString(dateOfForecast, "yyyy-MM-dd");
-    if (! forecastDate.isValid())
+    QDate computationDate = QDate::fromString(computationDateStr, "yyyy-MM-dd");
+    if (! computationDate.isValid())
     {
-        myProject.logger.writeError("Wrong date format: " + dateOfForecast +"\nRequested format is: YYYY-MM-DD");
+        myProject.logger.writeError("Wrong date format: " + computationDateStr +"\nRequested format is: YYYY-MM-DD");
         return ERROR_WRONGDATE;
     }
 
@@ -79,8 +78,11 @@ int main(int argc, char *argv[])
         myProject.logger.writeError(myProject.projectError);
         return myResult;
     }
+
+    myProject.logger.writeInfo("Computation date: " + computationDateStr);
+
     // date of last observed data: yesterday
-    myProject.criteriaSimulation.lastObservedDate = forecastDate.addDays(-1);
+    myProject.criteriaSimulation.lastObservedDate = computationDate.addDays(-1);
 
     // computation unit list
     if (! loadUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))

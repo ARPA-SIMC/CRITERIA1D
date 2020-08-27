@@ -6,7 +6,7 @@ DEFICIT_25,DEFICIT_25,FLOAT,6,1
 DT30,DT30,FLOAT,6,1
 DT90,DT90,FLOAT,6,1
 DT180,DT180,FLOAT,6,1
-AW_per,AW_percentile,FLOAT,6,1
-DT30_per,DT30_percentile,FLOAT,6,1
-DT90_per,DT90_percentile,FLOAT,6,1
-DT180_per,DT180_percentile,FLOAT,6,1
+AW_per,AW_percentile,FLOAT,8,1
+DT30_per,DT30_percentile,FLOAT,8,1
+DT90_per,DT90_percentile,FLOAT,8,1
+DT180_per,DT180_percentile,FLOAT,8,1
