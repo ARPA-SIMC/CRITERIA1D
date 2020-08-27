@@ -25,15 +25,16 @@ int main(int argc, char *argv[])
     if (argc <= 2)
     {
         #ifdef TEST
-                if (! searchDataPath(&myProject.dataPath)) return -1;
+            QString dataPath;
+            if (! searchDataPath(&dataPath)) return -1;
 
-                settingsFileName = myProject.dataPath + "PROJECT/INCOLTO/nitrati.ini";
-                dateComputationStr = "2020-08-13";
-                //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-                operation = "AGGREGATION";
+            settingsFileName = dataPath + "PROJECT/INCOLTO/nitrati.ini";
+            dateComputationStr = "2020-08-13";
+            //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
+            operation = "AGGREGATION";
         #else
-                usage();
-                return 1;
+            usage();
+            return 1;
         #endif
     }
     else
