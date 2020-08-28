@@ -65,12 +65,12 @@ void CriteriaGeoProject::addShapeFile(Crit3DShapeHandler *myShape, QString fileN
 
 bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
 {
-    gis::Crit3DRasterGrid *myRaster = new(gis::Crit3DRasterGrid);
+    gis::Crit3DRasterGrid* myRaster = new(gis::Crit3DRasterGrid);
     int utmZone = this->gisSettings.utmZone;
 
 #ifdef GDAL
     QString errorStr;
-    if (! readGdalRaster(fileNameWithPath, myRaster, &utmZone, &errorStr))
+    if (! readGdalRaster(fileNameWithPath, myRaster, utmZone, errorStr))
     {
         logError(errorStr);
         return false;
@@ -85,7 +85,7 @@ bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
 
      if (!gis::readEsriGrid(fileName, myRaster, &errorStr))
      {
-         logError("WrongrRaster file:\n" + errorStr);
+         logError("Wrong raster file: " + errorStr);
          return false;
      }
 #endif
@@ -270,12 +270,15 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
     return isOk;
 }
 
+
 bool CriteriaGeoProject::createGeoTIFF(QString shapeFileName, std::string shapeField)
 {
     std::string errorStr;
     QString geoTIFFName = shapeFileName;
     geoTIFFName.replace("shp","tiff");
+#ifdef GDAL
     return shapeToGeoTIFF(shapeFileName, shapeField, geoTIFFName, &errorStr);
+#endif
 }
 
 

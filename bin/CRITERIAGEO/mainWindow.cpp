@@ -54,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    isDoubleClick = false;
+
     // Set the MapGraphics Scene and View
     this->mapScene = new MapGraphicsScene(this);
     this->mapView = new MapGraphicsView(mapScene, this->ui->widgetMap);
@@ -116,12 +118,24 @@ void MainWindow::updateMaps()
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
-    this->updateMaps();
+
+    if (! this->isDoubleClick)
+    {
+        if (event->button() == Qt::LeftButton)
+        {
+            this->ui->statusBar->showMessage("RELEASE");
+            // TODO select shape
+        }
+    }
+
+    this->isDoubleClick = false;
 }
 
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 {
+    this->isDoubleClick = true;
+
     QPoint mapPos = getMapPos(event->pos());
     if (! isInsideMap(mapPos)) return;
 
@@ -130,7 +144,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 
     if (event->button() == Qt::LeftButton)
         this->mapView->zoomIn();
-    else
+    else if (event->button() == Qt::RightButton)
         this->mapView->zoomOut();
 
     this->mapView->centerOn(newCenter.lonLat());
@@ -146,13 +160,10 @@ void MainWindow::mouseMove(const QPoint& eventPos)
 }
 
 
-
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton)
-    {
-        // TODO
-    }
+    Q_UNUSED(event)
+    // it doesn't work (control taken by mapGraphics)
 }
 
 void MainWindow::on_actionMapOpenStreetMap_triggered()
@@ -314,9 +325,9 @@ void MainWindow::on_actionLoadRaster_triggered()
     #ifdef GDAL
         QStringList rasterFormats = getGdalRasterReadExtension();
 
-        //rasterFormats.sort();
-        //rasterFormats.insert(0, tr("ESRI float (*.flt)"));
-        rasterFormats.insert(0, tr("all files (*.*)"));
+        rasterFormats.sort();
+        rasterFormats.insert(0, tr("ESRI float (*.flt)"));
+        //rasterFormats.insert(0, tr("all files (*.*)"));
 
         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "", rasterFormats.join(";;"));
     #else

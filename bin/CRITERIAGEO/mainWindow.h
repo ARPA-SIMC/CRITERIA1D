@@ -74,6 +74,8 @@
     private:
         Ui::MainWindow* ui;
 
+        bool isDoubleClick;
+
         Position* startCenter;
         MapGraphicsScene* mapScene;
         MapGraphicsView* mapView;
