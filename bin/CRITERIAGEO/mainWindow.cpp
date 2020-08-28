@@ -123,8 +123,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     {
         if (event->button() == Qt::LeftButton)
         {
-            this->ui->statusBar->showMessage("RELEASE");
-            // TODO select shape
+            QString selShape = checkSelectedShape();
+            this->ui->statusBar->showMessage(selShape);
         }
     }
 
@@ -625,6 +625,23 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
     }
     return;
+}
+
+
+QString MainWindow::checkSelectedShape()
+{
+    QListWidgetItem * itemSelected = ui->checkList->currentItem();
+
+    // no shapefile selected -> exit
+    if (itemSelected == nullptr)
+        return "";
+    if (! itemSelected->text().contains("SHAPE"))
+        return"";
+
+    int pos = ui->checkList->row(itemSelected);
+    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+
+    return myObject->fileName;
 }
 
 

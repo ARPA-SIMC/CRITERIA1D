@@ -92,6 +92,7 @@
         void removeRaster(GisObject* myObject);
         void removeShape(GisObject* myObject);
         void setShapeStyle(GisObject* myObject);
+        QString checkSelectedShape();
         bool exportToGeoTIFF(GisObject* myObject);
 
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
