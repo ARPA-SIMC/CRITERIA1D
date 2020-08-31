@@ -505,7 +505,15 @@ bool MainWindow::exportToGeoTIFF(GisObject* myObject)
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
         std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
         QString outputName = shapeFieldDialog.getOutputName();
-        QString res = QString::number(shapeFieldDialog.getCellSize());
+        QString res;
+        if (shapeFieldDialog.getCellSize() == 0)
+        {
+            res = "200";  // default resolution value
+        }
+        else
+        {
+            res = QString::number(shapeFieldDialog.getCellSize());
+        }
         if (!myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName, res, outputName, true))
         {
             QMessageBox::critical(nullptr, "ERROR!", "GDAL Error");
