@@ -281,7 +281,8 @@ bool CriteriaGeoProject::createGeoTIFF(QString shapeFileName, std::string shapeF
     {
         FormInfo formInfo;
         if (showInfo) formInfo.setText("Add GTiff to map...");
-        //addRaster(newRaster, outputName, shape.getUtmZone());
+        if (!loadRaster(geoTIFFName))
+            return false;
         if (showInfo) formInfo.close();
         return true;
      }

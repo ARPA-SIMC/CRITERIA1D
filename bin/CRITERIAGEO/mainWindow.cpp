@@ -519,8 +519,8 @@ bool MainWindow::exportToGeoTIFF(GisObject* myObject)
             QMessageBox::critical(nullptr, "ERROR!", "GDAL Error");
             return false;
         }
-        //addRasterObject(myProject.objectList.back());
-        //this->updateMaps();
+        addRasterObject(myProject.objectList.back());
+        this->updateMaps();
         return true;
     }
     return true;
