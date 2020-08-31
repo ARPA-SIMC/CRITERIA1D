@@ -497,16 +497,20 @@ void MainWindow::setShapeStyle(GisObject* myObject)
 
 bool MainWindow::exportToGeoTIFF(GisObject* myObject)
 {
-    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, false);
+    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, true);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
         std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
-        if (!myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName))
+        QString outputName = shapeFieldDialog.getOutputName();
+        QString res = QString::number(shapeFieldDialog.getCellSize());
+        if (!myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName, res, outputName, true))
         {
             QMessageBox::critical(nullptr, "ERROR!", "GDAL Error");
             return false;
         }
+        //addRasterObject(myProject.objectList.back());
+        //this->updateMaps();
         return true;
     }
     return true;

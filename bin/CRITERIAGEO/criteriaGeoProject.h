@@ -39,7 +39,7 @@
                             std::string idCrop, std::string idSoil, std::string idMeteo, double cellSize,
                             QString ucmFileName, bool isPrevailing, bool showInfo);
 
-        bool createGeoTIFF(QString shapeFileName, std::string shapeField);
+        bool createGeoTIFF(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, bool showInfo);
 
         void logError(std::string errorString);
         void logError(QString errorString);
