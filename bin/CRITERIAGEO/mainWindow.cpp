@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapView->setZoomLevel(8);
     this->mapView->centerOn(startCenter->lonLat());
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
-    connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
+    //connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
 
     connect(ui->checkList, &QListWidget::itemClicked, [=](QListWidgetItem* item){ this->itemClicked(item); });
     ui->checkList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -101,6 +101,7 @@ void MainWindow::resizeEvent(QResizeEvent * event)
 
     ui->checkList->move(MAPBORDER/2, MAPBORDER);
     ui->checkList->resize(TOOLSWIDTH, this->height() - INFOHEIGHT - MAPBORDER*2);
+    this->updateMaps();
 }
 
 
@@ -127,8 +128,9 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
             this->ui->statusBar->showMessage(selShape);
         }
     }
-
     this->isDoubleClick = false;
+
+    this->updateMaps();
 }
 
 
