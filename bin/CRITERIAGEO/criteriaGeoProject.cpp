@@ -274,8 +274,8 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
 bool CriteriaGeoProject::createGeoTIFF(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, bool showInfo)
 {
     std::string errorStr;
-    QString geoTIFFName = shapeFileName;
-    geoTIFFName.replace("shp","tif");
+    QFileInfo filepathInfo(shapeFileName);
+    QString geoTIFFName = filepathInfo.absolutePath() + "/" + outputName + ".tif";
 #ifdef GDAL
     if (shapeToGeoTIFF(shapeFileName, shapeField, resolution, geoTIFFName, &errorStr))
     {

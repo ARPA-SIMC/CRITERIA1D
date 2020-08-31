@@ -679,8 +679,17 @@ void MainWindow::on_actionRasterize_shape_triggered()
         DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, true, true);
         if (numericField.result() == QDialog::Accepted)
         {
+            double resolution;
+            if (numericField.getCellSize() == 0)
+            {
+                resolution = 100;  // default resolution value
+            }
+            else
+            {
+                resolution = numericField.getCellSize();
+            }
             myProject.getRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(),
-                                         numericField.getOutputName(), numericField.getCellSize(), true);
+                                         numericField.getOutputName(), resolution, true);
             addRasterObject(myProject.objectList.back());
             this->updateMaps();
         }
