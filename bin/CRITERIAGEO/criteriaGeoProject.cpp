@@ -275,7 +275,7 @@ bool CriteriaGeoProject::createGeoTIFF(QString shapeFileName, std::string shapeF
 {
     std::string errorStr;
     QString geoTIFFName = shapeFileName;
-    geoTIFFName.replace("shp","tiff");
+    geoTIFFName.replace("shp","tif");
 #ifdef GDAL
     return shapeToGeoTIFF(shapeFileName, shapeField, geoTIFFName, &errorStr);
 #endif
