@@ -1,6 +1,6 @@
 #include "dialogSelectField.h"
 
-DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString fileName, bool onlyNumeric, bool isRasterize)
+DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString fileName, bool onlyNumeric, dialogType dialogType)
     :shapeHandler(shapeHandler)
 {
 
@@ -10,7 +10,7 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
     listFields = new QListWidget();
     mainLayout->addWidget(listFields);
 
-    if (isRasterize)
+    if (dialogType == RASTERIZE)
     {
         cellSize = new QLineEdit();
         cellSize->setPlaceholderText("cell size [m]");
@@ -20,11 +20,18 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
         mainLayout->addWidget(cellSize);
         mainLayout->addWidget(outputName);
     }
+    else if (dialogType == GEOTIFF)
+    {
+        cellSize = new QLineEdit();
+        cellSize->setPlaceholderText("cell size [m]");
+        cellSize->setValidator(new QDoubleValidator(0, 9999, 2)); //LC accetta double con 2 cifre decimali da 0 a 9999
+        mainLayout->addWidget(cellSize);
+    }
 
     DBFFieldType typeField;
     QStringList fields;
 
-    if (isRasterize) fields << "Shape ID";
+    if (dialogType == RASTERIZE) fields << "Shape ID";
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
     {
         typeField = shapeHandler->getFieldType(i);
@@ -42,7 +49,7 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
 
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    if (isRasterize)
+    if (dialogType == RASTERIZE)
         connect(buttonBox, &QDialogButtonBox::accepted, [=](){ this->acceptRasterize(); });
     else
         connect(buttonBox, &QDialogButtonBox::accepted, [=](){ this->acceptSelection(); });

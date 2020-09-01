@@ -475,7 +475,7 @@ void MainWindow::removeShape(GisObject* myObject)
 
 void MainWindow::setShapeStyle(GisObject* myObject)
 {
-    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, false, false);
+    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, false, SHAPESTYLE);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
         MapGraphicsShapeObject* shapeObject = getShapeObject(myObject);
@@ -499,12 +499,11 @@ void MainWindow::setShapeStyle(GisObject* myObject)
 
 bool MainWindow::exportToGeoTIFF(GisObject* myObject)
 {
-    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, true);
+    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GEOTIFF);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
         std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
-        QString outputName = shapeFieldDialog.getOutputName();
         QString res;
         if (shapeFieldDialog.getCellSize() == 0)
         {
@@ -513,6 +512,12 @@ bool MainWindow::exportToGeoTIFF(GisObject* myObject)
         else
         {
             res = QString::number(shapeFieldDialog.getCellSize());
+        }
+        QString outputName = QFileDialog::getSaveFileName(this, tr("Save GeoTIFF as"), "", tr("tif files (*.tif)"));
+        if (outputName == "")
+        {
+            QMessageBox::information(nullptr, "Insert output name", "missing GeoTIFF name");
+            return false;
         }
         if (!myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName, res, outputName, true))
         {
@@ -676,7 +681,7 @@ void MainWindow::on_actionRasterize_shape_triggered()
     {
         int pos = ui->checkList->row(itemSelected);
         GisObject* myObject = myProject.objectList.at(unsigned(pos));
-        DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, true, true);
+        DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, true, RASTERIZE);
         if (numericField.result() == QDialog::Accepted)
         {
             double resolution;

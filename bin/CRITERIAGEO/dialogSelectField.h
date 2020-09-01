@@ -6,6 +6,8 @@
     #include "shapeHandler.h"
 #endif
 
+enum dialogType {SHAPESTYLE, RASTERIZE, GEOTIFF};
+
     class DialogSelectField : public QDialog
     {
         Q_OBJECT
@@ -17,7 +19,7 @@
             QLineEdit* cellSize;
 
         public:
-            DialogSelectField(Crit3DShapeHandler *shapeHandler, QString fileName, bool onlyNumeric, bool isRasterize);
+            DialogSelectField(Crit3DShapeHandler *shapeHandler, QString fileName, bool onlyNumeric, dialogType dialogType);
 
             void acceptRasterize();
             void acceptSelection();
