@@ -20,7 +20,7 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
         mainLayout->addWidget(cellSize);
         mainLayout->addWidget(outputName);
     }
-    else if (dialogType == GEOTIFF)
+    else if (dialogType == GDALRASTER)
     {
         cellSize = new QLineEdit();
         cellSize->setPlaceholderText("cell size [m]");

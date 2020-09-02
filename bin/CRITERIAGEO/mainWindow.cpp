@@ -497,9 +497,9 @@ void MainWindow::setShapeStyle(GisObject* myObject)
     }
 }
 
-bool MainWindow::exportToGeoTIFF(GisObject* myObject)
+bool MainWindow::exportToRaster(GisObject* myObject)
 {
-    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GEOTIFF);
+    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GDALRASTER);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
@@ -513,13 +513,14 @@ bool MainWindow::exportToGeoTIFF(GisObject* myObject)
         {
             res = QString::number(shapeFieldDialog.getCellSize());
         }
-        QString outputName = QFileDialog::getSaveFileName(this, tr("Save GeoTIFF as"), "", tr("tif files (*.tif)"));
+        QStringList gdalExt = getGdalRasterWriteExtension();
+        QString outputName = QFileDialog::getSaveFileName(this, tr("Save raster as"), "", gdalExt.join(";\n"));
         if (outputName == "")
         {
-            QMessageBox::information(nullptr, "Insert output name", "missing GeoTIFF name");
+            QMessageBox::information(nullptr, "Insert output name", "missing raster name");
             return false;
         }
-        if (!myProject.createGeoTIFF(QString::fromStdString(shapeFilePath), fieldName, res, outputName, true))
+        if (!myProject.createRaster(QString::fromStdString(shapeFilePath), fieldName, res, outputName, true))
         {
             QMessageBox::critical(nullptr, "ERROR!", "GDAL Error");
             return false;
@@ -550,7 +551,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         submenu.addAction("Attribute table");
         submenu.addSeparator();
         submenu.addAction("Set style");
-        submenu.addAction("Export to GeoTIFF");
+        submenu.addAction("Export to raster");
     }
     else if (myObject->type == gisObjectRaster)
     {
@@ -599,9 +600,9 @@ void MainWindow::itemMenuRequested(const QPoint point)
         {
             setShapeStyle(myObject);
         }
-        else if (rightClickItem->text().contains("Export to GeoTIFF"))
+        else if (rightClickItem->text().contains("Export to raster"))
         {
-            exportToGeoTIFF(myObject);
+            exportToRaster(myObject);
         }
         else if (rightClickItem->text().contains("Save as"))
         {
