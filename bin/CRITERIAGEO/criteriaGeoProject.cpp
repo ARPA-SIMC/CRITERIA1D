@@ -271,19 +271,13 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
 }
 
 
-bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, bool showInfo)
+bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error)
 {
-    std::string errorStr;
 #ifdef GDAL
-    if (shapeToRaster(shapeFileName, shapeField, resolution, outputName, &errorStr))
+    if (shapeToRaster(shapeFileName, shapeField, resolution, outputName, error))
     {
-        FormInfo formInfo;
-        if (showInfo) formInfo.setText("Add GTiff to map...");
-        if (!loadRaster(outputName))
-            return false;
-        if (showInfo) formInfo.close();
-        return true;
-     }
+        return loadRaster(outputName);
+    }
 #endif
     return false;
 }

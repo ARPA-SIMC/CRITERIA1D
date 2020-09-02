@@ -520,9 +520,10 @@ bool MainWindow::exportToRaster(GisObject* myObject)
             QMessageBox::information(nullptr, "Insert output name", "missing raster name");
             return false;
         }
-        if (!myProject.createRaster(QString::fromStdString(shapeFilePath), fieldName, res, outputName, true))
+        QString errorStr;
+        if (!myProject.createRaster(QString::fromStdString(shapeFilePath), fieldName, res, outputName, errorStr))
         {
-            QMessageBox::critical(nullptr, "ERROR!", "GDAL Error");
+            QMessageBox::critical(nullptr, "ERROR!", "GDAL Error: " + errorStr);
             return false;
         }
         addRasterObject(myProject.objectList.back());
