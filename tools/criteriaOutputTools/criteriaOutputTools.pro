@@ -49,6 +49,22 @@ INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrol
                 ../../agrolib/criteriaOutput
 
 
+# comment to compile without GDAL library
+CONFIG += GDAL
+
+GDAL {
+    DEFINES += GDAL
+    INCLUDEPATH += ../../agrolib/gdalHandler
+
+    CONFIG(debug, debug|release) {
+        LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
+    } else {
+        LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
+    }
+    include(../../agrolib/gdal.pri)
+}
+
+
 CONFIG(debug, debug|release) {
 
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput

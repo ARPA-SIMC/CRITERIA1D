@@ -6,11 +6,11 @@
 #include "utilities.h"
 #include <iostream>
 
-//#define TEST
+#define TEST
 
 void usage()
 {
-    std::cout << "\n" << "USAGE:\nCriteriaOutput PRECOMPUTE_DTX|CSV|SHAPEFILE|AGGREGATION project.ini [date]\n";
+    std::cout << "\n" << "USAGE:\nCriteriaOutput PRECOMPUTE_DTX|CSV|SHAPEFILE|MAPS|AGGREGATION project.ini [date]\n";
 }
 
 
@@ -28,10 +28,10 @@ int main(int argc, char *argv[])
             QString dataPath;
             if (! searchDataPath(&dataPath)) return -1;
 
-            settingsFileName = dataPath + "PROJECT/INCOLTO/nitrati.ini";
+            settingsFileName = dataPath + "PROJECT/INCOLTO/bollAgro.ini";
             dateComputationStr = "2020-08-13";
             //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-            operation = "AGGREGATION";
+            operation = "MAPS";
         #else
             usage();
             return 1;
@@ -42,7 +42,8 @@ int main(int argc, char *argv[])
         operation = argv[1];
         operation = operation.toUpper();
         if (operation != "PRECOMPUTE_DTX" && operation != "CSV"
-            && operation != "SHAPEFILE" && operation != "AGGREGATION")
+            && operation != "SHAPEFILE" && operation != "MAPS"
+            && operation != "AGGREGATION")
         {
             myProject.logger.writeError("Wrong parameter: " + operation);
             usage();
@@ -101,6 +102,15 @@ int main(int argc, char *argv[])
     else if (operation == "AGGREGATION")
     {
         myResult = myProject.createAggregationFile();
+    }
+    else if (operation == "MAPS")
+    {
+        #ifdef GDAL
+            myResult = myProject.createMaps();
+        #else
+            myProject.logger.writeError("Operation MAPS not available: missing GDAL library");
+            return ERROR_MISSING_GDAL;
+        #endif
     }
     else
     {
