@@ -108,13 +108,13 @@ int main(int argc, char *argv[])
         #ifdef GDAL
             myResult = myProject.createMaps();
         #else
-            myProject.logger.writeError("Operation MAPS not available: missing GDAL library");
+            myProject.logger.writeError("MAPS are not available (need GDAL library).");
             return ERROR_MISSING_GDAL;
         #endif
     }
     else
     {
-        myProject.logger.writeError("Wrong operation: " + operation);
+        myProject.logger.writeError("Wrong parameter: " + operation);
         usage();
         return 1;
     }
