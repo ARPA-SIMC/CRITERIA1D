@@ -166,7 +166,7 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
     else
     {
         #ifdef GDAL
-        if (computeUcmIntersection(ucm, crop, soil, meteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr, showInfo))
+        if (computeUcmIntersection(ucm, crop, soil, meteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr))
         {
             addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), ucm->getUtmZone());
             return true;
@@ -177,7 +177,7 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
             return false;
         }
         #else
-            errorStr = "GDAL not defined";
+            errorStr = "Function is not available (needs GDAL library).";
             logError(errorStr);
             return false;
         #endif
