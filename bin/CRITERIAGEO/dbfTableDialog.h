@@ -25,7 +25,7 @@ class DbfTableDialog : public QDialog
     QAction *deleteRow;
     QAction *addCol;
     QAction *deleteCol;
-    QAction *copy;
+    QAction *copyAll;
     QAction *save;
     QStringList labels;
     QStringList m_DBFTableHeader;
