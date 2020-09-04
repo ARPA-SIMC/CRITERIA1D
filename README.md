@@ -5,6 +5,8 @@ CRITERIA-GEO is a GIS interface for managing geographical input/output of the mo
 
 CROP_EDITOR and SOIL_EDITOR are tools to manage and test the crop and soil parameters of the model.
 
+All software are multi-platform and can be compiled and executed on windows, linux and macOS with Qt libraries. 
+
 ## CROP_EDITOR
 Crop editor is a tool to manage the crop parameters, test the model and show the main output (Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs). 
 
@@ -23,6 +25,7 @@ Graphs are produced using the Qwt plot library (http://qwt.sourceforge.net) whic
 ## How to compile the CRITERIA-1D distribution
 Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
+- GDAL library: see [GDAL readme](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/agrolib/gdalHandler/readme.md) for windows installation.
 
 Build:
 - Linux: run deploy/CRITERIA1D_build_Linux.sh
