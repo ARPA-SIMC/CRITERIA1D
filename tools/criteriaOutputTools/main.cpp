@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
             settingsFileName = dataPath + "PROJECT/INCOLTO/bollAgro.ini";
             dateComputationStr = "2020-08-13";
             //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-            operation = "SHAPEFILE";
+            operation = "MAPS";
         #else
             usage();
             return 1;
