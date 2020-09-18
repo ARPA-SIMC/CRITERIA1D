@@ -6,7 +6,7 @@
 #include "utilities.h"
 #include <iostream>
 
-// decomment to compute test
+// uncomment to compute test
 #define TEST
 
 void usage()
