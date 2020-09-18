@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
             if (! searchDataPath(&dataPath)) return -1;
 
             settingsFileName = dataPath + "PROJECT/INCOLTO/bollAgro.ini";
-            dateComputationStr = "2020-08-13";
+            dateComputationStr = "2020-09-17";
             //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
             operation = "MAPS";
         #else
