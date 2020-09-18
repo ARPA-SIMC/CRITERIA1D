@@ -6,10 +6,12 @@
 #include "utilities.h"
 #include <iostream>
 
+// uncomment to execute test
+//#define TEST_SQLITE
 //#define TEST_HISTORICAL
 //#define TEST_TODAY
 //#define TEST_PAST
-//#define TEST_SQLITE
+
 
 
 int main(int argc, char *argv[])
