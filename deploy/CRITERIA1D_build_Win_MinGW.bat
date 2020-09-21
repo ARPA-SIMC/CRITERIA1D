@@ -66,19 +66,24 @@ windeployqt SOIL_EDITOR.exe
 windeployqt CROP_EDITOR.exe
 
 
-:: copy img files
-cd ..
-mkdir DOC\img
-cd DOC\img
+:: copy doc and img files
+cd ..\
+mkdir DOC
+cd DOC
+copy ..\..\..\DOC\CRITERIA1D_technical_manual.pdf
+mkdir img
+cd img
 copy ..\..\..\..\DOC\img\saveButton.png
 copy ..\..\..\..\DOC\img\updateButton.png
 copy ..\..\..\..\DOC\img\textural_soil.png
+
 
 :: copy soil data
 cd ..\..\
 mkdir DATA\SOIL
 cd DATA\SOIL
-xcopy /Y ..\..\..\..\DATA\SOIL\*.* 
+xcopy /Y ..\..\..\..\DATA\SOIL\*.*
+ 
 
 :: copy kiwifruit project
 cd ..\..\
