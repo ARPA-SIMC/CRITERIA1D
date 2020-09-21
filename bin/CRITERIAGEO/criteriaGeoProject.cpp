@@ -274,7 +274,8 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
 bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error)
 {
 #ifdef GDAL
-    if (shapeToRaster(shapeFileName, shapeField, resolution, outputName, error))
+    QString proj = ""; //keep input proj
+    if (shapeToRaster(shapeFileName, shapeField, resolution, proj, outputName, error))
     {
         return loadRaster(outputName);
     }
