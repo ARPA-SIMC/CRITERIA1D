@@ -30,7 +30,7 @@ DbfTableDialog::DbfTableDialog(Crit3DShapeHandler* shapeHandler, QString fileNam
 
     mainLayout->setMenuBar(menuBar);
 
-    m_DBFTableWidget = new QTableWidget();
+    m_DBFTableWidget = new TableDbf();
     mainLayout->addWidget(m_DBFTableWidget);
 
     int colNumber = shapeHandler->getFieldNumbers();
@@ -80,7 +80,7 @@ DbfTableDialog::DbfTableDialog(Crit3DShapeHandler* shapeHandler, QString fileNam
     m_DBFTableWidget->setVerticalHeaderLabels(labels);
     m_DBFTableWidget->setHorizontalHeaderLabels(m_DBFTableHeader);
     m_DBFTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_DBFTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_DBFTableWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);
     m_DBFTableWidget->setShowGrid(true);
     m_DBFTableWidget->setStyleSheet("QTableView {selection-background-color: red;}");
 

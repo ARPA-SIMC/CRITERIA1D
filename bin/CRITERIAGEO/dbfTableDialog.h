@@ -5,6 +5,7 @@
     #include "shapeHandler.h"
 #endif
 #include "dbfNewColDialog.h"
+#include "tableDbf.h"
 
 #define DEFAULT_INTEGER_MAX_DIGITS 9
 #define DEFAULT_DOUBLE_MAX_DIGITS 13
@@ -17,7 +18,7 @@ class DbfTableDialog : public QDialog
     private:
 
     Crit3DShapeHandler *shapeHandler;
-    QTableWidget* m_DBFTableWidget;
+    TableDbf* m_DBFTableWidget;
     DbfNewColDialog* newColDialog;
     QMenuBar *menuBar;
     QMenu *editMenu;

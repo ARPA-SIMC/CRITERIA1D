@@ -79,7 +79,8 @@ HEADERS += \
     dialogUcmIntersection.h \
     dialogUcmPrevailing.h \
     gisObject.h \
-    mainWindow.h
+    mainWindow.h \
+    tableDbf.h
 
 SOURCES += \
     ../../agrolib/graphics/mapGraphicsRasterObject.cpp \
@@ -94,7 +95,8 @@ SOURCES += \
     dbfTableDialog.cpp \
     dbfNewColDialog.cpp \
     gisObject.cpp \
-    main.cpp
+    main.cpp \
+    tableDbf.cpp
 
 
 FORMS += \
