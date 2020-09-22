@@ -29,6 +29,8 @@
 
 	Compiler:gcc v.6 or later
 	Qt version 5.12 or later
+	GDAL version 3.0 or later
+	GEOS version 3.8 or later
         
 	build:
 	- execute CRITERIA1D_build_Linux.sh
