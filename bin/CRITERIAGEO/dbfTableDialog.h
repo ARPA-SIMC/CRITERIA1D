@@ -44,6 +44,7 @@ class DbfTableDialog : public QDialog
         void saveChangesClicked();
         void horizontalHeaderClick(int index);
         void verticalHeaderClick(int index);
+        void menuRequested(const QPoint point);
 };
 
 #endif // TableDBFDialog_H

@@ -81,6 +81,7 @@ DbfTableDialog::DbfTableDialog(Crit3DShapeHandler* shapeHandler, QString fileNam
     m_DBFTableWidget->setHorizontalHeaderLabels(m_DBFTableHeader);
     m_DBFTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_DBFTableWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    m_DBFTableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     m_DBFTableWidget->setShowGrid(true);
     m_DBFTableWidget->setStyleSheet("QTableView {selection-background-color: red;}");
 
@@ -94,6 +95,7 @@ DbfTableDialog::DbfTableDialog(Crit3DShapeHandler* shapeHandler, QString fileNam
     mainLayout->addWidget(labelLengend);
 
     connect(m_DBFTableWidget, &QTableWidget::cellChanged, [=](int row, int column){ this->cellChanged(row, column); });
+    connect(m_DBFTableWidget, &QTableWidget::customContextMenuRequested, [=](const QPoint point){ this->menuRequested(point); });
     connect(addRow, &QAction::triggered, [=](){ this->addRowClicked(); });
     connect(deleteRow, &QAction::triggered, [=](){ this->removeRowClicked(); });
     connect(addCol, &QAction::triggered, [=](){ this->addColClicked(); });
@@ -352,6 +354,26 @@ void DbfTableDialog::verticalHeaderClick(int index)
 {
     m_DBFTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_DBFTableWidget->setCurrentCell(index, 0);
+}
+
+void DbfTableDialog::menuRequested(const QPoint point)
+{
+    QPoint itemPoint = m_DBFTableWidget->mapToGlobal(point);
+
+    QMenu submenu;
+    submenu.addAction("Copy");
+    submenu.addSeparator();
+
+    QAction* rightClickItem = submenu.exec(itemPoint);
+
+    if (rightClickItem)
+    {
+        if (rightClickItem->text().contains("Copy") )
+        {
+            m_DBFTableWidget->copySelection();
+        }
+    }
+    return;
 }
 
 
