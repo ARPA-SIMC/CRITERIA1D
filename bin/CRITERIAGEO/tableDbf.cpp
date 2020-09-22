@@ -26,25 +26,7 @@ void TableDbf::keyPressEvent(QKeyEvent *event){
         }
         else if(event->matches(QKeySequence::Copy))
         {
-
-                QString text;
-                QItemSelectionRange range = selectionModel()->selection().first();
-                QStringList header;
-                for (auto j = range.left(); j <= range.right(); ++j)
-                {
-                    header << this->horizontalHeaderItem(j)->text();
-                }
-                text += header.join("\t");
-                text += "\n";
-                for (auto i = range.top(); i <= range.bottom(); ++i)
-                {
-                    QStringList rowContents;
-                    for (auto j = range.left(); j <= range.right(); ++j)
-                        rowContents << model()->index(i,j).data().toString();
-                    text += rowContents.join("\t");
-                    text += "\n";
-                }
-                QApplication::clipboard()->setText(text);
+            copySelection();
         }
         else if(event->matches(QKeySequence::Paste))
         {
@@ -81,5 +63,27 @@ void TableDbf::keyPressEvent(QKeyEvent *event){
 
             QTableView::keyPressEvent(event);
     }
+}
+
+void TableDbf::copySelection()
+{
+    QString text;
+    QItemSelectionRange range = selectionModel()->selection().first();
+    QStringList header;
+    for (auto j = range.left(); j <= range.right(); ++j)
+    {
+        header << this->horizontalHeaderItem(j)->text();
+    }
+    text += header.join("\t");
+    text += "\n";
+    for (auto i = range.top(); i <= range.bottom(); ++i)
+    {
+        QStringList rowContents;
+        for (auto j = range.left(); j <= range.right(); ++j)
+            rowContents << model()->index(i,j).data().toString();
+        text += rowContents.join("\t");
+        text += "\n";
+    }
+    QApplication::clipboard()->setText(text);
 }
 

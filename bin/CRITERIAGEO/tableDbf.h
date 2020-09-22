@@ -13,6 +13,7 @@ Q_OBJECT
 public:
     TableDbf();
     void keyPressEvent(QKeyEvent *event);
+    void copySelection();
 
 };
 

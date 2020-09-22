@@ -313,7 +313,8 @@ void DbfTableDialog::closeEvent(QCloseEvent *event)
 
 void DbfTableDialog::copyAllClicked()
 {
-    // TO DO
+    m_DBFTableWidget->selectAll();
+    m_DBFTableWidget->copySelection();
 }
 
 
