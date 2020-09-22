@@ -7,14 +7,16 @@ QMAKE=$QT_DIR/bin/qmake
 # build csvToMeteoDb
 cd ../tools/csvToMeteoDb
 $QMAKE csvToMeteoDb.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile clean
 make -f Makefile qmake_all 
 make 
 
 cd -
 
-# build CRITERIAOUTPUT
+build CRITERIAOUTPUT
 cd ../tools/Makeall_CriteriaOutput
 $QMAKE Makeall_CriteriaOutput.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile clean
 make -f Makefile qmake_all 
 make 
 
@@ -23,6 +25,7 @@ cd -
 # build CRITERIA1D
 cd ../bin/Makeall_CRITERIA1D
 $QMAKE Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile clean
 make -f Makefile qmake_all 
 make 
 
@@ -31,6 +34,7 @@ cd -
 # build CROP_EDITOR
 cd ../bin/Makeall_CROP_EDITOR
 $QMAKE Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile clean
 make -f Makefile qmake_all 
 make 
 
@@ -39,12 +43,16 @@ cd -
 # build SOIL_EDITOR
 cd ../bin/Makeall_SOIL_EDITOR
 $QMAKE Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile clean
 make -f Makefile qmake_all 
 make
 
 cd -
 
 function make_appimage {
+
+    BIN_NAME=$1
+    BIN_DIR=$2
 
     rm -rf appimage
     # make tree and copy executables and images
@@ -53,28 +61,31 @@ function make_appimage {
     cp ../DOC/img/saveButton.png appimage
     cp ../DOC/img/updateButton.png appimage
     cp ../DOC/img/textural_soil.png appimage
-    cp ../DOC/img/CRITERIA1D_icon.png appimage/$1.png
+    cp ../DOC/img/CRITERIA1D_icon.png appimage/$BIN_NAME.png
     mkdir appimage/usr
     mkdir appimage/usr/bin
     echo 'Place executable here' > appimage/usr/bin/README
     mkdir appimage/usr/share
     mkdir appimage/usr/share/applications
-    cp ../bin/$1/release/$1 appimage/usr/bin/$1
-    cp linuxDeploy/$1.desktop appimage/usr/share/applications/
+    cp $BIN_DIR/$BIN_NAME appimage/usr/bin/$BIN_NAME
+    cp linuxDeploy/$BIN_NAME.desktop appimage/usr/share/applications/
 
-    ./linuxqtdeploy appimage/usr/share/applications/$1.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+    cp /home/xenial/CRITERIA3D/DEPLOY/appimage/CRITERIA1D.png appimage/$BIN_NAME.png
+    
+    ./linuxqtdeploy appimage/usr/share/applications/$BIN_NAME.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 }
 
 # download linuxdeployqt
 wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+
 chmod +x linuxqtdeploy
 
-make_appimage CsvToMeteoDb
-make_appimage CriteriaOutput
-make_appimage CRITERIA1D
-make_appimage CROP_EDITOR
-make_appimage SOIL_EDITOR
+make_appimage CsvToMeteoDb ../tools/csvToMeteoDb/release/
+make_appimage CriteriaOutput ../tools/criteriaOutputTools/release/
+make_appimage CRITERIA1D ../bin/CRITERIA1D/release/
+make_appimage CROP_EDITOR ../bin/CROP_EDITOR/release/
+make_appimage SOIL_EDITOR ../bin/SOIL_EDITOR/release/
 
 
 mkdir CRITERIA1D
