@@ -49,6 +49,15 @@ make
 
 cd -
 
+# build CRITERIAGEO
+cd ../bin/Makeall_CRITERIAGEO
+$QMAKE Makeall_CRITERIAGEO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile clean
+make -f Makefile qmake_all 
+make 
+
+cd -
+
 function make_appimage {
 
     BIN_NAME=$1
@@ -86,6 +95,7 @@ make_appimage CriteriaOutput ../tools/criteriaOutputTools/release/
 make_appimage CRITERIA1D ../bin/CRITERIA1D/release/
 make_appimage CROP_EDITOR ../bin/CROP_EDITOR/release/
 make_appimage SOIL_EDITOR ../bin/SOIL_EDITOR/release/
+make_appimage CRITERIAGEO ../bin/CRITERIAGEO/release/
 
 
 mkdir CRITERIA1D
