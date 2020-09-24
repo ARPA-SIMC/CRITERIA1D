@@ -499,6 +499,7 @@ void MainWindow::setShapeStyle(GisObject* myObject)
 
 bool MainWindow::exportToRaster(GisObject* myObject)
 {
+#ifdef GDAL
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GDALRASTER);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
@@ -513,6 +514,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
         {
             res = QString::number(shapeFieldDialog.getCellSize());
         }
+
         QStringList gdalExt = getGdalRasterWriteExtension();
         QString outputName = QFileDialog::getSaveFileName(this, tr("Save raster as"), "", gdalExt.join(";\n"));
         if (outputName == "")
@@ -520,6 +522,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
             QMessageBox::information(nullptr, "Insert output name", "missing raster name");
             return false;
         }
+
         QString errorStr;
         if (!myProject.createRaster(QString::fromStdString(shapeFilePath), fieldName, res, outputName, errorStr))
         {
@@ -531,6 +534,10 @@ bool MainWindow::exportToRaster(GisObject* myObject)
         return true;
     }
     return true;
+#else
+    QMessageBox::critical(nullptr, "ERROR", "Missing GDAL");
+    return false;
+#endif
 }
 
 
