@@ -4,11 +4,19 @@
 QT_DIR=/opt/Qt/5.12.8/gcc_64/
 QMAKE=$QT_DIR/bin/qmake
 
+# build mapGraphics
+cd ../mapGraphics
+$QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile clean
+make -f Makefile all
+
+cd -
+
 # build csvToMeteoDb
 cd ../tools/csvToMeteoDb
 $QMAKE csvToMeteoDb.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
-make -f Makefile qmake_all 
+make -f Makefile qmake_all
 make 
 
 cd -
@@ -17,7 +25,7 @@ build CRITERIAOUTPUT
 cd ../tools/Makeall_CriteriaOutput
 $QMAKE Makeall_CriteriaOutput.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
-make -f Makefile qmake_all 
+make -f Makefile qmake_all
 make 
 
 cd -
@@ -26,7 +34,7 @@ cd -
 cd ../bin/Makeall_CRITERIA1D
 $QMAKE Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
-make -f Makefile qmake_all 
+make -f Makefile qmake_all
 make 
 
 cd -
@@ -35,7 +43,7 @@ cd -
 cd ../bin/Makeall_CROP_EDITOR
 $QMAKE Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
-make -f Makefile qmake_all 
+make -f Makefile qmake_all
 make 
 
 cd -
@@ -44,7 +52,7 @@ cd -
 cd ../bin/Makeall_SOIL_EDITOR
 $QMAKE Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
-make -f Makefile qmake_all 
+make -f Makefile qmake_all
 make
 
 cd -
@@ -53,7 +61,7 @@ cd -
 cd ../bin/Makeall_CRITERIAGEO
 $QMAKE Makeall_CRITERIAGEO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
-make -f Makefile qmake_all 
+make -f Makefile qmake_all
 make 
 
 cd -
@@ -85,7 +93,7 @@ function make_appimage {
 
 }
 
-# download linuxdeployqt
+download linuxdeployqt
 wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
 
 chmod +x linuxqtdeploy
@@ -95,7 +103,7 @@ make_appimage CriteriaOutput ../tools/criteriaOutputTools/release/
 make_appimage CRITERIA1D ../bin/CRITERIA1D/release/
 make_appimage CROP_EDITOR ../bin/CROP_EDITOR/release/
 make_appimage SOIL_EDITOR ../bin/SOIL_EDITOR/release/
-make_appimage CRITERIAGEO ../bin/CRITERIAGEO/release/
+LD_LIBRARY_PATH=../mapGraphics/release/ make_appimage CRITERIA_GEO ../bin/CRITERIAGEO/release/
 
 
 mkdir CRITERIA1D

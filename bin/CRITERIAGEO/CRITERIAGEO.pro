@@ -15,7 +15,24 @@
 QT    += core gui network widgets sql
 
 TEMPLATE = app
-TARGET = CRITERIA_GEO
+
+unix:{
+    CONFIG(debug, debug|release) {
+        TARGET = debug/CRITERIA_GEO
+    } else {
+        TARGET = release/CRITERIA_GEO
+    }
+}
+macx:{
+    CONFIG(debug, debug|release) {
+        TARGET = debug/CRITERIA_GEO
+    } else {
+        TARGET = release/CRITERIA_GEO
+    }
+}
+win32:{
+    TARGET = CRITERIA_GEO
+}
 
 INCLUDEPATH +=  ../../mapGraphics \
                 ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
@@ -65,7 +82,6 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
 }
-
 
 HEADERS += \
     ../../agrolib/graphics/mapGraphicsRasterObject.h \
