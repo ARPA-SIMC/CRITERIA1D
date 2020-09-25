@@ -35,6 +35,7 @@
 #ifdef GDAL
     #include "gdalRasterFunctions.h"
     #include "gdalShapeFunctions.h"
+    #include "gdalShapeIntersection.h"
 #endif
 
 #include <QMessageBox>

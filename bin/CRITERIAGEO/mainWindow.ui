@@ -517,7 +517,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -1067,6 +1067,9 @@
   <action name="actionCompute_Ucm_intersection">
    <property name="text">
     <string>Compute UCM intersection</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionMapGoogle">
