@@ -969,7 +969,7 @@
     <property name="title">
      <string>Fi&amp;le</string>
     </property>
-    <addaction name="actionLoad_Project"/>
+    <addaction name="actionLoadProject"/>
     <addaction name="separator"/>
     <addaction name="actionLoadShapefile"/>
     <addaction name="actionLoadRaster"/>
@@ -1105,7 +1105,7 @@
     <string>Google terrain</string>
    </property>
   </action>
-  <action name="actionLoad_Project">
+  <action name="actionLoadProject">
    <property name="text">
     <string>Load Project...</string>
    </property>
