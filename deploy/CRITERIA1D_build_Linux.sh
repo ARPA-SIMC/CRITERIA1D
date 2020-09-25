@@ -4,11 +4,13 @@
 QT_DIR=/opt/Qt/5.12.8/gcc_64/
 QMAKE=$QT_DIR/bin/qmake
 
-# build mapGraphics
+# # build mapGraphics
 cd ../mapGraphics
 $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile all
+
+export LD_LIBRARY_PATH=`pwd`/../mapGraphics/release/:$LD_LIBRARY_PATH
 
 cd -
 
@@ -93,7 +95,7 @@ function make_appimage {
 
 }
 
-download linuxdeployqt
+# download linuxdeployqt
 wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
 
 chmod +x linuxqtdeploy
@@ -103,7 +105,7 @@ make_appimage CriteriaOutput ../tools/criteriaOutputTools/release/
 make_appimage CRITERIA1D ../bin/CRITERIA1D/release/
 make_appimage CROP_EDITOR ../bin/CROP_EDITOR/release/
 make_appimage SOIL_EDITOR ../bin/SOIL_EDITOR/release/
-LD_LIBRARY_PATH=../mapGraphics/release/ make_appimage CRITERIA_GEO ../bin/CRITERIAGEO/release/
+make_appimage CRITERIA_GEO ../bin/CRITERIAGEO/release/
 
 
 mkdir CRITERIA1D
