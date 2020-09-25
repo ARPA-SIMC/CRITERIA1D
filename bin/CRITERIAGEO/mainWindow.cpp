@@ -85,6 +85,10 @@ MainWindow::~MainWindow()
         for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
             delete this->rasterObjList[i];
 
+    // TODO delete shapeobjectList
+
+    // TODO cancella shapefile temporanei (cartella TMP dentro il progetto)
+
     ui->checkList->clear();
     delete mapView;
     delete mapScene;
