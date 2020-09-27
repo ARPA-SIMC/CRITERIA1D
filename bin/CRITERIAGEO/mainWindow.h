@@ -89,6 +89,7 @@
         void itemClicked(QListWidgetItem* item);
         void itemMenuRequested(const QPoint point);
         void saveRaster(GisObject* myObject);
+        void saveShape(GisObject* myObject);
         void removeRaster(GisObject* myObject);
         void removeShape(GisObject* myObject);
         void setShapeStyle(GisObject* myObject);

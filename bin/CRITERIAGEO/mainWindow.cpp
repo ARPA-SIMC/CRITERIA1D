@@ -31,6 +31,7 @@
 #include "dialogUcmIntersection.h"
 #include "dbfTableDialog.h"
 #include "commonConstants.h"
+#include "shapeUtilities.h"
 
 #ifdef GDAL
     #include "gdalExtensions.h"
@@ -419,6 +420,14 @@ void MainWindow::saveRaster(GisObject* myObject)
     }
 }
 
+void MainWindow::saveShape(GisObject* myObject)
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Shapefile"), "", tr("shp files (*.shp)"));
+    if (fileName == "") return;
+    // make a copy of shapefile, keep original file
+    copyShapeFile(myObject->getFileNameWithPath(), fileName);
+}
+
 
 void MainWindow::removeRaster(GisObject* myObject)
 {
@@ -559,6 +568,8 @@ void MainWindow::itemMenuRequested(const QPoint point)
 
     if (myObject->type == gisObjectShape)
     {
+        submenu.addAction("Save as");
+        submenu.addSeparator();
         submenu.addAction("Show data");
         submenu.addAction("Attribute table");
         submenu.addSeparator();
@@ -621,6 +632,10 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectRaster)
             {
                 this->saveRaster(myObject);
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                this->saveShape(myObject);
             }
         }
         else if (rightClickItem->text().contains("Set grayscale"))

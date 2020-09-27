@@ -34,6 +34,11 @@ GisObject::GisObject()
 }
 
 
+QString GisObject::getFileNameWithPath() const
+{
+    return fileNameWithPath;
+}
+
 void GisObject::initialize()
 {
     this->type = gisObjectNone;
