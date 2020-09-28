@@ -39,7 +39,5 @@
         QString getFileNameWithPath() const;
     };
 
-    QString getFileName(QString fileNameComplete);
-
 
 #endif // GISOBJECT_H
