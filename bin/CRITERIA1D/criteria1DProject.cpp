@@ -323,7 +323,6 @@ int Criteria1DProject::openAllDatabase()
     // db units
     logger.writeInfo ("Units DB: " + dbUnitsName);
 
-
     return CRIT3D_OK;
 }
 
