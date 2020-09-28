@@ -45,7 +45,7 @@ SOURCES += \
 
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop  \
-                ../../agrolib/criteriaModel ../../agrolib/utilities ../../agrolib/shapeUtilities ../../agrolib/shapeHandler \
+                ../../agrolib/utilities ../../agrolib/shapeUtilities ../../agrolib/shapeHandler \
                 ../../agrolib/shapeHandler/shapelib ../../agrolib/criteriaOutput
 
 

@@ -36,7 +36,7 @@ win32:{
 
 INCLUDEPATH +=  ../../mapGraphics \
                 ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop   \
-                ../../agrolib/criteriaModel ../../agrolib/utilities ../../agrolib/shapeUtilities  \
+                ../../agrolib/utilities ../../agrolib/shapeUtilities  \
                 ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib  \
                 ../../agrolib/criteriaOutput ../../agrolib/graphics ../../agrolib/project
 
