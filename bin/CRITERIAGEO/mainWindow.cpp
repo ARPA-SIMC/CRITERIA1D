@@ -90,12 +90,14 @@ MainWindow::~MainWindow()
         for (unsigned int i = 0; i < this->shapeObjList.size(); i++)
             delete this->shapeObjList[i];
 
-    if (myProject.outputMap.isProjectLoaded)
+    /*
+    if (myProject.outputProject.isProjectLoaded)
     {
-        QDir tmpDir(myProject.outputMap.path + "tmp");
+        QDir tmpDir(myProject.outputProject.path + "tmp");
         tmpDir.removeRecursively();
-        myProject.outputMap.closeProject();
+        myProject.outputProject.closeProject();
     }
+    */
 
     ui->checkList->clear();
     delete mapView;
@@ -871,18 +873,21 @@ void MainWindow::on_actionLoadProject_triggered()
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open project"), "", tr("Settings files (*.ini)"));
 
     if (projFileName == "") return;
-    if (!myProject.outputMap.initializeProject(projFileName))
+    /*
+    if (!myProject.outputProject.initializeProject(projFileName))
     {
-        QMessageBox::information(nullptr, "Project setting error", myProject.outputMap.error);
+        QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.error);
         return;
     }
     else
     {
-        QDir().mkdir(myProject.outputMap.path + "tmp");
+        QDir().mkdir(myProject.outputProject.path + "tmp");
     }
-    if (! myProject.loadShapefile(myProject.outputMap.ucmFileName))
+
+    if (! myProject.loadShapefile(myProject.outputProject.ucmFileName))
         return;
 
     GisObject* myObject = myProject.objectList.back();
     this->addShapeObject(myObject);
+    */
 }
