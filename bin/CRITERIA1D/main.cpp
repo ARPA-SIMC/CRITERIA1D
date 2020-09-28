@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     myProject.criteriaSimulation.lastObservedDate = computationDate.addDays(-1);
 
     // computation unit list
-    if (! loadUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))
+    if (! readUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))
     {
         myProject.logger.writeError(myProject.projectError);
         return ERROR_READ_UNITS;
