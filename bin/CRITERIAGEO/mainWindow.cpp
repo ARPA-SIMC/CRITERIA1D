@@ -858,3 +858,12 @@ void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
     }
 }
 
+
+void MainWindow::on_actionLoadProject_triggered()
+{
+    QString projFileName = QFileDialog::getOpenFileName(this, tr("Open project"), "", tr("Settings files (*.ini)"));
+
+    if (projFileName == "") return;
+
+    QString path = QFileInfo(projFileName).absolutePath()+"/";
+}

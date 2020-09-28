@@ -35,8 +35,9 @@ win32:{
 }
 
 INCLUDEPATH +=  ../../mapGraphics \
-                ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
-                ../../agrolib/shapeUtilities ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib \
+                ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/crop ../../agrolib/gis  \
+                ../../agrolib/criteriaModel ../../agrolib/utilities ../../agrolib/shapeUtilities  \
+                ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib  \
                 ../../agrolib/graphics ../../agrolib/project
 
 CONFIG += debug_and_release
@@ -69,15 +70,15 @@ GDAL {
 
 CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
-    LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
+    LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/gis/debug -lgis
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
 } else {
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
-    LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
+    LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/gis/release -lgis
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
@@ -88,6 +89,7 @@ HEADERS += \
     ../../agrolib/graphics/mapGraphicsShapeObject.h \
     ../../agrolib/graphics/colorLegend.h \
     criteriaGeoProject.h \
+    criteriaOutputMap.h \
     dialogSelectField.h \
     dialogShapeProperties.h \
     dbfTableDialog.h \
@@ -102,7 +104,10 @@ SOURCES += \
     ../../agrolib/graphics/mapGraphicsRasterObject.cpp \
     ../../agrolib/graphics/mapGraphicsShapeObject.cpp \
     ../../agrolib/graphics/colorLegend.cpp \
+#    ../../agrolib/criteriaModel/criteria1DUnit.cpp \
+#    ../../agrolib/crop/cropDbQuery.cpp \
     criteriaGeoProject.cpp \
+    criteriaOutputMap.cpp \
     dialogSelectField.cpp \
     dialogShapeProperties.cpp \
     dialogUcmIntersection.cpp \

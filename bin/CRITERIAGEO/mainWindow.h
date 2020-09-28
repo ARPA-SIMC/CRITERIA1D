@@ -54,6 +54,8 @@
 
         void on_actionMapGoogleTerrain_triggered();
 
+        void on_actionLoadProject_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
