@@ -36,7 +36,7 @@ void CriteriaOutputMap::closeProject()
 {
     if (isProjectLoaded)
     {
-        //unitList.clear();
+        unitList.clear();
         dbData.close();
         dbCrop.close();
         dbDataHistorical.close();

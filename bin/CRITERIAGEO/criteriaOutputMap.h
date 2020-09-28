@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QSqlDatabase>
-//#include "criteria1DUnit.h"
+#include "criteria1DUnit.h"
 
 class CriteriaOutputMap
 {
@@ -27,7 +27,7 @@ public:
     QSqlDatabase dbDataHistorical;
 
     int nrUnits;
-    //std::vector<Crit1DUnit> unitList;
+    std::vector<Crit1DUnit> unitList;
     //CriteriaOutputVariable outputVariable;
 
     QString error;

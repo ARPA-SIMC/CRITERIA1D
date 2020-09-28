@@ -86,9 +86,16 @@ MainWindow::~MainWindow()
         for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
             delete this->rasterObjList[i];
 
-    // TODO delete shapeobjectList
+    if (! this->shapeObjList.empty())
+        for (unsigned int i = 0; i < this->shapeObjList.size(); i++)
+            delete this->shapeObjList[i];
 
-    // TODO cancella shapefile temporanei (cartella TMP dentro il progetto)
+    if (myProject.outputMap.isProjectLoaded)
+    {
+        QDir tmpDir(myProject.outputMap.path + "tmp");
+        tmpDir.removeRecursively();
+        myProject.outputMap.closeProject();
+    }
 
     ui->checkList->clear();
     delete mapView;
@@ -864,6 +871,14 @@ void MainWindow::on_actionLoadProject_triggered()
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open project"), "", tr("Settings files (*.ini)"));
 
     if (projFileName == "") return;
-
-    QString path = QFileInfo(projFileName).absolutePath()+"/";
+    if (!myProject.outputMap.initializeProject(projFileName))
+    {
+        QMessageBox::information(nullptr, "Project setting error", myProject.outputMap.error);
+        return;
+    }
+    else
+    {
+        QDir().mkdir(myProject.outputMap.path + "tmp");
+    }
+    // TO DO LOAD UCM
 }
