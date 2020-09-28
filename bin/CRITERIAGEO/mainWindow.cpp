@@ -880,5 +880,9 @@ void MainWindow::on_actionLoadProject_triggered()
     {
         QDir().mkdir(myProject.outputMap.path + "tmp");
     }
-    // TO DO LOAD UCM
+    if (! myProject.loadShapefile(myProject.outputMap.ucmFileName))
+        return;
+
+    GisObject* myObject = myProject.objectList.back();
+    this->addShapeObject(myObject);
 }
