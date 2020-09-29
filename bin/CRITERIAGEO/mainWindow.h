@@ -54,6 +54,10 @@
 
         void on_actionMapGoogleTerrain_triggered();
 
+        void on_actionLoadProject_triggered();
+
+        void on_actionOutput_Map_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -89,6 +93,7 @@
         void itemClicked(QListWidgetItem* item);
         void itemMenuRequested(const QPoint point);
         void saveRaster(GisObject* myObject);
+        void saveShape(GisObject* myObject);
         void removeRaster(GisObject* myObject);
         void removeShape(GisObject* myObject);
         void setShapeStyle(GisObject* myObject);

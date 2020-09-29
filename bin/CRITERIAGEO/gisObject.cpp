@@ -26,6 +26,7 @@
 */
 
 #include "gisObject.h"
+#include "utilities.h"
 
 
 GisObject::GisObject()
@@ -33,6 +34,11 @@ GisObject::GisObject()
     this->initialize();
 }
 
+
+QString GisObject::getFileNameWithPath() const
+{
+    return fileNameWithPath;
+}
 
 void GisObject::initialize()
 {
@@ -95,19 +101,4 @@ void GisObject::close()
     this->initialize();
 }
 
-
-QString getFileName(QString fileNameWithPath)
-{
-    QString c;
-    QString fileName = "";
-    for (int i = fileNameWithPath.length()-1; i >= 0; i--)
-    {
-        c = fileNameWithPath.mid(i,1);
-        if ((c != "\\") && (c != "/"))
-            fileName = c + fileName;
-        else
-            return fileName;
-    }
-    return fileName;
-}
 

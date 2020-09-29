@@ -15,12 +15,30 @@
 QT    += core gui network widgets sql
 
 TEMPLATE = app
-TARGET = CRITERIA_GEO
+
+unix:{
+    CONFIG(debug, debug|release) {
+        TARGET = debug/CRITERIA_GEO
+    } else {
+        TARGET = release/CRITERIA_GEO
+    }
+}
+macx:{
+    CONFIG(debug, debug|release) {
+        TARGET = debug/CRITERIA_GEO
+    } else {
+        TARGET = release/CRITERIA_GEO
+    }
+}
+win32:{
+    TARGET = CRITERIA_GEO
+}
 
 INCLUDEPATH +=  ../../mapGraphics \
-                ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
-                ../../agrolib/shapeUtilities ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib \
-                ../../agrolib/graphics ../../agrolib/project
+                ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop   \
+                ../../agrolib/utilities ../../agrolib/shapeUtilities  \
+                ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib  \
+                ../../agrolib/criteriaOutput ../../agrolib/graphics ../../agrolib/project
 
 CONFIG += debug_and_release
 
@@ -51,21 +69,25 @@ GDAL {
 }
 
 CONFIG(debug, debug|release) {
+
+    LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
-    LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
+    LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/gis/debug -lgis
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
+
 } else {
+
+    LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
-    LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
+    LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/gis/release -lgis
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
 }
-
 
 HEADERS += \
     ../../agrolib/graphics/mapGraphicsRasterObject.h \
@@ -79,7 +101,8 @@ HEADERS += \
     dialogUcmIntersection.h \
     dialogUcmPrevailing.h \
     gisObject.h \
-    mainWindow.h
+    mainWindow.h \
+    tableDbf.h
 
 SOURCES += \
     ../../agrolib/graphics/mapGraphicsRasterObject.cpp \
@@ -94,7 +117,8 @@ SOURCES += \
     dbfTableDialog.cpp \
     dbfNewColDialog.cpp \
     gisObject.cpp \
-    main.cpp
+    main.cpp \
+    tableDbf.cpp
 
 
 FORMS += \

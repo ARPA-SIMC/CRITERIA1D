@@ -44,8 +44,8 @@ SOURCES += \
     main.cpp
 
 
-INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop ../../agrolib/gis \
-                ../../agrolib/criteriaModel ../../agrolib/utilities ../../agrolib/shapeUtilities ../../agrolib/shapeHandler \
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop  \
+                ../../agrolib/utilities ../../agrolib/shapeUtilities ../../agrolib/shapeHandler \
                 ../../agrolib/shapeHandler/shapelib ../../agrolib/criteriaOutput
 
 

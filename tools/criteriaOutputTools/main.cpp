@@ -7,7 +7,7 @@
 #include <iostream>
 
 // uncomment to compute test
-#define TEST
+//#define TEST
 
 void usage()
 {
@@ -30,8 +30,7 @@ int main(int argc, char *argv[])
             if (! searchDataPath(&dataPath)) return -1;
 
             settingsFileName = dataPath + "PROJECT/INCOLTO/bollAgro.ini";
-            dateComputationStr = "2020-08-13";
-            //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
+            dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
             operation = "MAPS";
         #else
             usage();

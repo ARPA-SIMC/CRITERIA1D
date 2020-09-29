@@ -36,9 +36,8 @@
         void setRaster(QString filename, gis::Crit3DRasterGrid* rasterPtr, int utmZone);
         void setShapeFile(QString filename, Crit3DShapeHandler* shapePtr, int utmZone);
         void close();
+        QString getFileNameWithPath() const;
     };
-
-    QString getFileName(QString fileNameComplete);
 
 
 #endif // GISOBJECT_H

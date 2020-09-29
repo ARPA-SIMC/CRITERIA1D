@@ -31,6 +31,7 @@
 #include "dialogUcmIntersection.h"
 #include "dbfTableDialog.h"
 #include "commonConstants.h"
+#include "shapeUtilities.h"
 
 #ifdef GDAL
     #include "gdalExtensions.h"
@@ -84,6 +85,17 @@ MainWindow::~MainWindow()
     if (! this->rasterObjList.empty())
         for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
             delete this->rasterObjList[i];
+
+    if (! this->shapeObjList.empty())
+        for (unsigned int i = 0; i < this->shapeObjList.size(); i++)
+            delete this->shapeObjList[i];
+
+    if (myProject.outputProject.isProjectLoaded)
+    {
+        QDir tmpDir(myProject.outputProject.path + "tmp");
+        tmpDir.removeRecursively();
+        myProject.outputProject.closeProject();
+    }
 
     ui->checkList->clear();
     delete mapView;
@@ -415,6 +427,14 @@ void MainWindow::saveRaster(GisObject* myObject)
     }
 }
 
+void MainWindow::saveShape(GisObject* myObject)
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Shapefile"), "", tr("shp files (*.shp)"));
+    if (fileName == "") return;
+    // make a copy of shapefile, keep original file
+    copyShapeFile(myObject->getFileNameWithPath(), fileName);
+}
+
 
 void MainWindow::removeRaster(GisObject* myObject)
 {
@@ -499,6 +519,7 @@ void MainWindow::setShapeStyle(GisObject* myObject)
 
 bool MainWindow::exportToRaster(GisObject* myObject)
 {
+#ifdef GDAL
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GDALRASTER);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
@@ -513,6 +534,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
         {
             res = QString::number(shapeFieldDialog.getCellSize());
         }
+
         QStringList gdalExt = getGdalRasterWriteExtension();
         QString outputName = QFileDialog::getSaveFileName(this, tr("Save raster as"), "", gdalExt.join(";\n"));
         if (outputName == "")
@@ -520,6 +542,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
             QMessageBox::information(nullptr, "Insert output name", "missing raster name");
             return false;
         }
+
         QString errorStr;
         if (!myProject.createRaster(QString::fromStdString(shapeFilePath), fieldName, res, outputName, errorStr))
         {
@@ -531,6 +554,10 @@ bool MainWindow::exportToRaster(GisObject* myObject)
         return true;
     }
     return true;
+#else
+    QMessageBox::critical(nullptr, "ERROR", "Missing GDAL");
+    return false;
+#endif
 }
 
 
@@ -548,6 +575,8 @@ void MainWindow::itemMenuRequested(const QPoint point)
 
     if (myObject->type == gisObjectShape)
     {
+        submenu.addAction("Save as");
+        submenu.addSeparator();
         submenu.addAction("Show data");
         submenu.addAction("Attribute table");
         submenu.addSeparator();
@@ -610,6 +639,10 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectRaster)
             {
                 this->saveRaster(myObject);
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                this->saveShape(myObject);
             }
         }
         else if (rightClickItem->text().contains("Set grayscale"))
@@ -832,3 +865,49 @@ void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
     }
 }
 
+
+void MainWindow::on_actionLoadProject_triggered()
+{
+    QString projFileName = QFileDialog::getOpenFileName(this, tr("Open project"), "", tr("Settings files (*.ini)"));
+
+    if (projFileName == "") return;
+
+    // set current dateTime, then GUI overwrite this innformation
+    int myResult = myProject.outputProject.initializeProject(projFileName, QDateTime::currentDateTime().date());
+    if (myResult != CRIT3D_OK)
+    {
+        QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.projectError);
+        return;
+    }
+    else
+    {
+        QDir().mkdir(myProject.outputProject.path + "tmp");
+    }
+
+    if (! myProject.loadShapefile(myProject.outputProject.ucmFileName))
+        return;
+
+    GisObject* myObject = myProject.objectList.back();
+
+    // enable Output map action
+    this->addShapeObject(myObject);
+    QMenu *menu = nullptr;
+    menu = this->menuBar()->findChild<QMenu *>("menuTools");
+    if (menu != nullptr)
+    {
+        QList<QAction*> list = menu->actions();
+        foreach (QAction *action, list)
+        {
+            if (action->text() == "Output map")
+            {
+                action->setEnabled(true);
+            }
+        }
+    }
+
+}
+
+void MainWindow::on_actionOutput_Map_triggered()
+{
+
+}

@@ -517,7 +517,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -969,9 +969,10 @@
     <property name="title">
      <string>Fi&amp;le</string>
     </property>
+    <addaction name="actionLoadProject"/>
+    <addaction name="separator"/>
     <addaction name="actionLoadShapefile"/>
     <addaction name="actionLoadRaster"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuGIS_settings">
     <property name="title">
@@ -997,10 +998,13 @@
      <string>Tools</string>
     </property>
     <addaction name="actionRasterize_shape"/>
-    <addaction name="actionCompute_Ucm_prevailing"/>
-    <addaction name="actionCompute_Ucm_intersection"/>
-    <addaction name="actionExtract_Unit_Crop_Map_list"/>
     <addaction name="actionCreate_Shape_file_from_Csv"/>
+    <addaction name="actionCompute_Ucm_intersection"/>
+    <addaction name="separator"/>
+    <addaction name="actionCompute_Ucm_prevailing"/>
+    <addaction name="actionExtract_Unit_Crop_Map_list"/>
+    <addaction name="separator"/>
+    <addaction name="actionOutput_Map"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -1051,22 +1055,25 @@
   </action>
   <action name="actionCompute_Ucm_prevailing">
    <property name="text">
-    <string>Compute UCM prevailing</string>
+    <string>Create Unit Crop Map (prevailing)</string>
    </property>
   </action>
   <action name="actionExtract_Unit_Crop_Map_list">
    <property name="text">
-    <string>Extract Unit Crop Map list</string>
+    <string>Extract computation units list</string>
    </property>
   </action>
   <action name="actionCreate_Shape_file_from_Csv">
    <property name="text">
-    <string>Create Shape file from CSV</string>
+    <string>Create shape from CSV</string>
    </property>
   </action>
   <action name="actionCompute_Ucm_intersection">
    <property name="text">
     <string>Compute UCM intersection</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionMapGoogle">
@@ -1096,6 +1103,19 @@
   <action name="actionMapGoogleTerrain">
    <property name="text">
     <string>Google terrain</string>
+   </property>
+  </action>
+  <action name="actionLoadProject">
+   <property name="text">
+    <string>Load Project...</string>
+   </property>
+  </action>
+  <action name="actionOutput_Map">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Output map</string>
    </property>
   </action>
  </widget>

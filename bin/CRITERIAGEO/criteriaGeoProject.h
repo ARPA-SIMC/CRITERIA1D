@@ -10,6 +10,9 @@
     #ifndef GISOBJECT_H
         #include "gisObject.h"
     #endif
+    #ifndef CRITERIAOUTPUTPROJECT_H
+        #include "criteriaOutputProject.h"
+    #endif
 
     #include <QString>
     #include <vector>
@@ -21,6 +24,7 @@
     public:
         gis::Crit3DGisSettings gisSettings;
         std::vector<GisObject*> objectList;
+        CriteriaOutputProject outputProject;
 
         CriteriaGeoProject();
 
