@@ -45,7 +45,6 @@
 
         bool createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error);
 
-        void logError(std::string errorString);
         void logError(QString errorString);
     };
 
