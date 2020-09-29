@@ -29,6 +29,7 @@
 #include "dialogSelectField.h"
 #include "dialogUcmPrevailing.h"
 #include "dialogUcmIntersection.h"
+#include "dialogOutputMap.h"
 #include "dbfTableDialog.h"
 #include "commonConstants.h"
 #include "shapeUtilities.h"
@@ -909,5 +910,7 @@ void MainWindow::on_actionLoadProject_triggered()
 
 void MainWindow::on_actionOutput_Map_triggered()
 {
-
+    DialogOutputMap outputMap;
+    if (outputMap.result() != QDialog::Accepted)
+        return;
 }

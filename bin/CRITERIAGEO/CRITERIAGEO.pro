@@ -94,6 +94,7 @@ HEADERS += \
     ../../agrolib/graphics/mapGraphicsShapeObject.h \
     ../../agrolib/graphics/colorLegend.h \
     criteriaGeoProject.h \
+    dialogOutputMap.h \
     dialogSelectField.h \
     dialogShapeProperties.h \
     dbfTableDialog.h \
@@ -102,6 +103,8 @@ HEADERS += \
     dialogUcmPrevailing.h \
     gisObject.h \
     mainWindow.h \
+    tabMap.h \
+    tabSymbology.h \
     tableDbf.h
 
 SOURCES += \
@@ -109,6 +112,7 @@ SOURCES += \
     ../../agrolib/graphics/mapGraphicsShapeObject.cpp \
     ../../agrolib/graphics/colorLegend.cpp \
     criteriaGeoProject.cpp \
+    dialogOutputMap.cpp \
     dialogSelectField.cpp \
     dialogShapeProperties.cpp \
     dialogUcmIntersection.cpp \
@@ -118,6 +122,8 @@ SOURCES += \
     dbfNewColDialog.cpp \
     gisObject.cpp \
     main.cpp \
+    tabMap.cpp \
+    tabSymbology.cpp \
     tableDbf.cpp
 
 
