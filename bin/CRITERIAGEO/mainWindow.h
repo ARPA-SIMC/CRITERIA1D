@@ -56,6 +56,8 @@
 
         void on_actionLoadProject_triggered();
 
+        void on_actionOutput_Map_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

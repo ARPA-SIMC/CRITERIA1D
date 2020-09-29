@@ -517,7 +517,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -1111,6 +1111,9 @@
    </property>
   </action>
   <action name="actionOutput_Map">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Output map</string>
    </property>

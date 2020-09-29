@@ -90,14 +90,12 @@ MainWindow::~MainWindow()
         for (unsigned int i = 0; i < this->shapeObjList.size(); i++)
             delete this->shapeObjList[i];
 
-    /*
     if (myProject.outputProject.isProjectLoaded)
     {
         QDir tmpDir(myProject.outputProject.path + "tmp");
         tmpDir.removeRecursively();
         myProject.outputProject.closeProject();
     }
-    */
 
     ui->checkList->clear();
     delete mapView;
@@ -873,10 +871,12 @@ void MainWindow::on_actionLoadProject_triggered()
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open project"), "", tr("Settings files (*.ini)"));
 
     if (projFileName == "") return;
-    /*
-    if (!myProject.outputProject.initializeProject(projFileName))
+
+    // set current dateTime, then GUI overwrite this innformation
+    int myResult = myProject.outputProject.initializeProject(projFileName, QDateTime::currentDateTime().date());
+    if (myResult != CRIT3D_OK)
     {
-        QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.error);
+        QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.projectError);
         return;
     }
     else
@@ -888,6 +888,26 @@ void MainWindow::on_actionLoadProject_triggered()
         return;
 
     GisObject* myObject = myProject.objectList.back();
+
+    // enable Output map action
     this->addShapeObject(myObject);
-    */
+    QMenu *menu = nullptr;
+    menu = this->menuBar()->findChild<QMenu *>("menuTools");
+    if (menu != nullptr)
+    {
+        QList<QAction*> list = menu->actions();
+        foreach (QAction *action, list)
+        {
+            if (action->text() == "Output map")
+            {
+                action->setEnabled(true);
+            }
+        }
+    }
+
+}
+
+void MainWindow::on_actionOutput_Map_triggered()
+{
+
 }
