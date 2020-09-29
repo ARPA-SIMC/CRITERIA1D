@@ -15,7 +15,14 @@ TabMap::TabMap()
 
     QLabel *elabLabel = new QLabel(tr("Elaboration:"));
     elaborationLayout->addWidget(elabLabel);
-    //elaborationLayout->addWidget(elabList);
+    // elaboration list
+    elabList = new QComboBox();
+    elabList->addItem("daily value");
+    elabList->addItem("average");
+    elabList->addItem("sum");
+    elabList->addItem("max value");
+    elabList->addItem("min value");
+    elaborationLayout->addWidget(elabList);
 
     QLabel *startDateLabel = new QLabel(tr("Start date:"));
     startDate = new QDateEdit();
@@ -30,14 +37,20 @@ TabMap::TabMap()
     climateComp->setText("Climate Computation");
     climateComp->setChecked(false);
     climateElabLayout->addWidget(climateComp);
-    //climateElabLayout->addWidget(computationList);
-    QLabel *timeWindowLabel = new QLabel(tr("TimeWindow:"));
+    // climate computation list
+    climateCompList = new QComboBox();
+    climateCompList->addItem("percentile");
+    climateCompList->setVisible(false);
+    climateElabLayout->addWidget(climateCompList);
+    timeWindowLabel = new QLabel(tr("TimeWindow:"));
     timeWindowLabel->setVisible(false);
     timeWindow = new QLineEdit();
+    timeWindow->setValidator(new QIntValidator(0, 100));
     timeWindow->setVisible(false);
-    QLabel *thresholdLabel = new QLabel(tr("Threshold:"));
+    thresholdLabel = new QLabel(tr("Threshold:"));
     thresholdLabel->setVisible(false);
     threshold = new QLineEdit();
+    threshold->setValidator(new QDoubleValidator(0, 100, 2));
     threshold->setVisible(false);
     climateElabLayout->addWidget(timeWindowLabel);
     climateElabLayout->addWidget(timeWindow);
@@ -49,6 +62,8 @@ TabMap::TabMap()
     outputNameLayout->addWidget(fileNameLabel);
     outputNameLayout->addWidget(fileNameEdit);
 
+    connect(climateComp, &QCheckBox::stateChanged, [=](int state){ this->climateComputation(state); });
+
     mainLayout->addLayout(varLayout);
     mainLayout->addLayout(elaborationLayout);
     mainLayout->addLayout(dateLayout);
@@ -57,4 +72,24 @@ TabMap::TabMap()
 
     setLayout(mainLayout);
 
+}
+
+void TabMap::climateComputation(int state)
+{
+    if (state!= 0)
+    {
+        climateCompList->setVisible(true);
+        timeWindowLabel->setVisible(true);
+        timeWindow->setVisible(true);
+        thresholdLabel->setVisible(true);
+        threshold->setVisible(true);
+    }
+    else
+    {
+        climateCompList->setVisible(false);
+        timeWindowLabel->setVisible(false);
+        timeWindow->setVisible(false);
+        thresholdLabel->setVisible(false);
+        threshold->setVisible(false);
+    }
 }
