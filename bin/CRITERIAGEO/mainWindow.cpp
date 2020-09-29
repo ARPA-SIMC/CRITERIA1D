@@ -30,7 +30,7 @@
 #include "dialogUcmPrevailing.h"
 #include "dialogUcmIntersection.h"
 #include "dialogOutputMap.h"
-#include "dbfTableDialog.h"
+#include "dialogDbfTable.h"
 #include "commonConstants.h"
 #include "shapeUtilities.h"
 
@@ -625,7 +625,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Attribute table"))
         {
-            DbfTableDialog Table(myObject->getShapeHandler(), myObject->fileName);
+            DialogDbfTable Table(myObject->getShapeHandler(), myObject->fileName);
         }
         else if (rightClickItem->text().contains("Set style"))
         {

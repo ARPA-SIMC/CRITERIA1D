@@ -1,7 +1,7 @@
-#include "dbfTableDialog.h"
+#include "dialogDbfTable.h"
 #include "shapeUtilities.h"
 
-DbfTableDialog::DbfTableDialog(Crit3DShapeHandler* shapeHandler, QString fileName)
+DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, QString fileName)
     :shapeHandler(shapeHandler)
 {
     // make a copy of shapefile
@@ -111,11 +111,11 @@ DbfTableDialog::DbfTableDialog(Crit3DShapeHandler* shapeHandler, QString fileNam
 }
 
 
-DbfTableDialog::~DbfTableDialog()
+DialogDbfTable::~DialogDbfTable()
 {
 }
 
-void DbfTableDialog::addRowClicked()
+void DialogDbfTable::addRowClicked()
 {
 
     m_DBFTableWidget->insertRow(m_DBFTableWidget->rowCount());
@@ -125,7 +125,7 @@ void DbfTableDialog::addRowClicked()
 
 }
 
-void DbfTableDialog::removeRowClicked()
+void DialogDbfTable::removeRowClicked()
 {
 
     if (m_DBFTableWidget->selectionBehavior() == QAbstractItemView::SelectColumns)
@@ -183,9 +183,9 @@ void DbfTableDialog::removeRowClicked()
 
 }
 
-void DbfTableDialog::addColClicked()
+void DialogDbfTable::addColClicked()
 {
-    newColDialog = new DbfNewColDialog();
+    newColDialog = new DialogDbfNewCol();
     if (newColDialog->getInsertOK())
     {
         QString name = newColDialog->getName();
@@ -228,7 +228,7 @@ void DbfTableDialog::addColClicked()
     }
 }
 
-void DbfTableDialog::removeColClicked()
+void DialogDbfTable::removeColClicked()
 {
 
     qDebug() << "removeColClicked ";
@@ -260,7 +260,7 @@ void DbfTableDialog::removeColClicked()
 }
 
 
-void DbfTableDialog::cellChanged(int row, int column)
+void DialogDbfTable::cellChanged(int row, int column)
 {
     qDebug() << "Cell at row: " << QString::number(row) << " column " << QString::number(column)<<" was changed.";
     QString data = m_DBFTableWidget->item(row, column)->text();
@@ -280,7 +280,7 @@ void DbfTableDialog::cellChanged(int row, int column)
 
 }
 
-void DbfTableDialog::closeEvent(QCloseEvent *event)
+void DialogDbfTable::closeEvent(QCloseEvent *event)
 {
     shapeHandler->close();
 
@@ -313,14 +313,14 @@ void DbfTableDialog::closeEvent(QCloseEvent *event)
 }
 
 
-void DbfTableDialog::copyAllClicked()
+void DialogDbfTable::copyAllClicked()
 {
     m_DBFTableWidget->selectAll();
     m_DBFTableWidget->copySelection();
 }
 
 
-void DbfTableDialog::saveChangesClicked()
+void DialogDbfTable::saveChangesClicked()
 {
     QString filepath = QString::fromStdString(shapeHandler->getFilepath());
     QFileInfo filepathInfo(filepath);
@@ -344,19 +344,19 @@ void DbfTableDialog::saveChangesClicked()
 }
 
 
-void DbfTableDialog::horizontalHeaderClick(int index)
+void DialogDbfTable::horizontalHeaderClick(int index)
 {
     m_DBFTableWidget->setSelectionBehavior(QAbstractItemView::SelectColumns);
     m_DBFTableWidget->setCurrentCell(0, index);
 }
 
-void DbfTableDialog::verticalHeaderClick(int index)
+void DialogDbfTable::verticalHeaderClick(int index)
 {
     m_DBFTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_DBFTableWidget->setCurrentCell(index, 0);
 }
 
-void DbfTableDialog::menuRequested(const QPoint point)
+void DialogDbfTable::menuRequested(const QPoint point)
 {
     QPoint itemPoint = m_DBFTableWidget->mapToGlobal(point);
 

@@ -1,7 +1,7 @@
-#include "dbfNewColDialog.h"
+#include "dialogDbfNewCol.h"
 
 
-DbfNewColDialog::DbfNewColDialog()
+DialogDbfNewCol::DialogDbfNewCol()
 {
 
     insertOK = false;
@@ -50,12 +50,12 @@ DbfNewColDialog::DbfNewColDialog()
     exec();
 }
 
-DbfNewColDialog::~DbfNewColDialog()
+DialogDbfNewCol::~DialogDbfNewCol()
 {
     close();
 }
 
-bool DbfNewColDialog::insertCol()
+bool DialogDbfNewCol::insertCol()
 {
     if (!checkValidData())
     {
@@ -68,19 +68,19 @@ bool DbfNewColDialog::insertCol()
 
 }
 
-void DbfNewColDialog::showWidthEdit()
+void DialogDbfNewCol::showWidthEdit()
 {
     nWidth->setVisible(true);
     return;
 }
 
-void DbfNewColDialog::hideWidthEdit()
+void DialogDbfNewCol::hideWidthEdit()
 {
     nWidth->setVisible(false);
     return;
 }
 
-bool DbfNewColDialog::checkValidData()
+bool DialogDbfNewCol::checkValidData()
 {
     if (name->text().isEmpty())
     {
@@ -103,17 +103,17 @@ bool DbfNewColDialog::checkValidData()
 }
 
 
-bool DbfNewColDialog::getInsertOK() const
+bool DialogDbfNewCol::getInsertOK() const
 {
     return insertOK;
 }
 
-QString DbfNewColDialog::getName()
+QString DialogDbfNewCol::getName()
 {
     return name->text();
 }
 
-int DbfNewColDialog::getType()
+int DialogDbfNewCol::getType()
 {
     if (stringButton->isChecked())
     {
@@ -127,7 +127,7 @@ int DbfNewColDialog::getType()
        return FTDouble;
 }
 
-int DbfNewColDialog::getWidth()
+int DialogDbfNewCol::getWidth()
 {
     return nWidth->text().toInt();
 }
