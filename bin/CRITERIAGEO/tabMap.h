@@ -6,6 +6,13 @@
 class TabMap : public QWidget
 {
     Q_OBJECT
+private:
+    QDateEdit *startDate;
+    QDateEdit *endDate;
+    QCheckBox *climateComp;
+    QLineEdit *timeWindow;
+    QLineEdit *threshold;
+    QLineEdit *fileNameEdit;
 public:
     TabMap();
 };
