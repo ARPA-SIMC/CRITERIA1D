@@ -102,7 +102,7 @@ bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath)
     Crit3DShapeHandler *myShape = new(Crit3DShapeHandler);
     if (!myShape->open(fileNameWithPath.toStdString()))
     {
-        qDebug("Load shapefile failed!");
+        logError("Load shapefile failed.");
         return false;
     }
 
@@ -160,7 +160,7 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
         }
         else
         {
-            logError(errorStr);
+            logError(QString::fromStdString(errorStr));
             return false;
         }
     }
@@ -174,12 +174,11 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
         }
         else
         {
-            logError(errorStr);
+            logError(QString::fromStdString(errorStr));
             return false;
         }
         #else
-            errorStr = "Function is not available (needs GDAL library).";
-            logError(errorStr);
+            logError("Function is not available (needs GDAL library)");
             return false;
         #endif
     }
@@ -288,11 +287,6 @@ bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeFi
 //--------------------------------------------------------------
 // LOG
 //--------------------------------------------------------------
-
-void CriteriaGeoProject::logError(std::string errorString)
-{
-    QMessageBox::critical(nullptr, "ERROR!", QString::fromStdString(errorString));
-}
 
 void CriteriaGeoProject::logError(QString errorString)
 {

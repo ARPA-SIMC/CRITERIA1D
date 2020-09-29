@@ -879,18 +879,22 @@ void MainWindow::on_actionLoadProject_triggered()
         QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.projectError);
         return;
     }
-    else
+
+    if (myProject.outputProject.ucmFileName == "")
     {
-        QDir().mkdir(myProject.outputProject.path + "tmp");
+        QMessageBox::information(nullptr, "Project setting error", "Missing Unit Crop Map (shapefile)");
+        return;
     }
 
     if (! myProject.loadShapefile(myProject.outputProject.ucmFileName))
         return;
 
     GisObject* myObject = myProject.objectList.back();
+    this->addShapeObject(myObject);
+
+    QDir().mkdir(myProject.outputProject.path + "tmp");
 
     // enable Output map action
-    this->addShapeObject(myObject);
     QMenu *menu = nullptr;
     menu = this->menuBar()->findChild<QMenu *>("menuTools");
     if (menu != nullptr)
