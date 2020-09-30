@@ -914,6 +914,17 @@ void MainWindow::on_actionLoadProject_triggered()
 
 void MainWindow::on_actionOutput_Map_triggered()
 {
+    QString error;
+    if (!myProject.outputProject.getAllDbVariable(error))
+    {
+        QMessageBox::information(nullptr, "Load variable db data error", error);
+        return;
+    }
+    else
+    {
+        // add DTX
+        myProject.outputProject.outputVariable.varName << "DT30" << "DT90" << "DT180" ;
+    }
     DialogOutputMap outputMap;
     if (outputMap.result() != QDialog::Accepted)
         return;
