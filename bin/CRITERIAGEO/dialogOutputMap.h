@@ -9,10 +9,12 @@ class DialogOutputMap : public QDialog
 private:
     QTabWidget *tabWidget;
     QDialogButtonBox *buttonBox;
+    QStringList varList;
 
 public:
-    DialogOutputMap();
+    DialogOutputMap(QStringList varList);
     ~DialogOutputMap();
+    void done(bool res);
 };
 
 #endif // DIALOGOUTPUTMAP_H
