@@ -1,17 +1,26 @@
 #include "tabMap.h"
 
-TabMap::TabMap()
+TabMap::TabMap(QStringList varList)
+    :varList(varList)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QHBoxLayout *varLayout = new QHBoxLayout;
     QHBoxLayout *elaborationLayout = new QHBoxLayout;
     QHBoxLayout *dateLayout = new QHBoxLayout;
+    dateLayout->setAlignment(Qt::AlignLeft);
     QHBoxLayout *climateElabLayout = new QHBoxLayout;
     QHBoxLayout *outputNameLayout = new QHBoxLayout;
+    outputNameLayout->setAlignment(Qt::AlignLeft);
 
     QLabel *variableLabel = new QLabel(tr("Variable:"));
     varLayout->addWidget(variableLabel);
-    //varLayout->addWidget(variableList);
+    variableList = new QComboBox();
+    variableList->setFixedWidth(200);
+    for (int i = 0; i<varList.size(); i++)
+    {
+        variableList->addItem(varList[i]);
+    }
+    varLayout->addWidget(variableList);
 
     QLabel *elabLabel = new QLabel(tr("Elaboration:"));
     elaborationLayout->addWidget(elabLabel);
@@ -22,24 +31,44 @@ TabMap::TabMap()
     elabList->addItem("sum");
     elabList->addItem("max value");
     elabList->addItem("min value");
+    elabList->setFixedWidth(200);
     elaborationLayout->addWidget(elabList);
 
     startDateLabel = new QLabel(tr("Start date:"));
+    startDateLabel->setFixedWidth(100);
     startDate = new QDateEdit();
+    startDate->setFixedWidth(90);
+    endDateLabel = new QLabel(tr("End date:"));
+    endDateLabel->setFixedWidth(100);
+    endDate = new QDateEdit();
+    endDate->setFixedWidth(90);
+    dateLabel = new QLabel(tr("Date:"));
+    dateLabel->setFixedWidth(100);
+    date = new QDateEdit();
+    date->setFixedWidth(90);
     if (elabList->currentText() == "daily value")
     {
         startDateLabel->setVisible(false);
         startDate->setVisible(false);
+        endDateLabel->setVisible(false);
+        endDate->setVisible(false);
+        dateLabel->setVisible(true);
+        date->setVisible(true);
     }
     else
     {
         startDateLabel->setVisible(true);
         startDate->setVisible(true);
+        endDateLabel->setVisible(true);
+        endDate->setVisible(true);
+        dateLabel->setVisible(false);
+        date->setVisible(false);
     }
-    QLabel *endDateLabel = new QLabel(tr("End date:"));
-    endDate = new QDateEdit();
+    dateLayout->addWidget(dateLabel);
+    dateLayout->addWidget(date);
     dateLayout->addWidget(startDateLabel);
     dateLayout->addWidget(startDate);
+    dateLayout->addSpacing(20);
     dateLayout->addWidget(endDateLabel);
     dateLayout->addWidget(endDate);
 
@@ -57,11 +86,13 @@ TabMap::TabMap()
     timeWindow = new QLineEdit();
     timeWindow->setValidator(new QIntValidator(0, 100));
     timeWindow->setVisible(false);
+    timeWindow->setFixedWidth(40);
     thresholdLabel = new QLabel(tr("Threshold:"));
     thresholdLabel->setVisible(false);
     threshold = new QLineEdit();
     threshold->setValidator(new QDoubleValidator(0, 100, 2));
     threshold->setVisible(false);
+    threshold->setFixedWidth(40);
     climateElabLayout->addWidget(timeWindowLabel);
     climateElabLayout->addWidget(timeWindow);
     climateElabLayout->addWidget(thresholdLabel);
@@ -69,6 +100,7 @@ TabMap::TabMap()
 
     QLabel *fileNameLabel = new QLabel(tr("Output File Name:"));
     fileNameEdit = new QLineEdit();
+    fileNameEdit->setFixedWidth(200);
     outputNameLayout->addWidget(fileNameLabel);
     outputNameLayout->addWidget(fileNameEdit);
 
@@ -111,10 +143,18 @@ void TabMap::listElaboration(const QString value)
     {
         startDateLabel->setVisible(false);
         startDate->setVisible(false);
+        endDateLabel->setVisible(false);
+        endDate->setVisible(false);
+        dateLabel->setVisible(true);
+        date->setVisible(true);
     }
     else
     {
         startDateLabel->setVisible(true);
         startDate->setVisible(true);
+        endDateLabel->setVisible(true);
+        endDate->setVisible(true);
+        dateLabel->setVisible(false);
+        date->setVisible(false);
     }
 }

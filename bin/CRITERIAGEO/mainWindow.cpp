@@ -925,7 +925,7 @@ void MainWindow::on_actionOutput_Map_triggered()
         // add DTX
         myProject.outputProject.outputVariable.varName << "DT30" << "DT90" << "DT180" ;
     }
-    DialogOutputMap outputMap;
+    DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName);
     if (outputMap.result() != QDialog::Accepted)
         return;
 }
