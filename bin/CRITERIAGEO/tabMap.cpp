@@ -24,8 +24,18 @@ TabMap::TabMap()
     elabList->addItem("min value");
     elaborationLayout->addWidget(elabList);
 
-    QLabel *startDateLabel = new QLabel(tr("Start date:"));
+    startDateLabel = new QLabel(tr("Start date:"));
     startDate = new QDateEdit();
+    if (elabList->currentText() == "daily value")
+    {
+        startDateLabel->setVisible(false);
+        startDate->setVisible(false);
+    }
+    else
+    {
+        startDateLabel->setVisible(true);
+        startDate->setVisible(true);
+    }
     QLabel *endDateLabel = new QLabel(tr("End date:"));
     endDate = new QDateEdit();
     dateLayout->addWidget(startDateLabel);
@@ -63,6 +73,7 @@ TabMap::TabMap()
     outputNameLayout->addWidget(fileNameEdit);
 
     connect(climateComp, &QCheckBox::stateChanged, [=](int state){ this->climateComputation(state); });
+    connect(elabList, &QComboBox::currentTextChanged, [=](const QString &newVar){ this->listElaboration(newVar); });
 
     mainLayout->addLayout(varLayout);
     mainLayout->addLayout(elaborationLayout);
@@ -91,5 +102,19 @@ void TabMap::climateComputation(int state)
         timeWindow->setVisible(false);
         thresholdLabel->setVisible(false);
         threshold->setVisible(false);
+    }
+}
+
+void TabMap::listElaboration(const QString value)
+{
+    if (value == "daily value")
+    {
+        startDateLabel->setVisible(false);
+        startDate->setVisible(false);
+    }
+    else
+    {
+        startDateLabel->setVisible(true);
+        startDate->setVisible(true);
     }
 }

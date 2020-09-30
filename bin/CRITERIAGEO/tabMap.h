@@ -7,6 +7,7 @@ class TabMap : public QWidget
 {
     Q_OBJECT
 private:
+    QLabel *startDateLabel;
     QDateEdit *startDate;
     QDateEdit *endDate;
     QCheckBox *climateComp;
@@ -20,6 +21,7 @@ private:
 public:
     TabMap();
     void climateComputation(int state);
+    void listElaboration(const QString value);
 };
 
 #endif // MAPTAB_H
