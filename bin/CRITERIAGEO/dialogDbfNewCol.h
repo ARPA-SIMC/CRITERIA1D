@@ -3,7 +3,7 @@
 
 #include <QtWidgets>
 
-class DbfNewColDialog : public QDialog
+class DialogDbfNewCol : public QDialog
 {
     Q_OBJECT
 
@@ -24,8 +24,8 @@ class DbfNewColDialog : public QDialog
             FTDouble
         };
 
-        DbfNewColDialog();
-        ~DbfNewColDialog();
+        DialogDbfNewCol();
+        ~DialogDbfNewCol();
         bool insertCol();
         void showWidthEdit();
         void hideWidthEdit();

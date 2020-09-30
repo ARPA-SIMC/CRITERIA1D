@@ -29,7 +29,8 @@
 #include "dialogSelectField.h"
 #include "dialogUcmPrevailing.h"
 #include "dialogUcmIntersection.h"
-#include "dbfTableDialog.h"
+#include "dialogOutputMap.h"
+#include "dialogDbfTable.h"
 #include "commonConstants.h"
 #include "shapeUtilities.h"
 
@@ -624,7 +625,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Attribute table"))
         {
-            DbfTableDialog Table(myObject->getShapeHandler(), myObject->fileName);
+            DialogDbfTable Table(myObject->getShapeHandler(), myObject->fileName);
         }
         else if (rightClickItem->text().contains("Set style"))
         {
@@ -879,18 +880,22 @@ void MainWindow::on_actionLoadProject_triggered()
         QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.projectError);
         return;
     }
-    else
+
+    if (myProject.outputProject.ucmFileName == "")
     {
-        QDir().mkdir(myProject.outputProject.path + "tmp");
+        QMessageBox::information(nullptr, "Project setting error", "Missing Unit Crop Map (shapefile)");
+        return;
     }
 
     if (! myProject.loadShapefile(myProject.outputProject.ucmFileName))
         return;
 
     GisObject* myObject = myProject.objectList.back();
+    this->addShapeObject(myObject);
+
+    QDir().mkdir(myProject.outputProject.path + "tmp");
 
     // enable Output map action
-    this->addShapeObject(myObject);
     QMenu *menu = nullptr;
     menu = this->menuBar()->findChild<QMenu *>("menuTools");
     if (menu != nullptr)
@@ -909,5 +914,18 @@ void MainWindow::on_actionLoadProject_triggered()
 
 void MainWindow::on_actionOutput_Map_triggered()
 {
-
+    QString error;
+    if (!myProject.outputProject.getAllDbVariable(error))
+    {
+        QMessageBox::information(nullptr, "Load variable db data error", error);
+        return;
+    }
+    else
+    {
+        // add DTX
+        myProject.outputProject.outputVariable.varName << "DT30" << "DT90" << "DT180" ;
+    }
+    DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName);
+    if (outputMap.result() != QDialog::Accepted)
+        return;
 }
