@@ -27,6 +27,16 @@ public:
     TabMap(QStringList varList);
     void climateComputation(int state);
     void listElaboration(const QString value);
+    QDate getStartDate() const;
+    QDate getEndDate() const;
+    QDate getDate() const;
+    QString getVariable() const;
+    QString getElab() const;
+    bool isClimateComputation() const;
+    QString getClimateComputation() const;
+    int getTimeWindow() const;
+    double getThreshold() const;
+    QString getOutputName() const;
 };
 
 #endif // MAPTAB_H

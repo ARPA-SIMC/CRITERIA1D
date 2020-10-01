@@ -2,6 +2,8 @@
 #define DIALOGOUTPUTMAP_H
 
 #include <QtWidgets>
+#include "tabMap.h"
+#include "tabSymbology.h"
 
 class DialogOutputMap : public QDialog
 {
@@ -10,11 +12,23 @@ private:
     QTabWidget *tabWidget;
     QDialogButtonBox *buttonBox;
     QStringList varList;
+    TabMap *tabMap;
+    TabSymbology *tabSymbology;
 
 public:
     DialogOutputMap(QStringList varList);
     ~DialogOutputMap();
     void done(bool res);
+    QDate getTabMapStartDate() const;
+    QDate getTabMapEndDate() const;
+    QDate getTabMapDate() const;
+    QString getTabMapVariable() const;
+    QString getTabMapElab() const;
+    bool isTabMapClimateComputation() const;
+    QString getTabMapClimateComputation() const;
+    int getTabMapTimeWindow() const;
+    double getTabMapThreshold() const;
+    QString getTabMapOutputName() const;
 };
 
 #endif // DIALOGOUTPUTMAP_H

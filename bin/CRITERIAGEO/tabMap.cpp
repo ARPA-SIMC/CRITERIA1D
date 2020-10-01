@@ -1,4 +1,5 @@
 #include "tabMap.h"
+#include "commonConstants.h"
 
 TabMap::TabMap(QStringList varList)
     :varList(varList)
@@ -157,4 +158,68 @@ void TabMap::listElaboration(const QString value)
         dateLabel->setVisible(false);
         date->setVisible(false);
     }
+}
+
+QDate TabMap::getStartDate() const
+{
+    return startDate->date();
+}
+
+QDate TabMap::getEndDate() const
+{
+    return endDate->date();
+}
+
+QDate TabMap::getDate() const
+{
+    return date->date();
+}
+
+QString TabMap::getVariable() const
+{
+    return variableList->currentText();
+}
+
+QString TabMap::getElab() const
+{
+    return elabList->currentText();
+}
+
+bool TabMap::isClimateComputation() const
+{
+    return climateComp->isChecked();
+}
+
+QString TabMap::getClimateComputation() const
+{
+    return climateCompList->currentText();
+}
+
+int TabMap::getTimeWindow() const
+{
+    if (timeWindow->text().isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return timeWindow->text().toInt();
+    }
+}
+
+double TabMap::getThreshold() const
+{
+    if (threshold->text().isEmpty())
+    {
+        return NODATA;
+    }
+    else
+    {
+        return threshold->text().toDouble();
+    }
+}
+
+QString TabMap::getOutputName() const
+{
+    return fileNameEdit->text();
 }

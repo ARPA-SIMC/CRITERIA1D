@@ -928,4 +928,36 @@ void MainWindow::on_actionOutput_Map_triggered()
     DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName);
     if (outputMap.result() != QDialog::Accepted)
         return;
+    else
+    {
+        // fill myProject.outputProject.outputVariable
+        QDate dateComputation;
+        myProject.outputProject.outputVariable.varName.clear();
+        myProject.outputProject.outputVariable.varName << outputMap.getTabMapVariable();
+        if (outputMap.getTabMapElab() == "daily value")
+        {
+            // myProject.outputProject.outputVariable.computation is empty
+            dateComputation = outputMap.getTabMapDate();
+            myProject.outputProject.outputVariable.nrDays << "0";
+
+        }
+        else
+        {
+            myProject.outputProject.outputVariable.computation << outputMap.getTabMapElab();
+            dateComputation = outputMap.getTabMapStartDate();
+            myProject.outputProject.outputVariable.nrDays << QString::number(outputMap.getTabMapStartDate().daysTo(outputMap.getTabMapEndDate()));
+        }
+        myProject.outputProject.outputVariable.referenceDay << 0;
+        if (outputMap.isTabMapClimateComputation())
+        {
+            myProject.outputProject.outputVariable.climateComputation << outputMap.getTabMapClimateComputation();
+            if (outputMap.getTabMapThreshold() != NODATA)
+            {
+                myProject.outputProject.outputVariable.param1 << outputMap.getTabMapThreshold();
+            }
+            myProject.outputProject.outputVariable.param2 << outputMap.getTabMapTimeWindow();
+
+        }
+        myProject.outputProject.outputVariable.outputVarName << outputMap.getTabMapOutputName();
+    }
 }
