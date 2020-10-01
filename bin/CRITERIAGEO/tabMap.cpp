@@ -158,3 +158,53 @@ void TabMap::listElaboration(const QString value)
         date->setVisible(false);
     }
 }
+
+QDate TabMap::getStartDate() const
+{
+    return startDate->date();
+}
+
+QDate TabMap::getEndDate() const
+{
+    return endDate->date();
+}
+
+QDate TabMap::getDate() const
+{
+    return date->date();
+}
+
+QString TabMap::getVariable() const
+{
+    return variableList->currentText();
+}
+
+QString TabMap::getElab() const
+{
+    return elabList->currentText();
+}
+
+bool TabMap::isClimateComputation() const
+{
+    return climateComp->isChecked();
+}
+
+QString TabMap::getClimateComputation() const
+{
+    return climateCompList->currentText();
+}
+
+int TabMap::getTimeWindow() const
+{
+    return timeWindow->text().toInt();
+}
+
+double TabMap::getThreshold() const
+{
+    return threshold->text().toDouble();
+}
+
+QString TabMap::getOutputName() const
+{
+    return fileNameEdit->text();
+}

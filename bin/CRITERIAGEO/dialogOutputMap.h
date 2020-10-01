@@ -2,6 +2,8 @@
 #define DIALOGOUTPUTMAP_H
 
 #include <QtWidgets>
+#include "tabMap.h"
+#include "tabSymbology.h"
 
 class DialogOutputMap : public QDialog
 {
@@ -10,6 +12,8 @@ private:
     QTabWidget *tabWidget;
     QDialogButtonBox *buttonBox;
     QStringList varList;
+    TabMap *tabMap;
+    TabSymbology *tabSymbology;
 
 public:
     DialogOutputMap(QStringList varList);
