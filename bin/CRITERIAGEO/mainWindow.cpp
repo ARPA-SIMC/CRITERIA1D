@@ -873,7 +873,7 @@ void MainWindow::on_actionLoadProject_triggered()
 
     if (projFileName == "") return;
 
-    // set current dateTime, then GUI overwrite this innformation
+    // set current dateTime, then GUI overwrite this information
     int myResult = myProject.outputProject.initializeProject(projFileName, QDateTime::currentDateTime().date());
     if (myResult != CRIT3D_OK)
     {
