@@ -58,3 +58,54 @@ void DialogOutputMap::done(bool res)
         return;
     }
 }
+
+QDate DialogOutputMap::getTabMapStartDate() const
+{
+    return tabMap->getStartDate();
+}
+
+QDate DialogOutputMap::getTabMapEndDate() const
+{
+    return tabMap->getEndDate();
+}
+
+QDate DialogOutputMap::getTabMapDate() const
+{
+    return tabMap->getDate();
+}
+
+QString DialogOutputMap::getTabMapVariable() const
+{
+    return tabMap->getVariable();
+}
+
+QString DialogOutputMap::getTabMapElab() const
+{
+    return tabMap->getElab();
+}
+
+bool DialogOutputMap::isTabMapClimateComputation() const
+{
+    return tabMap->isClimateComputation();
+}
+
+QString DialogOutputMap::getTabMapClimateComputation() const
+{
+    return tabMap->getClimateComputation();
+}
+
+int DialogOutputMap::getTabMapTimeWindow() const
+{
+    return tabMap->getTimeWindow();
+}
+
+double DialogOutputMap::getTabMapThreshold() const
+{
+    return tabMap->getThreshold();
+}
+
+QString DialogOutputMap::getTabMapOutputName() const
+{
+    return tabMap->getOutputName();
+}
+

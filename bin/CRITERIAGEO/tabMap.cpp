@@ -1,4 +1,5 @@
 #include "tabMap.h"
+#include "commonConstants.h"
 
 TabMap::TabMap(QStringList varList)
     :varList(varList)
@@ -196,12 +197,26 @@ QString TabMap::getClimateComputation() const
 
 int TabMap::getTimeWindow() const
 {
-    return timeWindow->text().toInt();
+    if (timeWindow->text().isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return timeWindow->text().toInt();
+    }
 }
 
 double TabMap::getThreshold() const
 {
-    return threshold->text().toDouble();
+    if (threshold->text().isEmpty())
+    {
+        return NODATA;
+    }
+    else
+    {
+        return threshold->text().toDouble();
+    }
 }
 
 QString TabMap::getOutputName() const

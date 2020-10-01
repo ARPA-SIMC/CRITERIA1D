@@ -19,6 +19,16 @@ public:
     DialogOutputMap(QStringList varList);
     ~DialogOutputMap();
     void done(bool res);
+    QDate getTabMapStartDate() const;
+    QDate getTabMapEndDate() const;
+    QDate getTabMapDate() const;
+    QString getTabMapVariable() const;
+    QString getTabMapElab() const;
+    bool isTabMapClimateComputation() const;
+    QString getTabMapClimateComputation() const;
+    int getTabMapTimeWindow() const;
+    double getTabMapThreshold() const;
+    QString getTabMapOutputName() const;
 };
 
 #endif // DIALOGOUTPUTMAP_H
