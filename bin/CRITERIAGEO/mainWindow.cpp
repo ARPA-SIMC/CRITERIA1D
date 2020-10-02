@@ -934,18 +934,36 @@ void MainWindow::on_actionOutput_Map_triggered()
         QDate dateComputation;
         myProject.outputProject.outputVariable.varName.clear();
         myProject.outputProject.outputVariable.varName << outputMap.getTabMapVariable();
+        QString outputVarName;
         if (outputMap.getTabMapElab() == "daily value")
         {
             // myProject.outputProject.outputVariable.computation is empty
             dateComputation = outputMap.getTabMapDate();
             myProject.outputProject.outputVariable.nrDays << "0";
-
+            outputVarName = outputMap.getTabMapVariable().left(8);
         }
         else
         {
             myProject.outputProject.outputVariable.computation << outputMap.getTabMapElab();
             dateComputation = outputMap.getTabMapStartDate();
             myProject.outputProject.outputVariable.nrDays << QString::number(outputMap.getTabMapStartDate().daysTo(outputMap.getTabMapEndDate()));
+            outputVarName = outputMap.getTabMapVariable().left(4);
+            if (outputMap.getTabMapElab() == "average")
+            {
+                outputVarName = outputVarName + "_AVG";
+            }
+            else if (outputMap.getTabMapElab() == "sum")
+            {
+                outputVarName = outputVarName + "_SUM";
+            }
+            else if (outputMap.getTabMapElab() == "max value")
+            {
+                outputVarName = outputVarName + "_MAX";
+            }
+            else if (outputMap.getTabMapElab() == "min value")
+            {
+                outputVarName = outputVarName + "_MIN";
+            }
         }
         myProject.outputProject.outputVariable.referenceDay << 0;
         if (outputMap.isTabMapClimateComputation())
@@ -956,8 +974,11 @@ void MainWindow::on_actionOutput_Map_triggered()
                 myProject.outputProject.outputVariable.param1 << outputMap.getTabMapThreshold();
             }
             myProject.outputProject.outputVariable.param2 << outputMap.getTabMapTimeWindow();
-
+            if (outputMap.getTabMapClimateComputation() == "percentile")
+            {
+                outputVarName = outputVarName + "_PERC";
+            }
         }
-        myProject.outputProject.outputVariable.outputVarName << outputMap.getTabMapOutputName();
+        myProject.outputProject.outputVariable.outputVarName << outputVarName;
     }
 }
