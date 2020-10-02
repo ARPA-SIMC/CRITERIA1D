@@ -983,6 +983,6 @@ void MainWindow::on_actionOutput_Map_triggered()
         }
         myProject.outputProject.outputVariable.outputVarName << outputVarName;
         // create CSV
-        myProject.outputProject.createCsvFileFromGUI(dateComputation, myProject.outputProject.path + "tmp" + outputMap.getTabMapOutputName());
+        myProject.outputProject.createCsvFileFromGUI(dateComputation, myProject.outputProject.path + "/tmp/" + outputMap.getTabMapOutputName()+".csv");
     }
 }
