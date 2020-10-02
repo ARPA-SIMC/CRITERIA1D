@@ -873,7 +873,7 @@ void MainWindow::on_actionLoadProject_triggered()
 
     if (projFileName == "") return;
 
-    // set current dateTime, then GUI overwrite this innformation
+    // set current dateTime, then GUI overwrite this information
     int myResult = myProject.outputProject.initializeProject(projFileName, QDateTime::currentDateTime().date());
     if (myResult != CRIT3D_OK)
     {
@@ -928,4 +928,61 @@ void MainWindow::on_actionOutput_Map_triggered()
     DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName);
     if (outputMap.result() != QDialog::Accepted)
         return;
+    else
+    {
+        // fill myProject.outputProject.outputVariable
+        QDate dateComputation;
+        myProject.outputProject.outputVariable.varName.clear();
+        myProject.outputProject.outputVariable.varName << outputMap.getTabMapVariable();
+        QString outputVarName;
+        if (outputMap.getTabMapElab() == "daily value")
+        {
+            myProject.outputProject.outputVariable.computation << ""; // computation is empty
+            dateComputation = outputMap.getTabMapDate();
+            myProject.outputProject.outputVariable.nrDays << "0";
+            outputVarName = outputMap.getTabMapVariable().left(8);
+        }
+        else
+        {
+            myProject.outputProject.outputVariable.computation << outputMap.getTabMapElab();
+            dateComputation = outputMap.getTabMapStartDate();
+            myProject.outputProject.outputVariable.nrDays << QString::number(outputMap.getTabMapStartDate().daysTo(outputMap.getTabMapEndDate()));
+            outputVarName = outputMap.getTabMapVariable().left(4);
+            if (outputMap.getTabMapElab() == "average")
+            {
+                outputVarName = outputVarName + "_AVG";
+            }
+            else if (outputMap.getTabMapElab() == "sum")
+            {
+                outputVarName = outputVarName + "_SUM";
+            }
+            else if (outputMap.getTabMapElab() == "max value")
+            {
+                outputVarName = outputVarName + "_MAX";
+            }
+            else if (outputMap.getTabMapElab() == "min value")
+            {
+                outputVarName = outputVarName + "_MIN";
+            }
+        }
+        myProject.outputProject.outputVariable.referenceDay << 0;
+        if (outputMap.isTabMapClimateComputation())
+        {
+            myProject.outputProject.outputVariable.climateComputation << outputMap.getTabMapClimateComputation();
+            myProject.outputProject.outputVariable.param1 << outputMap.getTabMapThreshold();
+            myProject.outputProject.outputVariable.param2 << outputMap.getTabMapTimeWindow();
+            if (outputMap.getTabMapClimateComputation() == "percentile")
+            {
+                outputVarName = outputVarName + "_PERC";
+            }
+        }
+        else
+        {
+            // climate computation is empty
+            myProject.outputProject.outputVariable.climateComputation << "";
+        }
+        myProject.outputProject.outputVariable.outputVarName << outputVarName;
+        // create CSV
+        myProject.outputProject.createCsvFileFromGUI(dateComputation, myProject.outputProject.path + "tmp" + outputMap.getTabMapOutputName());
+    }
 }

@@ -1,4 +1,5 @@
 #include "tabMap.h"
+#include "commonConstants.h"
 
 TabMap::TabMap(QStringList varList)
     :varList(varList)
@@ -37,15 +38,21 @@ TabMap::TabMap(QStringList varList)
     startDateLabel = new QLabel(tr("Start date:"));
     startDateLabel->setFixedWidth(100);
     startDate = new QDateEdit();
-    startDate->setFixedWidth(90);
+    startDate->setFixedWidth(100);
+    startDate->setDisplayFormat("MM/dd/yyyy");
+    startDate->setDate(QDate::currentDate());
     endDateLabel = new QLabel(tr("End date:"));
     endDateLabel->setFixedWidth(100);
     endDate = new QDateEdit();
-    endDate->setFixedWidth(90);
+    endDate->setFixedWidth(100);
+    endDate->setDisplayFormat("MM/dd/yyyy");
+    endDate->setDate(QDate::currentDate());
     dateLabel = new QLabel(tr("Date:"));
     dateLabel->setFixedWidth(100);
     date = new QDateEdit();
-    date->setFixedWidth(90);
+    date->setFixedWidth(100);
+    date->setDisplayFormat("MM/dd/yyyy");
+    date->setDate(QDate::currentDate());
     if (elabList->currentText() == "daily value")
     {
         startDateLabel->setVisible(false);
@@ -157,4 +164,68 @@ void TabMap::listElaboration(const QString value)
         dateLabel->setVisible(false);
         date->setVisible(false);
     }
+}
+
+QDate TabMap::getStartDate() const
+{
+    return startDate->date();
+}
+
+QDate TabMap::getEndDate() const
+{
+    return endDate->date();
+}
+
+QDate TabMap::getDate() const
+{
+    return date->date();
+}
+
+QString TabMap::getVariable() const
+{
+    return variableList->currentText();
+}
+
+QString TabMap::getElab() const
+{
+    return elabList->currentText();
+}
+
+bool TabMap::isClimateComputation() const
+{
+    return climateComp->isChecked();
+}
+
+QString TabMap::getClimateComputation() const
+{
+    return climateCompList->currentText();
+}
+
+int TabMap::getTimeWindow() const
+{
+    if (timeWindow->text().isEmpty())
+    {
+        return NODATA;
+    }
+    else
+    {
+        return timeWindow->text().toInt();
+    }
+}
+
+double TabMap::getThreshold() const
+{
+    if (threshold->text().isEmpty())
+    {
+        return NODATA;
+    }
+    else
+    {
+        return threshold->text().toDouble();
+    }
+}
+
+QString TabMap::getOutputName() const
+{
+    return fileNameEdit->text();
 }
