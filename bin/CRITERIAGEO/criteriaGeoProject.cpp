@@ -283,6 +283,21 @@ bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeFi
     return false;
 }
 
+int CriteriaGeoProject::createCsvOutput(QDate dateComputation, QString outputName)
+{
+    FormInfo formInfo;
+    formInfo.start("Create csv output...", 0);
+
+    int result = outputProject.createCsvFileFromGUI(dateComputation, outputProject.path + "tmp/" + outputName +".csv");;
+
+    formInfo.close();
+
+    if (result != CRIT3D_OK)
+        logError("ERROR CODE " + QString::number(result));
+
+    return result;
+}
+
 
 //--------------------------------------------------------------
 // LOG

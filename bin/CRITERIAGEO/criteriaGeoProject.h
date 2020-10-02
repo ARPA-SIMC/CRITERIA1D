@@ -46,6 +46,8 @@
         bool createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error);
 
         void logError(QString errorString);
+
+        int createCsvOutput(QDate dateComputation, QString outputName);
     };
 
 

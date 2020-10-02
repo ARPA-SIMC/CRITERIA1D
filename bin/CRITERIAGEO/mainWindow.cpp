@@ -983,6 +983,12 @@ void MainWindow::on_actionOutput_Map_triggered()
         }
         myProject.outputProject.outputVariable.outputVarName << outputVarName;
         // create CSV
-        myProject.outputProject.createCsvFileFromGUI(dateComputation, myProject.outputProject.path + "/tmp/" + outputMap.getTabMapOutputName()+".csv");
+        int result = myProject.createCsvOutput(dateComputation, outputMap.getTabMapOutputName());
+        if (result != CRIT3D_OK)
+        {
+            QMessageBox::information(nullptr, "csv error code", QString::number(result));
+            return;
+        }
+        return;
     }
 }
