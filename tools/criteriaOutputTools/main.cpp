@@ -7,7 +7,7 @@
 #include <iostream>
 
 // uncomment to compute test
-// #define TEST
+ #define TEST
 
 void usage()
 {

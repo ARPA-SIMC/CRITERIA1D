@@ -937,7 +937,7 @@ void MainWindow::on_actionOutput_Map_triggered()
         QString outputVarName;
         if (outputMap.getTabMapElab() == "daily value")
         {
-            // myProject.outputProject.outputVariable.computation is empty
+            myProject.outputProject.outputVariable.computation << ""; // computation is empty
             dateComputation = outputMap.getTabMapDate();
             myProject.outputProject.outputVariable.nrDays << "0";
             outputVarName = outputMap.getTabMapVariable().left(8);
@@ -969,16 +969,20 @@ void MainWindow::on_actionOutput_Map_triggered()
         if (outputMap.isTabMapClimateComputation())
         {
             myProject.outputProject.outputVariable.climateComputation << outputMap.getTabMapClimateComputation();
-            if (outputMap.getTabMapThreshold() != NODATA)
-            {
-                myProject.outputProject.outputVariable.param1 << outputMap.getTabMapThreshold();
-            }
+            myProject.outputProject.outputVariable.param1 << outputMap.getTabMapThreshold();
             myProject.outputProject.outputVariable.param2 << outputMap.getTabMapTimeWindow();
             if (outputMap.getTabMapClimateComputation() == "percentile")
             {
                 outputVarName = outputVarName + "_PERC";
             }
         }
+        else
+        {
+            // climate computation is empty
+            myProject.outputProject.outputVariable.climateComputation << "";
+        }
         myProject.outputProject.outputVariable.outputVarName << outputVarName;
+        // create CSV
+        myProject.outputProject.createCsvFileFromGUI(dateComputation, myProject.outputProject.path + "tmp" + outputMap.getTabMapOutputName());
     }
 }

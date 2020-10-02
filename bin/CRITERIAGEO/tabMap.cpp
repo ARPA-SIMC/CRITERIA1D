@@ -38,15 +38,21 @@ TabMap::TabMap(QStringList varList)
     startDateLabel = new QLabel(tr("Start date:"));
     startDateLabel->setFixedWidth(100);
     startDate = new QDateEdit();
-    startDate->setFixedWidth(90);
+    startDate->setFixedWidth(100);
+    startDate->setDisplayFormat("MM/dd/yyyy");
+    startDate->setDate(QDate::currentDate());
     endDateLabel = new QLabel(tr("End date:"));
     endDateLabel->setFixedWidth(100);
     endDate = new QDateEdit();
-    endDate->setFixedWidth(90);
+    endDate->setFixedWidth(100);
+    endDate->setDisplayFormat("MM/dd/yyyy");
+    endDate->setDate(QDate::currentDate());
     dateLabel = new QLabel(tr("Date:"));
     dateLabel->setFixedWidth(100);
     date = new QDateEdit();
-    date->setFixedWidth(90);
+    date->setFixedWidth(100);
+    date->setDisplayFormat("MM/dd/yyyy");
+    date->setDate(QDate::currentDate());
     if (elabList->currentText() == "daily value")
     {
         startDateLabel->setVisible(false);
@@ -199,7 +205,7 @@ int TabMap::getTimeWindow() const
 {
     if (timeWindow->text().isEmpty())
     {
-        return 0;
+        return NODATA;
     }
     else
     {
