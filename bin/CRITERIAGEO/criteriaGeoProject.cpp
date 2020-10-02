@@ -283,12 +283,12 @@ bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeFi
     return false;
 }
 
-int CriteriaGeoProject::createCsvOutput(QDate dateComputation, QString outputName)
+int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputName)
 {
     FormInfo formInfo;
-    formInfo.start("Create csv output...", 0);
+    formInfo.start("Create shape output...", 0);
 
-    int result = outputProject.createCsvFileFromGUI(dateComputation, outputProject.path + "tmp/" + outputName +".csv");;
+    int result = outputProject.createShapeFileFromGUI(dateComputation, outputProject.path + "tmp/" + outputName +".csv");;
 
     formInfo.close();
 

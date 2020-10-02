@@ -934,36 +934,17 @@ void MainWindow::on_actionOutput_Map_triggered()
         QDate dateComputation;
         myProject.outputProject.outputVariable.varName.clear();
         myProject.outputProject.outputVariable.varName << outputMap.getTabMapVariable();
-        QString outputVarName;
         if (outputMap.getTabMapElab() == "daily value")
         {
             myProject.outputProject.outputVariable.computation << ""; // computation is empty
             dateComputation = outputMap.getTabMapDate();
             myProject.outputProject.outputVariable.nrDays << "0";
-            outputVarName = outputMap.getTabMapVariable().left(8);
         }
         else
         {
             myProject.outputProject.outputVariable.computation << outputMap.getTabMapElab();
             dateComputation = outputMap.getTabMapStartDate();
             myProject.outputProject.outputVariable.nrDays << QString::number(outputMap.getTabMapStartDate().daysTo(outputMap.getTabMapEndDate()));
-            outputVarName = outputMap.getTabMapVariable().left(4);
-            if (outputMap.getTabMapElab() == "average")
-            {
-                outputVarName = outputVarName + "_AVG";
-            }
-            else if (outputMap.getTabMapElab() == "sum")
-            {
-                outputVarName = outputVarName + "_SUM";
-            }
-            else if (outputMap.getTabMapElab() == "max value")
-            {
-                outputVarName = outputVarName + "_MAX";
-            }
-            else if (outputMap.getTabMapElab() == "min value")
-            {
-                outputVarName = outputVarName + "_MIN";
-            }
         }
         myProject.outputProject.outputVariable.referenceDay << 0;
         if (outputMap.isTabMapClimateComputation())
@@ -971,24 +952,28 @@ void MainWindow::on_actionOutput_Map_triggered()
             myProject.outputProject.outputVariable.climateComputation << outputMap.getTabMapClimateComputation();
             myProject.outputProject.outputVariable.param1 << outputMap.getTabMapThreshold();
             myProject.outputProject.outputVariable.param2 << outputMap.getTabMapTimeWindow();
-            if (outputMap.getTabMapClimateComputation() == "percentile")
-            {
-                outputVarName = outputVarName + "_PERC";
-            }
         }
         else
         {
             // climate computation is empty
             myProject.outputProject.outputVariable.climateComputation << "";
         }
-        myProject.outputProject.outputVariable.outputVarName << outputVarName;
-        // create CSV
-        int result = myProject.createCsvOutput(dateComputation, outputMap.getTabMapOutputName());
+        myProject.outputProject.outputVariable.outputVarName << "outputVar";
+        // create CSV and shapeOutput
+        QString outputName = outputMap.getTabMapOutputName();
+        int result = myProject.createShapeOutput(dateComputation, outputName);
         if (result != CRIT3D_OK)
         {
-            QMessageBox::information(nullptr, "csv error code", QString::number(result));
+            QMessageBox::information(nullptr, "error code", QString::number(result));
             return;
         }
+        // add shape to GUI
+        if (! myProject.loadShapefile(myProject.outputProject.path + "tmp/" + outputName +".shp"))
+            return;
+
+        GisObject* myObject = myProject.objectList.back();
+        this->addShapeObject(myObject);
+        return;
         return;
     }
 }

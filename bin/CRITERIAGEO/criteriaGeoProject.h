@@ -47,7 +47,7 @@
 
         void logError(QString errorString);
 
-        int createCsvOutput(QDate dateComputation, QString outputName);
+        int createShapeOutput(QDate dateComputation, QString outputName);
     };
 
 
