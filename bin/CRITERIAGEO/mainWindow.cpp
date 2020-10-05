@@ -925,6 +925,14 @@ void MainWindow::on_actionOutput_Map_triggered()
         // add DTX
         myProject.outputProject.outputVariable.varName << "DT30" << "DT90" << "DT180" ;
     }
+    QDate firstDate;
+    QDate lastDate;
+    if (!myProject.outputProject.getDbDataDates(&firstDate, &lastDate, error))
+    {
+        QMessageBox::information(nullptr, "Ivalid first and last date db data ", error);
+        return;
+    }
+
     DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName);
     if (outputMap.result() != QDialog::Accepted)
         return;
