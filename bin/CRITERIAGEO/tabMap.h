@@ -8,6 +8,8 @@ class TabMap : public QWidget
     Q_OBJECT
 private:
     QStringList varList;
+    QDate firstDbDate;
+    QDate lastDbDate;
     QLabel *startDateLabel;
     QDateEdit *startDate;
     QLabel *endDateLabel;
@@ -24,7 +26,7 @@ private:
     QLineEdit *threshold;
     QLineEdit *fileNameEdit;
 public:
-    TabMap(QStringList varList);
+    TabMap(QStringList varList, QDate firstDbDate, QDate lastDbDate);
     void climateComputation(int state);
     void listElaboration(const QString value);
     QDate getStartDate() const;

@@ -1,13 +1,13 @@
 #include "dialogOutputMap.h"
 
-DialogOutputMap::DialogOutputMap(QStringList varList)
-    :varList(varList)
+DialogOutputMap::DialogOutputMap(QStringList varList, QDate firstDate, QDate lastDate)
+    :varList(varList), firstDbDate(firstDate), lastDbDate(lastDate)
 {
 
     this->setWindowTitle("Output Map");
     this->setFixedSize(550,300);
     tabWidget = new QTabWidget;
-    tabMap = new TabMap(this->varList);
+    tabMap = new TabMap(this->varList, this->firstDbDate, this->lastDbDate);
     tabSymbology = new TabSymbology();
     tabWidget->addTab(tabMap, tr("Map"));
     tabWidget->addTab(tabSymbology, tr("Symbology"));

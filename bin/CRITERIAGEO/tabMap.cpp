@@ -1,8 +1,8 @@
 #include "tabMap.h"
 #include "commonConstants.h"
 
-TabMap::TabMap(QStringList varList)
-    :varList(varList)
+TabMap::TabMap(QStringList varList, QDate firstDbDate, QDate lastDbDate)
+    :varList(varList), firstDbDate(firstDbDate), lastDbDate(lastDbDate)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QHBoxLayout *varLayout = new QHBoxLayout;
@@ -40,19 +40,25 @@ TabMap::TabMap(QStringList varList)
     startDate = new QDateEdit();
     startDate->setFixedWidth(100);
     startDate->setDisplayFormat("MM/dd/yyyy");
-    startDate->setDate(QDate::currentDate());
+    startDate->setDate(firstDbDate);
+    startDate->setMinimumDate(firstDbDate);
+    startDate->setMaximumDate(lastDbDate);
     endDateLabel = new QLabel(tr("End date:"));
     endDateLabel->setFixedWidth(100);
     endDate = new QDateEdit();
     endDate->setFixedWidth(100);
     endDate->setDisplayFormat("MM/dd/yyyy");
-    endDate->setDate(QDate::currentDate());
+    endDate->setDate(lastDbDate);
+    endDate->setMinimumDate(firstDbDate);
+    endDate->setMaximumDate(lastDbDate);
     dateLabel = new QLabel(tr("Date:"));
     dateLabel->setFixedWidth(100);
     date = new QDateEdit();
     date->setFixedWidth(100);
     date->setDisplayFormat("MM/dd/yyyy");
-    date->setDate(QDate::currentDate());
+    date->setDate(lastDbDate);
+    date->setMinimumDate(firstDbDate);
+    date->setMaximumDate(lastDbDate);
     if (elabList->currentText() == "daily value")
     {
         startDateLabel->setVisible(false);

@@ -933,7 +933,7 @@ void MainWindow::on_actionOutput_Map_triggered()
         return;
     }
 
-    DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName);
+    DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName, firstDate, lastDate);
     if (outputMap.result() != QDialog::Accepted)
         return;
     else
