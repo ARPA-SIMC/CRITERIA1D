@@ -86,7 +86,7 @@ bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
 
      if (!gis::readEsriGrid(fileName, myRaster, &errorStr))
      {
-         logError("Wrong raster file: " + errorStr);
+         logError("Wrong raster file: " + QString::fromStdString(errorStr));
          return false;
      }
 #endif

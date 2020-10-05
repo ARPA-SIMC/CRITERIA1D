@@ -917,7 +917,7 @@ void MainWindow::on_actionOutput_Map_triggered()
     QString error;
     if (!myProject.outputProject.getAllDbVariable(error))
     {
-        QMessageBox::critical(nullptr, "Load variable db data error", error);
+        QMessageBox::critical(nullptr, "Error", "Error in load db data variables: " + error);
         return;
     }
     else
