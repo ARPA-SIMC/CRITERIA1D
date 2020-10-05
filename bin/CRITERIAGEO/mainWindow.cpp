@@ -917,7 +917,7 @@ void MainWindow::on_actionOutput_Map_triggered()
     QString error;
     if (!myProject.outputProject.getAllDbVariable(error))
     {
-        QMessageBox::information(nullptr, "Load variable db data error", error);
+        QMessageBox::critical(nullptr, "Load variable db data error", error);
         return;
     }
     else
@@ -929,7 +929,7 @@ void MainWindow::on_actionOutput_Map_triggered()
     QDate lastDate;
     if (!myProject.outputProject.getDbDataDates(&firstDate, &lastDate, error))
     {
-        QMessageBox::information(nullptr, "Ivalid first and last date db data ", error);
+        QMessageBox::critical(nullptr, "Ivalid first and last date db data ", error);
         return;
     }
 
@@ -972,7 +972,7 @@ void MainWindow::on_actionOutput_Map_triggered()
         int result = myProject.createShapeOutput(dateComputation, outputName);
         if (result != CRIT3D_OK)
         {
-            QMessageBox::information(nullptr, "error code", QString::number(result));
+            QMessageBox::critical(nullptr, "ERROR", "createShapeOutput error");
             return;
         }
         // add shape to GUI
