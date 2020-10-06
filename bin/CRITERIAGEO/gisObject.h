@@ -27,6 +27,7 @@
         gis::Crit3DGisSettings gisSettings;
         gisObjectType type;
         QString fileName;
+        QString projectName;
         bool isSelected;
 
         GisObject();
@@ -34,7 +35,7 @@
         gis::Crit3DRasterGrid* getRaster();
         Crit3DShapeHandler* getShapeHandler();
         void setRaster(QString filename, gis::Crit3DRasterGrid* rasterPtr, int utmZone);
-        void setShapeFile(QString filename, Crit3DShapeHandler* shapePtr, int utmZone);
+        void setShapeFile(QString filename, QString projectName, Crit3DShapeHandler* shapePtr, int utmZone);
         void close();
         QString getFileNameWithPath() const;
     };

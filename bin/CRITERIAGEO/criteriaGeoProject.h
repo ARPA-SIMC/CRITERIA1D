@@ -29,9 +29,9 @@
         CriteriaGeoProject();
 
         bool loadRaster(QString fileName);
-        bool loadShapefile(QString fileName);
+        bool loadShapefile(QString fileNameWithPath, QString projectName);
         void addRaster(gis::Crit3DRasterGrid *myRaster, QString fileName, int utmZone);
-        void addShapeFile(Crit3DShapeHandler *myShape, QString fileName, int utmZone);
+        void addShapeFile(Crit3DShapeHandler *myShape, QString fileNameWithPath, QString projectName, int utmZone);
 
         void getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo);
 

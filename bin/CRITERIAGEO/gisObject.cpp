@@ -44,6 +44,7 @@ void GisObject::initialize()
 {
     this->type = gisObjectNone;
     this->fileName = "";
+    this->projectName = "";
     this->fileNameWithPath = "";
     this->isSelected = true;
     this->rasterPtr = nullptr;
@@ -63,11 +64,12 @@ void GisObject::setRaster(QString fileNameWithPath, gis::Crit3DRasterGrid* raste
 }
 
 
-void GisObject::setShapeFile(QString fileNameWithPath, Crit3DShapeHandler* shapePtr, int utmZone)
+void GisObject::setShapeFile(QString fileNameWithPath, QString projectName, Crit3DShapeHandler* shapePtr, int utmZone)
 {
     this->type = gisObjectShape;
     this->fileNameWithPath = fileNameWithPath;
     this->fileName = getFileName(fileNameWithPath);
+    this->projectName = projectName;
     this->isSelected = true;
 
     this->shapePtr = shapePtr;

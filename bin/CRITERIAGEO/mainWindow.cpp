@@ -33,6 +33,7 @@
 #include "dialogDbfTable.h"
 #include "commonConstants.h"
 #include "shapeUtilities.h"
+#include "utilities.h"
 
 #ifdef GDAL
     #include "gdalExtensions.h"
@@ -316,8 +317,19 @@ bool MainWindow::addShapeObject(GisObject* myObject)
         return false;
     }
 
+    // name
+    QString itemName;
+    if (myObject->projectName != "")
+    {
+        itemName = "[PROJECT] " + myObject->projectName;
+    }
+    else
+    {
+        itemName = "[SHAPE] " + myObject->fileName;
+    }
+
     // add item
-    QListWidgetItem* item = new QListWidgetItem("[SHAPE] " + myObject->fileName);
+    QListWidgetItem* item = new QListWidgetItem(itemName);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(Qt::Checked);
     ui->checkList->addItem(item);
@@ -370,7 +382,7 @@ void MainWindow::on_actionLoadShapefile_triggered()
     QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open Shapefile"), "", tr("shp files (*.shp)"));
     if (fileNameWithPath == "") return;
 
-    if (! myProject.loadShapefile(fileNameWithPath))
+    if (! myProject.loadShapefile(fileNameWithPath, ""))
         return;
 
     GisObject* myObject = myProject.objectList.back();
@@ -869,7 +881,7 @@ void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
 
 void MainWindow::on_actionLoadProject_triggered()
 {
-    QString projFileName = QFileDialog::getOpenFileName(this, tr("Open project"), "", tr("Settings files (*.ini)"));
+    QString projFileName = QFileDialog::getOpenFileName(this, tr("Open GEO project"), "", tr("Settings files (*.ini)"));
 
     if (projFileName == "") return;
 
@@ -887,7 +899,9 @@ void MainWindow::on_actionLoadProject_triggered()
         return;
     }
 
-    if (! myProject.loadShapefile(myProject.outputProject.ucmFileName))
+    QString projectName = getFileName(projFileName);
+    projectName = projectName.left(projectName.length() -4);
+    if (! myProject.loadShapefile(myProject.outputProject.ucmFileName, projectName))
         return;
 
     GisObject* myObject = myProject.objectList.back();
@@ -909,8 +923,8 @@ void MainWindow::on_actionLoadProject_triggered()
             }
         }
     }
-
 }
+
 
 void MainWindow::on_actionOutput_Map_triggered()
 {
@@ -935,7 +949,9 @@ void MainWindow::on_actionOutput_Map_triggered()
 
     DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName, firstDate, lastDate);
     if (outputMap.result() != QDialog::Accepted)
+    {
         return;
+    }
     else
     {
         // fill myProject.outputProject.outputVariable
@@ -976,12 +992,10 @@ void MainWindow::on_actionOutput_Map_triggered()
             return;
         }
         // add shape to GUI
-        if (! myProject.loadShapefile(myProject.outputProject.path + "tmp/" + outputName +".shp"))
+        if (! myProject.loadShapefile(myProject.outputProject.path + "tmp/" + outputName +".shp", ""))
             return;
 
         GisObject* myObject = myProject.objectList.back();
         this->addShapeObject(myObject);
-        return;
-        return;
     }
 }

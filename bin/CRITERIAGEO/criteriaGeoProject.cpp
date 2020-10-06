@@ -56,10 +56,10 @@ void CriteriaGeoProject::addRaster(gis::Crit3DRasterGrid *myRaster, QString file
 }
 
 
-void CriteriaGeoProject::addShapeFile(Crit3DShapeHandler *myShape, QString fileName, int utmZone)
+void CriteriaGeoProject::addShapeFile(Crit3DShapeHandler *myShape, QString fileNameWithPath, QString projectName, int utmZone)
 {
     GisObject* newObject = new(GisObject);
-    newObject->setShapeFile(fileName, myShape, utmZone);
+    newObject->setShapeFile(fileNameWithPath, projectName, myShape, utmZone);
     this->objectList.push_back(newObject);
 }
 
@@ -97,7 +97,7 @@ bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
 }
 
 
-bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath)
+bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath, QString projectName)
 {
     Crit3DShapeHandler *myShape = new(Crit3DShapeHandler);
     if (!myShape->open(fileNameWithPath.toStdString()))
@@ -106,7 +106,7 @@ bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath)
         return false;
     }
 
-    addShapeFile(myShape, fileNameWithPath, myShape->getUtmZone());
+    addShapeFile(myShape, fileNameWithPath, projectName, myShape->getUtmZone());
     return true;
 }
 
@@ -155,7 +155,7 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
     {
         if (computeUcmPrevailing(*ucm, *crop, *soil, *meteo, idCrop, idSoil, idMeteo, cellSize, ucmFileName, errorStr, showInfo))
         {
-            addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), ucm->getUtmZone());
+            addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), "", ucm->getUtmZone());
             return true;
         }
         else
@@ -169,7 +169,7 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
         #ifdef GDAL
         if (computeUcmIntersection(ucm, crop, soil, meteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr))
         {
-            addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), ucm->getUtmZone());
+            addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), "", ucm->getUtmZone());
             return true;
         }
         else
@@ -288,7 +288,7 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
     FormInfo formInfo;
     formInfo.start("Create shape output...", 0);
 
-    int result = outputProject.createShapeFileFromGUI(dateComputation, outputProject.path + "tmp/" + outputName +".csv");;
+    int result = outputProject.createShapeFileFromGUI(dateComputation, outputProject.path + "tmp/" + outputName +".csv");
 
     formInfo.close();
 
