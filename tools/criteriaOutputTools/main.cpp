@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     if (settingsFileName.left(1) == ".")
         settingsFileName = appPath + settingsFileName;
 
-    int myResult = myProject.initializeProject(settingsFileName, dateComputation);
+    int myResult = myProject.initializeProject(settingsFileName, dateComputation, true);
     if (myResult != CRIT3D_OK)
     {
         myProject.logger.writeError(myProject.projectError);

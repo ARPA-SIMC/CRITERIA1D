@@ -886,7 +886,7 @@ void MainWindow::on_actionLoadProject_triggered()
     if (projFileName == "") return;
 
     // set current dateTime, then GUI overwrite this information
-    int myResult = myProject.outputProject.initializeProject(projFileName, QDateTime::currentDateTime().date());
+    int myResult = myProject.outputProject.initializeProject(projFileName, QDateTime::currentDateTime().date(), false);
     if (myResult != CRIT3D_OK)
     {
         QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.projectError);
