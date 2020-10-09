@@ -24,7 +24,6 @@ win32:{
 
 DEFINES += MAPGRAPHICS_LIBRARY
 
-
 SOURCES += \
     tileSources/CompositeTileSource.cpp \
     tileSources/GridTileSource.cpp \
