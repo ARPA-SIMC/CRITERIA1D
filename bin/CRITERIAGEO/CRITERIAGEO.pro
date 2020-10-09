@@ -42,17 +42,6 @@ INCLUDEPATH +=  ../../mapGraphics \
 
 CONFIG += debug_and_release
 
-    win32:{
-        CONFIG(debug, debug|release) {
-            LIBS += -L../../mapGraphics/debug -lMapGraphics
-        } else {
-            LIBS += -L../../mapGraphics/release -lMapGraphics
-        }
-    }
-    unix:{
-        LIBS += -L../../mapGraphics/release -lMapGraphics
-    }
-
 # comment to compile without GDAL library
 CONFIG += GDAL
 
@@ -70,6 +59,7 @@ GDAL {
 
 CONFIG(debug, debug|release) {
 
+    LIBS += -L../../mapGraphics/debug -lMapGraphics
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
@@ -80,6 +70,7 @@ CONFIG(debug, debug|release) {
 
 } else {
 
+    LIBS += -L../../mapGraphics/release -lMapGraphics
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
