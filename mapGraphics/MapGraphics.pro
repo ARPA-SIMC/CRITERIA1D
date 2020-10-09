@@ -25,6 +25,7 @@ win32:{
     TARGET = MapGraphics
 }
 
+# uncomment for dynamic linking
 #DEFINES += MAPGRAPHICS_LIBRARY
 
 SOURCES += \
