@@ -60,8 +60,6 @@ then
     $QMAKE Makeall_CRITERIAGEO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
     make clean
     make
-
-    cd -
     
 elif [[ $image =~ ^ubuntu: ]]
 then

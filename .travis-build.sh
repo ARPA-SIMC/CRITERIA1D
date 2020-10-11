@@ -39,13 +39,15 @@ then
     export QT_DIR=/opt/qt512
     export QMAKE=$QT_DIR/bin/qmake
     apt-get install -y qt512charts-no-lgpl curl
+    apt-get install -y libgeos-3.5.0 libgeos-dev
+#    add-apt-repository -y ppa:ubuntugis/ppa
+#    apt-get -y update
+#    apt-get install libgdal-dev
     gcc --version
     g++ --version
     qmake -v
     apt-get install -y wget
     export APPIMAGE_EXTRACT_AND_RUN=1
-    echo "install gdallibrary"
-    exit 1
     bash deploy/build.sh $image
 else
     echo "Unknown image $image"
