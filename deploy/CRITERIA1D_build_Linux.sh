@@ -23,7 +23,7 @@ make
 
 cd -
 
-build CRITERIAOUTPUT
+# build CRITERIAOUTPUT
 cd ../tools/Makeall_CriteriaOutput
 $QMAKE Makeall_CriteriaOutput.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean

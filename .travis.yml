@@ -1,0 +1,28 @@
+language: cpp
+dist: bionic
+sudo: required
+services:
+- docker
+script:
+- docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ -w /root/src/ $DOCKER_IMAGE /bin/bash .travis-build.sh $DOCKER_IMAGE
+env:
+- DOCKER_IMAGE=centos:8
+- DOCKER_IMAGE=ubuntu:xenial
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_6d2e60986cdb_key -iv $encrypted_6d2e60986cdb_iv -in .copr.enc -out .copr -d
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ -w /root/src/ fedora:latest /bin/sh -c "dnf install -y copr-cli && copr-cli --config .copr build --nowait simc/stable fedora/SPECS/arkimet.spec"
+  on:
+    condition: $DOCKER_IMAGE = centos:8
+- provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: bdwGm9UkWi+MClS2UykDEdUxUw93jvj1Nj47zvhx2APcrukJqCIxztqyTW2c+mg5E7DCX1LVvkwlL3yW0w7Hw23vjQp8OUFurzf5lyJQcTahGlNb7qhAYNA9cVKDwlPl3lK9+AyR/Ifi2+7uIKql27owGGvggM/eGQqYE8KIXRdYLtCYJgkdMMvAZoiLl33fZnqEmryJHGFD9dLYRuXusJMq2qmQz9MhRQ5cukDUaCz1s4qipe0SOKcBC5qOgX0dd95WsB7poOgH/grWTpF8lk8M0cif3FizkrufZVNWJLE4ONjobtgfgqLyiz0QLdHCPa8cdRhDoJB/2icwc+k9sU5OpRws0Z0ECDmOb+/nIs8IIGzwjJ/C8eN9WP5y5I1iZxunJ2XyssNJlTUiVJEjII7zsHMYyByi/GPrFv2MCdMWkQMkWQqmDQzw3uz+ge7KmOjM6a15iV38DBfY8eBjM4vCLLCx97GPBtm3P3qOR/RJx7gc0aV5S6eYiNnmlYj6YjVZ3ZWLGdd3plhpkJWmH1BbKH+v93Yq886VnX3yIsichfJnoH0DYb0YxOGct1aEkVAyCFLdx3jgvoULs5yYskTiIW6q4VsC6ITv39q/OxPyWHaA+asvB2kXxd4EQiwufZzst10Vi8XuKQusIQff48vVuBlrAAU+r+nCrqt6jr4=
+  file_glob: true
+  file: '*AppImage*'
+  on:
+    tags: true
+    repo: ARPA-SIMC/CRITERIA1D
+    condition: ($DOCKER_IMAGE = ubuntu:xenial) && ($TRAVIS_TAG =~ v[0-9]+\.[0-9]+\.[0-9]+)
