@@ -40,9 +40,11 @@ then
     export QMAKE=$QT_DIR/bin/qmake
     apt-get install -y qt512charts-no-lgpl curl
     apt-get install -y libgeos-3.5.0 libgeos-dev
-#    add-apt-repository -y ppa:ubuntugis/ppa
-#    apt-get -y update
-#    apt-get install libgdal-dev
+    add-apt-repository -y ppa:nextgis/ppa
+    apt-get -y update
+    apt-get -y install libgdal-dev
+    export CPLUS_INCLUDE_PATH=/usr/include/gdal
+    export C_INCLUDE_PATH=/usr/include/gdal
     gcc --version
     g++ --version
     qmake -v

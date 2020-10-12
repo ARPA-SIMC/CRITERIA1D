@@ -118,6 +118,8 @@ then
     make
 
     cd -
+    
+    echo "TO DO appImage"
 
 else
     echo "Unknown image $image"
