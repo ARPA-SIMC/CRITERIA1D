@@ -99,7 +99,7 @@ cp ../bin/CRITERIAGEO/release/CRITERIA_GEO appimage/usr/bin/CRITERIA_GEO
 
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
-mv appimage/usr/bin/*.* CRITERIA1D/bin
+mv appimage/usr/bin/* CRITERIA1D/bin/
 
 # copy png
 mkdir CRITERIA1D/DOC
