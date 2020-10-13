@@ -89,7 +89,7 @@ function make_appimage {
     cp $BIN_DIR/$BIN_NAME appimage/usr/bin/$BIN_NAME
     cp linuxDeploy/$BIN_NAME.desktop appimage/usr/share/applications/
 
-    cp /home/xenial/CRITERIA3D/DEPLOY/appimage/CRITERIA1D.png appimage/$BIN_NAME.png
+    cp /home/xenial/CRITERIA1D/DEPLOY/appimage/CRITERIA1D.png appimage/$BIN_NAME.png
     
     ./linuxqtdeploy appimage/usr/share/applications/$BIN_NAME.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
@@ -97,7 +97,6 @@ function make_appimage {
 
 # download linuxdeployqt
 wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-
 chmod +x linuxqtdeploy
 
 make_appimage CsvToMeteoDb ../tools/csvToMeteoDb/release/
