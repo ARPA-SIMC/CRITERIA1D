@@ -75,7 +75,7 @@ cd -
 
 # build appimage CsvToMeteoDb
 cp ../tools/csvToMeteoDb/release/CsvToMeteoDb appimage/usr/bin/CsvToMeteoDb
-./linuxqtdeploy --appimage-extract-and-run deploy/appimage/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 # build appimage CriteriaOutput
 cp ../tools/criteriaOutputTools/release/CriteriaOutput appimage/usr/bin/CriteriaOutput
@@ -95,7 +95,7 @@ cp ../bin/SOIL_EDITOR/release/SOIL_EDITOR appimage/usr/bin/SOIL_EDITOR
 
 # build appimage CRITERIA_GEO
 cp ../bin/CRITERIAGEO/release/CRITERIA_GEO appimage/usr/bin/CRITERIA_GEO
-LD_LIBRARY_PATH=`pwd`/../mapGraphics/release ./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
