@@ -75,33 +75,33 @@ cd -
 
 # build appimage CsvToMeteoDb
 cp ../tools/csvToMeteoDb/release/CsvToMeteoDb appimage/usr/bin/CsvToMeteoDb
-./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 # build appimage CriteriaOutput
 cp ../tools/criteriaOutputTools/release/CriteriaOutput appimage/usr/bin/CriteriaOutput
-./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CriteriaOutput.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CriteriaOutput.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 # build appimage CRITERIA1D
 cp ../bin/CRITERIA1D/release/CRITERIA1D appimage/usr/bin/CRITERIA1D
-./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 # build appimage CROP_EDITOR
 cp ../bin/CROP_EDITOR/release/CROP_EDITOR appimage/usr/bin/CROP_EDITOR
-./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CROP_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CROP_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 # build appimage SOIL_EDITOR
 cp ../bin/SOIL_EDITOR/release/SOIL_EDITOR appimage/usr/bin/SOIL_EDITOR
-./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/SOIL_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/SOIL_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 # build appimage CRITERIA_GEO
 cp ../bin/CRITERIAGEO/release/CRITERIA_GEO appimage/usr/bin/CRITERIA_GEO
-./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
-mv appimage/usr/bin/*.AppImage* CRITERIA1D/bin
+mv appimage/usr/bin/*.* CRITERIA1D/bin
 
-# copy img files
+# copy png
 mkdir CRITERIA1D/DOC
 mkdir CRITERIA1D/DOC/img
 cp -r ../DOC/img/saveButton.png CRITERIA1D/DOC/img
