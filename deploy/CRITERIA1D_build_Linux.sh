@@ -133,7 +133,7 @@ chmod +x linuxqtdeploy
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
 #mv *.AppImage* CRITERIA1D/bin
-mv deploy/appimage/usr/bin/*.AppImage* CRITERIA1D/bin
+mv appimage/usr/bin/*.AppImage* CRITERIA1D/bin
 
 # copy img files
 mkdir CRITERIA1D/DOC
