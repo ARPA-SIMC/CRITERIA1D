@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # specify your Qt directory
-QT_DIR=/opt/Qt/5.12.8/gcc_64/
-QMAKE=$QT_DIR/bin/qmake
+#QT_DIR=/opt/Qt/5.12.8/gcc_64/
+#QMAKE=$QT_DIR/bin/qmake
+QMAKE=/usr/bin/qmake-qt5
 
 # # build mapGraphics
 cd ../mapGraphics
@@ -96,8 +97,8 @@ function make_appimage {
 }
 
 # download linuxdeployqt
-wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-chmod +x linuxqtdeploy
+#wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+#chmod +x linuxqtdeploy
 
 #make_appimage CsvToMeteoDb ../tools/csvToMeteoDb/release/
 #make_appimage CriteriaOutput ../tools/criteriaOutputTools/release/
