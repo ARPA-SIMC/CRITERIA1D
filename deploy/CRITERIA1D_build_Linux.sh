@@ -69,67 +69,33 @@ make
 
 cd -
 
-function make_appimage {
-
-    BIN_NAME=$1
-    BIN_DIR=$2
-
-    rm -rf appimage
-    # make tree and copy executables and images
-    mkdir appimage
-    # copy img files
-    cp ../DOC/img/saveButton.png appimage
-    cp ../DOC/img/updateButton.png appimage
-    cp ../DOC/img/textural_soil.png appimage
-    cp ../DOC/img/CRITERIA1D_icon.png appimage/$BIN_NAME.png
-    mkdir appimage/usr
-    mkdir appimage/usr/bin
-    echo 'Place executable here' > appimage/usr/bin/README
-    mkdir appimage/usr/share
-    mkdir appimage/usr/share/applications
-    cp $BIN_DIR/$BIN_NAME appimage/usr/bin/$BIN_NAME
-    cp linuxDeploy/$BIN_NAME.desktop appimage/usr/share/applications/
-
-    cp /home/xenial/CRITERIA1D/DEPLOY/appimage/CRITERIA1D.png appimage/$BIN_NAME.png
-    
-    ./linuxqtdeploy appimage/usr/share/applications/$BIN_NAME.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-
-}
-
 # download linuxdeployqt
 #wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
 #chmod +x linuxqtdeploy
 
-#make_appimage CsvToMeteoDb ../tools/csvToMeteoDb/release/
-#make_appimage CriteriaOutput ../tools/criteriaOutputTools/release/
-#make_appimage CRITERIA1D ../bin/CRITERIA1D/release/
-#make_appimage CROP_EDITOR ../bin/CROP_EDITOR/release/
-#make_appimage SOIL_EDITOR ../bin/SOIL_EDITOR/release/
-#make_appimage CRITERIA_GEO ../bin/CRITERIAGEO/release/
+# build appimage CsvToMeteoDb
+cp ../tools/csvToMeteoDb/release/CsvToMeteoDb appimage/usr/bin/CsvToMeteoDb
+./linuxqtdeploy --appimage-extract-and-run deploy/appimage/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
-    # build appimage CsvToMeteoDb
-    cp ../tools/csvToMeteoDb/release/CsvToMeteoDb appimage/usr/bin/CsvToMeteoDb
-    ./linuxqtdeploy --appimage-extract-and-run deploy/appimage/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    
-    # build appimage CriteriaOutput
-    cp ../tools/criteriaOutputTools/release/CriteriaOutput appimage/usr/bin/CriteriaOutput
-    ./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CriteriaOutput.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    
-    # build appimage CRITERIA1D
-    cp ../bin/CRITERIA1D/release/CRITERIA1D appimage/usr/bin/CRITERIA1D
-    ./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    
-    # build appimage CROP_EDITOR
-    cp ../bin/CROP_EDITOR/release/CROP_EDITOR appimage/usr/bin/CROP_EDITOR
-    ./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CROP_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    
-    # build appimage SOIL_EDITOR
-    cp ../bin/SOIL_EDITOR/release/SOIL_EDITOR appimage/usr/bin/SOIL_EDITOR
-    ./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/SOIL_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    
-    # build appimage CRITERIA_GEO
-    cp ../bin/CRITERIAGEO/release/CRITERIA_GEO appimage/usr/bin/CRITERIA_GEO
-    LD_LIBRARY_PATH=`pwd`/../mapGraphics/release ./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+# build appimage CriteriaOutput
+cp ../tools/criteriaOutputTools/release/CriteriaOutput appimage/usr/bin/CriteriaOutput
+./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CriteriaOutput.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+
+# build appimage CRITERIA1D
+cp ../bin/CRITERIA1D/release/CRITERIA1D appimage/usr/bin/CRITERIA1D
+./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+
+# build appimage CROP_EDITOR
+cp ../bin/CROP_EDITOR/release/CROP_EDITOR appimage/usr/bin/CROP_EDITOR
+./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CROP_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+
+# build appimage SOIL_EDITOR
+cp ../bin/SOIL_EDITOR/release/SOIL_EDITOR appimage/usr/bin/SOIL_EDITOR
+./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/SOIL_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+
+# build appimage CRITERIA_GEO
+cp ../bin/CRITERIAGEO/release/CRITERIA_GEO appimage/usr/bin/CRITERIA_GEO
+LD_LIBRARY_PATH=`pwd`/../mapGraphics/release ./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
