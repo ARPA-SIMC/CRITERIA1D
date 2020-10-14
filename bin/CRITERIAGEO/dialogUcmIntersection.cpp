@@ -191,6 +191,8 @@ void DialogUcmIntersection::shapeMeteoClicked(QListWidgetItem* item)
 
 void DialogUcmIntersection::idCropEditing(QString newText)
 {
+    Q_UNUSED(newText);
+
     cropShape->clearSelection();
     cropField->clear();
     if (idCropEdit->text().isEmpty())
@@ -207,6 +209,8 @@ void DialogUcmIntersection::idCropEditing(QString newText)
 
 void DialogUcmIntersection::idSoilEditing(QString newText)
 {
+    Q_UNUSED(newText);
+
     soilShape->clearSelection();
     soilField->clear();
     if (idSoilEdit->text().isEmpty())
@@ -223,6 +227,8 @@ void DialogUcmIntersection::idSoilEditing(QString newText)
 
 void DialogUcmIntersection::idMeteoEditing(QString newText)
 {
+    Q_UNUSED(newText);
+
     meteoShape->clearSelection();
     meteoField->clear();
     if (idMeteoEdit->text().isEmpty())
