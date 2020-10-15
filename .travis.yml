@@ -13,13 +13,13 @@ before_deploy:
 deploy:
 - provider: script
   skip_cleanup: true
-  script: docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ -w /root/src/ fedora:latest /bin/sh -c "dnf install -y copr-cli && copr-cli --config .copr build --nowait simc/stable fedora/SPECS/arkimet.spec"
+  script: docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ -w /root/src/ fedora:latest /bin/sh -c "dnf install -y copr-cli && copr-cli --config .copr build --nowait simc/stable fedora/SPECS/CRITERIA1D.spec"
   on:
     condition: $DOCKER_IMAGE = centos:8
 - provider: releases
   skip_cleanup: true
   api_key:
-    secure: bdwGm9UkWi+MClS2UykDEdUxUw93jvj1Nj47zvhx2APcrukJqCIxztqyTW2c+mg5E7DCX1LVvkwlL3yW0w7Hw23vjQp8OUFurzf5lyJQcTahGlNb7qhAYNA9cVKDwlPl3lK9+AyR/Ifi2+7uIKql27owGGvggM/eGQqYE8KIXRdYLtCYJgkdMMvAZoiLl33fZnqEmryJHGFD9dLYRuXusJMq2qmQz9MhRQ5cukDUaCz1s4qipe0SOKcBC5qOgX0dd95WsB7poOgH/grWTpF8lk8M0cif3FizkrufZVNWJLE4ONjobtgfgqLyiz0QLdHCPa8cdRhDoJB/2icwc+k9sU5OpRws0Z0ECDmOb+/nIs8IIGzwjJ/C8eN9WP5y5I1iZxunJ2XyssNJlTUiVJEjII7zsHMYyByi/GPrFv2MCdMWkQMkWQqmDQzw3uz+ge7KmOjM6a15iV38DBfY8eBjM4vCLLCx97GPBtm3P3qOR/RJx7gc0aV5S6eYiNnmlYj6YjVZ3ZWLGdd3plhpkJWmH1BbKH+v93Yq886VnX3yIsichfJnoH0DYb0YxOGct1aEkVAyCFLdx3jgvoULs5yYskTiIW6q4VsC6ITv39q/OxPyWHaA+asvB2kXxd4EQiwufZzst10Vi8XuKQusIQff48vVuBlrAAU+r+nCrqt6jr4=
+    secure: TXl1VjS/jHsCyNlbCzkbBAIY29pEM9k0TtwKiGOB6Ngbw60zAEZNSrBPa1lJeSeJ5UG+A8xD7mZnCKNCEDtdIQap7syETsjM269md5UDmwLluxFLLnaKSXh0UCyKoKEZw5/EFmN6ZUyrpHJmBZXZyIl91GSZHIDVomIm2OLsYZEqOl9IRCLKLaJ2Ou0SLkgkyYDcHihJ58VE2FA6GUXQkZR/wmiQVvGzAycZHUg+Kb3Zkm4F6JPrY+H6uqPPE7y3ROoM+B37HgTeXUMUvs5ZlabhDkmUEPf859DrFhC+ajo4o0Hntqfx248wr1ylCiVbMtEfqmTsLQMi05q/qRE1F8+aYvvPurqeqa+na0a1R9lZAaDETkgUPlEjrvnNok3uMA3LIElw8nDAfcZslH3R0cpVs6Jx8uq56JifTEvLl92D0P53DYdlVKkP4jrqNRLG9VSS69nURqIj0jqM1g9uDeNsSnzL2AXcLv3Mf6UphtF/9VZiViB6CB2yTJj7MOgjYCcmuNr2BfCEhOrcDx9k++Dib82I3IWGsMgyqE5hGNpnPXCwb1EntB6oLUwe9clgBSKgJ6YNgDnao4OYTyNq/Vqo8GgUy0G89SQ0MBEeC5Z4nI8uTRosdwm2gsFoYbpoUDrGvmYtpo00fgfSCBGiwwj01uXf7k52OBfwH+Lj8u8=
   file_glob: true
   file: '*AppImage*'
   on:

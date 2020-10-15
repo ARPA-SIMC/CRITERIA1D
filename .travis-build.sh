@@ -15,12 +15,12 @@ then
     dnf install -q -y 'dnf-command(builddep)'
     dnf install -q -y git
     dnf install -q -y rpmdevtools
-    dnf install -q -y which
-    dnf install -q -y qt5-qtbase qt5-devel qt5-qtcharts qt5-qtcharts-devel
-    dnf install -q -y gdal-libs gdal-devel geos geos-devel
     dnf copr enable -y simc/stable
-    export QMAKE=`which qmake-qt5`
-    bash deploy/build.sh $image
+    dnf builddep -y fedora/SPECS/CRITERIA1D.spec
+    pkgname=CRITERIA1D-HEAD
+    mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+    git archive --prefix=$pkgname/ --format=tar HEAD | gzip -c > ~/rpmbuild/SOURCES/$pkgname.tar.gz
+    rpmbuild -ba --define "srcarchivename $pkgname" fedora/SPECS/CRITERIA1D.spec
 elif [[ $image =~ ^ubuntu: ]]
 then
     apt-get update
