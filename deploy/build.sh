@@ -166,7 +166,6 @@ then
     LD_LIBRARY_PATH=`pwd`/mapGraphics/release ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
     cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
-#    cp *.AppImage deploy/appimage/usr/bin/
 
 else
     echo "Unknown image $image"
