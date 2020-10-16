@@ -124,10 +124,12 @@ then
     chmod +x linuxqtdeploy
     
     # build appimage CsvToMeteoDb
+    # cp appimage in tmpbuild
     cp -rf deploy/appimage deploy/tmpbuild
     cp tools/csvToMeteoDb/release/CsvToMeteoDb deploy/tmpbuild/usr/bin/CsvToMeteoDb
     ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
     cp deploy/tmpbuild/usr/bin/* deploy/appimage/usr/bin/
+    #rm tmpbuild
     rm -rf deploy/tmpbuild/
     
     # build appimage CriteriaOutput
