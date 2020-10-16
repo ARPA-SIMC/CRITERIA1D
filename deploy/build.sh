@@ -128,7 +128,7 @@ then
     cp -rf deploy/appimage deploy/tmpbuild
     cp tools/csvToMeteoDb/release/CsvToMeteoDb deploy/tmpbuild/usr/bin/CsvToMeteoDb
     ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    cp deploy/tmpbuild/usr/bin/* deploy/appimage/usr/bin/
+    cp deploy/tmpbuild/usr/bin/* deploy
     #rm tmpbuild
     rm -rf deploy/tmpbuild/
     
@@ -136,36 +136,37 @@ then
     cp -rf deploy/appimage deploy/tmpbuild
     cp tools/criteriaOutputTools/release/CriteriaOutput deploy/tmpbuild/usr/bin/CriteriaOutput
     ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CriteriaOutput.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    cp deploy/tmpbuild/usr/bin/* deploy/appimage/usr/bin/
+    cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
     
     # build appimage CRITERIA1D
     cp -rf deploy/appimage deploy/tmpbuild
     cp bin/CRITERIA1D/release/CRITERIA1D deploy/tmpbuild/usr/bin/CRITERIA1D
     ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CRITERIA1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    cp deploy/tmpbuild/usr/bin/* deploy/appimage/usr/bin/
+    cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
     
     # build appimage CROP_EDITOR
     cp -rf deploy/appimage deploy/tmpbuild
     cp bin/CROP_EDITOR/release/CROP_EDITOR deploy/tmpbuild/usr/bin/CROP_EDITOR
     ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CROP_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    cp deploy/tmpbuild/usr/bin/* deploy/appimage/usr/bin/
+    cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
     
     # build appimage SOIL_EDITOR
     cp -rf deploy/appimage deploy/tmpbuild
     cp bin/SOIL_EDITOR/release/SOIL_EDITOR deploy/tmpbuild/usr/bin/SOIL_EDITOR
     ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/SOIL_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    cp deploy/tmpbuild/usr/bin/* deploy/appimage/usr/bin/
+    cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
     
     # build appimage CRITERIA_GEO
     cp -rf deploy/appimage deploy/tmpbuild
     cp bin/CRITERIAGEO/release/CRITERIA_GEO deploy/tmpbuild/usr/bin/CRITERIA_GEO
     LD_LIBRARY_PATH=`pwd`/mapGraphics/release ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    cp deploy/tmpbuild/usr/bin/* deploy/appimage/usr/bin/
+    cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
+    mv deploy/*.AppImage deploy/appimage/usr/bin/
 
 else
     echo "Unknown image $image"
