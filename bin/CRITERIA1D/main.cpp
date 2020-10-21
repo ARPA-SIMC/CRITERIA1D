@@ -13,6 +13,12 @@
 //#define TEST_PAST
 
 
+void usage()
+{
+    std::cout << "CRITERIA1D water balance" << std::endl
+              << "Usage: CRITERIA1D project.ini [date]" << std::endl;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -38,7 +44,7 @@ int main(int argc, char *argv[])
                 #if defined(TEST_TODAY) || defined(TEST_PAST)
                     settingsFileName = path + "PROJECT/INCOLTO/Incolto.ini";
                 #else
-                    std::cout << "USAGE: CRITERIA1D project.ini [date]\n";
+                    usage();
                     return ERROR_SETTINGS_MISSING;
                 #endif
             #endif
