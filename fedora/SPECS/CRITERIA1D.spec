@@ -3,7 +3,7 @@
 
 Name:           CRITERIA1D
 Version:        1.0.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        One-dimensional soil water balance
 
 URL:            https://github.com/ARPA-SIMC/CRITERIA1D
@@ -18,6 +18,8 @@ BuildRequires:  gdal-libs
 BuildRequires:  gdal-devel
 BuildRequires:  geos
 BuildRequires:  geos-devel
+
+Requires:       qt5-qtbase-mysql
 
 %description
 CRITERIA-1D is a soil water balance model simulating one-dimensional water
@@ -85,8 +87,11 @@ cp -a bin/CRITERIAGEO/release/CRITERIA_GEO %{buildroot}/%{_bindir}/
 %{_bindir}/CRITERIA_GEO
 
 %changelog
-* Wed Oct 21 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1
+* Wed Oct 21 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1-2
+- MySQL driver (#5)
+
+* Wed Oct 21 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1-1
 - Release 1.0.1
 
-* Thu Oct 15 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.0
+* Thu Oct 15 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.0-1
 - Release 1.0.0
