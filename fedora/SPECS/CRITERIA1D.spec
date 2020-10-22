@@ -3,7 +3,7 @@
 
 Name:           CRITERIA1D
 Version:        1.0.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        One-dimensional soil water balance
 
 URL:            https://github.com/ARPA-SIMC/CRITERIA1D
@@ -77,6 +77,8 @@ cp -a bin/CRITERIA1D/release/CRITERIA1D %{buildroot}/%{_bindir}/
 cp -a bin/CROP_EDITOR/release/CROP_EDITOR %{buildroot}/%{_bindir}/
 cp -a bin/SOIL_EDITOR/release/SOIL_EDITOR %{buildroot}/%{_bindir}/
 cp -a bin/CRITERIAGEO/release/CRITERIA_GEO %{buildroot}/%{_bindir}/
+mkdir -p %{buildroot}/%{_datadir}/
+cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 
 %files
 %{_bindir}/CsvToMeteoDb
@@ -85,8 +87,12 @@ cp -a bin/CRITERIAGEO/release/CRITERIA_GEO %{buildroot}/%{_bindir}/
 %{_bindir}/CROP_EDITOR
 %{_bindir}/SOIL_EDITOR
 %{_bindir}/CRITERIA_GEO
+%{_datadir}/CRITERIA1D/*
 
 %changelog
+* Wed Oct 22 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1-3
+- Application images (#6)
+
 * Wed Oct 21 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1-2
 - MySQL driver (#5)
 
