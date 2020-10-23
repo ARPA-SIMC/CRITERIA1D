@@ -1,44 +1,53 @@
 :: build CRITERIA1D
 :: run on Qt shell (MSVC version)
 :: inside deploy directory (cd [local path]\CRITERIA1D\deploy)
-:: before execution remember to call vcvarsall.bat to complete environment setup
-:: example: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat x64
+:: before execution remember to call vcvarsall.bat (32 or 64 bit) to complete environment setup
+:: example: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
+
+
+:: clean old distribution
+cd ..\tools\csvToMeteoDb
+nmake /S /NOLOGO distclean
+cd ..\Makeall_CriteriaOutput
+nmake /S /NOLOGO distclean
+cd ..\..\bin\Makeall_CRITERIA1D
+nmake /S /NOLOGO distclean
+cd ..\Makeall_CROP_EDITOR
+nmake /S /NOLOGO distclean
+cd ..\Makeall_SOIL_EDITOR
+nmake /S /NOLOGO distclean
+cd ..\Makeall_CRITERIAGEO
+nmake /S /NOLOGO distclean
 
 
 :: build csvToMeteoDb
-cd ..\tools\csvToMeteoDb
+cd ..\..\tools\csvToMeteoDb
 qmake CONFIG+=release
-nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build criteriaOutput
 cd ..\Makeall_CriteriaOutput
 qmake CONFIG+=release
-nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build CRITERIA-1D
 cd ..\..\bin\Makeall_CRITERIA1D
 qmake CONFIG+=release
-nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build CROP_EDITOR
 cd ..\Makeall_CROP_EDITOR
 qmake CONFIG+=release
-nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build SOIL_EDITOR
 cd ..\Makeall_SOIL_EDITOR
 qmake CONFIG+=release
-nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: build CRITERIA-GEO
-cd ..\Makeall_CRITERIA_GEO
+cd ..\Makeall_CRITERIAGEO
 qmake CONFIG+=release
-nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
 :: copy executables
@@ -52,19 +61,6 @@ copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
 copy ..\..\..\tools\criteriaOutputTools\release\CriteriaOutput.exe
 copy ..\..\..\tools\csvToMeteoDb\release\CsvToMeteoDb.exe
 
-:: CLEAN distribution
-cd ..\..\..\tools\csvToMeteoDb
-nmake /S /NOLOGO distclean
-cd ..\Makeall_CriteriaOutput
-nmake /S /NOLOGO distclean
-cd ..\..\bin\Makeall_CRITERIA1D
-nmake /S /NOLOGO distclean
-cd ..\Makeall_CROP_EDITOR
-nmake /S /NOLOGO distclean
-cd ..\Makeall_SOIL_EDITOR
-nmake /S /NOLOGO distclean
-cd ..\Makeall_CRITERIA_GEO
-nmake /S /NOLOGO distclean
 
 :: deploy executables
 cd ..\..\deploy\CRITERIA1D\bin
