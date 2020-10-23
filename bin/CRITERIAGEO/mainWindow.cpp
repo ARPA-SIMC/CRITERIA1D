@@ -506,29 +506,36 @@ void MainWindow::removeShape(GisObject* myObject)
 }
 
 
-void MainWindow::setShapeStyle(GisObject* myObject)
+void MainWindow::setShapeStyle(GisObject* myObject, std::string fieldName)
+{
+    MapGraphicsShapeObject* shapeObject = getShapeObject(myObject);
+    DBFFieldType fieldType = myObject->getShapeHandler()->getFieldType(fieldName);
+
+    if (fieldType == FTString)
+    {
+        shapeObject->setCategories(fieldName);
+    }
+    else
+    {
+        shapeObject->setNumericValues(fieldName);
+    }
+
+    //setZeroCenteredScale(shapeObject->colorScale);
+    setTemperatureScale(shapeObject->colorScale);
+    shapeObject->setFill(true);
+}
+
+
+void MainWindow::setShapeStyle_GUI(GisObject* myObject)
 {
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, false, SHAPESTYLE);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
-        MapGraphicsShapeObject* shapeObject = getShapeObject(myObject);
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
-        DBFFieldType fieldType = myObject->getShapeHandler()->getFieldType(fieldName);
-
-        if (fieldType == FTString)
-        {
-            shapeObject->setCategories(fieldName);
-        }
-        else
-        {
-            shapeObject->setNumericValues(fieldName);
-        }
-
-        setZeroCenteredScale(shapeObject->colorScale);
-        //setTemperatureScale(shapeObject->colorScale);
-        shapeObject->setFill(true);
+        setShapeStyle(myObject, fieldName);
     }
 }
+
 
 bool MainWindow::exportToRaster(GisObject* myObject)
 {
@@ -568,6 +575,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
     }
     return true;
 #else
+    Q_UNUSED(myObject)
     QMessageBox::critical(nullptr, "ERROR", "Missing GDAL");
     return false;
 #endif
@@ -641,7 +649,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Set style"))
         {
-            setShapeStyle(myObject);
+            setShapeStyle_GUI(myObject);
         }
         else if (rightClickItem->text().contains("Export to raster"))
         {

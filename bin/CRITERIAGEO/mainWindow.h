@@ -96,7 +96,9 @@
         void saveShape(GisObject* myObject);
         void removeRaster(GisObject* myObject);
         void removeShape(GisObject* myObject);
-        void setShapeStyle(GisObject* myObject);
+        void setShapeStyle(GisObject* myObject, std::string fieldName);
+        void setShapeStyle_GUI(GisObject* myObject);
+
         QString checkSelectedShape();
         bool exportToRaster(GisObject* myObject);
 

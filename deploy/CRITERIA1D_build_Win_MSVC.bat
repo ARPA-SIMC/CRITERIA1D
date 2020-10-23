@@ -35,10 +35,17 @@ qmake CONFIG+=release
 nmake /S /NOLOGO clean
 nmake /S /NOLOGO release
 
+:: build CRITERIA-GEO
+cd ..\Makeall_CRITERIA_GEO
+qmake CONFIG+=release
+nmake /S /NOLOGO clean
+nmake /S /NOLOGO release
+
 :: copy executables
 cd ..\..\deploy
 mkdir CRITERIA1D\bin
 cd CRITERIA1D\bin
+copy ..\..\..\bin\CRITERIAGEO\release\CRITERIA_GEO.exe
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
@@ -56,6 +63,8 @@ cd ..\Makeall_CROP_EDITOR
 nmake /S /NOLOGO distclean
 cd ..\Makeall_SOIL_EDITOR
 nmake /S /NOLOGO distclean
+cd ..\Makeall_CRITERIA_GEO
+nmake /S /NOLOGO distclean
 
 :: deploy executables
 cd ..\..\deploy\CRITERIA1D\bin
@@ -64,6 +73,7 @@ windeployqt CriteriaOutput.exe
 windeployqt CRITERIA1D.exe
 windeployqt CROP_EDITOR.exe
 windeployqt SOIL_EDITOR.exe
+windeployqt CRITERIA_GEO.exe
 
 :: copy doc and img files
 cd ..\
