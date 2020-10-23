@@ -6,6 +6,8 @@
 
 
 :: clean old distribution
+cd ..\mapGraphics
+nmake /S /NOLOGO distclean
 cd ..\tools\csvToMeteoDb
 nmake /S /NOLOGO distclean
 cd ..\Makeall_CriteriaOutput
@@ -19,9 +21,13 @@ nmake /S /NOLOGO distclean
 cd ..\Makeall_CRITERIAGEO
 nmake /S /NOLOGO distclean
 
+:: build mapGraphics
+cd ..\..\mapGraphics
+qmake CONFIG+=release
+nmake /S /NOLOGO release
 
 :: build csvToMeteoDb
-cd ..\..\tools\csvToMeteoDb
+cd ..\tools\csvToMeteoDb
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
