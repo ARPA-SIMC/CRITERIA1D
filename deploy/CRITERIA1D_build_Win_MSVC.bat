@@ -2,7 +2,7 @@
 :: run on Qt shell (MSVC version)
 :: inside deploy directory (cd [local path]\CRITERIA1D\deploy)
 :: before execution remember to call vcvarsall.bat to complete environment setup
-:: example: "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+:: example: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat x64
 
 
 :: build csvToMeteoDb
