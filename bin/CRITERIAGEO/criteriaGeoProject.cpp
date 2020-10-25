@@ -299,6 +299,9 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
     if (result != CRIT3D_OK)
         logError("ERROR CODE " + QString::number(result));
 
+    // clean .csv
+    QFile::remove(outputProject.path + "tmp/" + outputName +".csv");
+
     return result;
 }
 
