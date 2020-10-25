@@ -22,9 +22,11 @@ Soil editor is a tool to edit the soil properties. It uses a modified Van Genuch
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
 
-## How to compile the CRITERIA-1D distribution
+## How to compile the CRITERIA-1D/GEO distribution
 Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
+Only for GEO:
+- GDAL library: see [GDAL readme](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/agrolib/gdalHandler/readme.md) for windows installation.
 
 Build:
 - Linux: run deploy/CRITERIA1D_build_Linux.sh
@@ -32,16 +34,6 @@ Build:
 - Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat
 
 The distribution will be created in the directory deploy/CRITERIA1D
-
-## How to compile CRITERIA GEO
-Dependencies:
-- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
-- GDAL library: see [GDAL readme](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/agrolib/gdalHandler/readme.md) for windows installation.
-
-Build:
-- build mapGraphics/MapGraphics.pro
-- build bin/Makeall_CRITERIAGEO/Makeall_CRITERIAGEO.pro
-- copy mapGraphics.dll and CRITERIA_GEO.exe in in the directory deploy/CRITERIA1D/bin
 
 ## HEAT1D 
 #### bin/Makeall_HEAT1D
