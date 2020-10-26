@@ -990,7 +990,8 @@ void MainWindow::on_actionOutput_Map_triggered()
             // climate computation is empty
             myProject.outputProject.outputVariable.climateComputation << "";
         }
-        myProject.outputProject.outputVariable.outputVarName << "outputVar";
+        QString fieldName = "outputVar";
+        myProject.outputProject.outputVariable.outputVarName << fieldName;
         // create CSV and shapeOutput
         QString outputName = outputMap.getTabMapOutputName();
         int result = myProject.createShapeOutput(dateComputation, outputName);
@@ -1005,5 +1006,6 @@ void MainWindow::on_actionOutput_Map_triggered()
 
         GisObject* myObject = myProject.objectList.back();
         this->addShapeObject(myObject);
+        setShapeStyle(myObject, fieldName.toStdString());
     }
 }
