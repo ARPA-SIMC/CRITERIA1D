@@ -89,8 +89,13 @@ MainWindow::~MainWindow()
             delete this->rasterObjList[i];
 
     if (! this->shapeObjList.empty())
+    {
         for (unsigned int i = 0; i < this->shapeObjList.size(); i++)
+        {
+            this->shapeObjList[i]->getShapePointer()->close();
             delete this->shapeObjList[i];
+        }
+    }
 
     if (myProject.outputProject.isProjectLoaded)
     {
