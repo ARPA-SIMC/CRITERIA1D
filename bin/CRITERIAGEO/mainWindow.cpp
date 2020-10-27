@@ -141,14 +141,11 @@ void MainWindow::updateMaps()
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event)
-
     if (! this->isDoubleClick)
     {
         if (event->button() == Qt::LeftButton)
         {
-            QString selShape = checkSelectedShape();
-            this->ui->statusBar->showMessage(selShape);
+            selectShape(event->pos());
         }
     }
     this->isDoubleClick = false;
@@ -726,20 +723,24 @@ void MainWindow::itemMenuRequested(const QPoint point)
 }
 
 
-QString MainWindow::checkSelectedShape()
+void MainWindow::selectShape(QPoint position)
 {
-    QListWidgetItem * itemSelected = ui->checkList->currentItem();
-
-    // no shapefile selected -> exit
+    QListWidgetItem* itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr)
-        return "";
-    if (! itemSelected->text().contains("SHAPE"))
-        return"";
+        return;
 
-    int pos = ui->checkList->row(itemSelected);
-    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+    int row = ui->checkList->row(itemSelected);
+    GisObject* myObject = myProject.objectList.at(unsigned(row));
+    if (myObject->type != gisObjectShape)
+        return;
 
-    return myObject->fileName;
+    QPoint mapPos = getMapPos(position);
+    if (! isInsideMap(mapPos))
+        return;
+
+    Position latLon = mapView->mapToScene(mapPos);
+    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+    this->ui->statusBar->showMessage(QString::number(latLon.latitude()) + " " + QString::number(latLon.longitude()));
 }
 
 

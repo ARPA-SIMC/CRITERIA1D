@@ -100,8 +100,7 @@
         void removeShape(GisObject* myObject);
         void setShapeStyle(GisObject* myObject, std::string fieldName);
         void setShapeStyle_GUI(GisObject* myObject);
-
-        QString checkSelectedShape();
+        void selectShape(QPoint position);
         bool exportToRaster(GisObject* myObject);
 
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
