@@ -898,6 +898,21 @@ void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
 
 void MainWindow::on_actionLoadProject_triggered()
 {
+    // a project is already opened
+    if (myProject.outputProject.isProjectLoaded)
+    {
+        QMessageBox::StandardButton confirm;
+        QString msg = "Are you sure you want to close "+myProject.outputProject.projectName+" ?";
+        confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+        if (confirm == QMessageBox::Yes)
+        {
+            on_actionClose_Project_triggered();
+        }
+        else
+        {
+            return;
+        }
+    }
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open GEO project"), "", tr("Settings files (*.ini)"));
 
     if (projFileName == "") return;
