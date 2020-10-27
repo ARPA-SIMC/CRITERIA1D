@@ -599,14 +599,22 @@ void MainWindow::itemMenuRequested(const QPoint point)
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
     QMenu submenu;
-    submenu.addAction("Close");
-    submenu.addSeparator();
     RasterObject* myRasterObject = nullptr;
 
     if (myObject->type == gisObjectShape)
     {
-        submenu.addAction("Save as");
-        submenu.addSeparator();
+        if (myObject->projectName.isEmpty())
+        {
+            submenu.addAction("Close");
+            submenu.addSeparator();
+            submenu.addAction("Save as");
+            submenu.addSeparator();
+        }
+        else
+        {
+            submenu.addAction("Close Project");
+            submenu.addSeparator();
+        }
         submenu.addAction("Show data");
         submenu.addAction("Attribute table");
         submenu.addSeparator();
@@ -615,6 +623,8 @@ void MainWindow::itemMenuRequested(const QPoint point)
     }
     else if (myObject->type == gisObjectRaster)
     {
+        submenu.addAction("Close");
+        submenu.addSeparator();
         myRasterObject = getRasterObject(myObject);
         if (myRasterObject != nullptr)
         {
@@ -633,7 +643,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
 
     if (rightClickItem)
     {
-        if (rightClickItem->text().contains("Close") )
+        if (rightClickItem->text() == "Close" )
         {
             if (myObject->type == gisObjectRaster)
             {
@@ -647,6 +657,10 @@ void MainWindow::itemMenuRequested(const QPoint point)
             myProject.objectList.erase(myProject.objectList.begin()+pos);
 
             ui->checkList->takeItem(ui->checkList->indexAt(point).row());
+        }
+        else if (rightClickItem->text() == "Close Project" )
+        {
+            on_actionClose_Project_triggered();
         }
         else if (rightClickItem->text().contains("Show data"))
         {
