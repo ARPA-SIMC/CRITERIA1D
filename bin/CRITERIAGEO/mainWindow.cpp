@@ -85,8 +85,12 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     if (! this->rasterObjList.empty())
+    {
         for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
+        {
             delete this->rasterObjList[i];
+        }
+    }
 
     if (! this->shapeObjList.empty())
     {
@@ -936,6 +940,47 @@ void MainWindow::on_actionLoadProject_triggered()
             }
         }
     }
+}
+
+void MainWindow::on_actionClose_Project_triggered()
+{
+    if (!myProject.outputProject.isProjectLoaded)
+    {
+        return;
+    }
+    for (int i = 0; i < myProject.objectList.size(); i++)
+    {
+        if (myProject.objectList[i]->getFileNameWithPath() == myProject.outputProject.ucmFileName)
+        {
+            GisObject* myObject = myProject.objectList.at(unsigned(i));
+            this->removeShape(myObject);
+            myObject->close();
+            myProject.objectList.erase(myProject.objectList.begin()+i);
+            for (int j = 0; j < ui->checkList->count(); j++)
+            {
+                if (ui->checkList->item(i)->text().contains("[PROJECT]"))
+                {
+                    ui->checkList->takeItem(i);
+                }
+            }
+        }
+    }
+    myProject.outputProject.closeProject();
+    // disable Output map action
+    QMenu *menu = nullptr;
+    menu = this->menuBar()->findChild<QMenu *>("menuTools");
+    if (menu != nullptr)
+    {
+        QList<QAction*> list = menu->actions();
+        foreach (QAction *action, list)
+        {
+            if (action->text() == "Output map")
+            {
+                action->setEnabled(false);
+            }
+        }
+    }
+    return;
 }
 
 

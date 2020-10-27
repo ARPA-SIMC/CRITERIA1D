@@ -58,6 +58,8 @@
 
         void on_actionOutput_Map_triggered();
 
+        void on_actionClose_Project_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

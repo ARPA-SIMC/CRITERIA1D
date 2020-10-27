@@ -970,6 +970,7 @@
      <string>Fi&amp;le</string>
     </property>
     <addaction name="actionLoadProject"/>
+    <addaction name="actionClose_Project"/>
     <addaction name="separator"/>
     <addaction name="actionLoadShapefile"/>
     <addaction name="actionLoadRaster"/>
@@ -1116,6 +1117,11 @@
    </property>
    <property name="text">
     <string>Output map</string>
+   </property>
+  </action>
+  <action name="actionClose_Project">
+   <property name="text">
+    <string>Close Project...</string>
    </property>
   </action>
  </widget>
