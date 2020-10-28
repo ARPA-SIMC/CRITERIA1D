@@ -319,7 +319,6 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
     return result;
 }
 
-
 //--------------------------------------------------------------
 // LOG
 //--------------------------------------------------------------

@@ -91,6 +91,7 @@ MainWindow::~MainWindow()
             delete this->rasterObjList[i];
         }
     }
+    this->rasterObjList.clear();
 
     if (! this->shapeObjList.empty())
     {
@@ -100,12 +101,12 @@ MainWindow::~MainWindow()
             delete this->shapeObjList[i];
         }
     }
+    this->shapeObjList.clear();
+    myProject.objectList.clear();
 
     if (myProject.outputProject.isProjectLoaded)
     {
-        QDir tmpDir(myProject.outputProject.path + "tmp");
-        tmpDir.removeRecursively();
-        myProject.outputProject.closeProject();
+        closeGeoProject();
     }
 
     ui->checkList->clear();
@@ -921,7 +922,7 @@ void MainWindow::on_actionLoadProject_triggered()
         confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
         if (confirm == QMessageBox::Yes)
         {
-            on_actionClose_Project_triggered();
+            closeGeoProject();
         }
         else
         {
@@ -972,7 +973,7 @@ void MainWindow::on_actionLoadProject_triggered()
     }
 }
 
-void MainWindow::on_actionClose_Project_triggered()
+void MainWindow::closeGeoProject()
 {
     if (!myProject.outputProject.isProjectLoaded)
     {
@@ -995,7 +996,23 @@ void MainWindow::on_actionClose_Project_triggered()
             }
         }
     }
+    // rm tmp dir
+    QDir tmpDir(myProject.outputProject.path + "tmp");
+    tmpDir.removeRecursively();
     myProject.outputProject.closeProject();
+}
+
+void MainWindow::on_actionClose_Project_triggered()
+{
+
+    QMessageBox::StandardButton confirm;
+    QString msg = "This operation close all the project "+myProject.outputProject.projectName+". Are you sure?";
+    confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+    if (confirm == QMessageBox::No)
+    {
+        return;
+    }
+    closeGeoProject();
     // disable Output map action
     QMenu *menu = nullptr;
     menu = this->menuBar()->findChild<QMenu *>("menuTools");

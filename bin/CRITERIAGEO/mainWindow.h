@@ -60,6 +60,8 @@
 
         void on_actionClose_Project_triggered();
 
+        void closeGeoProject();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
