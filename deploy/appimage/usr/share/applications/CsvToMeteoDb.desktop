@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=CsvToMeteoDb
+Comment=CsvToMeteoDb
+Exec=CsvToMeteoDb
+Icon=CsvToMeteoDb
+Categories=Office;
+

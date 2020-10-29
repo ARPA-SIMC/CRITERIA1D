@@ -26,6 +26,7 @@
 */
 
 #include "gisObject.h"
+#include "utilities.h"
 
 
 GisObject::GisObject()
@@ -34,10 +35,16 @@ GisObject::GisObject()
 }
 
 
+QString GisObject::getFileNameWithPath() const
+{
+    return fileNameWithPath;
+}
+
 void GisObject::initialize()
 {
     this->type = gisObjectNone;
     this->fileName = "";
+    this->projectName = "";
     this->fileNameWithPath = "";
     this->isSelected = true;
     this->rasterPtr = nullptr;
@@ -57,11 +64,12 @@ void GisObject::setRaster(QString fileNameWithPath, gis::Crit3DRasterGrid* raste
 }
 
 
-void GisObject::setShapeFile(QString fileNameWithPath, Crit3DShapeHandler* shapePtr, int utmZone)
+void GisObject::setShapeFile(QString fileNameWithPath, QString projectName, Crit3DShapeHandler* shapePtr, int utmZone)
 {
     this->type = gisObjectShape;
     this->fileNameWithPath = fileNameWithPath;
     this->fileName = getFileName(fileNameWithPath);
+    this->projectName = projectName;
     this->isSelected = true;
 
     this->shapePtr = shapePtr;
@@ -95,19 +103,4 @@ void GisObject::close()
     this->initialize();
 }
 
-
-QString getFileName(QString fileNameWithPath)
-{
-    QString c;
-    QString fileName = "";
-    for (int i = fileNameWithPath.length()-1; i >= 0; i--)
-    {
-        c = fileNameWithPath.mid(i,1);
-        if ((c != "\\") && (c != "/"))
-            fileName = c + fileName;
-        else
-            return fileName;
-    }
-    return fileName;
-}
 

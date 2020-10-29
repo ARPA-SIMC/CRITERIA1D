@@ -1,5 +1,9 @@
+[![Build Status](https://badges.herokuapp.com/travis/ARPA-SIMC/CRITERIA1D?branch=master&env=DOCKER_IMAGE=centos:8&label=centos8)](https://travis-ci.org/ARPA-SIMC/CRITERIA1D)
+[![Build Status](https://badges.herokuapp.com/travis/ARPA-SIMC/CRITERIA1D?branch=master&env=DOCKER_IMAGE=ubuntu:xenial&label=ubuntuxenial)](https://travis-ci.org/ARPA-SIMC/CRITERIA1D)
+[![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
+
 # CRITERIA-1D/GEO
-CRITERIA-1D is a soil water balance model simulating one-dimensional water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different level of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of hypodermic watertable depth to estimate the capillary rise. 
+CRITERIA-1D is a agro-hydrological model simulating one-dimensional water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different level of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of hypodermic watertable depth to estimate the capillary rise. 
 
 The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the CriteriaOutput tool. The software is multi-platform (Windows, Linux, Mac OS).
 
@@ -18,9 +22,10 @@ Soil editor is a tool to edit the soil properties. It uses a modified Van Genuch
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
 
-## How to compile the CRITERIA-1D distribution
+## How to compile the CRITERIA-1D/GEO distribution
 Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
+Only for GEO:
 - GDAL library: see [GDAL readme](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/agrolib/gdalHandler/readme.md) for windows installation.
 
 Build:
@@ -28,7 +33,7 @@ Build:
 - Windows (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
 - Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat
 
-The distribution will be created in deploy/CRITERIA1D
+The distribution will be created in the directory deploy/CRITERIA1D
 
 ## HEAT1D 
 #### bin/Makeall_HEAT1D

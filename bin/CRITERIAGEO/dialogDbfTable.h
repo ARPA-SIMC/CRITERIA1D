@@ -1,24 +1,25 @@
-#ifndef tableDBFDialog_H
-#define tableDBFDialog_H
+#ifndef DIALOGDBFTABLE_H
+#define DIALOGDBFTABLE_H
 
 #ifndef SHAPEHANDLER_H
     #include "shapeHandler.h"
 #endif
-#include "dbfNewColDialog.h"
+#include "dialogDbfNewCol.h"
+#include "tableDbf.h"
 
 #define DEFAULT_INTEGER_MAX_DIGITS 9
 #define DEFAULT_DOUBLE_MAX_DIGITS 13
 #define DEFAULT_DOUBLE_MAX_DECIMALS 3
 
-class DbfTableDialog : public QDialog
+class DialogDbfTable : public QDialog
 {
     Q_OBJECT
 
     private:
 
     Crit3DShapeHandler *shapeHandler;
-    QTableWidget* m_DBFTableWidget;
-    DbfNewColDialog* newColDialog;
+    TableDbf* m_DBFTableWidget;
+    DialogDbfNewCol* newColDialog;
     QMenuBar *menuBar;
     QMenu *editMenu;
     QAction *addRow;
@@ -31,8 +32,8 @@ class DbfTableDialog : public QDialog
     QStringList m_DBFTableHeader;
 
     public:
-        DbfTableDialog(Crit3DShapeHandler *shapeHandler, QString fileName);
-        ~DbfTableDialog();
+        DialogDbfTable(Crit3DShapeHandler *shapeHandler, QString fileName);
+        ~DialogDbfTable();
         void addRowClicked();
         void removeRowClicked();
         void addColClicked();
@@ -43,6 +44,7 @@ class DbfTableDialog : public QDialog
         void saveChangesClicked();
         void horizontalHeaderClick(int index);
         void verticalHeaderClick(int index);
+        void menuRequested(const QPoint point);
 };
 
-#endif // TableDBFDialog_H
+#endif // DIALOGDBFTABLE_H

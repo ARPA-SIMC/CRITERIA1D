@@ -29,8 +29,11 @@
 #include "dialogSelectField.h"
 #include "dialogUcmPrevailing.h"
 #include "dialogUcmIntersection.h"
-#include "dbfTableDialog.h"
+#include "dialogOutputMap.h"
+#include "dialogDbfTable.h"
 #include "commonConstants.h"
+#include "shapeUtilities.h"
+#include "utilities.h"
 
 #ifdef GDAL
     #include "gdalExtensions.h"
@@ -82,8 +85,29 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     if (! this->rasterObjList.empty())
+    {
         for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
+        {
             delete this->rasterObjList[i];
+        }
+    }
+    this->rasterObjList.clear();
+
+    if (! this->shapeObjList.empty())
+    {
+        for (unsigned int i = 0; i < this->shapeObjList.size(); i++)
+        {
+            this->shapeObjList[i]->getShapePointer()->close();
+            delete this->shapeObjList[i];
+        }
+    }
+    this->shapeObjList.clear();
+    myProject.objectList.clear();
+
+    if (myProject.outputProject.isProjectLoaded)
+    {
+        closeGeoProject();
+    }
 
     ui->checkList->clear();
     delete mapView;
@@ -118,14 +142,11 @@ void MainWindow::updateMaps()
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event)
-
     if (! this->isDoubleClick)
     {
         if (event->button() == Qt::LeftButton)
         {
-            QString selShape = checkSelectedShape();
-            this->ui->statusBar->showMessage(selShape);
+            selectShape(event->pos());
         }
     }
     this->isDoubleClick = false;
@@ -303,8 +324,19 @@ bool MainWindow::addShapeObject(GisObject* myObject)
         return false;
     }
 
+    // name
+    QString itemName;
+    if (myObject->projectName != "")
+    {
+        itemName = "[PROJECT] " + myObject->projectName;
+    }
+    else
+    {
+        itemName = "[SHAPE] " + myObject->fileName;
+    }
+
     // add item
-    QListWidgetItem* item = new QListWidgetItem("[SHAPE] " + myObject->fileName);
+    QListWidgetItem* item = new QListWidgetItem(itemName);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(Qt::Checked);
     ui->checkList->addItem(item);
@@ -357,7 +389,7 @@ void MainWindow::on_actionLoadShapefile_triggered()
     QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open Shapefile"), "", tr("shp files (*.shp)"));
     if (fileNameWithPath == "") return;
 
-    if (! myProject.loadShapefile(fileNameWithPath))
+    if (! myProject.loadShapefile(fileNameWithPath, ""))
         return;
 
     GisObject* myObject = myProject.objectList.back();
@@ -413,6 +445,14 @@ void MainWindow::saveRaster(GisObject* myObject)
     {
         QMessageBox::information(nullptr, "Error", QString::fromStdString(error));
     }
+}
+
+void MainWindow::saveShape(GisObject* myObject)
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Shapefile"), "", tr("shp files (*.shp)"));
+    if (fileName == "") return;
+    // make a copy of shapefile, keep original file
+    copyShapeFile(myObject->getFileNameWithPath(), fileName);
 }
 
 
@@ -473,32 +513,40 @@ void MainWindow::removeShape(GisObject* myObject)
 }
 
 
-void MainWindow::setShapeStyle(GisObject* myObject)
+void MainWindow::setShapeStyle(GisObject* myObject, std::string fieldName)
+{
+    MapGraphicsShapeObject* shapeObject = getShapeObject(myObject);
+    DBFFieldType fieldType = myObject->getShapeHandler()->getFieldType(fieldName);
+
+    if (fieldType == FTString)
+    {
+        shapeObject->setCategories(fieldName);
+    }
+    else
+    {
+        shapeObject->setNumericValues(fieldName);
+    }
+
+    //setZeroCenteredScale(shapeObject->colorScale);
+    setTemperatureScale(shapeObject->colorScale);
+    shapeObject->setFill(true);
+}
+
+
+void MainWindow::setShapeStyle_GUI(GisObject* myObject)
 {
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, false, SHAPESTYLE);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
-        MapGraphicsShapeObject* shapeObject = getShapeObject(myObject);
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
-        DBFFieldType fieldType = myObject->getShapeHandler()->getFieldType(fieldName);
-
-        if (fieldType == FTString)
-        {
-            shapeObject->setCategories(fieldName);
-        }
-        else
-        {
-            shapeObject->setNumericValues(fieldName);
-        }
-
-        setZeroCenteredScale(shapeObject->colorScale);
-        //setTemperatureScale(shapeObject->colorScale);
-        shapeObject->setFill(true);
+        setShapeStyle(myObject, fieldName);
     }
 }
 
+
 bool MainWindow::exportToRaster(GisObject* myObject)
 {
+#ifdef GDAL
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GDALRASTER);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
@@ -513,6 +561,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
         {
             res = QString::number(shapeFieldDialog.getCellSize());
         }
+
         QStringList gdalExt = getGdalRasterWriteExtension();
         QString outputName = QFileDialog::getSaveFileName(this, tr("Save raster as"), "", gdalExt.join(";\n"));
         if (outputName == "")
@@ -520,6 +569,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
             QMessageBox::information(nullptr, "Insert output name", "missing raster name");
             return false;
         }
+
         QString errorStr;
         if (!myProject.createRaster(QString::fromStdString(shapeFilePath), fieldName, res, outputName, errorStr))
         {
@@ -531,6 +581,11 @@ bool MainWindow::exportToRaster(GisObject* myObject)
         return true;
     }
     return true;
+#else
+    Q_UNUSED(myObject)
+    QMessageBox::critical(nullptr, "ERROR", "Missing GDAL");
+    return false;
+#endif
 }
 
 
@@ -542,12 +597,22 @@ void MainWindow::itemMenuRequested(const QPoint point)
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
     QMenu submenu;
-    submenu.addAction("Close");
-    submenu.addSeparator();
     RasterObject* myRasterObject = nullptr;
 
     if (myObject->type == gisObjectShape)
     {
+        if (myObject->projectName.isEmpty())
+        {
+            submenu.addAction("Close");
+            submenu.addSeparator();
+            submenu.addAction("Save as");
+            submenu.addSeparator();
+        }
+        else
+        {
+            submenu.addAction("Close Project");
+            submenu.addSeparator();
+        }
         submenu.addAction("Show data");
         submenu.addAction("Attribute table");
         submenu.addSeparator();
@@ -556,6 +621,8 @@ void MainWindow::itemMenuRequested(const QPoint point)
     }
     else if (myObject->type == gisObjectRaster)
     {
+        submenu.addAction("Close");
+        submenu.addSeparator();
         myRasterObject = getRasterObject(myObject);
         if (myRasterObject != nullptr)
         {
@@ -574,7 +641,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
 
     if (rightClickItem)
     {
-        if (rightClickItem->text().contains("Close") )
+        if (rightClickItem->text() == "Close" )
         {
             if (myObject->type == gisObjectRaster)
             {
@@ -589,17 +656,21 @@ void MainWindow::itemMenuRequested(const QPoint point)
 
             ui->checkList->takeItem(ui->checkList->indexAt(point).row());
         }
+        else if (rightClickItem->text() == "Close Project" )
+        {
+            on_actionClose_Project_triggered();
+        }
         else if (rightClickItem->text().contains("Show data"))
         {
             DialogShapeProperties showData(myObject->getShapeHandler(), myObject->fileName);
         }
         else if (rightClickItem->text().contains("Attribute table"))
         {
-            DbfTableDialog Table(myObject->getShapeHandler(), myObject->fileName);
+            DialogDbfTable Table(myObject->getShapeHandler(), myObject->fileName);
         }
         else if (rightClickItem->text().contains("Set style"))
         {
-            setShapeStyle(myObject);
+            setShapeStyle_GUI(myObject);
         }
         else if (rightClickItem->text().contains("Export to raster"))
         {
@@ -610,6 +681,10 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectRaster)
             {
                 this->saveRaster(myObject);
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                this->saveShape(myObject);
             }
         }
         else if (rightClickItem->text().contains("Set grayscale"))
@@ -649,20 +724,24 @@ void MainWindow::itemMenuRequested(const QPoint point)
 }
 
 
-QString MainWindow::checkSelectedShape()
+void MainWindow::selectShape(QPoint position)
 {
-    QListWidgetItem * itemSelected = ui->checkList->currentItem();
-
-    // no shapefile selected -> exit
+    QListWidgetItem* itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr)
-        return "";
-    if (! itemSelected->text().contains("SHAPE"))
-        return"";
+        return;
 
-    int pos = ui->checkList->row(itemSelected);
-    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+    int row = ui->checkList->row(itemSelected);
+    GisObject* myObject = myProject.objectList.at(unsigned(row));
+    if (myObject->type != gisObjectShape)
+        return;
 
-    return myObject->fileName;
+    QPoint mapPos = getMapPos(position);
+    if (! isInsideMap(mapPos))
+        return;
+
+    Position latLon = mapView->mapToScene(mapPos);
+    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+    this->ui->statusBar->showMessage(QString::number(latLon.latitude()) + " " + QString::number(latLon.longitude()));
 }
 
 
@@ -832,3 +911,198 @@ void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
     }
 }
 
+
+void MainWindow::on_actionLoadProject_triggered()
+{
+    // a project is already opened
+    if (myProject.outputProject.isProjectLoaded)
+    {
+        QMessageBox::StandardButton confirm;
+        QString msg = "Are you sure you want to close "+myProject.outputProject.projectName+" ?";
+        confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+        if (confirm == QMessageBox::Yes)
+        {
+            closeGeoProject();
+        }
+        else
+        {
+            return;
+        }
+    }
+    QString projFileName = QFileDialog::getOpenFileName(this, tr("Open GEO project"), "", tr("Settings files (*.ini)"));
+
+    if (projFileName == "") return;
+
+    // set current dateTime, then GUI overwrite this information
+    int myResult = myProject.outputProject.initializeProject(projFileName, QDateTime::currentDateTime().date(), false);
+    if (myResult != CRIT3D_OK)
+    {
+        QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.projectError);
+        return;
+    }
+
+    if (myProject.outputProject.ucmFileName == "")
+    {
+        QMessageBox::information(nullptr, "Project setting error", "Missing Unit Crop Map (shapefile)");
+        return;
+    }
+
+    QString projectName = getFileName(projFileName);
+    projectName = projectName.left(projectName.length() -4);
+    if (! myProject.loadShapefile(myProject.outputProject.ucmFileName, projectName))
+        return;
+
+    GisObject* myObject = myProject.objectList.back();
+    this->addShapeObject(myObject);
+
+    QDir().mkdir(myProject.outputProject.path + "tmp");
+
+    // enable Output map action
+    QMenu *menu = nullptr;
+    menu = this->menuBar()->findChild<QMenu *>("menuTools");
+    if (menu != nullptr)
+    {
+        QList<QAction*> list = menu->actions();
+        foreach (QAction *action, list)
+        {
+            if (action->text() == "Output map")
+            {
+                action->setEnabled(true);
+            }
+        }
+    }
+}
+
+void MainWindow::closeGeoProject()
+{
+    if (!myProject.outputProject.isProjectLoaded)
+    {
+        return;
+    }
+    for (int i = 0; i < myProject.objectList.size(); i++)
+    {
+        if (myProject.objectList[i]->getFileNameWithPath() == myProject.outputProject.ucmFileName)
+        {
+            GisObject* myObject = myProject.objectList.at(unsigned(i));
+            this->removeShape(myObject);
+            myObject->close();
+            myProject.objectList.erase(myProject.objectList.begin()+i);
+            for (int j = 0; j < ui->checkList->count(); j++)
+            {
+                if (ui->checkList->item(i)->text().contains("[PROJECT]"))
+                {
+                    ui->checkList->takeItem(i);
+                }
+            }
+        }
+    }
+    // rm tmp dir
+    QDir tmpDir(myProject.outputProject.path + "tmp");
+    tmpDir.removeRecursively();
+    myProject.outputProject.closeProject();
+}
+
+void MainWindow::on_actionClose_Project_triggered()
+{
+
+    QMessageBox::StandardButton confirm;
+    QString msg = "This operation close all the project "+myProject.outputProject.projectName+". Are you sure?";
+    confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+    if (confirm == QMessageBox::No)
+    {
+        return;
+    }
+    closeGeoProject();
+    // disable Output map action
+    QMenu *menu = nullptr;
+    menu = this->menuBar()->findChild<QMenu *>("menuTools");
+    if (menu != nullptr)
+    {
+        QList<QAction*> list = menu->actions();
+        foreach (QAction *action, list)
+        {
+            if (action->text() == "Output map")
+            {
+                action->setEnabled(false);
+            }
+        }
+    }
+    return;
+}
+
+
+void MainWindow::on_actionOutput_Map_triggered()
+{
+    QString error;
+    if (!myProject.outputProject.getAllDbVariable(error))
+    {
+        QMessageBox::critical(nullptr, "Error", "Error in load db data variables: " + error);
+        return;
+    }
+    else
+    {
+        // add DTX
+        myProject.outputProject.outputVariable.varName << "DT30" << "DT90" << "DT180" ;
+    }
+    QDate firstDate;
+    QDate lastDate;
+    if (!myProject.outputProject.getDbDataDates(&firstDate, &lastDate, error))
+    {
+        QMessageBox::critical(nullptr, "Ivalid first and last date db data ", error);
+        return;
+    }
+
+    DialogOutputMap outputMap(myProject.outputProject.outputVariable.varName, firstDate, lastDate);
+    if (outputMap.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        // fill myProject.outputProject.outputVariable
+        QDate dateComputation;
+        myProject.outputProject.outputVariable.varName.clear();
+        myProject.outputProject.outputVariable.varName << outputMap.getTabMapVariable();
+        if (outputMap.getTabMapElab() == "daily value")
+        {
+            myProject.outputProject.outputVariable.computation << ""; // computation is empty
+            dateComputation = outputMap.getTabMapDate();
+            myProject.outputProject.outputVariable.nrDays << "0";
+        }
+        else
+        {
+            myProject.outputProject.outputVariable.computation << outputMap.getTabMapElab();
+            dateComputation = outputMap.getTabMapStartDate();
+            myProject.outputProject.outputVariable.nrDays << QString::number(outputMap.getTabMapStartDate().daysTo(outputMap.getTabMapEndDate()));
+        }
+        myProject.outputProject.outputVariable.referenceDay << 0;
+        if (outputMap.isTabMapClimateComputation())
+        {
+            myProject.outputProject.outputVariable.climateComputation << outputMap.getTabMapClimateComputation();
+            myProject.outputProject.outputVariable.param1 << outputMap.getTabMapThreshold();
+            myProject.outputProject.outputVariable.param2 << outputMap.getTabMapTimeWindow();
+        }
+        else
+        {
+            // climate computation is empty
+            myProject.outputProject.outputVariable.climateComputation << "";
+        }
+        QString fieldName = "outputVar";
+        myProject.outputProject.outputVariable.outputVarName << fieldName;
+        // create CSV and shapeOutput
+        QString outputName = outputMap.getTabMapOutputName();
+        int result = myProject.createShapeOutput(dateComputation, outputName);
+        if (result != CRIT3D_OK)
+        {
+            QMessageBox::critical(nullptr, "ERROR", "createShapeOutput error");
+            return;
+        }
+        // add shape to GUI
+        if (! myProject.loadShapefile(myProject.outputProject.path + "tmp/" + outputName +".shp", ""))
+            return;
+
+        GisObject* myObject = myProject.objectList.back();
+        this->addShapeObject(myObject);
+        setShapeStyle(myObject, fieldName.toStdString());
+    }
+}

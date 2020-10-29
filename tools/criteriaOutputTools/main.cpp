@@ -7,11 +7,12 @@
 #include <iostream>
 
 // uncomment to compute test
-#define TEST
+// #define TEST
 
 void usage()
 {
-    std::cout << "\n" << "USAGE:\nCriteriaOutput PRECOMPUTE_DTX|CSV|SHAPEFILE|MAPS|AGGREGATION project.ini [date]\n";
+    std::cout << "CRITERIA1D output post-processing" << std::endl
+              << "Usage: CriteriaOutput PRECOMPUTE_DTX|CSV|SHAPEFILE|MAPS|AGGREGATION project.ini [date]" << std::endl;
 }
 
 
@@ -79,7 +80,7 @@ int main(int argc, char *argv[])
     if (settingsFileName.left(1) == ".")
         settingsFileName = appPath + settingsFileName;
 
-    int myResult = myProject.initializeProject(settingsFileName, dateComputation);
+    int myResult = myProject.initializeProject(settingsFileName, dateComputation, true);
     if (myResult != CRIT3D_OK)
     {
         myProject.logger.writeError(myProject.projectError);

@@ -10,6 +10,9 @@
     #ifndef GISOBJECT_H
         #include "gisObject.h"
     #endif
+    #ifndef CRITERIAOUTPUTPROJECT_H
+        #include "criteriaOutputProject.h"
+    #endif
 
     #include <QString>
     #include <vector>
@@ -21,13 +24,14 @@
     public:
         gis::Crit3DGisSettings gisSettings;
         std::vector<GisObject*> objectList;
+        CriteriaOutputProject outputProject;
 
         CriteriaGeoProject();
 
         bool loadRaster(QString fileName);
-        bool loadShapefile(QString fileName);
+        bool loadShapefile(QString fileNameWithPath, QString projectName);
         void addRaster(gis::Crit3DRasterGrid *myRaster, QString fileName, int utmZone);
-        void addShapeFile(Crit3DShapeHandler *myShape, QString fileName, int utmZone);
+        void addShapeFile(Crit3DShapeHandler *myShape, QString fileNameWithPath, QString projectName, int utmZone);
 
         void getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo);
 
@@ -41,8 +45,9 @@
 
         bool createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error);
 
-        void logError(std::string errorString);
         void logError(QString errorString);
+
+        int createShapeOutput(QDate dateComputation, QString outputName);
     };
 
 
