@@ -69,6 +69,15 @@ make
 
 cd -
 
+# build HEAT1D
+cd ../bin/Makeall_HEAT1D
+$QMAKE Makeall_HEAT1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+make -f Makefile clean
+make -f Makefile qmake_all
+make
+
+cd -
+
 # download linuxdeployqt
 #wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
 #chmod +x linuxqtdeploy
@@ -96,6 +105,10 @@ cp ../bin/SOIL_EDITOR/release/SOIL_EDITOR appimage/usr/bin/SOIL_EDITOR
 # build appimage CRITERIA_GEO
 cp ../bin/CRITERIAGEO/release/CRITERIA_GEO appimage/usr/bin/CRITERIA_GEO
 #./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+
+# build appimage HEAT1D
+cp ../bin/HEAT1D/release/HEAT1D appimage/usr/bin/HEAT1D
+#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/HEAT1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
