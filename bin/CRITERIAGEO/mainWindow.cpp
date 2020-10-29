@@ -1037,7 +1037,7 @@ void MainWindow::on_actionOutput_Map_triggered()
     QString error;
     if (!myProject.outputProject.getAllDbVariable(error))
     {
-        QMessageBox::critical(nullptr, "Error", "Error in load db data variables: " + error);
+        QMessageBox::critical(nullptr, "Error", "Error in load db data variables:\n" + error);
         return;
     }
     else
@@ -1049,7 +1049,7 @@ void MainWindow::on_actionOutput_Map_triggered()
     QDate lastDate;
     if (!myProject.outputProject.getDbDataDates(&firstDate, &lastDate, error))
     {
-        QMessageBox::critical(nullptr, "Ivalid first and last date db data ", error);
+        QMessageBox::critical(nullptr, "Ivalid first and last date db data.\n", error);
         return;
     }
 
