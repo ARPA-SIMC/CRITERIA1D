@@ -18,6 +18,8 @@ cd ..\Makeall_CROP_EDITOR
 nmake /S /NOLOGO distclean
 cd ..\Makeall_SOIL_EDITOR
 nmake /S /NOLOGO distclean
+cd ..\Makeall_HEAT1D
+nmake /S /NOLOGO distclean
 cd ..\Makeall_CRITERIAGEO
 nmake /S /NOLOGO distclean
 
@@ -51,6 +53,11 @@ cd ..\Makeall_SOIL_EDITOR
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
+:: build HEAT1D
+cd ..\Makeall_HEAT1D
+qmake CONFIG+=release
+nmake /S /NOLOGO release
+
 :: build CRITERIA-GEO
 cd ..\Makeall_CRITERIAGEO
 qmake CONFIG+=release
@@ -60,6 +67,7 @@ nmake /S /NOLOGO release
 cd ..\..\deploy
 mkdir CRITERIA1D\bin
 cd CRITERIA1D\bin
+copy ..\..\..\bin\HEAT1D\release\HEAT1D.exe
 copy ..\..\..\bin\CRITERIAGEO\release\CRITERIA_GEO.exe
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
@@ -70,7 +78,7 @@ copy ..\..\..\tools\csvToMeteoDb\release\CsvToMeteoDb.exe
 
 :: deploy executables
 cd ..\..\deploy\CRITERIA1D\bin
-windeployqt CsvToMeteoDb.exe
+windeployqt HEAT1D.exe
 windeployqt CriteriaOutput.exe
 windeployqt CRITERIA1D.exe
 windeployqt CROP_EDITOR.exe
