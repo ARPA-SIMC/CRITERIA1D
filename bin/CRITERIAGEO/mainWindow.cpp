@@ -979,7 +979,7 @@ void MainWindow::closeGeoProject()
     {
         return;
     }
-    for (int i = 0; i < myProject.objectList.size(); i++)
+    for (unsigned int i = 0; i < myProject.objectList.size(); i++)
     {
         if (myProject.objectList[i]->getFileNameWithPath() == myProject.outputProject.ucmFileName)
         {
@@ -996,7 +996,8 @@ void MainWindow::closeGeoProject()
             }
         }
     }
-    // rm tmp dir
+
+    // remove tmp dir
     QDir tmpDir(myProject.outputProject.path + "tmp");
     tmpDir.removeRecursively();
     myProject.outputProject.closeProject();
