@@ -24,9 +24,8 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/gis/debug -lgis
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
-}
-else
-{
+} else {
+
     LIBS += -L../../agrolib/qcustomplot/release -lqcustomplot
     LIBS += -L../../agrolib/soilFluxes3D/release -lsoilFluxes3D
     LIBS += -L../../agrolib/gis/release -lgis
