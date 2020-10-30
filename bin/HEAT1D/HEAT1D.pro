@@ -8,7 +8,24 @@
 
 QT       += widgets core charts printsupport
 
-TARGET = HEAT1D
+unix:{
+    CONFIG(debug, debug|release) {
+        TARGET = debug/HEAT1D
+    } else {
+        TARGET = release/HEAT1D
+    }
+}
+macx:{
+    CONFIG(debug, debug|release) {
+        TARGET = debug/HEAT1D
+    } else {
+        TARGET = release/HEAT1D
+    }
+}
+win32:{
+    TARGET = HEAT1D
+}
+
 TEMPLATE = app
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
