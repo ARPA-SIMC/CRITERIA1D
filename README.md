@@ -37,11 +37,10 @@ The distribution will be created in the directory deploy/CRITERIA1D
 
 ## HEAT1D 
 #### bin/Makeall_HEAT1D
-HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D domain. Users can set fixed or variable atmospheric boundary conditions and soil parameters. Output graph results include soil temperature, soil water content, heat fluxes (diffusive and latent), liquid (isothermal and thermal) and vapor (isothermal and thermal) water fluxes.  
-Graphs are produced using the Qwt plot library (http://qwt.sourceforge.net) which should be compiled before usage.
+HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D domain. Users can set fixed or variable atmospheric boundary conditions and soil parameters. Output graph results include soil temperature, soil water content, heat fluxes (diffusive and latent), liquid (isothermal and thermal) and vapor (isothermal and thermal) water fluxes.
 
 ## License
 CRITERIA-1D has been developed under contract issued by 
 [ARPAE Hydro-Meteo-Climate Service](https://github.com/ARPA-SIMC), Emilia-Romagna, Italy
 
-The executables (*CRITERIA1D, CRITERIAGEO, TEST_EDITOR, SOIL_EDITOR, HEAT1D*) are released under the GNU GPL license, libreries (*agrolib*) are released under the GNU LGPL license.
+The executables (*CRITERIA1D, CRITERIA_GEO, CROP_EDITOR, SOIL_EDITOR, HEAT1D*) are released under the GNU GPL license, the libraries (*agrolib*) are released under the GNU LGPL license.

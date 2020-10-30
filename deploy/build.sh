@@ -61,6 +61,7 @@ then
     make clean
     make
     
+    
 elif [[ $image =~ ^ubuntu: ]]
 then
     # build mapGraphics
@@ -119,6 +120,14 @@ then
 
     cd -
     
+    # build HEAT1D
+    cd bin/Makeall_HEAT1D
+    $QMAKE Makeall_HEAT1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
+    make clean
+    make
+    
+    cd -
+    
     # download linuxdeployqt
     wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
     chmod +x linuxqtdeploy
@@ -164,6 +173,13 @@ then
     cp -rf deploy/appimage deploy/tmpbuild
     cp bin/CRITERIAGEO/release/CRITERIA_GEO deploy/tmpbuild/usr/bin/CRITERIA_GEO
     LD_LIBRARY_PATH=`pwd`/mapGraphics/release ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+    cp deploy/tmpbuild/usr/bin/* deploy
+    rm -rf deploy/tmpbuild/
+    
+    # build appimage HEAT1D
+    cp -rf deploy/appimage deploy/tmpbuild
+    cp bin/HEAT1D/release/HEAT1D deploy/tmpbuild/usr/bin/HEAT1D
+    ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/HEAT1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
     cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
 

@@ -979,7 +979,7 @@ void MainWindow::closeGeoProject()
     {
         return;
     }
-    for (int i = 0; i < myProject.objectList.size(); i++)
+    for (unsigned int i = 0; i < myProject.objectList.size(); i++)
     {
         if (myProject.objectList[i]->getFileNameWithPath() == myProject.outputProject.ucmFileName)
         {
@@ -996,7 +996,8 @@ void MainWindow::closeGeoProject()
             }
         }
     }
-    // rm tmp dir
+
+    // remove tmp dir
     QDir tmpDir(myProject.outputProject.path + "tmp");
     tmpDir.removeRecursively();
     myProject.outputProject.closeProject();
@@ -1036,7 +1037,7 @@ void MainWindow::on_actionOutput_Map_triggered()
     QString error;
     if (!myProject.outputProject.getAllDbVariable(error))
     {
-        QMessageBox::critical(nullptr, "Error", "Error in load db data variables: " + error);
+        QMessageBox::critical(nullptr, "Error", "Error in load db data variables:\n" + error);
         return;
     }
     else
@@ -1048,7 +1049,7 @@ void MainWindow::on_actionOutput_Map_triggered()
     QDate lastDate;
     if (!myProject.outputProject.getDbDataDates(&firstDate, &lastDate, error))
     {
-        QMessageBox::critical(nullptr, "Ivalid first and last date db data ", error);
+        QMessageBox::critical(nullptr, "Ivalid first and last date db data.\n", error);
         return;
     }
 
