@@ -22,22 +22,20 @@ Soil editor is a tool to edit the soil properties. It uses a modified Van Genuch
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
 
+## HEAT1D 
+#### bin/Makeall_HEAT1D
+HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D domain. Users can set fixed or variable atmospheric boundary conditions and soil parameters. Output graph results include soil temperature, soil water content, heat fluxes (diffusive and latent), liquid (isothermal and thermal) and vapor (isothermal and thermal) water fluxes.
+
 ## How to compile the CRITERIA-1D/GEO distribution
 Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
-Only for GEO:
-- GDAL library: see [GDAL readme](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/agrolib/gdalHandler/readme.md) for windows installation.
 
 Build:
 - Linux: run deploy/CRITERIA1D_build_Linux.sh
 - Windows (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
-- Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat
 
 The distribution will be created in the directory deploy/CRITERIA1D
 
-## HEAT1D 
-#### bin/Makeall_HEAT1D
-HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D domain. Users can set fixed or variable atmospheric boundary conditions and soil parameters. Output graph results include soil temperature, soil water content, heat fluxes (diffusive and latent), liquid (isothermal and thermal) and vapor (isothermal and thermal) water fluxes.
 
 ## License
 CRITERIA-1D has been developed under contract issued by 
