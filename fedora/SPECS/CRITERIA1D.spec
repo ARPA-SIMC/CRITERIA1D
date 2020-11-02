@@ -2,8 +2,8 @@
 %{!?srcarchivename: %global srcarchivename CRITERIA1D-%{version}}
 
 Name:           CRITERIA1D
-Version:        1.0.1
-Release:        3%{?dist}
+Version:        1.0.3
+Release:        1%{?dist}
 Summary:        One-dimensional soil water balance
 
 URL:            https://github.com/ARPA-SIMC/CRITERIA1D
@@ -90,6 +90,9 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
+* Mon Nov 02 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.3-1
+- Release 1.0.3
+
 * Wed Oct 22 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1-3
 - Application images (#6)
 
