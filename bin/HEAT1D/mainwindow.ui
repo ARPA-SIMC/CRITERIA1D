@@ -45,7 +45,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -266,7 +266,7 @@
         <x>10</x>
         <y>10</y>
         <width>381</width>
-        <height>211</height>
+        <height>221</height>
        </rect>
       </property>
       <property name="title">
@@ -276,7 +276,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>130</y>
+         <y>140</y>
          <width>201</width>
          <height>71</height>
         </rect>
@@ -349,7 +349,7 @@
          <x>10</x>
          <y>20</y>
          <width>361</width>
-         <height>101</height>
+         <height>111</height>
         </rect>
        </property>
        <property name="font">
@@ -533,6 +533,32 @@
          </property>
         </widget>
        </widget>
+       <widget class="QLabel" name="label_14">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>80</y>
+          <width>121</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>fixed heat flux (W m-2)</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEditAtmFlux">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>80</y>
+          <width>31</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QCheckBox" name="chkUseInputMeteo">
        <property name="enabled">
@@ -541,7 +567,7 @@
        <property name="geometry">
         <rect>
          <x>240</x>
-         <y>130</y>
+         <y>160</y>
          <width>91</width>
          <height>17</height>
         </rect>
@@ -557,7 +583,7 @@
        <property name="geometry">
         <rect>
          <x>240</x>
-         <y>150</y>
+         <y>180</y>
          <width>81</width>
          <height>23</height>
         </rect>

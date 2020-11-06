@@ -176,7 +176,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
             myT = ui->lineEditAtmT->text().toDouble() + 273.16;
             myRH = ui->lineEditAtmRH->text().toDouble();
             myWS = ui->lineEditAtmWS->text().toDouble();
-            myNR = 0.;
+            myNR = ui->lineEditAtmFlux->text().toDouble();
 
             if ((myCurrentHour >= myPIniHour) && (myCurrentHour < myPIniHour + myPHours))
                 myP = ui->lineEditPrecHourlyAmount->text().toDouble();

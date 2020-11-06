@@ -438,36 +438,36 @@ void getHourlyOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output
 
     // net radiation (positive downward)
     myValue = soilFluxes3D::getBoundaryRadiativeFlux(1);
-    myPoint.setY(myValue);
+    if (isValid(myValue)) myPoint.setY(myValue);
     output->landSurfaceOutput[output->nrValues-1].netRadiation = myPoint;
 
     // sensible heat (positive upward)
-    myValue = -soilFluxes3D::getBoundarySensibleFlux(1);
-    myPoint.setY(myValue);
+    myValue = soilFluxes3D::getBoundarySensibleFlux(1);
+    if (isValid(myValue)) myPoint.setY(-myValue);
     output->landSurfaceOutput[output->nrValues-1].sensibleHeat = myPoint;
 
     // latent heat (positive upward)
-    myValue = -soilFluxes3D::getBoundaryLatentFlux(1);
-    myPoint.setY(myValue);
+    myValue = soilFluxes3D::getBoundaryLatentFlux(1);
+    if (isValid(myValue)) myPoint.setY(-myValue);
     output->landSurfaceOutput[output->nrValues-1].latentHeat = myPoint;
 
     //aerodynamic resistance
     myValue = soilFluxes3D::getBoundaryAerodynamicConductance(1);
-    myPoint.setY(1./myValue);
+    if (isValid(myValue)) myPoint.setY(1./myValue);
     output->landSurfaceOutput[output->nrValues-1].aeroResistance = myPoint;
 
     //soil surface resistance
     myValue = soilFluxes3D::getBoundarySoilConductance(1);
-    myPoint.setY(1./myValue);
+    if (isValid(myValue)) myPoint.setY(1./myValue);
     output->landSurfaceOutput[output->nrValues-1].soilResistance = myPoint;
 
     //errors
     myValue = soilFluxes3D::getHeatMBR();
-    myPoint.setY(myValue);
+    if (isValid(myValue)) myPoint.setY(myValue);
     output->errorOutput[output->nrValues-1].heatMBR = myPoint;
 
     myValue = soilFluxes3D::getWaterMBR();
-    myPoint.setY(myValue);
+    if (isValid(myValue)) myPoint.setY(myValue);
     output->errorOutput[output->nrValues-1].waterMBR = myPoint;
 }
 
