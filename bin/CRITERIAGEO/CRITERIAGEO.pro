@@ -38,7 +38,7 @@ INCLUDEPATH +=  ../../mapGraphics \
                 ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop   \
                 ../../agrolib/utilities ../../agrolib/shapeUtilities  \
                 ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib  \
-                ../../agrolib/criteriaOutput ../../agrolib/graphics ../../agrolib/project
+                ../../agrolib/criteriaOutput ../../agrolib/graphics ../../agrolib/commonDialogs
 
 CONFIG += debug_and_release
 

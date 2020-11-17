@@ -31,10 +31,11 @@ win32:{
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
                 ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities ../../agrolib/soil ../../agrolib/crop \
-                ../../agrolib/qcustomplot ../../agrolib/criteriaModel ../../agrolib/cropWidget
+                ../../agrolib/qcustomplot ../../agrolib/criteriaModel ../../agrolib/commonDialogs ../../agrolib/cropWidget
 
 CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/cropWidget/debug -lcropWidget
+    LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/criteriaModel/debug -lcriteriaModel
     LIBS += -L../../agrolib/qcustomplot/debug -lqcustomplot
     LIBS += -L../../agrolib/crop/debug -lcrop
@@ -48,6 +49,7 @@ CONFIG(debug, debug|release) {
 } else {
 
     LIBS += -L../../agrolib/cropWidget/release -lcropWidget
+    LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../../agrolib/criteriaModel/release -lcriteriaModel
     LIBS += -L../../agrolib/qcustomplot/release -lqcustomplot
     LIBS += -L../../agrolib/crop/release -lcrop
