@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "heat1D.h"
+#include "commonConstants.h"
 
 #include <iostream>
 #include <QString>
@@ -10,10 +11,9 @@
 #include <QApplication>
 #include <qclipboard.h>
 
-#include "commonConstants.h"
 
-long myHourIni, myHourFin, myCurrentHour;
-bool Initialized;
+extern Heat1DSimulation myHeat1D;
+
 bool useInputMeteoData, useInputSoilData;
 
 double *myTempInput;
@@ -92,12 +92,9 @@ bool MainWindow::initializeModel()
     // simulation
     if (!useInputMeteoData)
     {
-        myHourIni = ui->lineEditSimStart->text().toInt();
-        myHourFin = ui->lineEditSimStop->text().toInt();
+        myHeat1D.SimulationStart = ui->lineEditSimStart->text().toInt();
+        myHeat1D.SimulationStop = ui->lineEditSimStop->text().toInt();
     }
-
-    setSimulationStart(myHourIni);
-    setSimulationStop(myHourFin);
 
     // processes
     bool computeHeat = ui->chkBoxHeat->isChecked();
@@ -125,30 +122,24 @@ bool MainWindow::initializeModel()
                 ui->lineEditClay->text().toDouble(),
                 ui->lineEditOrganic->text().toDouble());
 
-    Initialized = initializeHeat1D(&myHourIni, &myHourFin, useInputSoilData);
-
-    myCurrentHour = myHourIni;
-
-    return true;
+    return (initializeHeat1D(useInputSoilData));
 }
 
 void MainWindow::on_pushRunAllPeriod_clicked()
 {
     myHeatOutput.clean();
 
-    initializeModel();
+    if (! initializeModel())
+    {
+        ui->labelInfo->setText("Initialization failed");
+        return;
+    }
 
     long nodesNr = getNodesNumber();
     myHeatOutput.nrLayers = nodesNr;
     myHeatOutput.layerThickness = ui->lineEditThickness->text().toFloat();
 
-    if (Initialized)
-        ui->prgBar->setMaximum(myHourFin);
-    else
-    {
-        ui->labelInfo->setText("Initialization failed");
-        return;
-    }
+    ui->prgBar->setMaximum(myHeat1D.SimulationStop);
 
     double myPIniHour, myPHours;
     double myT, myRH, myWS, myNR, myP;
@@ -157,19 +148,21 @@ void MainWindow::on_pushRunAllPeriod_clicked()
     myPHours = ui->lineEditPrecHours->text().toInt();
     myNR = NODATA;
 
+    int outTimeStep = ui->lineEditTimeStep->text().toInt();
+
     do
     {
-        setHour(++myCurrentHour);
+        ++(myHeat1D.CurrentHour);
 
         qApp->processEvents();
 
         if (useInputMeteoData)
         {
-            myT = myTempInput[myCurrentHour-1] + 273.16;
-            myP = myPrecInput[myCurrentHour-1];
-            myRH = myRHInput[myCurrentHour-1];
-            myWS = myWSInput[myCurrentHour-1];
-            myNR = myNetRadInput[myCurrentHour-1];
+            myT = myTempInput[myHeat1D.CurrentHour-1] + 273.16;
+            myP = myPrecInput[myHeat1D.CurrentHour-1];
+            myRH = myRHInput[myHeat1D.CurrentHour-1];
+            myWS = myWSInput[myHeat1D.CurrentHour-1];
+            myNR = myNetRadInput[myHeat1D.CurrentHour-1];
         }
         else
         {
@@ -178,7 +171,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
             myWS = ui->lineEditAtmWS->text().toDouble();
             myNR = ui->lineEditAtmFlux->text().toDouble();
 
-            if ((myCurrentHour >= myPIniHour) && (myCurrentHour < myPIniHour + myPHours))
+            if ((myHeat1D.CurrentHour >= myPIniHour) && (myHeat1D.CurrentHour < myPIniHour + myPHours))
                 myP = ui->lineEditPrecHourlyAmount->text().toDouble();
             else
                 myP = 0.;
@@ -188,9 +181,9 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
         getHourlyOutputAllPeriod(0, getNodesNumber(), &myHeatOutput);
 
-        ui->prgBar->setValue(myCurrentHour);
+        ui->prgBar->setValue(myHeat1D.CurrentHour);
 
-    } while (myCurrentHour < myHourFin);
+    } while (myHeat1D.CurrentHour < myHeat1D.SimulationStop);
 
     //outPlot->drawOutput(outputGroup::soilTemperature, &myHeatOutput);
     Crit3DColorScale myColorScale;
@@ -306,9 +299,6 @@ void MainWindow::on_pushLoadFileMeteo_clicked()
 
         long myHourIndex;
 
-        myHourIni=0;
-        myHourFin=0;
-
         int myFieldNumber = 6;
 
         for (myHourIndex = 1; myHourIndex < myInputNumber; myHourIndex++)
@@ -358,7 +348,7 @@ void MainWindow::on_pushLoadFileMeteo_clicked()
                 return;
             }
 
-            myHourFin++;
+            myHeat1D.SimulationStop++;
         }
 
         meteoDataLoaded = true;

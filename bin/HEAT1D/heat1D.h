@@ -7,6 +7,41 @@
 //#include "graphs.h"
 #include "graphFunctions.h"
 
+struct Heat1DSimulation {
+
+    bool initialized;
+
+    //structure
+    long NodesNumber;
+    double TotalDepth ;
+    double Thickness;
+    long SimulationStart, SimulationStop;
+
+    //surface
+    double surfaceArea, Roughness, Plough, RoughnessHeat;
+
+    //bottom boundary
+    double bottomTemperature, bottomTemperatureDepth;
+
+    //meteo
+    double airRelativeHumidity, airTemperature, windSpeed, globalRad;
+    double precHourlyAmount, precHours, precIniHour, precTemperature;
+
+    //initialization
+    double initialSaturationTop, initialSaturationBottom, initialTemperatureTop, initialTemperatureBottom;
+
+    //processes
+    bool computeWater, computeSolutes, computeHeat;
+    bool computeAdvection, computeLatent;
+
+
+    long CurrentHour;
+
+    //soils
+    int myHorizonNumber;
+    double ThetaS, ThetaR, Clay, OrganicMatter;
+};
+
 struct Qsoil{
     double profSup;
     double profInf;
@@ -35,21 +70,18 @@ void setSurface(double myArea, double myRoughness, double minWaterRunoff, double
 void setSoil(double thetaS_, double thetaR_, double clay_, double organicMatter_);
 void setTotalDepth(double myValue);
 void setThickness(double myValue);
-void setSimulationStart(int myValue);
-void setSimulationStop(int myValue);
 void setInitialSaturation(double myValueTop, double myValueBottom);
 void setInitialTemperature(double myValueTop, double myValueBottom);
 void setBottomTemperature(double myValue, double myDepth);
 void setHeatProcesses(bool computeHeatAdvection, bool computeHeatLatent, bool computeHeatSensible);
 void setProcesses(bool computeWaterProcess, bool computeHeatProcess, bool computeSolutesProcess);
 void setProcessesHeat(bool computeLatent_, bool computeAdvection_);
-void setHour(long myHour);
 double getCurrentPrec(long myHour);
 void getHourlyOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output);
 long getNodesNumber();
 void setSoilHorizonNumber(int myHorizonNumber);
 
-bool initializeHeat1D(long *myHourIni, long *myHourFin, bool useInputSoils);
+bool initializeHeat1D(bool useInputSoils);
 bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
                  double myHourlyWindSpeed, double myHourlyNetIrradiance,
                  double myHourlyPrec);

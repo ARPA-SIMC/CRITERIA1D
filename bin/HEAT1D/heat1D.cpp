@@ -13,100 +13,72 @@
 #include "commonConstants.h"
 
 Crit3DOut output;
+Heat1DSimulation myHeat1D;
 
-//structure
-long NodesNumber;
-double TotalDepth ;
-double Thickness;
-long SimulationStart, SimulationStop;
 
-//surface
-double mySurface, Roughness, Plough, RoughnessHeat;
-
-//bottom boundary
-double bottomTemperature, bottomTemperatureDepth;
-
-//meteo
-double airRelativeHumidity, airTemperature, windSpeed, globalRad;
-double precHourlyAmount, precHours, precIniHour, precTemperature;
-
-//initialization
-double initialSaturationTop, initialSaturationBottom, initialTemperatureTop, initialTemperatureBottom;
-
-//processes
-bool computeWater, computeSolutes, computeHeat;
-bool computeAdvection, computeLatent;
-
-long CurrentHour;
-
-//soils
-int myHorizonNumber;
-double ThetaS, ThetaR, Clay, OrganicMatter;
+void setSoil(double thetaS_, double thetaR_, double clay_, double organicMatter_)
+{
+    myHeat1D.ThetaS = thetaS_;
+    myHeat1D.ThetaR = thetaR_;
+    myHeat1D.Clay = clay_;
+    myHeat1D.OrganicMatter = organicMatter_;
+}
 
 void setTotalDepth(double myValue)
-{   TotalDepth = myValue;}
+{   myHeat1D.TotalDepth = myValue;}
 
 void setThickness(double myValue)
-{   Thickness = myValue;}
+{   myHeat1D.Thickness = myValue;}
 
 void setSimulationStart(int myValue)
-{   SimulationStart = myValue;}
+{   myHeat1D.SimulationStart = myValue;}
 
 void setSimulationStop(int myValue)
-{   SimulationStop = myValue;}
+{   myHeat1D.SimulationStop = myValue;}
 
 void setInitialSaturation(double myValueTop, double myValueBottom)
-{   initialSaturationTop = myValueTop;
-    initialSaturationBottom = myValueBottom;
+{   myHeat1D.initialSaturationTop = myValueTop;
+    myHeat1D.initialSaturationBottom = myValueBottom;
 }
 
 void setInitialTemperature(double myValueTop, double myValueBottom)
-{   initialTemperatureTop = myValueTop;
-    initialTemperatureBottom = myValueBottom;
+{   myHeat1D.initialTemperatureTop = myValueTop;
+    myHeat1D.initialTemperatureBottom = myValueBottom;
 }
 
 void setBottomTemperature(double myValue, double myDepth)
 {
-    bottomTemperature = myValue;
-    bottomTemperatureDepth = myDepth;
-}
-
-void setSoil(double thetaS_, double thetaR_, double clay_, double organicMatter_)
-{
-    ThetaS = thetaS_;
-    ThetaR = thetaR_;
-    Clay = clay_;
-    OrganicMatter = organicMatter_;
+    myHeat1D.bottomTemperature = myValue;
+    myHeat1D.bottomTemperatureDepth = myDepth;
 }
 
 void setProcesses(bool computeWaterProcess, bool computeHeat_, bool computeSolutesProcess)
 {
-    computeWater = computeWaterProcess;
-    computeHeat = computeHeat_;
-    computeSolutes = computeSolutesProcess;
+    myHeat1D.computeWater = computeWaterProcess;
+    myHeat1D.computeHeat = computeHeat_;
+    myHeat1D.computeSolutes = computeSolutesProcess;
 }
 
 void setProcessesHeat(bool computeLatent_, bool computeAdvection_)
 {
-    computeLatent = computeLatent_;
-    computeAdvection = computeAdvection_;
-
+    myHeat1D.computeLatent = computeLatent_;
+    myHeat1D.computeAdvection = computeAdvection_;
 }
 
 long getNodesNumber()
-{   return (NodesNumber - 1);}
+{   return (myHeat1D.NodesNumber - 1);}
 
 void setSoilHorizonNumber(int myNumber)
-{   myHorizonNumber = myNumber;}
+{   myHeat1D.myHorizonNumber = myNumber;}
 
 void setSurface(double myArea, double myRoughness, double minWaterRunoff, double myRoughnessHeat)
 {
-    mySurface = myArea;
-    Roughness = myRoughness;
-    Plough = minWaterRunoff;
-    RoughnessHeat = myRoughnessHeat;
+    myHeat1D.surfaceArea = myArea;
+    myHeat1D.Roughness = myRoughness;
+    myHeat1D.Plough = minWaterRunoff;
+    myHeat1D.RoughnessHeat = myRoughnessHeat;
 
-    int myResult = soilFluxes3D::setSurfaceProperties(0, Roughness, Plough);
+    int myResult = soilFluxes3D::setSurfaceProperties(0, myHeat1D.Roughness, myHeat1D.Plough);
     if (myResult != CRIT3D_OK) printf("\n error in SetSurfaceProperties!");
 }
 
@@ -124,7 +96,7 @@ bool initializeSoil(bool useInputSoils)
 
     if (useInputSoils)
     {
-        for (int mySoilIndex = 0; mySoilIndex < myHorizonNumber; mySoilIndex++)
+        for (int mySoilIndex = 0; mySoilIndex < myHeat1D.myHorizonNumber; mySoilIndex++)
             myResult = soilFluxes3D::setSoilProperties(0,mySoilIndex,
                                           myInputSoils[mySoilIndex].VG_alfa,
                                           myInputSoils[mySoilIndex].VG_n,
@@ -138,7 +110,7 @@ bool initializeSoil(bool useInputSoils)
                                           myInputSoils[mySoilIndex].Clay);
     }
     else
-        myResult = soilFluxes3D::setSoilProperties(0, 1, VG_alpha, VG_n, (1. - 1. / VG_n), VG_he, ThetaR, ThetaS, KSat, mualemTort, OrganicMatter/100., Clay/100.);
+        myResult = soilFluxes3D::setSoilProperties(0, 1, VG_alpha, VG_n, (1. - 1. / VG_n), VG_he, myHeat1D.ThetaR, myHeat1D.ThetaS, KSat, mualemTort, myHeat1D.OrganicMatter/100., myHeat1D.Clay/100.);
 
     if (myResult != CRIT3D_OK) {
         printf("\n error in SetSoilProperties");
@@ -147,7 +119,7 @@ bool initializeSoil(bool useInputSoils)
     else return true;
 }
 
-bool initializeHeat1D(long *myHourIni, long *myHourFin, bool useInputSoils)
+bool initializeHeat1D(bool useInputSoils)
 {
     int myResult = 0;
     long indexNode;
@@ -157,43 +129,43 @@ bool initializeHeat1D(long *myHourIni, long *myHourFin, bool useInputSoils)
     float y = 0.;
     double myThetaS, myThetaR;
 
-    NodesNumber = ceil(TotalDepth / Thickness) + 1;
-    double *myDepth = (double *) calloc(NodesNumber, sizeof(double));
-    double *myThickness = (double *) calloc(NodesNumber, sizeof(double));
+    myHeat1D.NodesNumber = ceil(myHeat1D.TotalDepth / myHeat1D.Thickness) + 1;
+    double *myDepth = (double *) calloc(myHeat1D.NodesNumber, sizeof(double));
+    double *myThickness = (double *) calloc(myHeat1D.NodesNumber, sizeof(double));
 
     myThickness[0] = 0;
     myDepth[0] = 0.;
 
     int myNodeHorizon = 0;
 
-    for (indexNode = 1 ; indexNode<NodesNumber ; indexNode++ )
+    for (indexNode = 1 ; indexNode<myHeat1D.NodesNumber ; indexNode++ )
     {
-        myThickness[indexNode] = Thickness;
-        if (indexNode == 1) myDepth[indexNode] = myDepth[indexNode-1] - (Thickness / 2) ;
-        else  myDepth[indexNode] = myDepth[indexNode-1] - Thickness ;
+        myThickness[indexNode] = myHeat1D.Thickness;
+        if (indexNode == 1) myDepth[indexNode] = myDepth[indexNode-1] - (myHeat1D.Thickness / 2) ;
+        else  myDepth[indexNode] = myDepth[indexNode-1] - myHeat1D.Thickness ;
     }
 
-    myResult = soilFluxes3D::initialize(NodesNumber, (short) NodesNumber, 0, computeWater, computeHeat, computeSolutes);
+    myResult = soilFluxes3D::initialize(myHeat1D.NodesNumber, (short) myHeat1D.NodesNumber, 0, myHeat1D.computeWater, myHeat1D.computeHeat, myHeat1D.computeSolutes);
     if (myResult != CRIT3D_OK) printf("\n error in initialize");
 
-    if (computeHeat) soilFluxes3D::initializeHeat(SAVE_HEATFLUXES_ALL, computeAdvection, computeLatent);
+    if (myHeat1D.computeHeat) soilFluxes3D::initializeHeat(SAVE_HEATFLUXES_ALL, myHeat1D.computeAdvection, myHeat1D.computeLatent);
 
     if (! initializeSoil(useInputSoils)) printf("\n error in setSoilProperties");
     soilFluxes3D::setHydraulicProperties(MODIFIEDVANGENUCHTEN, MEAN_LOGARITHMIC, 10.);
     soilFluxes3D::setNumericalParameters((float)0.1, 600., 100, 10, 12, 6);
 
-    for (indexNode = 0 ; indexNode<NodesNumber ; indexNode++ )
+    for (indexNode = 0 ; indexNode < myHeat1D.NodesNumber ; indexNode++ )
     {
         // elemento superficiale
         if (indexNode == 0)
         {
-            myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], mySurface, true, false, BOUNDARY_NONE, 0.0);
+            myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myHeat1D.surfaceArea, true, false, BOUNDARY_NONE, 0.0);
             if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 
             myResult = soilFluxes3D::setNodeSurface(0, 0) ;
             if (myResult != CRIT3D_OK) printf("\n error in setNodeSurface!");
 
-            if (computeWater)
+            if (myHeat1D.computeWater)
             {
                 myResult = soilFluxes3D::setWaterContent(indexNode, 0.);
                 if (myResult != CRIT3D_OK) printf("\n error in setWaterContent!");
@@ -205,38 +177,38 @@ bool initializeHeat1D(long *myHourIni, long *myHourFin, bool useInputSoils)
         {
             if (indexNode == 1)
             {
-                if (computeHeat)
+                if (myHeat1D.computeHeat)
                     boundaryType = BOUNDARY_HEAT_SURFACE;
                 else
                     boundaryType = BOUNDARY_NONE;
 
-                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * mySurface, false, true, boundaryType, 0.0);
+                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, boundaryType, 0.0);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
             }
-            else if (indexNode == NodesNumber - 1)
+            else if (indexNode == myHeat1D.NodesNumber - 1)
             {
-                myResult = soilFluxes3D::setNode(indexNode, x ,y, myDepth[indexNode], myThickness[indexNode] * mySurface, false, true, BOUNDARY_FREEDRAINAGE, 0.0);
+                myResult = soilFluxes3D::setNode(indexNode, x ,y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, BOUNDARY_FREEDRAINAGE, 0.0);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 
-                if (computeHeat)
+                if (myHeat1D.computeHeat)
                 {
-                    myResult = soilFluxes3D::setFixedTemperature(indexNode, 273.16 + bottomTemperature, bottomTemperatureDepth);
+                    myResult = soilFluxes3D::setFixedTemperature(indexNode, 273.16 + myHeat1D.bottomTemperature, myHeat1D.bottomTemperatureDepth);
                     if (myResult != CRIT3D_OK) printf("\n error in setFixedTemperature!");
                 }
             }
             else
             {
-                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * mySurface, false, false, BOUNDARY_NONE, 0.0);																		   
+                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, false, BOUNDARY_NONE, 0.0);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 			}											  
 									  
-            myResult = soilFluxes3D::setNodeLink(indexNode, indexNode - 1 , UP, mySurface);	
+            myResult = soilFluxes3D::setNodeLink(indexNode, indexNode - 1 , UP, myHeat1D.surfaceArea);
             if (myResult != CRIT3D_OK) printf("\n error in setNodeLink!");
 
             if (useInputSoils)
             {
                 if (myDepth[indexNode]<myInputSoils[myNodeHorizon].profInf)
-                    if (myNodeHorizon < myHorizonNumber-1)
+                    if (myNodeHorizon < myHeat1D.myHorizonNumber-1)
                         myNodeHorizon++;
             }																									
             else
@@ -252,59 +224,53 @@ bool initializeHeat1D(long *myHourIni, long *myHourFin, bool useInputSoils)
             }
             else
             {
-                myThetaS = ThetaS;
-                myThetaR = ThetaR;
+                myThetaS = myHeat1D.ThetaS;
+                myThetaR = myHeat1D.ThetaR;
             }
 
-            myResult = soilFluxes3D::setWaterContent(indexNode, ((indexNode-1)*(initialSaturationBottom - initialSaturationTop)/(NodesNumber-2)+initialSaturationTop) * (myThetaS - myThetaR) + myThetaR);
+            myResult = soilFluxes3D::setWaterContent(indexNode, ((indexNode-1)*(myHeat1D.initialSaturationBottom - myHeat1D.initialSaturationTop)/(myHeat1D.NodesNumber-2)+myHeat1D.initialSaturationTop) * (myThetaS - myThetaR) + myThetaR);
             if (myResult != CRIT3D_OK) printf("\n error in SetWaterContent!");
 
-			if (computeHeat)
+            if (myHeat1D.computeHeat)
 			{
 				myResult = soilFluxes3D::setTemperature(indexNode,
-                    273.16 + ((indexNode-1)*(initialTemperatureBottom - initialTemperatureTop)/(NodesNumber-2)+initialTemperatureTop));
+                    273.16 + ((indexNode-1)*(myHeat1D.initialTemperatureBottom - myHeat1D.initialTemperatureTop)/(myHeat1D.NodesNumber-2)+myHeat1D.initialTemperatureTop));
 
 				if (myResult != CRIT3D_OK) printf("\n error in SetTemperature!");
 			}
         }
 
 		// tutti tranne ultimo nodo confinano con nodo sotto
-		if (indexNode < NodesNumber - 1)
+        if (indexNode < myHeat1D.NodesNumber - 1)
 		{
-			myResult = soilFluxes3D::setNodeLink(indexNode, indexNode + 1 , DOWN, mySurface);
+            myResult = soilFluxes3D::setNodeLink(indexNode, indexNode + 1 , DOWN, myHeat1D.surfaceArea);
             if (myResult != CRIT3D_OK) printf("\n error in SetNode sotto!");
 		}																 
     }
 
     soilFluxes3D::initializeBalance();
 
-    *myHourIni = SimulationStart;
-    *myHourFin = SimulationStop;
-
 	return (true);
 }
 
 double getCurrentPrec(long myHour)
 { 
-        if ((myHour >= precIniHour) && myHour < precIniHour + precHours)
-                return (precHourlyAmount);
+        if ((myHour >= myHeat1D.precIniHour) && myHour < myHeat1D.precIniHour + myHeat1D.precHours)
+                return (myHeat1D.precHourlyAmount);
 	else
 		return (0.);
 }
 
-void setHour(long myHour)
-{   CurrentHour = myHour;}
-
 void setSinkSources(double myHourlyPrec)
 {
-    for (long i=0; i<NodesNumber; i++)
+    for (long i=0; i < myHeat1D.NodesNumber; i++)
     {
-        if (computeHeat && i > 0) soilFluxes3D::setHeatSinkSource(i, 0);
+        if (myHeat1D.computeHeat && i > 0) soilFluxes3D::setHeatSinkSource(i, 0);
 
-        if (computeWater)
+        if (myHeat1D.computeWater)
         {
             if (i == 0)
-                soilFluxes3D::setWaterSinkSource(i, (double)myHourlyPrec * mySurface / 3.6e06);
+                soilFluxes3D::setWaterSinkSource(i, (double)myHourlyPrec * myHeat1D.surfaceArea / 3.6e06);
             else
                 soilFluxes3D::setWaterSinkSource(i, 0);
         }
@@ -372,25 +338,25 @@ void getHourlyOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output
         output->profileOutput[output->nrValues-1].heatConductivity.push_back(myPoint);
 
         fluxTot = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_TOTAL);
-        if (isValid(fluxTot)) fluxTot /= mySurface;
+        if (isValid(fluxTot)) fluxTot /= myHeat1D.surfaceArea;
         else fluxTot = NODATA;
         myPoint.setY(fluxTot);
         output->profileOutput[output->nrValues-1].totalHeatFlux.push_back(myPoint);
 
         fluxDiff = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_DIFFUSIVE);
-        if (isValid(fluxDiff)) fluxDiff /= mySurface;
+        if (isValid(fluxDiff)) fluxDiff /= myHeat1D.surfaceArea;
         else fluxDiff = NODATA;
 
         fluxLtntIso = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_LATENT_ISOTHERMAL);
-        if (isValid(fluxLtntIso)) fluxLtntIso /= mySurface;
+        if (isValid(fluxLtntIso)) fluxLtntIso /= myHeat1D.surfaceArea;
         else fluxLtntIso = NODATA;
 
         fluxLtntTh = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_LATENT_THERMAL);
-        if (isValid(fluxLtntTh)) fluxLtntTh /= mySurface;
+        if (isValid(fluxLtntTh)) fluxLtntTh /= myHeat1D.surfaceArea;
         else fluxLtntTh = NODATA;
 
         fluxAdv = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_ADVECTIVE);
-        if (isValid(fluxAdv)) fluxAdv /= mySurface;
+        if (isValid(fluxAdv)) fluxAdv /= myHeat1D.surfaceArea;
         else fluxAdv = NODATA;
 
         myPoint.setY(fluxDiff);
@@ -713,7 +679,7 @@ bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
 
     setSinkSources(myHourlyPrec);
 
-    if (computeHeat)
+    if (myHeat1D.computeHeat)
     {
         soilFluxes3D::setHeatBoundaryHeightWind(1, 2);
         soilFluxes3D::setHeatBoundaryHeightTemperature(1, 1.5);
@@ -732,7 +698,7 @@ bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
             currentRoughness = RoughnessHeat;
         */
 
-        soilFluxes3D::setHeatBoundaryRoughness(1, RoughnessHeat);
+        soilFluxes3D::setHeatBoundaryRoughness(1, myHeat1D.RoughnessHeat);
     }
 
     soilFluxes3D::computePeriod(HOUR_SECONDS);
