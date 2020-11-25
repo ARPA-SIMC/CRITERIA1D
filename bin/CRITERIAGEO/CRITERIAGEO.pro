@@ -60,6 +60,7 @@ GDAL {
 CONFIG(debug, debug|release) {
 
     LIBS += -L../../mapGraphics/debug -lMapGraphics
+    LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
@@ -71,6 +72,7 @@ CONFIG(debug, debug|release) {
 } else {
 
     LIBS += -L../../mapGraphics/release -lMapGraphics
+    LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
