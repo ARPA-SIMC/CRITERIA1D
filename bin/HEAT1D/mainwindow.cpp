@@ -3,6 +3,7 @@
 #include "heat1D.h"
 #include "commonConstants.h"
 
+#include <QDebug>
 #include <iostream>
 #include <QString>
 #include <QFileDialog>
@@ -92,8 +93,8 @@ bool MainWindow::initializeModel()
     // simulation
     if (!useInputMeteoData)
     {
-        myHeat1D.SimulationStart = ui->lineEditSimStart->text().toInt();
-        myHeat1D.SimulationStop = ui->lineEditSimStop->text().toInt();
+        setSimulationStart(ui->lineEditSimStart->text().toInt());
+        setSimulationStop(ui->lineEditSimStop->text().toInt());
     }
 
     // processes
@@ -150,11 +151,18 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
     int outTimeStep = ui->lineEditTimeStep->text().toInt();
 
+    QDateTime myTime = QDateTime::currentDateTime();
+    myTime.setTime(QTime(myHeat1D.SimulationStart,0,0,0));
+    int myHour = NODATA;
+
     do
     {
-        ++(myHeat1D.CurrentHour);
-
-        qApp->processEvents();
+        myTime = myTime.addSecs(outTimeStep);
+        if (myTime.time().hour() != myHour)
+        {
+            myHour = myTime.time().hour();
+            myHeat1D.CurrentHour++;
+        }
 
         if (useInputMeteoData)
         {
@@ -177,11 +185,12 @@ void MainWindow::on_pushRunAllPeriod_clicked()
                 myP = 0.;
         }
 
-        runHeat1D(myT, myRH, myWS, myNR, myP);
+        runHeat1D(myT, myRH, myWS, myNR, myP, outTimeStep);
 
-        getHourlyOutputAllPeriod(0, getNodesNumber(), &myHeatOutput);
+        getOutputAllPeriod(0, getNodesNumber(), &myHeatOutput);
 
         ui->prgBar->setValue(myHeat1D.CurrentHour);
+        qApp->processEvents();
 
     } while (myHeat1D.CurrentHour < myHeat1D.SimulationStop);
 

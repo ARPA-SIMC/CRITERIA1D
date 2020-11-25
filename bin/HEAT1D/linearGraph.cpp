@@ -13,7 +13,7 @@ LinearGraph::LinearGraph()
     chartView->setChart(chart);
 
     axisX = new QValueAxis();
-    axisX->setTitleText(QString("Time [%1]").arg(QString("hours")));
+    axisX->setTitleText(QString("Time"));
     axisX->setRange(0, 200);
 
     axisY = new QValueAxis();
@@ -89,6 +89,7 @@ void LinearGraph::draw(Crit3DColorScale colorScale, Crit3DOut* out, outputGroup 
         curve->setColor(color);
         curve->setName(myCurveNames[i]);
         mySeries = getSingleSeries(myOut, outputVar(i+startIndex), &minSeries, &maxSeries);
+        axisX->setRange(1, mySeries.size());
         for (unsigned int j = 0; j < mySeries.size(); j++)
         {
             curve->append(mySeries[j]);

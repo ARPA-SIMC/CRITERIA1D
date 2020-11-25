@@ -66,6 +66,8 @@ struct Qsoil{
 
 extern Qsoil *myInputSoils;
 
+void setSimulationStart(int myValue);
+void setSimulationStop(int myValue);
 void setSurface(double myArea, double myRoughness, double minWaterRunoff, double myRoughnessHeat);
 void setSoil(double thetaS_, double thetaR_, double clay_, double organicMatter_);
 void setTotalDepth(double myValue);
@@ -76,14 +78,13 @@ void setBottomTemperature(double myValue, double myDepth);
 void setHeatProcesses(bool computeHeatAdvection, bool computeHeatLatent, bool computeHeatSensible);
 void setProcesses(bool computeWaterProcess, bool computeHeatProcess, bool computeSolutesProcess);
 void setProcessesHeat(bool computeLatent_, bool computeAdvection_);
-double getCurrentPrec(long myHour);
-void getHourlyOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output);
+void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output);
 long getNodesNumber();
 void setSoilHorizonNumber(int myHorizonNumber);
 
 bool initializeHeat1D(bool useInputSoils);
 bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
                  double myHourlyWindSpeed, double myHourlyNetIrradiance,
-                 double myHourlyPrec);
+                 double myHourlyPrec, int timeStepSeconds);
 
 

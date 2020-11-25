@@ -71,7 +71,7 @@ QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVA
 
     for (int i=0; i<myOut->nrValues; i++)
     {
-        myPoint.setX(i);
+        myPoint.setX(i+1);
 
         switch (myVar)
         {

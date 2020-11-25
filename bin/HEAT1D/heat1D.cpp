@@ -250,18 +250,12 @@ bool initializeHeat1D(bool useInputSoils)
 
     soilFluxes3D::initializeBalance();
 
+    myHeat1D.CurrentHour = myHeat1D.SimulationStart;
+
 	return (true);
 }
 
-double getCurrentPrec(long myHour)
-{ 
-        if ((myHour >= myHeat1D.precIniHour) && myHour < myHeat1D.precIniHour + myHeat1D.precHours)
-                return (myHeat1D.precHourlyAmount);
-	else
-		return (0.);
-}
-
-void setSinkSources(double myHourlyPrec)
+void setSinkSources(double myHourlyPrec, int timeStepSeconds)
 {
     for (long i=0; i < myHeat1D.NodesNumber; i++)
     {
@@ -270,7 +264,7 @@ void setSinkSources(double myHourlyPrec)
         if (myHeat1D.computeWater)
         {
             if (i == 0)
-                soilFluxes3D::setWaterSinkSource(i, (double)myHourlyPrec * myHeat1D.surfaceArea / 3.6e06);
+                soilFluxes3D::setWaterSinkSource(i, (double)myHourlyPrec * myHeat1D.surfaceArea / timeStepSeconds / 1000);
             else
                 soilFluxes3D::setWaterSinkSource(i, 0);
         }
@@ -300,7 +294,7 @@ bool isValid(double myValue)
     return (myValue != MEMORY_ERROR && myValue != MISSING_DATA_ERROR && myValue != INDEX_ERROR);
 }
 
-void getHourlyOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output)
+void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output)
 {
     long myIndex;
     double myValue;
@@ -671,13 +665,13 @@ QString Crit3DOut::getTextOutput(outputGroup outGroup)
 
 bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
                  double myHourlyWindSpeed, double myHourlyNetIrradiance,
-                 double myHourlyPrec)
+                 double myHourlyPrec, int timeStepSeconds)
 {
     //double currentRoughness;
     //double surfaceWaterHeight;
     //double roughnessWater = 0.005;
 
-    setSinkSources(myHourlyPrec);
+    setSinkSources(myHourlyPrec, timeStepSeconds);
 
     if (myHeat1D.computeHeat)
     {
@@ -701,7 +695,7 @@ bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
         soilFluxes3D::setHeatBoundaryRoughness(1, myHeat1D.RoughnessHeat);
     }
 
-    soilFluxes3D::computePeriod(HOUR_SECONDS);
+    soilFluxes3D::computePeriod(timeStepSeconds);
 
 	return (true);
 }

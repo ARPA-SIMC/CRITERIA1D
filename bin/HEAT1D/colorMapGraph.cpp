@@ -10,7 +10,7 @@ ColorMapGraph::ColorMapGraph()
 
     // configure axis rect:
     graphic->axisRect()->setupFullAxesBox(true);
-    graphic->xAxis->setLabel(QString("Time [%1]").arg(QString("hours")));
+    graphic->xAxis->setLabel(QString("Time"));
 
     // set up the QCPColorMap:
     colorMap = new QCPColorMap(graphic->xAxis2, graphic->yAxis);
