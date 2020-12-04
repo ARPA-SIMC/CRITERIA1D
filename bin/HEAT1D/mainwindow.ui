@@ -1022,71 +1022,6 @@
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="groupBox_simTime">
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>10</y>
-        <width>121</width>
-        <height>71</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Simulation</string>
-      </property>
-      <widget class="QLineEdit" name="lineEditSimStart">
-       <property name="geometry">
-        <rect>
-         <x>70</x>
-         <y>20</y>
-         <width>31</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_12">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>20</y>
-         <width>41</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>start (h)</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_13">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>40</y>
-         <width>51</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>stop (h)</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="lineEditSimStop">
-       <property name="geometry">
-        <rect>
-         <x>70</x>
-         <y>40</y>
-         <width>31</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>200</string>
-       </property>
-      </widget>
-     </widget>
      <widget class="QPushButton" name="pushRunAllPeriod">
       <property name="geometry">
        <rect>
@@ -1166,8 +1101,8 @@ to clipboard</string>
      <widget class="QLabel" name="label_15">
       <property name="geometry">
        <rect>
-        <x>190</x>
-        <y>80</y>
+        <x>180</x>
+        <y>50</y>
         <width>61</width>
         <height>31</height>
        </rect>
@@ -1185,14 +1120,40 @@ to clipboard</string>
      <widget class="QLineEdit" name="lineEditTimeStep">
       <property name="geometry">
        <rect>
-        <x>260</x>
-        <y>90</y>
+        <x>250</x>
+        <y>60</y>
         <width>31</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
        <string>3600</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEditSimDuration">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>30</y>
+        <width>31</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>200</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_13">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>30</y>
+        <width>61</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>duration (h)</string>
       </property>
      </widget>
     </widget>
