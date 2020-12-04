@@ -28,7 +28,7 @@ win32:{
 
 TEMPLATE = app
 
-INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis \
                 ../../agrolib/soilFluxes3D/header ../../agrolib/qcustomplot
 
 

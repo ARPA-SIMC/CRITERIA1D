@@ -15,6 +15,20 @@
 Crit3DOut output;
 Heat1DSimulation myHeat1D;
 
+meteo::meteo()
+{
+    airTemperature = NODATA;
+    precipitation = NODATA;
+    relativeHumidity = NODATA;
+    windSpeed = NODATA;
+    netIrradiance = NODATA;
+}
+
+void Heat1DSimulation::cleanMeteo()
+{
+    meteoValues.clear();
+};
+
 
 void setSoil(double thetaS_, double thetaR_, double clay_, double organicMatter_)
 {
@@ -29,12 +43,6 @@ void setTotalDepth(double myValue)
 
 void setThickness(double myValue)
 {   myHeat1D.Thickness = myValue;}
-
-void setSimulationStart(int myValue)
-{   myHeat1D.SimulationStart = myValue;}
-
-void setSimulationStop(int myValue)
-{   myHeat1D.SimulationStop = myValue;}
 
 void setInitialSaturation(double myValueTop, double myValueBottom)
 {   myHeat1D.initialSaturationTop = myValueTop;
@@ -249,8 +257,6 @@ bool initializeHeat1D(bool useInputSoils)
     }
 
     soilFluxes3D::initializeBalance();
-
-    myHeat1D.CurrentHour = myHeat1D.SimulationStart;
 
 	return (true);
 }

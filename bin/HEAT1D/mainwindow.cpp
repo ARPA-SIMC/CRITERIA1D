@@ -17,13 +17,6 @@ extern Heat1DSimulation myHeat1D;
 
 bool useInputMeteoData, useInputSoilData;
 
-double *myTempInput;
-double *myPrecInput;
-double *myRHInput;
-double *myWSInput;
-double *myRadInput;
-double *myNetRadInput;
-
 long myInputNumber;
 
 bool meteoDataLoaded = false;
@@ -31,16 +24,6 @@ bool soilDataLoaded = false;
 
 Crit3DOut myHeatOutput;
 Qsoil *myInputSoils = nullptr;
-
-void initializeWeatherData()
-{
-    myTempInput = nullptr;
-    myPrecInput = nullptr;
-    myRHInput = nullptr;
-    myWSInput = nullptr;
-    myRadInput = nullptr;
-    myNetRadInput = nullptr;
-}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -90,13 +73,6 @@ bool MainWindow::initializeModel()
     setInitialSaturation(ui->lineEditIniWaterContentTop->text().toDouble(), ui->lineEditIniWaterContentBottom->text().toDouble());
     setInitialTemperature(ui->lineEditIniTTop->text().toDouble(), ui->lineEditIniTBottom->text().toDouble());
 
-    // simulation
-    if (!useInputMeteoData)
-    {
-        setSimulationStart(ui->lineEditSimStart->text().toInt());
-        setSimulationStop(ui->lineEditSimStop->text().toInt());
-    }
-
     // processes
     bool computeHeat = ui->chkBoxHeat->isChecked();
     bool computeWater = ui->chkBoxWater->isChecked();
@@ -140,8 +116,6 @@ void MainWindow::on_pushRunAllPeriod_clicked()
     myHeatOutput.nrLayers = nodesNr;
     myHeatOutput.layerThickness = ui->lineEditThickness->text().toFloat();
 
-    ui->prgBar->setMaximum(myHeat1D.SimulationStop);
-
     double myPIniHour, myPHours;
     double myT, myRH, myWS, myNR, myP;
 
@@ -151,26 +125,40 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
     int outTimeStep = ui->lineEditTimeStep->text().toInt();
 
-    QDateTime myTime = QDateTime::currentDateTime();
-    myTime.setTime(QTime(myHeat1D.SimulationStart,0,0,0));
-    int myHour = NODATA;
+    int hourFin;
+    if (!useInputMeteoData)
+        hourFin = ui->lineEditSimDuration->text().toInt();
+    else
+        hourFin = int(myHeat1D.meteoValues.size());
+
+
+    QDateTime myTimeIni = QDateTime::currentDateTime();
+    myTimeIni.setTime(QTime(0,0,0,0));
+    QDateTime myTimeFin = myTimeIni.addSecs(3600 * hourFin);
+    QDateTime myTime = myTimeIni;
+    QDateTime myRefHour = myTimeIni;
+
+    int indexHour = 0;
+
+    ui->prgBar->setMaximum(hourFin);
 
     do
     {
         myTime = myTime.addSecs(outTimeStep);
-        if (myTime.time().hour() != myHour)
+
+        if (myTime.secsTo(myRefHour) < 0)
         {
-            myHour = myTime.time().hour();
-            myHeat1D.CurrentHour++;
+            myRefHour = myRefHour.addSecs(3600);
+            indexHour++;
         }
 
         if (useInputMeteoData)
         {
-            myT = myTempInput[myHeat1D.CurrentHour-1] + 273.16;
-            myP = myPrecInput[myHeat1D.CurrentHour-1];
-            myRH = myRHInput[myHeat1D.CurrentHour-1];
-            myWS = myWSInput[myHeat1D.CurrentHour-1];
-            myNR = myNetRadInput[myHeat1D.CurrentHour-1];
+            myT = myHeat1D.meteoValues[indexHour - 1].airTemperature + 273.16;
+            myP = myHeat1D.meteoValues[indexHour - 1].precipitation;
+            myRH = myHeat1D.meteoValues[indexHour - 1].relativeHumidity;
+            myWS = myHeat1D.meteoValues[indexHour - 1].windSpeed;
+            myNR = myHeat1D.meteoValues[indexHour - 1].netIrradiance;
         }
         else
         {
@@ -179,7 +167,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
             myWS = ui->lineEditAtmWS->text().toDouble();
             myNR = ui->lineEditAtmFlux->text().toDouble();
 
-            if ((myHeat1D.CurrentHour >= myPIniHour) && (myHeat1D.CurrentHour < myPIniHour + myPHours))
+            if ((indexHour >= myPIniHour) && (indexHour < myPIniHour + myPHours))
                 myP = ui->lineEditPrecHourlyAmount->text().toDouble();
             else
                 myP = 0.;
@@ -189,10 +177,10 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
         getOutputAllPeriod(0, getNodesNumber(), &myHeatOutput);
 
-        ui->prgBar->setValue(myHeat1D.CurrentHour);
+        ui->prgBar->setValue(indexHour);
         qApp->processEvents();
 
-    } while (myHeat1D.CurrentHour < myHeat1D.SimulationStop);
+    } while (myTime < myTimeFin);
 
     //outPlot->drawOutput(outputGroup::soilTemperature, &myHeatOutput);
     Crit3DColorScale myColorScale;
@@ -279,13 +267,11 @@ void MainWindow::on_pushLoadFileSoil_clicked()
 
 void MainWindow::on_pushLoadFileMeteo_clicked()
 {
-    initializeWeatherData();
+    myHeat1D.cleanMeteo();
 
     QString myFilename = QFileDialog::getOpenFileName(this, tr("Open File"),
                                                      "",
                                                      tr("Files (*.*)"));
-
-    myInputNumber = 0;
 
     QFile myFile(myFilename);
     QTextStream myStream(&myFile);
@@ -293,71 +279,30 @@ void MainWindow::on_pushLoadFileMeteo_clicked()
     QString myWord;
 
     if (myFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {       
-        while (!myStream.atEnd()) {
-            QString myLine = myStream.readLine();
-            myWords += myLine.split(",");
-            myInputNumber++;
-        }
+    {
+        //headers
+        QString myLine = myStream.readLine();
 
-        myTempInput = (double *) calloc(myInputNumber, sizeof(double));
-        myPrecInput = (double *) calloc(myInputNumber, sizeof(double));
-        myRHInput= (double *) calloc(myInputNumber, sizeof(double));
-        myWSInput = (double *) calloc(myInputNumber, sizeof(double));
-        myNetRadInput = (double *) calloc(myInputNumber, sizeof(double));
-
-        long myHourIndex;
-
-        int myFieldNumber = 6;
-
-        for (myHourIndex = 1; myHourIndex < myInputNumber; myHourIndex++)
+        while (!myStream.atEnd())
         {
-            myWord = myWords.at(myHourIndex*myFieldNumber+1);
-            if (myWord != "")
-                myTempInput[myHourIndex-1] = myWord.toDouble();
-            else
+            QString myLine = myStream.readLine();
+            myWords = myLine.split(",");
+
+            meteo* myMeteo = new meteo();
+
+            if (myWords[1] == "" || myWords[2] == "" || myWords[3] == "" || myWords[4] == "" || myWords[5] == "")
             {
-                std::cout << "missing data at line " << myHourIndex+1 << std::endl;
+                QMessageBox::information(nullptr, "No data", "Missing weather data in line " + QString::number(myHeat1D.meteoValues.size() + 1));
                 return;
             }
 
-            myWord = myWords.at(myHourIndex*myFieldNumber+2);
-            if (myWord != "")
-                myPrecInput[myHourIndex-1] = myWord.toDouble();
-            else
-            {
-                std::cout << "missing data at line " << myHourIndex+1 << std::endl;
-                return;
-            }
+            myMeteo->airTemperature = myWords.at(1).toDouble();
+            myMeteo->precipitation = myWords.at(2).toDouble();
+            myMeteo->relativeHumidity = myWords.at(3).toDouble();
+            myMeteo->windSpeed = myWords.at(4).toDouble();
+            myMeteo->netIrradiance = myWords.at(5).toDouble();
 
-            myWord = myWords.at(myHourIndex*myFieldNumber+3);
-            if (myWord != "")
-                myRHInput[myHourIndex-1] = myWord.toDouble();
-            else
-            {
-                std::cout << "missing data at line " << myHourIndex+1 << std::endl;
-                return;
-            }
-
-            myWord = myWords.at(myHourIndex*myFieldNumber+4);
-            if (myWord != "")
-                myWSInput[myHourIndex-1] = myWord.toDouble();
-            else
-            {
-                std::cout << "missing data at line " << myHourIndex+1 << std::endl;
-                return;
-            }
-
-            myWord = myWords.at(myHourIndex*myFieldNumber+5);
-            if (myWord != "")
-                myNetRadInput[myHourIndex-1] = myWord.toDouble();
-            else
-            {
-                std::cout << "missing data at line " << myHourIndex+1 << std::endl;
-                return;
-            }
-
-            myHeat1D.SimulationStop++;
+            myHeat1D.meteoValues.push_back(*myMeteo);
         }
 
         meteoDataLoaded = true;
@@ -365,7 +310,7 @@ void MainWindow::on_pushLoadFileMeteo_clicked()
         ui->chkUseInputMeteo->setEnabled(true);
         ui->chkUseInputMeteo->setChecked(true);
         ui->groupBox_atmFixedData->setEnabled(false);
-        ui->groupBox_simTime->setEnabled(false);
+        ui->lineEditSimDuration->setEnabled(false);
     }
 
     myFile.close();
@@ -411,7 +356,7 @@ void MainWindow::on_chkUseInputMeteo_clicked()
     if (ui->chkUseInputMeteo->isChecked() && ! meteoDataLoaded) return;
 
     ui->groupBox_atmFixedData->setEnabled(! ui->chkUseInputMeteo->isChecked());
-    ui->groupBox_simTime->setEnabled(! ui->chkUseInputMeteo->isChecked());
+    ui->lineEditSimDuration->setEnabled(! ui->chkUseInputMeteo->isChecked());
 }
 
 void MainWindow::on_chkUseInputSoil_clicked()

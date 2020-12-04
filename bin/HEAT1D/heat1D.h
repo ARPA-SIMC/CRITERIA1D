@@ -7,6 +7,19 @@
 //#include "graphs.h"
 #include "graphFunctions.h"
 
+class meteo
+{
+public:
+    meteo();
+
+    double airTemperature;
+    double precipitation;
+    double relativeHumidity;
+    double windSpeed;
+    double netIrradiance;
+};
+
+
 struct Heat1DSimulation {
 
     bool initialized;
@@ -15,7 +28,6 @@ struct Heat1DSimulation {
     long NodesNumber;
     double TotalDepth ;
     double Thickness;
-    long SimulationStart, SimulationStop;
 
     //surface
     double surfaceArea, Roughness, Plough, RoughnessHeat;
@@ -34,8 +46,9 @@ struct Heat1DSimulation {
     bool computeWater, computeSolutes, computeHeat;
     bool computeAdvection, computeLatent;
 
-
-    long CurrentHour;
+    //meteo
+    std::vector <meteo> meteoValues;
+    void cleanMeteo();
 
     //soils
     int myHorizonNumber;
