@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# specify your Qt directory
-#QT_DIR=/opt/Qt/5.12.8/gcc_64/
-#QMAKE=$QT_DIR/bin/qmake
+# specify your qmake directory
 QMAKE=/usr/bin/qmake-qt5
 
 # # build mapGraphics
