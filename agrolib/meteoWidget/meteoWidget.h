@@ -3,10 +3,6 @@
 
     #include <QtWidgets>
     #include <QtCharts>
-    #include <QComboBox>
-    #include <QGroupBox>
-    #include <QLineEdit>
-    #include <QLabel>
     #include "meteoPoint.h"
     #include "callout.h"
 
@@ -28,7 +24,7 @@
             void showDailyGraph();
             void showHourlyGraph();
             void updateSeries();
-            void updateDate();
+            void redraw();
             void showTable();
             void showVar();
             void tooltipLineSeries(QPointF point, bool state);

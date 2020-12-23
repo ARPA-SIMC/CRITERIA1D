@@ -35,6 +35,15 @@
     #ifndef METEOWIDGET_H
         #include "meteoWidget.h"
     #endif
+    #ifndef FORMINFO_H
+        #include "formInfo.h"
+    #endif
+
+    #define ERROR_NONE 0
+    #define ERROR_SETTINGS 1
+    #define ERROR_DEM 2
+    #define ERROR_DBPOINT 3
+    #define ERROR_DBGRID 4
 
     class Project : public QObject {
         Q_OBJECT
@@ -43,6 +52,7 @@
         QString appPath;
         QString defaultPath;
         QString projectPath;
+        FormInfo* formLog;
 
         void clearMeteoPoints();
         bool createDefaultProject(QString fileName);
@@ -62,6 +72,7 @@
 
         bool requestedExit;
         QString errorString;
+        int errorType;
 
         QString logFileName;
         QString demFileName;
@@ -155,6 +166,7 @@
         void logError(QString myStr);
         void logInfo(QString myStr);
         void logInfoGUI(QString myStr);
+        void closeLogInfo();
         void logError();
 
         void closeMeteoPointsDB();
