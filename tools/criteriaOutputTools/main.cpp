@@ -30,9 +30,10 @@ int main(int argc, char *argv[])
             QString dataPath;
             if (! searchDataPath(&dataPath)) return -1;
 
-            settingsFileName = dataPath + "PROJECT/INCOLTO/bollAgro.ini";
-            dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-            operation = "MAPS";
+            settingsFileName = dataPath + "PROJECT/INCOLTO/deficit_macroaree.ini";
+            //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
+            dateComputationStr = "2021-01-28";
+            operation = "AGGREGATION";
         #else
             usage();
             return 1;
