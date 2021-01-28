@@ -548,7 +548,7 @@ bool Project::loadParameters(QString parametersFileName)
             }
 
             if (parameters->contains("topographicDistance"))
-                interpolationSettings.setUseTAD(parameters->value("topographicDistance").toBool());
+                interpolationSettings.setUseTD(parameters->value("topographicDistance").toBool());
 
             if (parameters->contains("lapseRateCode"))
             {
@@ -1486,7 +1486,7 @@ bool Project::writeTopographicDistanceMaps(bool onlyWithData, bool showInfo)
         return false;
     }
 
-    QString mapsFolder = projectPath + PATH_TAD;
+    QString mapsFolder = projectPath + PATH_TD;
     if (! QDir(mapsFolder).exists())
         QDir().mkdir(mapsFolder);
 
@@ -1521,7 +1521,7 @@ bool Project::writeTopographicDistanceMaps(bool onlyWithData, bool showInfo)
             {
                 if (gis::topographicDistanceMap(meteoPoints[i].point, DEM, &myMap))
                 {
-                    fileName = mapsFolder.toStdString() + "TAD_" + meteoPoints[i].id;
+                    fileName = mapsFolder.toStdString() + "TD_" + QFileInfo(demFileName).baseName().toStdString() + "_" + meteoPoints[i].id;
                     if (! gis::writeEsriGrid(fileName, &myMap, &myError))
                     {
                         logError(QString::fromStdString(myError));
@@ -1537,6 +1537,46 @@ bool Project::writeTopographicDistanceMaps(bool onlyWithData, bool showInfo)
     return true;
 }
 
+bool Project::writeTopographicDistanceMap(std::string meteoPointId)
+{
+    if (nrMeteoPoints == 0)
+    {
+        logError("Open a meteo points DB before.");
+        return false;
+    }
+
+    if (! DEM.isLoaded)
+    {
+        logError("Load a Digital Elevation Map before.");
+        return false;
+    }
+
+    QString mapsFolder = projectPath + PATH_TD;
+    if (! QDir(mapsFolder).exists())
+        QDir().mkdir(mapsFolder);
+
+    std::string myError;
+    std::string fileName;
+    gis::Crit3DRasterGrid myMap;
+
+    for (int i=0; i < nrMeteoPoints; i++)
+    {
+        if (meteoPoints[i].id == meteoPointId && meteoPoints[i].active)
+        {
+            if (gis::topographicDistanceMap(meteoPoints[i].point, DEM, &myMap))
+            {
+                fileName = mapsFolder.toStdString() + "TD_" + QFileInfo(demFileName).baseName().toStdString() + "_" + meteoPoints[i].id;
+                if (! gis::writeEsriGrid(fileName, &myMap, &myError))
+                {
+                    logError(QString::fromStdString(myError));
+                    return false;
+                }
+            }
+            break;
+        }
+    }
+    return true;
+}
 
 bool Project::loadTopographicDistanceMaps(bool showInfo)
 {
@@ -1546,10 +1586,10 @@ bool Project::loadTopographicDistanceMaps(bool showInfo)
         return false;
     }
 
-    QString mapsFolder = projectPath + PATH_TAD;
+    QString mapsFolder = projectPath + PATH_TD;
     if (! QDir(mapsFolder).exists())
     {
-        logError("TAD folder not found. Please create TAD Maps.");
+        logError("TD folder not found. Please create TD Maps.");
         return false;
     }
 
@@ -1574,7 +1614,15 @@ bool Project::loadTopographicDistanceMaps(bool showInfo)
 
         if (meteoPoints[i].active)
         {
-            fileName = mapsFolder.toStdString() + "TAD_" + meteoPoints[i].id;
+            fileName = mapsFolder.toStdString() + "TD_" + QFileInfo(demFileName).baseName().toStdString() + "_" + meteoPoints[i].id;
+            if (!QFile::exists(QString::fromStdString(fileName + ".flt")))
+            {
+                if (!writeTopographicDistanceMap(meteoPoints[i].id))
+                {
+                    return false;
+                }
+                logInfoGUI(QString::fromStdString(fileName) + " successfully created!");
+            }
             meteoPoints[i].topographicDistance = new gis::Crit3DRasterGrid();
             if (! gis::readEsriGrid(fileName, meteoPoints[i].topographicDistance, &myError))
             {
@@ -1957,7 +2005,7 @@ void Project::saveInterpolationParameters()
         parameters->setValue("algorithm", QString::fromStdString(getKeyStringInterpolationMethod(interpolationSettings.getInterpolationMethod())));
         parameters->setValue("lapseRateCode", interpolationSettings.getUseLapseRateCode());
         parameters->setValue("thermalInversion", interpolationSettings.getUseThermalInversion());
-        parameters->setValue("topographicDistance", interpolationSettings.getUseTAD());
+        parameters->setValue("topographicDistance", interpolationSettings.getUseTD());
         parameters->setValue("optimalDetrending", interpolationSettings.getUseBestDetrending());
         parameters->setValue("useDewPoint", interpolationSettings.getUseDewPoint());
         parameters->setValue("useInterpolationTemperatureForRH", interpolationSettings.getUseInterpolatedTForRH());
