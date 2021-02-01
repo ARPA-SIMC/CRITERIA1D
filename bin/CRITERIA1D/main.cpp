@@ -15,7 +15,7 @@
 
 void usage()
 {
-    std::cout << "CRITERIA1D water balance" << std::endl
+    std::cout << "CRITERIA-1D water balance" << std::endl
               << "Usage: CRITERIA1D project.ini [date]" << std::endl;
 }
 
