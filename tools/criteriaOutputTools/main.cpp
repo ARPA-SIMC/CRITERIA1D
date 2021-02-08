@@ -7,7 +7,7 @@
 #include <iostream>
 
 // uncomment to compute test
-// #define TEST
+//#define TEST
 
 void usage()
 {
@@ -31,8 +31,7 @@ int main(int argc, char *argv[])
             if (! searchDataPath(&dataPath)) return -1;
 
             settingsFileName = dataPath + "PROJECT/INCOLTO/deficit_macroaree.ini";
-            //dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-            dateComputationStr = "2021-01-28";
+            dateComputationStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
             operation = "AGGREGATION";
         #else
             usage();
@@ -93,7 +92,6 @@ int main(int argc, char *argv[])
     }
     myProject.logger.writeInfo("computation date: " + dateComputationStr);
 
-    // OPERATION
     if (operation == "PRECOMPUTE_DTX")
     {
         myResult = myProject.precomputeDtx();
