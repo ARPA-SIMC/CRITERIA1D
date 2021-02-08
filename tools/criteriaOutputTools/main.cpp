@@ -11,7 +11,7 @@
 
 void usage()
 {
-    std::cout << "CRITERIA1D output post-processing" << std::endl
+    std::cout << "CRITERIA1D post-processing" << std::endl
               << "Usage: CriteriaOutput PRECOMPUTE_DTX|CSV|SHAPEFILE|MAPS|AGGREGATION project.ini [date]" << std::endl;
 }
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
             operation = "AGGREGATION";
         #else
             usage();
-            return 1;
+            return ERROR_MISSINGPARAMETERS;
         #endif
     }
     else
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         {
             myProject.logger.writeError("Wrong parameter: " + operation);
             usage();
-            return 1;
+            return ERROR_WRONGPARAMETER;
         }
 
         settingsFileName = argv[2];
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         {
             myProject.logger.writeError("Wrong file .ini: " + settingsFileName);
             usage();
-            return 1;
+            return ERROR_WRONGPARAMETER;
         }
 
         if (argc > 3)
@@ -78,9 +78,13 @@ int main(int argc, char *argv[])
         return ERROR_WRONGDATE;
     }
 
+    // complete path
     if (settingsFileName.left(1) == ".")
+    {
         settingsFileName = appPath + settingsFileName;
+    }
 
+    // initialize
     int myResult = myProject.initializeProject(settingsFileName, dateComputation, true);
     if (myResult != CRIT3D_OK)
     {
@@ -89,6 +93,7 @@ int main(int argc, char *argv[])
     }
     myProject.logger.writeInfo("computation date: " + dateComputationStr);
 
+    // OPERATION
     if (operation == "PRECOMPUTE_DTX")
     {
         myResult = myProject.precomputeDtx();
@@ -118,18 +123,18 @@ int main(int argc, char *argv[])
     {
         myProject.logger.writeError("Wrong parameter: " + operation);
         usage();
-        return 1;
+        return ERROR_WRONGPARAMETER;
     }
 
-    if (myResult != CRIT3D_OK)
+    if (myResult == CRIT3D_OK)
     {
-        myProject.logger.writeError(myProject.projectError);
-        return myResult;
+        myProject.logger.writeInfo("END");
     }
     else
     {
-        myProject.logger.writeInfo("END");
-        return CRIT3D_OK;
+        myProject.logger.writeError(myProject.projectError);
     }
+
+    return myResult;
 }
 
