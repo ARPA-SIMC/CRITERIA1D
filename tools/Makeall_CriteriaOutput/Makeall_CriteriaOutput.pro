@@ -5,7 +5,7 @@ SUBDIRS =   ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/g
             ../../agrolib/shapeUtilities ../../agrolib/criteriaOutput ../criteriaOutputTools
 
 # comment to compile without GDAL library
-# SUBDIRS += ../../agrolib/gdalHandler
+SUBDIRS += ../../agrolib/gdalHandler
 
 CONFIG += ordered 
 

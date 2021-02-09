@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 
     // initialize
     int myResult = myProject.initializeProject(settingsFileName, dateComputation, true);
-    if (myResult != CRIT3D_OK)
+    if (myResult != CRIT1D_OK)
     {
         myProject.logger.writeError(myProject.projectError);
         return myResult;
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
         return ERROR_WRONGPARAMETER;
     }
 
-    if (myResult == CRIT3D_OK)
+    if (myResult == CRIT1D_OK)
     {
         myProject.logger.writeInfo("END");
     }

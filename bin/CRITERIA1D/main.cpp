@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
     // initialize project
     int myResult = myProject.initializeProject(settingsFileName);
-    if (myResult != CRIT3D_OK)
+    if (myResult != CRIT1D_OK)
     {
         myProject.logger.writeError(myProject.projectError);
         return myResult;

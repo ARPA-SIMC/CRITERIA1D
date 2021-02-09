@@ -86,7 +86,7 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
     logger.setLog(path, projectName);
 
     int myError = openAllDatabase();
-    if (myError != CRIT3D_OK)
+    if (myError != CRIT1D_OK)
         return myError;
 
     if (! loadVanGenuchtenParameters(&(criteriaSimulation.dbSoil), criteriaSimulation.soilTexture, &(projectError)))
@@ -97,7 +97,7 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
 
     isProjectLoaded = true;
 
-    return CRIT3D_OK;
+    return CRIT1D_OK;
 }
 
 
@@ -323,7 +323,7 @@ int Criteria1DProject::openAllDatabase()
     // db units
     logger.writeInfo ("Units DB: " + dbUnitsName);
 
-    return CRIT3D_OK;
+    return CRIT1D_OK;
 }
 
 
@@ -491,6 +491,6 @@ int Criteria1DProject::compute()
             return WARNING_CROP;
     }
 
-    return CRIT3D_OK;
+    return CRIT1D_OK;
 }
 
