@@ -44,25 +44,21 @@ SOURCES += \
     main.cpp
 
 
+#INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop  \
+#                ../../agrolib/utilities ../../agrolib/shapeUtilities ../../agrolib/shapeHandler \
+#                ../../agrolib/shapeHandler/shapelib ../../agrolib/criteriaOutput
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop  \
                 ../../agrolib/utilities ../../agrolib/shapeUtilities ../../agrolib/shapeHandler \
-                ../../agrolib/shapeHandler/shapelib ../../agrolib/criteriaOutput
+                ../../agrolib/shapeHandler/shapelib ../../agrolib/criteriaOutput ../../agrolib/gdalHandler
 
 
-# comment to compile without GDAL library
-CONFIG += GDAL
+DEFINES += GDAL
+include(../../agrolib/gdal.pri)
 
 CONFIG(debug, debug|release) {
 
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
-
-GDAL {
-    DEFINES += GDAL
-    INCLUDEPATH += ../../agrolib/gdalHandler
     LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
-    include(../../agrolib/gdal.pri)
-}
-
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/utilities/debug -lutilities
@@ -73,17 +69,50 @@ GDAL {
 } else {
 
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
-
-GDAL {
-    DEFINES += GDAL
-    INCLUDEPATH += ../../agrolib/gdalHandler
     LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
-    include(../../agrolib/gdal.pri)
-}
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/gis/release -lgis
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
-} 
+}
+
+# comment to compile without GDAL library
+#CONFIG += GDAL
+
+#CONFIG(debug, debug|release) {
+
+#    LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
+
+#GDAL {
+#    DEFINES += GDAL
+#    INCLUDEPATH += ../../agrolib/gdalHandler
+#    LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
+#    include(../../agrolib/gdal.pri)
+#}
+
+#    LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
+#    LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
+#    LIBS += -L../../agrolib/utilities/debug -lutilities
+#    LIBS += -L../../agrolib/gis/debug -lgis
+#    LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
+#    LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
+
+#} else {
+
+#    LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
+
+#GDAL {
+#    DEFINES += GDAL
+#    INCLUDEPATH += ../../agrolib/gdalHandler
+#    LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
+#    include(../../agrolib/gdal.pri)
+#}
+#    LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
+#    LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
+#    LIBS += -L../../agrolib/utilities/release -lutilities
+#    LIBS += -L../../agrolib/gis/release -lgis
+#    LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
+#    LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
+#}
