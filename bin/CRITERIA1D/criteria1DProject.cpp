@@ -26,6 +26,7 @@ void Criteria1DProject::initialize()
     logFileName = "";
     outputCsvFileName = "";
     outputCsvPath = "";
+    addDateTimeLogFile = false;
 
     dbCropName = "";
     dbSoilName = "";
@@ -36,7 +37,6 @@ void Criteria1DProject::initialize()
 
     projectError = "";
 }
-
 
 
 void Criteria1DProject::closeProject()
@@ -83,7 +83,7 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
     if (!readSettings())
         return ERROR_SETTINGS_MISSINGDATA;
 
-    logger.setLog(path, projectName);
+    logger.setLog(path, projectName, addDateTimeLogFile);
 
     int myError = openAllDatabase();
     if (myError != CRIT1D_OK)
@@ -148,6 +148,8 @@ bool Criteria1DProject::readSettings()
     {
         criteriaSimulation.useAllMeteoData = false;
     }
+
+    addDateTimeLogFile = projectSettings->value("add_date_to_log","").toBool();
 
     // FORECAST (seasonal or short-term)
     projectSettings->endGroup();

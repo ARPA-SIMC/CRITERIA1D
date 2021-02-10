@@ -59,6 +59,7 @@
             QString logFileName;
             std::ofstream logFile;
             Logger logger;
+            bool addDateTimeLogFile;
 
             std::ofstream outputFile;
 
