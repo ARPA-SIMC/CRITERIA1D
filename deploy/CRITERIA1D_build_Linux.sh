@@ -115,6 +115,7 @@ mv appimage/usr/bin/* CRITERIA1D/bin/
 # copy png
 mkdir CRITERIA1D/DOC
 mkdir CRITERIA1D/DOC/img
+cp -r ../DOC/CRITERIA1D_technical_manual.pdf CRITERIA1D/DOC/
 cp -r ../DOC/img/saveButton.png CRITERIA1D/DOC/img
 cp -r ../DOC/img/updateButton.png CRITERIA1D/DOC/img
 cp -r ../DOC/img/textural_soil.png CRITERIA1D/DOC/img

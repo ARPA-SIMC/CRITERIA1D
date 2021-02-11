@@ -1,11 +1,11 @@
 :: build CRITERIA1D
 :: run on Qt shell (MSVC version)
 :: inside deploy directory (cd [local path]\CRITERIA1D\deploy)
-:: before execution remember to call vcvarsall.bat (32 or 64 bit) to complete environment setup
-:: example: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
+:: before the execution call vcvarsall.bat (32 or 64 bit) to complete environment setup
+:: example: C:\"Program Files (x86)"\"Microsoft Visual Studio"\2017\Community\VC\Auxiliary\Build\vcvars64.bat
 
 
-:: clean old distribution
+:: clean all
 cd ..\mapGraphics
 nmake /S /NOLOGO distclean
 cd ..\tools\csvToMeteoDb
@@ -23,42 +23,37 @@ nmake /S /NOLOGO distclean
 cd ..\Makeall_CRITERIAGEO
 nmake /S /NOLOGO distclean
 
-:: build mapGraphics
+:: mapGraphics
 cd ..\..\mapGraphics
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
-:: build csvToMeteoDb
+:: TOOLS
 cd ..\tools\csvToMeteoDb
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
-:: build criteriaOutput
 cd ..\Makeall_CriteriaOutput
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
-:: build CRITERIA-1D
+:: CRITERIA-1D/GEO
 cd ..\..\bin\Makeall_CRITERIA1D
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
-:: build CROP_EDITOR
 cd ..\Makeall_CROP_EDITOR
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
-:: build SOIL_EDITOR
 cd ..\Makeall_SOIL_EDITOR
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
-:: build HEAT1D
 cd ..\Makeall_HEAT1D
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
-:: build CRITERIA-GEO
 cd ..\Makeall_CRITERIAGEO
 qmake CONFIG+=release
 nmake /S /NOLOGO release
@@ -75,12 +70,10 @@ copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
 copy ..\..\..\tools\criteriaOutputTools\release\CriteriaOutput.exe
 copy ..\..\..\tools\csvToMeteoDb\release\CsvToMeteoDb.exe
 
-
 :: deploy executables
-cd ..\..\deploy\CRITERIA1D\bin
 windeployqt HEAT1D.exe
-windeployqt CriteriaOutput.exe
 windeployqt CRITERIA1D.exe
+windeployqt CriteriaOutput.exe
 windeployqt CROP_EDITOR.exe
 windeployqt SOIL_EDITOR.exe
 windeployqt CRITERIA_GEO.exe
@@ -110,4 +103,3 @@ xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\kiwifruit\*.*
 
 :: return to deploy directory
 cd ..\..\..\..\
-
