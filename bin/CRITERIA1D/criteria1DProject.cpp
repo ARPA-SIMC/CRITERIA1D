@@ -135,7 +135,7 @@ bool Criteria1DProject::readSettings()
 
     if (dbUnitsName == "")
     {
-        projectError = "Missing information on units";
+        projectError = "Missing information on computational units";
         return false;
     }
 
@@ -323,7 +323,7 @@ int Criteria1DProject::openAllDatabase()
     }
 
     // db units
-    logger.writeInfo ("Units DB: " + dbUnitsName);
+    logger.writeInfo ("Computational units DB: " + dbUnitsName);
 
     return CRIT1D_OK;
 }
