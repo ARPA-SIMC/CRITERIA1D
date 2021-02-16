@@ -201,14 +201,14 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
     {
         if (shapeHandler->getFieldName(i) == "ID_CASE" || shapeHandler->getFieldName(i) == "ID_SOIL"
             || shapeHandler->getFieldName(i) == "ID_CROP" || shapeHandler->getFieldName(i) == "ID_METEO"
-            || shapeHandler->getFieldName(i) == "HA")
+            || shapeHandler->getFieldName(i) == "hectares")
         {
             fieldRequired = fieldRequired + 1;
         }
     }
     if (fieldRequired < 5)
     {
-        errorStr = "Required fields: HA, ID_CASE, ID_SOIL, ID_CROP, ID_METEO";
+        errorStr = "Required fields: ID_CASE, ID_SOIL, ID_CROP, ID_METEO, hectares";
         logError(errorStr);
         return false;
     }
