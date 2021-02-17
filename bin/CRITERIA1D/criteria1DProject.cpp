@@ -449,7 +449,7 @@ int Criteria1DProject::compute()
                 }
                 else
                 {
-                    projectError = "Unit: " + unitList[i].idCase + " - " + projectError;
+                    projectError = "Computational Unit: " + unitList[i].idCase + "\n" + projectError;
                     logger.writeError(projectError);
                     isErrorModel = true;
                 }
