@@ -366,8 +366,8 @@ bool Criteria1DProject::runSeasonalForecast(unsigned int index, double irriRatio
         outputFile << ",0,0,0,0,0\n";
         return true;
     }
-
-    if (! criteriaSimulation.runModel(unitList[index], projectError))
+    bool isSaveState = false;
+    if (! criteriaSimulation.runModel(unitList[index], isSaveState, projectError))
     {
         logger.writeError(projectError);
         return false;
@@ -443,7 +443,8 @@ int Criteria1DProject::compute()
             }
             else
             {
-                if (criteriaSimulation.runModel(unitList[i], projectError))
+                bool isSaveState = true;
+                if (criteriaSimulation.runModel(unitList[i], isSaveState, projectError))
                 {
                     nrUnitsComputed++;
                 }
