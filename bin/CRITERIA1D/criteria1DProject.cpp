@@ -111,26 +111,26 @@ bool Criteria1DProject::readSettings()
     projectName += projectSettings->value("name","").toString();
 
     dbCropName = projectSettings->value("db_crop","").toString();
-    if (dbCropName.at(0) == ".")
+    if (dbCropName.left(1) == ".")
         dbCropName = path + dbCropName;
 
     dbSoilName = projectSettings->value("db_soil","").toString();
-    if (dbSoilName.at(0) == ".")
+    if (dbSoilName.left(1) == ".")
         dbSoilName = path + dbSoilName;
 
     dbMeteoName = projectSettings->value("db_meteo","").toString();
-    if (dbMeteoName.at(0) == ".")
+    if (dbMeteoName.left(1) == ".")
         dbMeteoName = path + dbMeteoName;
     if (dbMeteoName.right(3) == "xml")
         criteriaSimulation.isXmlGrid = true;
 
     dbForecastName = projectSettings->value("db_forecast","").toString();
-    if (dbForecastName.at(0) == ".")
+    if (dbForecastName.left(1) == ".")
         dbForecastName = path + dbForecastName;
 
     // unitList list
     dbUnitsName = projectSettings->value("db_units","").toString();
-    if (dbUnitsName.at(0) == ".")
+    if (dbUnitsName.left(1) == ".")
         dbUnitsName = path + dbUnitsName;
 
     if (dbUnitsName == "")
@@ -140,7 +140,7 @@ bool Criteria1DProject::readSettings()
     }
 
     dbOutputName = projectSettings->value("db_output","").toString();
-    if (dbOutputName.at(0) == ".")
+    if (dbOutputName.left(1) == ".")
         dbOutputName = path + dbOutputName;
 
     criteriaSimulation.firstSimulationDate = projectSettings->value("firstDate",0).toDate();
@@ -161,7 +161,7 @@ bool Criteria1DProject::readSettings()
     {
         outputCsvFileName = projectSettings->value("output").toString();
 
-        if (outputCsvFileName.at(0) == ".")
+        if (outputCsvFileName.left(1) == ".")
             outputCsvFileName = path + outputCsvFileName;
 
         criteriaSimulation.firstSeasonMonth = projectSettings->value("firstMonth",0).toInt();
