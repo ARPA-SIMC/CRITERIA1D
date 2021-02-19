@@ -63,7 +63,11 @@ int main(int argc, char *argv[])
             #ifdef TEST_PAST
                 computationDateStr = "2020-08-13";
             #else
-                computationDateStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
+                #ifdef TEST_SQLITE
+                    computationDateStr = "2009-01-01";
+                #else
+                    computationDateStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
+                #endif
             #endif
         #endif
     }
@@ -89,7 +93,7 @@ int main(int argc, char *argv[])
 
     myProject.logger.writeInfo("Computation date: " + computationDateStr);
 
-    // date of last observed data: yesterday
+    // date of last required observed data: day before computationDate
     myProject.criteriaSimulation.lastObservedDate = computationDate.addDays(-1);
 
     // computation unit list
