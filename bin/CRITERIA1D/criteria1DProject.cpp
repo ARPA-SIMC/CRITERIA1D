@@ -111,26 +111,26 @@ bool Criteria1DProject::readSettings()
     projectName += projectSettings->value("name","").toString();
 
     dbCropName = projectSettings->value("db_crop","").toString();
-    if (dbCropName.left(1) == ".")
+    if (dbCropName.at(0) == ".")
         dbCropName = path + dbCropName;
 
     dbSoilName = projectSettings->value("db_soil","").toString();
-    if (dbSoilName.left(1) == ".")
+    if (dbSoilName.at(0) == ".")
         dbSoilName = path + dbSoilName;
 
     dbMeteoName = projectSettings->value("db_meteo","").toString();
-    if (dbMeteoName.left(1) == ".")
+    if (dbMeteoName.at(0) == ".")
         dbMeteoName = path + dbMeteoName;
     if (dbMeteoName.right(3) == "xml")
         criteriaSimulation.isXmlGrid = true;
 
     dbForecastName = projectSettings->value("db_forecast","").toString();
-    if (dbForecastName.left(1) == ".")
+    if (dbForecastName.at(0) == ".")
         dbForecastName = path + dbForecastName;
 
     // unitList list
     dbUnitsName = projectSettings->value("db_units","").toString();
-    if (dbUnitsName.left(1) == ".")
+    if (dbUnitsName.at(0) == ".")
         dbUnitsName = path + dbUnitsName;
 
     if (dbUnitsName == "")
@@ -140,7 +140,7 @@ bool Criteria1DProject::readSettings()
     }
 
     dbOutputName = projectSettings->value("db_output","").toString();
-    if (dbOutputName.left(1) == ".")
+    if (dbOutputName.at(0) == ".")
         dbOutputName = path + dbOutputName;
 
     criteriaSimulation.firstSimulationDate = projectSettings->value("firstDate",0).toDate();
@@ -161,7 +161,7 @@ bool Criteria1DProject::readSettings()
     {
         outputCsvFileName = projectSettings->value("output").toString();
 
-        if (outputCsvFileName.left(1) == ".")
+        if (outputCsvFileName.at(0) == ".")
             outputCsvFileName = path + outputCsvFileName;
 
         criteriaSimulation.firstSeasonMonth = projectSettings->value("firstMonth",0).toInt();
@@ -366,8 +366,8 @@ bool Criteria1DProject::runSeasonalForecast(unsigned int index, double irriRatio
         outputFile << ",0,0,0,0,0\n";
         return true;
     }
-    bool isSaveState = false;
-    if (! criteriaSimulation.runModel(unitList[index], isSaveState, projectError))
+
+    if (! criteriaSimulation.runModel(unitList[index], projectError))
     {
         logger.writeError(projectError);
         return false;
@@ -398,6 +398,16 @@ int Criteria1DProject::compute()
     bool isErrorSoil = false;
     bool isErrorCrop = false;
     unsigned int nrUnitsComputed = 0;
+
+    // create db state
+    if (criteriaSimulation.isSaveState)
+    {
+        if (! criteriaSimulation.createState(projectError))
+        {
+            logger.writeError(projectError);
+            return ERROR_DB_STATE;
+        }
+    }
 
     try
     {
@@ -443,8 +453,7 @@ int Criteria1DProject::compute()
             }
             else
             {
-                bool isSaveState = true;
-                if (criteriaSimulation.runModel(unitList[i], isSaveState, projectError))
+                if (criteriaSimulation.runModel(unitList[i], projectError))
                 {
                     nrUnitsComputed++;
                 }

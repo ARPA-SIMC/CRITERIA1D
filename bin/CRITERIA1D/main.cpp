@@ -73,14 +73,14 @@ int main(int argc, char *argv[])
     }
 
     // check date
-    QDate computationDate = QDate::fromString(computationDateStr, "yyyy-MM-dd");
-    if (! computationDate.isValid())
+    myProject.criteriaSimulation.computationDate = QDate::fromString(computationDateStr, "yyyy-MM-dd");
+    if (! myProject.criteriaSimulation.computationDate.isValid())
     {
         myProject.logger.writeError("Wrong date format: " + computationDateStr +"\nRequested format is: YYYY-MM-DD");
         return ERROR_WRONGDATE;
     }
 
-    if (settingsFileName.left(1) == ".")
+    if (settingsFileName.at(0) == ".")
         settingsFileName = appPath + settingsFileName;
 
     // initialize project
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     myProject.logger.writeInfo("Computation date: " + computationDateStr);
 
     // date of last required observed data: day before computationDate
-    myProject.criteriaSimulation.lastObservedDate = computationDate.addDays(-1);
+    myProject.criteriaSimulation.lastObservedDate = myProject.criteriaSimulation.computationDate.addDays(-1);
 
     // computation unit list
     if (! readUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))
@@ -110,8 +110,11 @@ int main(int argc, char *argv[])
         if (!myProject.initializeCsvOutputFile())
             return ERROR_DBOUTPUT;
     }
+    else
+    {
+        myProject.criteriaSimulation.isSaveState = true;
+    }
 
-    // Computation
     myProject.logger.writeInfo("Computation...");
 
     myResult = myProject.compute();

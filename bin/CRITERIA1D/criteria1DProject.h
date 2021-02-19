@@ -38,6 +38,8 @@
     #define ERROR_METEO_OR_MODEL -40
     #define WARNING_METEO_OR_MODEL 40
 
+    #define ERROR_DB_STATE -50
+
     #define ERROR_UNKNOWN -99
 
 
