@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
+            settingsFileName = path + "PROJECT/testRestart/test.ini";
         #else
             #ifdef TEST_HISTORICAL
                 settingsFileName = path + "PROJECT/INCOLTO/Incolto_storico.ini";
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
                 computationDateStr = "2020-08-13";
             #else
                 #ifdef TEST_SQLITE
-                    computationDateStr = "2009-01-01";
+                    computationDateStr = "2008-06-01";
                 #else
                     computationDateStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
                 #endif
@@ -109,10 +109,6 @@ int main(int argc, char *argv[])
     {
         if (!myProject.initializeCsvOutputFile())
             return ERROR_DBOUTPUT;
-    }
-    else
-    {
-        myProject.criteriaSimulation.isSaveState = true;
     }
 
     myProject.logger.writeInfo("Computation...");
