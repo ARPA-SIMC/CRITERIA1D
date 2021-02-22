@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
 
     if (argc > 1)
     {
+        // settings file
         settingsFileName = argv[1];
     }
     else
@@ -73,7 +74,6 @@ int main(int argc, char *argv[])
     if (settingsFileName.at(0) == ".")
         settingsFileName = appPath + settingsFileName;
 
-    // initialize project
     int myResult = myProject.initializeProject(settingsFileName);
     if (myResult != CRIT1D_OK)
     {
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
             return ERROR_DBOUTPUT;
     }
 
-    myProject.logger.writeInfo("Computation...");
+    myProject.logger.writeInfo("COMPUTE...");
 
     myResult = myProject.compute();
 
