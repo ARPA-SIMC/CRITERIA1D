@@ -52,6 +52,33 @@ void Criteria1DProject::closeProject()
 }
 
 
+void Criteria1DProject::checkDates()
+{
+    // first date
+    QString dateStr = criteriaSimulation.firstSimulationDate.toString("yyyy-MM-dd");
+    if (dateStr == "1800-01-01") dateStr = "UNDEFINED";
+    logger.writeInfo("First simulation date: " + dateStr);
+
+    // last date
+    dateStr = criteriaSimulation.lastSimulationDate.toString("yyyy-MM-dd");
+    if (dateStr == "1800-01-01")
+    {
+        if (criteriaSimulation.isXmlGrid)
+        {
+            criteriaSimulation.lastSimulationDate = QDateTime::currentDateTime().date().addDays(-1);
+            dateStr = criteriaSimulation.lastSimulationDate.toString("yyyy-MM-dd");
+        }
+        else
+        {
+            criteriaSimulation.isSaveState = false;
+            dateStr = "UNDEFINED";
+        }
+    }
+    logger.writeInfo("Last simulation date: " + dateStr);
+
+}
+
+
 int Criteria1DProject::initializeProject(QString settingsFileName)
 {
     closeProject();
@@ -84,6 +111,8 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
         return ERROR_SETTINGS_MISSINGDATA;
 
     logger.setLog(path, projectName, addDateTimeLogFile);
+
+    checkDates();
 
     int myError = openAllDatabase();
     if (myError != CRIT1D_OK)

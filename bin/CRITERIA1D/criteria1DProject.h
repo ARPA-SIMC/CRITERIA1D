@@ -45,51 +45,50 @@
 
     class Criteria1DProject
     {
-        public:
-            QString path;
-            QString projectName;
-            QString configFileName;
+    private:
+        bool isProjectLoaded;
 
-            QString dbCropName;
-            QString dbSoilName;
-            QString dbOutputName;
-            QString dbUnitsName;
+        QString path;
+        QString projectName;
+        QString configFileName;
 
-            QString dbMeteoName;
-            QString dbForecastName;
+        QString dbCropName;
+        QString dbSoilName;
+        QString dbOutputName;
+        QString dbMeteoName;
+        QString dbForecastName;
 
-            QString logFileName;
-            std::ofstream logFile;
-            Logger logger;
-            bool addDateTimeLogFile;
+        QString logFileName;
+        std::ofstream logFile;
 
-            std::ofstream outputFile;
+        bool addDateTimeLogFile;
 
-            bool isProjectLoaded;
+        QString outputCsvFileName;
+        QString outputCsvPath;
 
-            QString outputCsvFileName;
-            QString outputCsvPath;
+        std::ofstream outputFile;
 
-            QString projectError;
+        void initialize();
+        bool readSettings();
+        void checkDates();
+        int openAllDatabase();
+        void closeAllDatabase();
+        void closeProject();
 
-            Crit1DSimulation criteriaSimulation;
+    public:
+        QString dbUnitsName;
+        QString projectError;
 
-            std::vector<Crit1DUnit> unitList;
+        Logger logger;
+        Crit1DSimulation criteriaSimulation;
+        std::vector<Crit1DUnit> unitList;
 
-            Criteria1DProject();
+        Criteria1DProject();
 
-            void initialize();
-            int initializeProject(QString myFileName);
-            bool initializeCsvOutputFile();
-
-            bool readSettings();
-            int openAllDatabase();
-
-            void closeProject();
-            void closeAllDatabase();
-
-            int compute();
-            bool runSeasonalForecast(unsigned int index, double irriRatio);
+        int initializeProject(QString myFileName);
+        bool initializeCsvOutputFile();
+        int compute();
+        bool runSeasonalForecast(unsigned int index, double irriRatio);
     };
 
 #endif // CRITERIA1DPROJECT

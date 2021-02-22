@@ -8,15 +8,12 @@
 
 // uncomment to execute test
 #define TEST_SQLITE
-//#define TEST_HISTORICAL
-//#define TEST_TODAY
-//#define TEST_PAST
 
 
 void usage()
 {
     std::cout << "CRITERIA-1D water balance" << std::endl
-              << "Usage: CRITERIA1D project.ini [date]" << std::endl;
+              << "Usage: CRITERIA1D project.ini [firstDate] [lastDate]" << std::endl;
 }
 
 
@@ -30,57 +27,48 @@ int main(int argc, char *argv[])
     QString settingsFileName;
 
     if (argc > 1)
+    {
         settingsFileName = argv[1];
+    }
     else
     {
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/testRestart/test.ini";
+            settingsFileName = path + "PROJECT/test/test.ini";
         #else
-            #ifdef TEST_HISTORICAL
-                settingsFileName = path + "PROJECT/INCOLTO/Incolto_storico.ini";
-            #else
-                #if defined(TEST_TODAY) || defined(TEST_PAST)
-                    settingsFileName = path + "PROJECT/INCOLTO/Incolto.ini";
-                #else
-                    usage();
-                    return ERROR_SETTINGS_MISSING;
-                #endif
-            #endif
+            usage();
+            return 1;
         #endif
     }
 
-    /*
     if (argc > 2)
     {
-        computationDateStr = argv[2];
-    }
-    else
-    {
-        #ifdef TEST_HISTORICAL
-            computationDateStr = "2020-01-01";
-        #else
-            #ifdef TEST_PAST
-                computationDateStr = "2020-08-13";
-            #else
-                #ifdef TEST_SQLITE
-                    computationDateStr = "2008-06-01";
-                #else
-                    computationDateStr = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-                #endif
-            #endif
-        #endif
+        // first simulation date
+        QString dateStr = argv[2];
+
+        // check
+        myProject.criteriaSimulation.firstSimulationDate = QDate::fromString(dateStr, "yyyy-MM-dd");
+        if (! myProject.criteriaSimulation.firstSimulationDate.isValid())
+        {
+            myProject.logger.writeError("Wrong date format: " + dateStr +"\nRequested format is: YYYY-MM-DD");
+            return ERROR_WRONGDATE;
+        }
     }
 
-    // check date
-    myProject.criteriaSimulation.computationDate = QDate::fromString(computationDateStr, "yyyy-MM-dd");
-    if (! myProject.criteriaSimulation.computationDate.isValid())
+    if (argc > 3)
     {
-        myProject.logger.writeError("Wrong date format: " + computationDateStr +"\nRequested format is: YYYY-MM-DD");
-        return ERROR_WRONGDATE;
+        // last simulation date
+        QString dateStr = argv[3];
+
+        // check
+        myProject.criteriaSimulation.lastSimulationDate = QDate::fromString(dateStr, "yyyy-MM-dd");
+        if (! myProject.criteriaSimulation.lastSimulationDate.isValid())
+        {
+            myProject.logger.writeError("Wrong date format: " + dateStr +"\nRequested format is: YYYY-MM-DD");
+            return ERROR_WRONGDATE;
+        }
     }
-    */
 
     if (settingsFileName.at(0) == ".")
         settingsFileName = appPath + settingsFileName;
@@ -92,14 +80,6 @@ int main(int argc, char *argv[])
         myProject.logger.writeError(myProject.projectError);
         return myResult;
     }
-
-    // log date
-    QString dateStr = myProject.criteriaSimulation.firstSimulationDate.toString("yyyy-MM-dd");
-    if (dateStr == "1800-01-01") dateStr = "UNDEFINED";
-    myProject.logger.writeInfo("First simulation date: " + dateStr);
-    dateStr = myProject.criteriaSimulation.lastSimulationDate.toString("yyyy-MM-dd");
-    if (dateStr == "1800-01-01") dateStr = "UNDEFINED";
-    myProject.logger.writeInfo("Last simulation date: " + dateStr);
 
     // computation unit list
     if (! readUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))
