@@ -7,7 +7,9 @@
 #include <iostream>
 
 // uncomment to execute test
-#define TEST_SQLITE
+//#define TEST_SQLITE
+//#define TEST_FIRSTRUN
+//#define TEST_RESTART
 
 
 void usage()
@@ -40,6 +42,16 @@ int main(int argc, char *argv[])
         #else
             usage();
             return 1;
+        #endif
+
+        #ifdef TEST_FIRSTRUN
+            myProject.criteriaSimulation.firstSimulationDate = QDate::fromString("1995-01-01", "yyyy-MM-dd");
+            myProject.criteriaSimulation.lastSimulationDate = QDate::fromString("2008-05-31", "yyyy-MM-dd");
+        #endif
+
+        #ifdef TEST_RESTART
+            myProject.criteriaSimulation.firstSimulationDate = QDate::fromString("2008-06-01", "yyyy-MM-dd");
+            myProject.criteriaSimulation.lastSimulationDate = QDate::fromString("2008-12-31", "yyyy-MM-dd");
         #endif
     }
 
