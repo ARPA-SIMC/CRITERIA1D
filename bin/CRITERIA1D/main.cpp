@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     Criteria1DProject myProject;
 
     QString appPath = myApp.applicationDirPath() + "/";
-    QString settingsFileName, computationDateStr;
+    QString settingsFileName;
 
     if (argc > 1)
         settingsFileName = argv[1];
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/testRestart/test.ini";
+            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
         #else
             #ifdef TEST_HISTORICAL
                 settingsFileName = path + "PROJECT/INCOLTO/Incolto_storico.ini";
@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
         #endif
     }
 
+    /*
     if (argc > 2)
     {
         computationDateStr = argv[2];
@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
         myProject.logger.writeError("Wrong date format: " + computationDateStr +"\nRequested format is: YYYY-MM-DD");
         return ERROR_WRONGDATE;
     }
+    */
 
     if (settingsFileName.at(0) == ".")
         settingsFileName = appPath + settingsFileName;
@@ -91,10 +93,13 @@ int main(int argc, char *argv[])
         return myResult;
     }
 
-    myProject.logger.writeInfo("Computation date: " + computationDateStr);
-
-    // date of last required observed data: day before computationDate
-    myProject.criteriaSimulation.lastObservedDate = myProject.criteriaSimulation.computationDate.addDays(-1);
+    // log date
+    QString dateStr = myProject.criteriaSimulation.firstSimulationDate.toString("yyyy-MM-dd");
+    if (dateStr == "1800-01-01") dateStr = "UNDEFINED";
+    myProject.logger.writeInfo("First simulation date: " + dateStr);
+    dateStr = myProject.criteriaSimulation.lastSimulationDate.toString("yyyy-MM-dd");
+    if (dateStr == "1800-01-01") dateStr = "UNDEFINED";
+    myProject.logger.writeInfo("Last simulation date: " + dateStr);
 
     // computation unit list
     if (! readUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))

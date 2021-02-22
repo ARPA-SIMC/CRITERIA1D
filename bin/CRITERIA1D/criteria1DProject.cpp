@@ -143,10 +143,23 @@ bool Criteria1DProject::readSettings()
     if (dbOutputName.left(1) == ".")
         dbOutputName = path + dbOutputName;
 
-    criteriaSimulation.firstSimulationDate = projectSettings->value("firstDate",0).toDate();
-    if (criteriaSimulation.firstSimulationDate.isValid())
+    // date
+    if (criteriaSimulation.firstSimulationDate == QDate(1800,1,1))
     {
-        criteriaSimulation.firstSimulationDate = QDate(1800,1,1);
+        criteriaSimulation.firstSimulationDate = projectSettings->value("firstDate",0).toDate();
+        if (! criteriaSimulation.firstSimulationDate.isValid())
+        {
+            criteriaSimulation.firstSimulationDate = QDate(1800,1,1);
+        }
+    }
+
+    if (criteriaSimulation.lastSimulationDate == QDate(1800,1,1))
+    {
+        criteriaSimulation.lastSimulationDate = projectSettings->value("lastDate",0).toDate();
+        if (! criteriaSimulation.lastSimulationDate.isValid())
+        {
+            criteriaSimulation.lastSimulationDate = QDate(1800,1,1);
+        }
     }
 
     addDateTimeLogFile = projectSettings->value("add_date_to_log","").toBool();
