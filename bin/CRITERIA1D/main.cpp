@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
+            settingsFileName = path + "PROJECT/testRestart/test.ini";
         #else
             #ifdef TEST_HISTORICAL
                 settingsFileName = path + "PROJECT/INCOLTO/Incolto_storico.ini";
