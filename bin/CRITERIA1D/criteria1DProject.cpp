@@ -152,6 +152,10 @@ bool Criteria1DProject::readSettings()
     addDateTimeLogFile = projectSettings->value("add_date_to_log","").toBool();
     criteriaSimulation.isSaveState = projectSettings->value("save_state","").toBool();
     criteriaSimulation.isRestart = projectSettings->value("restart","").toBool();
+    if (criteriaSimulation.isRestart && ! criteriaSimulation.isSaveState)
+    {
+        logger.writeInfo("WARNING: it is not possible to restart without save state (check file ini).");
+    }
 
     // FORECAST (seasonal or short-term)
     projectSettings->endGroup();
