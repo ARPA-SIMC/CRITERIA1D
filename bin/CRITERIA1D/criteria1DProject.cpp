@@ -146,7 +146,7 @@ bool Criteria1DProject::readSettings()
     criteriaSimulation.firstSimulationDate = projectSettings->value("firstDate",0).toDate();
     if (criteriaSimulation.firstSimulationDate.isValid())
     {
-        criteriaSimulation.useAllMeteoData = false;
+        criteriaSimulation.firstSimulationDate = QDate(1800,1,1);
     }
 
     addDateTimeLogFile = projectSettings->value("add_date_to_log","").toBool();
