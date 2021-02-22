@@ -489,9 +489,6 @@ int Criteria1DProject::compute()
                 continue;
             }
 
-            //LC a regime togliere questa info che rallenta tantissimo
-            //logger.writeInfo("Unit " + unitList[i].idCase +" "+ unitList[i].idCrop +" "+ unitList[i].idSoil +" "+ unitList[i].idMeteo);
-
             if (criteriaSimulation.isSeasonalForecast)
             {
                 if (runSeasonalForecast(i, irriRatio))
