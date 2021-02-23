@@ -93,21 +93,6 @@ int main(int argc, char *argv[])
         return myResult;
     }
 
-    // computation unit list
-    if (! readUnitList(myProject.dbUnitsName, myProject.unitList, myProject.projectError))
-    {
-        myProject.logger.writeError(myProject.projectError);
-        return ERROR_READ_UNITS;
-    }
-    myProject.logger.writeInfo("Query result: " + QString::number(myProject.unitList.size()) + " distinct computation units.");
-
-    // initialize output (seasonal forecast)
-    if (myProject.criteriaSimulation.isSeasonalForecast)
-    {
-        if (!myProject.initializeCsvOutputFile())
-            return ERROR_DBOUTPUT;
-    }
-
     myProject.logger.writeInfo("COMPUTE...");
 
     myResult = myProject.compute();

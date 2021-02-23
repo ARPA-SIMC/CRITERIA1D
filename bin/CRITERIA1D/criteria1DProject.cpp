@@ -56,8 +56,14 @@ void Criteria1DProject::checkDates()
 {
     // first date
     QString dateStr = criteriaSimulation.firstSimulationDate.toString("yyyy-MM-dd");
-    if (dateStr == "1800-01-01") dateStr = "UNDEFINED";
+    if (dateStr == "1800-01-01")
+    {
+        criteriaSimulation.isRestart = false;
+        dateStr = "UNDEFINED";
+    }
     logger.writeInfo("First simulation date: " + dateStr);
+    QString boolStr = criteriaSimulation.isRestart ? "TRUE" : "FALSE";
+    logger.writeInfo("Restart: " + boolStr);
 
     // last date
     dateStr = criteriaSimulation.lastSimulationDate.toString("yyyy-MM-dd");
@@ -90,13 +96,12 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
         return ERROR_SETTINGS_MISSING;
     }
 
-    // Configuration file
+    // Settings file
     QFile myFile(settingsFileName);
     if (myFile.exists())
     {
         configFileName = QDir(myFile.fileName()).canonicalPath();
         configFileName = QDir().cleanPath(configFileName);
-        //qDebug("Using config file %s", qPrintable(configFileName));
 
         QFileInfo fileInfo(configFileName);
         path = fileInfo.path() + "/";
@@ -123,6 +128,20 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
 
     if (! loadDriessenParameters(&(criteriaSimulation.dbSoil), criteriaSimulation.soilTexture, &(projectError)))
         return ERROR_SOIL_PARAMETERS;
+
+    if (criteriaSimulation.isSeasonalForecast)
+    {
+        if (!initializeCsvOutputFile())
+            return ERROR_DBOUTPUT;
+    }
+
+    // Computation unit list
+    if (! readUnitList(dbUnitsName, unitList, projectError))
+    {
+        logger.writeError(projectError);
+        return ERROR_READ_UNITS;
+    }
+    logger.writeInfo("Query result: " + QString::number(unitList.size()) + " distinct computation units.");
 
     isProjectLoaded = true;
 

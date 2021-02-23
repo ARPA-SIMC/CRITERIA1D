@@ -57,6 +57,7 @@
         QString dbOutputName;
         QString dbMeteoName;
         QString dbForecastName;
+        QString dbUnitsName;
 
         QString logFileName;
         std::ofstream logFile;
@@ -66,29 +67,31 @@
         QString outputCsvFileName;
         QString outputCsvPath;
 
+        std::vector<Crit1DUnit> unitList;
+
         std::ofstream outputFile;
 
         void initialize();
+        bool initializeCsvOutputFile();
         bool readSettings();
         void checkDates();
         int openAllDatabase();
+
+        bool runSeasonalForecast(unsigned int index, double irriRatio);
+
         void closeAllDatabase();
         void closeProject();
 
     public:
-        QString dbUnitsName;
         QString projectError;
 
         Logger logger;
         Crit1DSimulation criteriaSimulation;
-        std::vector<Crit1DUnit> unitList;
 
         Criteria1DProject();
 
         int initializeProject(QString myFileName);
-        bool initializeCsvOutputFile();
         int compute();
-        bool runSeasonalForecast(unsigned int index, double irriRatio);
     };
 
 #endif // CRITERIA1DPROJECT
