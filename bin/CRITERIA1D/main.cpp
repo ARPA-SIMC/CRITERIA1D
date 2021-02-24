@@ -47,9 +47,11 @@ int main(int argc, char *argv[])
         #ifdef TEST_FIRSTRUN
             myProject.criteriaSimulation.firstSimulationDate = QDate::fromString("1995-01-01", "yyyy-MM-dd");
             myProject.criteriaSimulation.lastSimulationDate = QDate::fromString("2008-05-31", "yyyy-MM-dd");
+            //myProject.criteriaSimulation.lastSimulationDate = QDate::fromString("2007-12-31", "yyyy-MM-dd");
         #endif
 
         #ifdef TEST_RESTART
+            //myProject.criteriaSimulation.firstSimulationDate = QDate::fromString("2008-01-01", "yyyy-MM-dd");
             myProject.criteriaSimulation.firstSimulationDate = QDate::fromString("2008-06-01", "yyyy-MM-dd");
             myProject.criteriaSimulation.lastSimulationDate = QDate::fromString("2008-12-31", "yyyy-MM-dd");
         #endif
