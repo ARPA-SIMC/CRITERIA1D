@@ -8,7 +8,7 @@
 		<password>Praga</password>
 	</connection>
 	
-	<gridstructure isregular="true" isutm="false" istin="false" isfixedfields="false">
+	<gridstructure isregular="true" isutm="false" istin="false" isfixedfields="false" isensemble='true'>
 		<xll>9.102</xll>
 		<yll>43.62</yll>
 		<nrows>40</nrows>
@@ -35,38 +35,6 @@
 		<varcode>
 			<varcode>4</varcode>
 			<varpraganame>DAILY_PREC</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>5</varcode>
-			<varpraganame>DAILY_RHMIN</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>6</varcode>
-			<varpraganame>DAILY_RHMAX</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>7</varcode>
-			<varpraganame>DAILY_RHAVG</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>8</varcode>
-			<varpraganame>DAILY_RAD</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>9</varcode>
-			<varpraganame>DAILY_W_SCAL_INT_AVG</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>10</varcode>
-			<varpraganame>DAILY_W_VEC_DIR_PREV</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>11</varcode>
-			<varpraganame>DAILY_W_SCAL_INT_MAX</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>12</varcode>
-			<varpraganame>DAILY_ET0_HS</varpraganame>
 		</varcode>
 	</tabledaily>
 	
