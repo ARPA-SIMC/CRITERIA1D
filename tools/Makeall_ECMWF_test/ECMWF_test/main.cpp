@@ -72,6 +72,17 @@ int main(int argc, char *argv[])
     ecmwfMeteoGrid.openDatabase(&myError, "gridECMWF");
     ecmwfMeteoGrid.loadCellProperties(&myError);
     QList<meteoVariable> meteoVariableList = {dailyAirTemperatureMin,dailyAirTemperatureMax,dailyAirTemperatureAvg,dailyPrecipitation};
+
+    for (int row = 0; row < ecmwfMeteoGrid.gridStructure().header().nrRows; row++)
+    {
+        for (int col = 0; col < ecmwfMeteoGrid.gridStructure().header().nrCols; col++)
+        {
+            if (ecmwfMeteoGrid.meteoGrid()->getMeteoPointActiveId(row, col, &id))
+            {
+                ecmwfMeteoGrid.loadGridDailyDataEnsemble(&myError, QString::fromStdString(id), 1, firstDate, lastDate);
+            }
+        }
+    }
 /*
     for (int row = 0; row < meteoGridLami.gridStructure().header().nrRows; row++)
     {
@@ -96,5 +107,6 @@ int main(int argc, char *argv[])
         }
     }
 */
+    ecmwfMeteoGrid.closeDatabase();
     return true;
 }
