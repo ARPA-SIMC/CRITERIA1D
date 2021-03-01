@@ -3,6 +3,10 @@
 //#include <QDir>
 #include "dbMeteoGrid.h"
 #include "logger.h"
+#include "utilities.h"
+#include <stdio.h>
+#include <random>
+#include <QRandomGenerator>
 
 int main(int argc, char *argv[])
 {
@@ -72,6 +76,7 @@ int main(int argc, char *argv[])
     ecmwfMeteoGrid.openDatabase(&myError, "gridECMWF");
     ecmwfMeteoGrid.loadCellProperties(&myError);
     QList<meteoVariable> meteoVariableList = {dailyAirTemperatureMin,dailyAirTemperatureMax,dailyAirTemperatureAvg,dailyPrecipitation};
+    int nDays = firstDate.daysTo(lastDate)+1;
 
     for (int row = 0; row < ecmwfMeteoGrid.gridStructure().header().nrRows; row++)
     {
@@ -80,6 +85,75 @@ int main(int argc, char *argv[])
             if (ecmwfMeteoGrid.meteoGrid()->getMeteoPointActiveId(row, col, &id))
             {
                 ecmwfMeteoGrid.loadGridDailyDataEnsemble(&myError, QString::fromStdString(id), 1, firstDate, lastDate);
+                for (int j = 0; j<nDays; j++)
+                {
+                    float tmin = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMin);
+                    float tmax = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMax);
+                    float tavg = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureAvg);
+                    float trange = tmax-tmin;
+                    int deltaTemp = 2 + j/3;
+                    float prec = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation);
+                    float deltaPrec = 0.5 + j*0.05;
+                    QRandomGenerator* gen = QRandomGenerator::system();
+                    for (int memberNr=2; memberNr<=51; memberNr++)
+                    {
+                        // temp
+                        double lowest = -1;
+                        double highest = 1;
+                        double randTavg = gen->generateDouble()*highest + lowest;
+                        if (randTavg > highest)
+                        {
+                            randTavg = highest;
+                        }
+                        tavg = tavg + randTavg*deltaTemp;
+                        lowest = -0.5;
+                        highest = 0.5;
+                        double randTrange = gen->generateDouble()*highest + lowest;
+                        if (randTrange > highest)
+                        {
+                            randTrange = highest;
+                        }
+                        trange = trange + randTrange*deltaTemp;
+                        if (trange < 0)
+                        {
+                            trange = 0.5;
+                        }
+                        tmin = tavg - trange/2;
+                        tmax = tavg+trange/2;
+                        ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->setMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMin, tmin);
+                        ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->setMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMax, tmax);
+                        ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->setMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureAvg, tavg);
+
+                        // prec
+                        if (prec>0.2)
+                        {
+                            // rainy day
+                            lowest = -deltaPrec;
+                            highest = deltaPrec;
+                            double randPrec = gen->generateDouble()*highest + lowest;
+                            if (randTrange > highest)
+                            {
+                                randTrange = highest;
+                            }
+                            prec = prec * (1 + randPrec);
+                        }
+                        else
+                        {
+                            // not rainy day
+                            lowest = -4*deltaPrec;
+                            highest = deltaPrec;
+                            double randPrec = gen->generateDouble()*highest + lowest;
+                            if (randTrange > highest)
+                            {
+                                randTrange = highest;
+                            }
+                            prec = 10*randPrec;
+                        }
+                        ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->setMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation, prec);
+
+                        ecmwfMeteoGrid.saveCellGridDailyDataEnsemble(&myError, QString::fromStdString(id), row, col, firstDate, lastDate, meteoVariableList, memberNr);
+                    }
+                }
             }
         }
     }
