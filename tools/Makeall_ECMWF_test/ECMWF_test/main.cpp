@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
                         // temp
                         double lowest = -1;
                         double highest = 1;
-                        double randTavg = gen->generateDouble()*highest + lowest;
+                        double randTavg = gen->generateDouble()*2*highest + lowest;
                         if (randTavg > highest)
                         {
                             randTavg = highest;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
                         tavg = tavg + randTavg*deltaTemp;
                         lowest = -0.5;
                         highest = 0.5;
-                        double randTrange = gen->generateDouble()*highest + lowest;
+                        double randTrange = gen->generateDouble()*2*highest + lowest;
                         if (randTrange > highest)
                         {
                             randTrange = highest;
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
                             // rainy day
                             lowest = -deltaPrec;
                             highest = deltaPrec;
-                            double randPrec = gen->generateDouble()*highest + lowest;
+                            double randPrec = gen->generateDouble()*2*highest + lowest;
                             if (randTrange > highest)
                             {
                                 randTrange = highest;
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
                             // not rainy day
                             lowest = -4*deltaPrec;
                             highest = deltaPrec;
-                            double randPrec = gen->generateDouble()*highest + lowest;
+                            double randPrec = gen->generateDouble()*5*highest + lowest;
                             if (randTrange > highest)
                             {
                                 randTrange = highest;
