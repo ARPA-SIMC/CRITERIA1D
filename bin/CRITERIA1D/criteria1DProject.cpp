@@ -36,6 +36,8 @@ void Criteria1DProject::initialize()
     dbUnitsName = "";
 
     projectError = "";
+
+    unitList.clear();
 }
 
 
@@ -149,6 +151,24 @@ int Criteria1DProject::initializeProject(QString settingsFileName)
 }
 
 
+bool setVariableDepth(QStringList& depthList, std::vector<int>& variableDepth)
+{
+    int nrDepth = depthList.size();
+    if (nrDepth > 0)
+    {
+        variableDepth.resize(nrDepth);
+        for (int i = 0; i < nrDepth; i++)
+        {
+            variableDepth[i] = depthList[i].toInt();
+            if (variableDepth[i] <= 0)
+                return false;
+        }
+    }
+
+    return true;
+}
+
+
 bool Criteria1DProject::readSettings()
 {
     QSettings* projectSettings;
@@ -239,6 +259,24 @@ bool Criteria1DProject::readSettings()
         criteriaSimulation.daysOfForecast = projectSettings->value("daysOfForecast",0).toInt();
     }
 
+    projectSettings->endGroup();
+
+    // output settings (optional)
+    QStringList depthList;
+    projectSettings->beginGroup("output");
+        depthList = projectSettings->value("soilMoisture").toStringList();
+        if (! setVariableDepth(depthList, criteriaSimulation.soilMoistureDepth))
+        {
+            projectError = "Wrong soil moisture depth in " + configFileName;
+            return false;
+        }
+
+        depthList = projectSettings->value("waterPotential").toStringList();
+        if (! setVariableDepth(depthList, criteriaSimulation.waterPotentialDepth))
+        {
+            projectError = "Wrong water potential depth in " + configFileName;
+            return false;
+        }
     projectSettings->endGroup();
     return true;
 }

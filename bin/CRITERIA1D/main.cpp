@@ -7,7 +7,7 @@
 #include <iostream>
 
 // uncomment to execute test
-//#define TEST_SQLITE
+#define TEST_SQLITE
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
 
