@@ -140,6 +140,10 @@ int main(int argc, char *argv[])
                                 double randPrec = gen->generateDouble()*5*highest + lowest;
                                 prec = 10*randPrec;
                             }
+                            if (prec < 0)
+                            {
+                                prec = 0;
+                            }
                             ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->setMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation, prec);
                         }
                     }
