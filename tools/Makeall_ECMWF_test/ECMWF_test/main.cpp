@@ -12,12 +12,9 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-//    Crit3DMeteoGridDbHandler meteoGridLami;
+    //Crit3DMeteoGridDbHandler meteoGridLami;
     QString myError;
     Logger logger;
-
-    //logger.writeInfo(QDir::currentPath());
-    //QString dbMeteoName = "../../../../DATA/METEOGRID/DBGridXML_ERG5_ecmwf_test.xml";
 /*
     QString dbLamiMeteoName = "/home/laura/PRAGA/DATA/METEOGRID/DBGridXML_ERG5_LamiForecast.xml";
     logger.writeInfo ("Meteo DB: " + dbLamiMeteoName);
@@ -41,8 +38,6 @@ int main(int argc, char *argv[])
     QDate firstDate(2020,06,01);
     QDate lastDate(2020,06,30);
 /*
-    QDateTime firstDateTime = QDateTime(firstDate, QTime(1,0));
-    QDateTime lastDateTime = QDateTime(lastDate.addDays(1), QTime(0,0));
     for (int row = 0; row < meteoGridLami.gridStructure().header().nrRows; row++)
     {
         for (int col = 0; col < meteoGridLami.gridStructure().header().nrCols; col++)
@@ -54,8 +49,9 @@ int main(int argc, char *argv[])
         }
     }
     meteoGridLami.closeDatabase();
-    // copy data
     */
+    // copy data
+
     QString dbMeteoName = "../../../../DATA/METEOGRID/DBGridXML_ERG5_ecmwf_test.xml";
     Crit3DMeteoGridDbHandler ecmwfMeteoGrid;
     //ecmwfMeteoGrid = meteoGridLami;
@@ -77,6 +73,8 @@ int main(int argc, char *argv[])
     ecmwfMeteoGrid.loadCellProperties(&myError);
     QList<meteoVariable> meteoVariableList = {dailyAirTemperatureMin,dailyAirTemperatureMax,dailyAirTemperatureAvg,dailyPrecipitation};
     int nDays = firstDate.daysTo(lastDate)+1;
+    //ecmwfMeteoGrid.deleteAllEnsamble(&myError);
+    //ecmwfMeteoGrid.changePrimaryKey(&myError);
 
     for (int row = 0; row < ecmwfMeteoGrid.gridStructure().header().nrRows; row++)
     {
@@ -84,19 +82,22 @@ int main(int argc, char *argv[])
         {
             if (ecmwfMeteoGrid.meteoGrid()->getMeteoPointActiveId(row, col, &id))
             {
+                logger.writeInfo ("id: " + QString::fromStdString(id));
                 ecmwfMeteoGrid.loadGridDailyDataEnsemble(&myError, QString::fromStdString(id), 1, firstDate, lastDate);
-                for (int j = 0; j<nDays; j++)
+                for (int memberNr=2; memberNr<=51; memberNr++)
                 {
-                    float tmin = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMin);
-                    float tmax = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMax);
-                    float tavg = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureAvg);
-                    float trange = tmax-tmin;
-                    int deltaTemp = 2 + j/3;
-                    float prec = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation);
-                    float deltaPrec = 0.5 + j*0.05;
                     QRandomGenerator* gen = QRandomGenerator::system();
-                    for (int memberNr=2; memberNr<=51; memberNr++)
+                    for (int j = 0; j<nDays; j++)
                     {
+                        float tmin = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMin);
+                        float tmax = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMax);
+                        float tavg = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureAvg);
+                        float trange = tmax-tmin;
+                        int deltaTemp = 2 + j/3;
+                        float prec = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation);
+                        float deltaPrec = 0.5 + j*0.05;
+
+                        logger.writeInfo ("day: " + QString::number(j) + ", memberNr: " + QString::number(memberNr));
                         if (tmin != NODATA && tmax != NODATA)
                         {
                             // temp
@@ -141,12 +142,18 @@ int main(int argc, char *argv[])
                             }
                             ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->setMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation, prec);
                         }
-                        ecmwfMeteoGrid.saveCellGridDailyDataEnsemble(&myError, QString::fromStdString(id), row, col, firstDate, lastDate, meteoVariableList, memberNr);
+                    }
+                    if (!ecmwfMeteoGrid.saveCellGridDailyDataEnsemble(&myError, QString::fromStdString(id), row, col, firstDate, lastDate, meteoVariableList, memberNr))
+                    {
+                        ecmwfMeteoGrid.closeDatabase();
+                        logger.writeInfo ("ERROR " + myError);
+                        return false;
                     }
                 }
             }
         }
     }
+
 /*
     for (int row = 0; row < meteoGridLami.gridStructure().header().nrRows; row++)
     {
@@ -158,15 +165,17 @@ int main(int argc, char *argv[])
             }
         }
     }
+*/
 
-
+    //ecmwfMeteoGrid.deleteAllEntries(&myError);
+/*
     for (int row = 0; row < ecmwfMeteoGrid.meteoGrid()->gridStructure().header().nrRows; row++)
     {
         for (int col = 0; col < ecmwfMeteoGrid.meteoGrid()->gridStructure().header().nrCols; col++)
         {
             if (ecmwfMeteoGrid.meteoGrid()->getMeteoPointActiveId(row, col, &id))
             {
-                ecmwfMeteoGrid.saveFirstEnsable(&myError, QString::fromStdString(id), row, col, firstDate, lastDate, meteoVariableList);
+                ecmwfMeteoGrid.saveFirstEnsable(&myError, QString::fromStdString(id), row, col, firstDate, lastDate, meteoVariableList); //DONE
             }
         }
     }
