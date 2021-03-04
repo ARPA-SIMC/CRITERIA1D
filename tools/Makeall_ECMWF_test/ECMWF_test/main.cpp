@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     }
     ecmwfMeteoGrid.closeDatabase();
 
-    Crit3DMeteoGridDbHandler gridToSave = ecmwfMeteoGrid;
+    Crit3DMeteoGridDbHandler gridToSave;
     logger.writeInfo ("Meteo DB: " + dbMeteoName);
     if (! gridToSave.parseXMLGrid(dbMeteoName, &myError))
     {
@@ -96,6 +96,17 @@ int main(int argc, char *argv[])
         return 1;
     }
     gridToSave.openDatabase(&myError, "gridECMWF");
+    gridToSave.loadCellProperties(&myError);
+    for (int row = 0; row < gridToSave.gridStructure().header().nrRows; row++)
+    {
+        for (int col = 0; col < gridToSave.gridStructure().header().nrCols; col++)
+        {
+            if (gridToSave.meteoGrid()->getMeteoPointActiveId(row, col, &id))
+            {
+                gridToSave.loadGridDailyDataEnsemble(&myError, QString::fromStdString(id), 1, firstDate, lastDate);
+            }
+        }
+    }
 
     for (int row = 0; row < ecmwfMeteoGrid.gridStructure().header().nrRows; row++)
     {
@@ -114,8 +125,8 @@ int main(int argc, char *argv[])
                         float tmax = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureMax);
                         float tavg = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyAirTemperatureAvg);
                         float trange = tmax-tmin;
-                        //logger.writeInfo ("tmin: " + QString::number(tmin) + ", tmax: " + QString::number(tmax));
-                        //logger.writeInfo ("tavg: " + QString::number(tavg) + ", trange: " + QString::number(trange));
+                        logger.writeInfo ("tmin: " + QString::number(tmin) + ", tmax: " + QString::number(tmax));
+                        logger.writeInfo ("tavg: " + QString::number(tavg) + ", trange: " + QString::number(trange));
                         int deltaTemp = 2 + j/3;
                         float prec = ecmwfMeteoGrid.meteoGrid()->meteoPointPointer(row,col)->getMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation);
                         float deltaPrec = 0.5 + j*0.05;
@@ -132,7 +143,7 @@ int main(int argc, char *argv[])
                             highest = 0.5;
                             double randTrange = gen->generateDouble()*2*highest + lowest;
                             trange = trange + randTrange*deltaTemp;
-                            //logger.writeInfo ("randTavg: " + QString::number(randTavg) + ", randTrange: " + QString::number(randTrange));
+                            logger.writeInfo ("randTavg: " + QString::number(randTavg) + ", randTrange: " + QString::number(randTrange));
                             if (trange < 0)
                             {
                                 trange = 0.5;
@@ -172,12 +183,14 @@ int main(int argc, char *argv[])
                             gridToSave.meteoGrid()->meteoPointPointer(row,col)->setMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation, prec);
                         }
                     }
+                    /*
                     if (!gridToSave.saveCellGridDailyDataEnsemble(&myError, QString::fromStdString(id), row, col, firstDate, lastDate, meteoVariableList, memberNr))
                     {
                         gridToSave.closeDatabase();
                         logger.writeInfo ("ERROR " + myError);
                         return false;
                     }
+                    */
                 }
             }
         }
