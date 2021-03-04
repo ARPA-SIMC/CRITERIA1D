@@ -183,14 +183,13 @@ int main(int argc, char *argv[])
                             gridToSave.meteoGrid()->meteoPointPointer(row,col)->setMeteoPointValueD(getCrit3DDate(firstDate.addDays(j)), dailyPrecipitation, prec);
                         }
                     }
-                    /*
+
                     if (!gridToSave.saveCellGridDailyDataEnsemble(&myError, QString::fromStdString(id), row, col, firstDate, lastDate, meteoVariableList, memberNr))
                     {
                         gridToSave.closeDatabase();
                         logger.writeInfo ("ERROR " + myError);
                         return false;
                     }
-                    */
                 }
             }
         }
