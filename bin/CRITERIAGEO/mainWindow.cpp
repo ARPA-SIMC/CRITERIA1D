@@ -935,7 +935,7 @@ void MainWindow::on_actionLoadProject_triggered()
 
     // set current dateTime, then GUI overwrite this information
     int myResult = myProject.outputProject.initializeProject(projFileName, QDateTime::currentDateTime().date(), false);
-    if (myResult != CRIT3D_OK)
+    if (myResult != CRIT1D_OK)
     {
         QMessageBox::information(nullptr, "Project setting error", myProject.outputProject.projectError);
         return;
@@ -1093,7 +1093,7 @@ void MainWindow::on_actionOutput_Map_triggered()
         // create CSV and shapeOutput
         QString outputName = outputMap.getTabMapOutputName();
         int result = myProject.createShapeOutput(dateComputation, outputName);
-        if (result != CRIT3D_OK)
+        if (result != CRIT1D_OK)
         {
             QMessageBox::critical(nullptr, "ERROR", "createShapeOutput error");
             return;

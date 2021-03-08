@@ -298,7 +298,7 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
         formInfo.start("Create CSV file...", 0);
         // create CSV
         result = outputProject.createCsvFileFromGUI(dateComputation, outputCsvFileName);
-        if (result != CRIT3D_OK)
+        if (result != CRIT1D_OK)
         {
             return result;
         }
@@ -310,7 +310,7 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
 
     formInfo.close();
 
-    if (result != CRIT3D_OK)
+    if (result != CRIT1D_OK)
         logError("ERROR CODE " + QString::number(result));
 
     // clean .csv
