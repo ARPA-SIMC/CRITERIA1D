@@ -8,7 +8,7 @@
 		<password>Praga</password>
 	</connection>
 	
-	<gridstructure isregular="true" isutm="false" istin="false" isfixedfields="false" isensemble='true' nrmembers='50'>
+	<gridstructure isregular="true" isutm="false" istin="false" isfixedfields="false" isensemble='true' nrmembers='51'>
 		<xll>9.102</xll>
 		<yll>43.62</yll>
 		<nrows>40</nrows>
