@@ -264,8 +264,8 @@ bool Criteria1DProject::readSettings()
     // output settings (optional)
     QStringList depthList;
     projectSettings->beginGroup("output");
-        depthList = projectSettings->value("soilMoisture").toStringList();
-        if (! setVariableDepth(depthList, criteriaSimulation.soilMoistureDepth))
+        depthList = projectSettings->value("waterContent").toStringList();
+        if (! setVariableDepth(depthList, criteriaSimulation.waterContentDepth))
         {
             projectError = "Wrong soil moisture depth in " + configFileName;
             return false;
