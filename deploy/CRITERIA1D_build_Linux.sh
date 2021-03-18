@@ -13,24 +13,6 @@ export LD_LIBRARY_PATH=`pwd`/../mapGraphics/release/:$LD_LIBRARY_PATH
 
 cd -
 
-# build csvToMeteoDb
-cd ../tools/csvToMeteoDb
-$QMAKE csvToMeteoDb.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
-make -f Makefile clean
-make -f Makefile qmake_all
-make 
-
-cd -
-
-# build CRITERIAOUTPUT
-cd ../tools/Makeall_CriteriaOutput
-$QMAKE Makeall_CriteriaOutput.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
-make -f Makefile clean
-make -f Makefile qmake_all
-make 
-
-cd -
-
 # build CRITERIA1D
 cd ../bin/Makeall_CRITERIA1D
 $QMAKE Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
@@ -79,14 +61,6 @@ cd -
 # download linuxdeployqt
 #wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
 #chmod +x linuxqtdeploy
-
-# build appimage CsvToMeteoDb
-cp -r ../tools/csvToMeteoDb/release/CsvToMeteoDb appimage/usr/bin/CsvToMeteoDb
-#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-
-# build appimage CriteriaOutput
-cp -r ../tools/criteriaOutputTools/release/CriteriaOutput appimage/usr/bin/CriteriaOutput
-#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CriteriaOutput.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
 
 # build appimage CRITERIA1D
 cp -r ../bin/CRITERIA1D/release/CRITERIA1D appimage/usr/bin/CRITERIA1D
