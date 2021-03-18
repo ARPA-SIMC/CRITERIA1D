@@ -38,16 +38,6 @@ qmake-qt5 MapGraphics.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CON
 make
 popd
 
-pushd tools/csvToMeteoDb
-qmake-qt5 csvToMeteoDb.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
-make
-popd
-
-pushd tools/Makeall_CriteriaOutput
-qmake-qt5 Makeall_CriteriaOutput.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
-make
-popd
-
 pushd bin/Makeall_CRITERIA1D
 qmake-qt5 Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
@@ -71,8 +61,6 @@ popd
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p %{buildroot}/%{_bindir}/
-cp -a tools/csvToMeteoDb/release/CsvToMeteoDb %{buildroot}/%{_bindir}/
-cp -a tools/criteriaOutputTools/release/CriteriaOutput %{buildroot}/%{_bindir}/
 cp -a bin/CRITERIA1D/release/CRITERIA1D %{buildroot}/%{_bindir}/
 cp -a bin/CROP_EDITOR/release/CROP_EDITOR %{buildroot}/%{_bindir}/
 cp -a bin/SOIL_EDITOR/release/SOIL_EDITOR %{buildroot}/%{_bindir}/
@@ -81,8 +69,6 @@ mkdir -p %{buildroot}/%{_datadir}/
 cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 
 %files
-%{_bindir}/CsvToMeteoDb
-%{_bindir}/CriteriaOutput
 %{_bindir}/CRITERIA1D
 %{_bindir}/CROP_EDITOR
 %{_bindir}/SOIL_EDITOR
