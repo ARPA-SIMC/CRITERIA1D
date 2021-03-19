@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (settingsFileName.at(0) == ".")
+    if (settingsFileName.at(0) == '.')
         settingsFileName = appPath + settingsFileName;
 
     int myResult = myProject.initializeProject(settingsFileName);
