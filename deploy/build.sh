@@ -15,22 +15,6 @@ then
 
     cd -
 
-    # build csvToMeteoDb
-    cd tools/csvToMeteoDb
-    $QMAKE csvToMeteoDb.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
-    make clean
-    make 
-
-    cd -
-    
-    # build CRITERIAOUTPUT
-    cd tools/Makeall_CriteriaOutput
-    $QMAKE Makeall_CriteriaOutput.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
-    make clean
-    make
-
-    cd -
-
     # build CRITERIA1D
     cd bin/Makeall_CRITERIA1D
     $QMAKE Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
@@ -67,22 +51,6 @@ then
     # build mapGraphics
     cd mapGraphics
     $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
-    make clean
-    make
-
-    cd -
-
-    # build csvToMeteoDb
-    cd tools/csvToMeteoDb
-    $QMAKE csvToMeteoDb.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=$QT_DIR
-    make clean
-    make 
-
-    cd -
-    
-    # build CRITERIAOUTPUT
-    cd tools/Makeall_CriteriaOutput
-    $QMAKE Makeall_CriteriaOutput.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=$QT_DIR
     make clean
     make
 
@@ -131,22 +99,6 @@ then
     # download linuxdeployqt
     wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
     chmod +x linuxqtdeploy
-    
-    # build appimage CsvToMeteoDb
-    # cp appimage in tmpbuild
-    cp -rf deploy/appimage deploy/tmpbuild
-    cp tools/csvToMeteoDb/release/CsvToMeteoDb deploy/tmpbuild/usr/bin/CsvToMeteoDb
-    ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CsvToMeteoDb.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    cp deploy/tmpbuild/usr/bin/* deploy
-    #rm tmpbuild
-    rm -rf deploy/tmpbuild/
-    
-    # build appimage CriteriaOutput
-    cp -rf deploy/appimage deploy/tmpbuild
-    cp tools/criteriaOutputTools/release/CriteriaOutput deploy/tmpbuild/usr/bin/CriteriaOutput
-    ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CriteriaOutput.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
-    cp deploy/tmpbuild/usr/bin/* deploy
-    rm -rf deploy/tmpbuild/
     
     # build appimage CRITERIA1D
     cp -rf deploy/appimage deploy/tmpbuild

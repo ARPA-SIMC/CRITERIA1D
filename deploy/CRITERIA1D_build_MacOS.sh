@@ -15,24 +15,6 @@ export LD_LIBRARY_PATH=`pwd`/../mapGraphics/release/:$LD_LIBRARY_PATH
 
 cd -
 
-# build csvToMeteoDb
-cd ../tools/csvToMeteoDb
-$QMAKE csvToMeteoDb.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
-make -f Makefile clean
-make -f Makefile qmake_all
-make 
-
-cd -
-
-# build CRITERIAOUTPUT
-cd ../tools/Makeall_CriteriaOutput
-$QMAKE Makeall_CriteriaOutput.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
-make -f Makefile clean
-make -f Makefile qmake_all
-make 
-
-cd -
-
 # build CRITERIA1D
 cd ../bin/Makeall_CRITERIA1D
 $QMAKE Makeall_CRITERIA1D.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
@@ -81,8 +63,6 @@ cd -
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
 
-cp -r ../tools/csvToMeteoDb/release/CsvToMeteoDb CRITERIA1D/bin/CsvToMeteoDb
-cp -r ../tools/criteriaOutputTools/release/CriteriaOutput CRITERIA1D/bin/CriteriaOutput
 cp -r ../bin/CRITERIA1D/release/CRITERIA1D CRITERIA1D/bin/CRITERIA1D
 cp -r ../bin/CROP_EDITOR/release/CROP_EDITOR CRITERIA1D/bin/CROP_EDITOR
 cp -r ../bin/SOIL_EDITOR/release/SOIL_EDITOR CRITERIA1D/bin/SOIL_EDITOR
@@ -91,8 +71,6 @@ cp -r ../bin/HEAT1D/release/HEAT1D CRITERIA1D/bin/HEAT1D
 
 # deploy apps
 cd CRITERIA1D/bin
-$DEPLOY CsvToMeteoDb.app
-$DEPLOY CriteriaOutput.app
 $DEPLOY CRITERIA1D.app
 $DEPLOY CROP_EDITOR.app
 $DEPLOY SOIL_EDITOR.app
