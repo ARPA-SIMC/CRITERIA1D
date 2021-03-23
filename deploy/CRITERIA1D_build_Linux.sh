@@ -5,7 +5,7 @@ QMAKE=/usr/bin/qmake-qt5
 
 # # build mapGraphics
 cd ../mapGraphics
-$QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+$QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile all
 
@@ -15,7 +15,7 @@ cd -
 
 # build CRITERIA1D
 cd ../bin/Makeall_CRITERIA1D
-$QMAKE Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+$QMAKE Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile qmake_all
 make 
@@ -24,7 +24,7 @@ cd -
 
 # build CROP_EDITOR
 cd ../bin/Makeall_CROP_EDITOR
-$QMAKE Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+$QMAKE Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile qmake_all
 make 
@@ -33,7 +33,7 @@ cd -
 
 # build SOIL_EDITOR
 cd ../bin/Makeall_SOIL_EDITOR
-$QMAKE Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+$QMAKE Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile qmake_all
 make
@@ -42,7 +42,7 @@ cd -
 
 # build CRITERIAGEO
 cd ../bin/Makeall_CRITERIAGEO
-$QMAKE Makeall_CRITERIAGEO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+$QMAKE Makeall_CRITERIAGEO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile qmake_all
 make 
@@ -51,7 +51,7 @@ cd -
 
 # build HEAT1D
 cd ../bin/Makeall_HEAT1D
-$QMAKE Makeall_HEAT1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+$QMAKE Makeall_HEAT1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile qmake_all
 make
