@@ -34,27 +34,27 @@ estimate the capillary rise.
 
 %build
 pushd mapGraphics
-qmake-qt5 MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
+qmake-qt5 MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
 popd
 
 pushd bin/Makeall_CRITERIA1D
-qmake-qt5 Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
+qmake-qt5 Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
 popd
 
 pushd bin/Makeall_CROP_EDITOR
-qmake-qt5 Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
+qmake-qt5 Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
 popd
 
 pushd bin/Makeall_SOIL_EDITOR
-qmake-qt5 Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
+qmake-qt5 Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
 popd
 
 pushd bin/Makeall_CRITERIAGEO
-qmake-qt5 Makeall_CRITERIAGEO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
+qmake-qt5 Makeall_CRITERIAGEO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
 popd
 

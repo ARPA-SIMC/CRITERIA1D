@@ -7,7 +7,7 @@ QDEPLOY=$QT_DIR/macdeployqt
 
 # build mapGraphics
 cd ../mapGraphics
-$QMAKE MapGraphics.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
+$QMAKE MapGraphics.pro -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
 make -f Makefile clean
 make -f Makefile all
 
@@ -17,7 +17,7 @@ cd -
 
 # build CRITERIA1D
 cd ../bin/Makeall_CRITERIA1D
-$QMAKE Makeall_CRITERIA1D.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
+$QMAKE Makeall_CRITERIA1D.pro -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
 make -f Makefile clean
 make -f Makefile qmake_all
 make 
@@ -26,7 +26,7 @@ cd -
 
 # build CROP_EDITOR
 cd ../bin/Makeall_CROP_EDITOR
-$QMAKE Makeall_CROP_EDITOR.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
+$QMAKE Makeall_CROP_EDITOR.pro -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
 make -f Makefile clean
 make -f Makefile qmake_all
 make 
@@ -35,7 +35,7 @@ cd -
 
 # build SOIL_EDITOR
 cd ../bin/Makeall_SOIL_EDITOR
-$QMAKE Makeall_SOIL_EDITOR.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
+$QMAKE Makeall_SOIL_EDITOR.pro -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
 make -f Makefile clean
 make -f Makefile qmake_all
 make
@@ -44,7 +44,7 @@ cd -
 
 # build CRITERIAGEO
 cd ../bin/Makeall_CRITERIAGEO
-$QMAKE Makeall_CRITERIAGEO.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
+$QMAKE Makeall_CRITERIAGEO.pro -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
 make -f Makefile clean
 make -f Makefile qmake_all
 make 
@@ -53,7 +53,7 @@ cd -
 
 # build HEAT1D
 cd ../bin/Makeall_HEAT1D
-$QMAKE Makeall_HEAT1D.pro -spec macx-clang CONFIG+=release CONFIG+=x86_64 CONFIG+=qtquickcompiler
+$QMAKE Makeall_HEAT1D.pro -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
 make -f Makefile clean
 make -f Makefile qmake_all
 make
