@@ -60,47 +60,52 @@ make
 cd -
 
 # download linuxdeployqt
-#wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-#chmod +x linuxqtdeploy
+wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+chmod +x linuxqtdeploy
+
+function make_appimage {
+
+    BIN_PATH=$1
+    BIN_NAME=`basename $1`
+
+    rm -rf build
+    # make tree and copy executables and images
+    cp -rf appimage build
+    
+    cp $BIN_PATH build/usr/bin/$BIN_NAME
+    ./linuxqtdeploy --appimage-extract-and-run build/usr/share/applications/$BIN_NAME.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+}
 
 # build appimage CRITERIA1D
-cp -r ../bin/CRITERIA1D/release/CRITERIA1D appimage/usr/bin/CRITERIA1D
-#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+make_appimage ../bin/CRITERIA1D/release/CRITERIA1D
 
 # build appimage CROP_EDITOR
-cp -r ../bin/CROP_EDITOR/release/CROP_EDITOR appimage/usr/bin/CROP_EDITOR
-#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CROP_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+make_appimage ../bin/CROP_EDITOR/release/CROP_EDITOR
 
 # build appimage SOIL_EDITOR
-cp -r ../bin/SOIL_EDITOR/release/SOIL_EDITOR appimage/usr/bin/SOIL_EDITOR
-#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/SOIL_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+make_appimage ../bin/SOIL_EDITOR/release/SOIL_EDITOR
 
 # build appimage CRITERIA_GEO
-cp -r ../bin/CRITERIAGEO/release/CRITERIA_GEO appimage/usr/bin/CRITERIA_GEO
-#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/CRITERIA_GEO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+make_appimage ../bin/CRITERIAGEO/release/CRITERIA_GEO
 
 # build appimage HEAT1D
-cp -r ../bin/HEAT1D/release/HEAT1D appimage/usr/bin/HEAT1D
-#./linuxqtdeploy --appimage-extract-and-run appimage/usr/share/applications/HEAT1D.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+make_appimage ../bin/HEAT1D/release/HEAT1D
 
-mkdir CRITERIA1D
-mkdir CRITERIA1D/bin
-mv appimage/usr/bin/* CRITERIA1D/bin/
+mkdir -p CRITERIA1D/bin
+mv *.AppImage CRITERIA1D/bin/
 
 # copy png
-mkdir CRITERIA1D/DOC
-mkdir CRITERIA1D/DOC/img
+mkdir -p CRITERIA1D/DOC/img
 cp -r ../DOC/CRITERIA1D_technical_manual.pdf CRITERIA1D/DOC/
 cp -r ../DOC/img/saveButton.png CRITERIA1D/DOC/img
 cp -r ../DOC/img/updateButton.png CRITERIA1D/DOC/img
 cp -r ../DOC/img/textural_soil.png CRITERIA1D/DOC/img
 
 # copy soil data
-mkdir CRITERIA1D/DATA
-mkdir CRITERIA1D/DATA/SOIL
+mkdir -p CRITERIA1D/DATA/SOIL
 cp -r ../DATA/SOIL/* CRITERIA1D/DATA/SOIL
 
 # copy kiwifruit project
-mkdir CRITERIA1D/DATA/PROJECT
-mkdir CRITERIA1D/DATA/PROJECT/kiwifruit
+mkdir -p CRITERIA1D/DATA/PROJECT/kiwifruit
 cp -r ../DATA/PROJECT/kiwifruit/* CRITERIA1D/DATA/PROJECT/kiwifruit
+
