@@ -34,7 +34,7 @@ estimate the capillary rise.
 
 %build
 pushd mapGraphics
-qmake-qt5 MapGraphics.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
+qmake-qt5 MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
 popd
 
