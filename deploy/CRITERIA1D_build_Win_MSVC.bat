@@ -8,7 +8,7 @@
 :: clean all
 cd ..\mapGraphics
 nmake /S /NOLOGO distclean
-cd ..\..\bin\Makeall_CRITERIA1D
+cd ..\bin\Makeall_CRITERIA1D
 nmake /S /NOLOGO distclean
 cd ..\Makeall_CROP_EDITOR
 nmake /S /NOLOGO distclean
@@ -25,7 +25,7 @@ qmake CONFIG+=release
 nmake /S /NOLOGO release
 
 :: CRITERIA-1D/GEO
-cd ..\..\bin\Makeall_CRITERIA1D
+cd ..\bin\Makeall_CRITERIA1D
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 

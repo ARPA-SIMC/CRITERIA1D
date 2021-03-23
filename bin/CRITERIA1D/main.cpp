@@ -1,20 +1,20 @@
 #include <QCoreApplication>
 #include <QDateTime>
+#include <iostream>
 
 #include "criteria1DProject.h"
 #include "commonConstants.h"
 #include "utilities.h"
-#include <iostream>
 
 // uncomment to execute test
-//#define TEST_SQLITE
+#define TEST_SQLITE
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
 
 
 void usage()
 {
-    std::cout << "CRITERIA-1D water balance" << std::endl
+    std::cout << "CRITERIA-1D soil water balance" << std::endl
               << "Usage: CRITERIA1D project.ini [firstDate] [lastDate]" << std::endl;
 }
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/test/test.ini";
+            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
         #else
             usage();
             return 1;
