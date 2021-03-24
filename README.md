@@ -29,10 +29,13 @@ HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D dom
 ## How to compile the CRITERIA-1D/GEO distribution
 Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
+- [GDAL](https://gdal.org/): follow the instructions in agrolib/gdal.pri (for windows: it works only with Visual Studio compiler)
 
 Build:
 - Linux: run deploy/CRITERIA1D_build_Linux.sh
 - Windows (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
+- Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat       
+- ALL: please read the info in the first lines of the script
 
 The distribution will be created in the directory deploy/CRITERIA1D
 
