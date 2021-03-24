@@ -1,8 +1,16 @@
-:: build CRITERIA-1D
+:: build CRITERIA-1D/GEO
 :: run on Qt shell (MINGW version) 
-:: inside deploy directory (cd [local path]\CRITERIA1D\deploy)
+:: move into the deploy directory (cd [local path]\CRITERIA1D\deploy)
 
-:: CLEAN distribution
+:: GDAL library (for GEO) doesn't work with MinGW compiler 
+:: To disable GDAL comment the line CONFIG += GDAL 
+:: in these project files:
+:: 1) makell_CRITERIAGEO.pro
+:: 2) CRITERIAGEO.pro
+:: 3) agrolib/gdalHandler.pro
+
+
+:: CLEAN all
 cd ..\bin\Makeall_CRITERIA1D
 mingw32-make --silent distclean
 cd ..\Makeall_CROP_EDITOR
