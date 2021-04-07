@@ -454,11 +454,19 @@ bool Crit3DMeteoGrid::getLatFromId(std::string id, double* lat)
 bool Crit3DMeteoGrid::getIdFromLatLon(double lat, double lon, std::string* id)
 {
 
+    double dx = _gridStructure.header().dx;
+    double dy = _gridStructure.header().dy;
+    double latitude, longitude;
+    double diffLat, diffLon;
     for (unsigned int row = 0; row < unsigned(_gridStructure.header().nrRows); row++)
     {
         for (unsigned int col = 0; col < unsigned(_gridStructure.header().nrCols); col++)
         {
-            if (_meteoPoints[row][col]->latitude == lat && _meteoPoints[row][col]->longitude == lon)
+            latitude = _meteoPoints[row][col]->latitude;
+            longitude = _meteoPoints[row][col]->longitude;
+            diffLat = std::abs(lat-latitude);
+            diffLon = std::abs(lon-longitude);
+            if ( diffLat<(0.5*dy) && diffLon<(0.5*dx))
             {
                 if (_meteoPoints[row][col]->active)
                 {
