@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/Ravone/Ravone.ini";
+            settingsFileName = path + "PROJECT/Kiwifruit/Kiwifruit.ini";
         #else
             usage();
             return 1;
