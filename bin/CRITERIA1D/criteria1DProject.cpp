@@ -264,13 +264,18 @@ bool Criteria1DProject::readSettings()
     // output settings (optional)
     QStringList depthList;
     projectSettings->beginGroup("output");
+        depthList = projectSettings->value("waterDeficit").toStringList();
+        if (! setVariableDepth(depthList, criteriaSimulation.waterDeficitDepth))
+        {
+            projectError = "Wrong water deficit depth in " + configFileName;
+            return false;
+        }
         depthList = projectSettings->value("waterContent").toStringList();
         if (! setVariableDepth(depthList, criteriaSimulation.waterContentDepth))
         {
-            projectError = "Wrong soil moisture depth in " + configFileName;
+            projectError = "Wrong water content depth in " + configFileName;
             return false;
         }
-
         depthList = projectSettings->value("waterPotential").toStringList();
         if (! setVariableDepth(depthList, criteriaSimulation.waterPotentialDepth))
         {
@@ -518,6 +523,10 @@ int Criteria1DProject::compute()
     {
         for (unsigned int i = 0; i < unitList.size(); i++)
         {
+            // is numerical
+            //QString isNumerical = unitList[i].isNumericalInfiltration? "true" : "false";
+            //logger.writeInfo("is numerical: " + isNumerical);
+
             // CROP
             unitList[i].idCrop = getCropFromClass(&(criteriaSimulation.dbCrop), "crop_class", "id_class",
                                                          unitList[i].idCropClass, &(projectError)).toUpper();

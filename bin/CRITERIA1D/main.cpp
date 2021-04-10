@@ -15,7 +15,7 @@
 void usage()
 {
     std::cout << "CRITERIA-1D soil water balance" << std::endl
-              << "Usage: CRITERIA1D project.ini [firstDate] [lastDate]" << std::endl;
+              << "Usage: CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl;
 }
 
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
+            settingsFileName = path + "PROJECT/Ravone/Ravone.ini";
         #else
             usage();
             return 1;

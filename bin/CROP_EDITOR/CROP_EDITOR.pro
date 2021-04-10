@@ -44,6 +44,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../../agrolib/meteo/debug -lmeteo
     LIBS += -L../../agrolib/gis/debug -lgis
+    LIBS += -L../../agrolib/soilFluxes3D/debug -lsoilFluxes3D
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
 } else {
@@ -58,6 +59,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../../agrolib/meteo/release -lmeteo
     LIBS += -L../../agrolib/gis/release -lgis
+    LIBS += -L../../agrolib/soilFluxes3D/release -lsoilFluxes3D
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
 }
