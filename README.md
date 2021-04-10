@@ -3,7 +3,7 @@
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
 
 # CRITERIA-1D/GEO
-CRITERIA-1D is a agro-hydrological model simulating one-dimensional water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different levels of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of water table depth to estimate the capillary rise. 
+CRITERIA-1D is a agro-hydrological model simulating one-dimensional soil water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different levels of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of water table depth to estimate the capillary rise. 
 
 The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the CriteriaOutput tool. The software is multi-platform (Windows, Linux, Mac OS).
 
@@ -29,7 +29,7 @@ HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D dom
 ## How to compile the CRITERIA-1D/GEO distribution
 Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
-- [GDAL](https://gdal.org/): follow the instructions in agrolib/gdal.pri (for windows: it works only with Visual Studio compiler)
+- [GDAL](https://gdal.org/): (for CRITERIA GEO) follow the instructions in agrolib/gdal.pri (for windows: it works only with Visual Studio compiler)
 
 Build:
 - Linux: run deploy/CRITERIA1D_build_Linux.sh
