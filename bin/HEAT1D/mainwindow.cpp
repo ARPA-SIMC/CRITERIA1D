@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "heat1D.h"
 #include "commonConstants.h"
+#include "heat1D.h"
 
 #include <QDebug>
 #include <iostream>

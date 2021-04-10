@@ -93,14 +93,14 @@ void setSurface(double myArea, double myRoughness, double minWaterRunoff, double
 
 bool initializeSoil(bool useInputSoils)
 {
-    int myResult;
+    int myResult = CRIT3D_OK;
 
-    // loam (Troy soil db)
-    double VG_he        = 0.023;    //m
-    double VG_alpha     = 1.76;     //m-1
+    // loam
+    double VG_he        = 0.23;     // m
+    double VG_alpha     = 1.76;     // m-1
     double VG_n         = 1.21;
     double mualemTort   = 0.5;
-    double KSat         = 1. / (3600. * 100.);
+    double KSat         = 0.5 / (3600. * 100.);  // [cm h-1] -> [m s-1]
 
     if (useInputSoils)
     {
