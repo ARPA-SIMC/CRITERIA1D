@@ -23,7 +23,6 @@ Soil editor is a tool to edit the soil properties. It uses a modified Van Genuch
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/soilEditor.png)
 
 ## HEAT1D 
-#### bin/Makeall_HEAT1D
 HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D domain. Users can set fixed or variable atmospheric boundary conditions and soil parameters. Output graph results include soil temperature, soil water content, heat fluxes (diffusive and latent), liquid (isothermal and thermal) and vapor (isothermal and thermal) water fluxes.
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/heat1D.png)
