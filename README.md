@@ -3,7 +3,7 @@
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
 
 # CRITERIA-1D/GEO
-CRITERIA-1D is a agro-hydrological model simulating one-dimensional water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different level of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of hypodermic watertable depth to estimate the capillary rise. 
+CRITERIA-1D is a agro-hydrological model simulating one-dimensional water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different levels of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of water table depth to estimate the capillary rise. 
 
 The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the CriteriaOutput tool. The software is multi-platform (Windows, Linux, Mac OS).
 
