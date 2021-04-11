@@ -167,7 +167,7 @@ bool initializeHeat1D(bool useInputSoils)
         // elemento superficiale
         if (indexNode == 0)
         {
-            myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myHeat1D.surfaceArea, true, false, BOUNDARY_NONE, 0.0);
+            myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myHeat1D.surfaceArea, true, false, BOUNDARY_NONE, 0, 0);
             if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 
             myResult = soilFluxes3D::setNodeSurface(0, 0) ;
@@ -190,12 +190,12 @@ bool initializeHeat1D(bool useInputSoils)
                 else
                     boundaryType = BOUNDARY_NONE;
 
-                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, boundaryType, 0.0);
+                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, boundaryType, 0, myHeat1D.surfaceArea);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
             }
             else if (indexNode == myHeat1D.NodesNumber - 1)
             {
-                myResult = soilFluxes3D::setNode(indexNode, x ,y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, BOUNDARY_FREEDRAINAGE, 0.0);
+                myResult = soilFluxes3D::setNode(indexNode, x ,y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, BOUNDARY_FREEDRAINAGE, 0, myHeat1D.surfaceArea);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 
                 if (myHeat1D.computeHeat)
@@ -206,7 +206,7 @@ bool initializeHeat1D(bool useInputSoils)
             }
             else
             {
-                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, false, BOUNDARY_NONE, 0.0);
+                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, false, BOUNDARY_NONE, 0, 0);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 			}											  
 									  
