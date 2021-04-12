@@ -4,7 +4,6 @@
 #include <qpoint.h>
 #include <qvector.h>
 #include <qdatetime.h>
-//#include "graphs.h"
 #include "graphFunctions.h"
 
 class meteo

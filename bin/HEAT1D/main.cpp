@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     MainWindow w;
 
     w.setFixedSize(w.width(), w.height());
-    w.setWindowTitle("Criteria3D Test Heat 1D");
+    w.setWindowTitle("Heat 1D");
 
     w.show();
 

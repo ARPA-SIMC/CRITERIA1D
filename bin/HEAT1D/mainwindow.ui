@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>619</height>
+    <width>1159</width>
+    <height>559</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QWidget" name="formLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>450</x>
       <y>10</y>
-      <width>771</width>
-      <height>551</height>
+      <width>701</width>
+      <height>481</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="layoutPlot"/>
@@ -29,9 +29,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>330</y>
-      <width>401</width>
-      <height>231</height>
+      <y>290</y>
+      <width>431</width>
+      <height>201</height>
      </rect>
     </property>
     <property name="sizeAdjustPolicy">
@@ -43,8 +43,8 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>401</width>
-      <height>311</height>
+      <width>431</width>
+      <height>261</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -57,7 +57,7 @@
      <widget class="QLineEdit" name="lineEditWidth">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>150</x>
         <y>80</y>
         <width>31</width>
         <height>20</height>
@@ -72,7 +72,7 @@
        <rect>
         <x>30</x>
         <y>20</y>
-        <width>91</width>
+        <width>111</width>
         <height>16</height>
        </rect>
       </property>
@@ -88,7 +88,7 @@
        <rect>
         <x>30</x>
         <y>80</y>
-        <width>91</width>
+        <width>111</width>
         <height>16</height>
        </rect>
       </property>
@@ -102,7 +102,7 @@
      <widget class="QLineEdit" name="lineEditDepth">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>150</x>
         <y>50</y>
         <width>31</width>
         <height>20</height>
@@ -117,7 +117,7 @@
        <rect>
         <x>30</x>
         <y>50</y>
-        <width>91</width>
+        <width>111</width>
         <height>16</height>
        </rect>
       </property>
@@ -131,7 +131,7 @@
      <widget class="QLineEdit" name="lineEditThickness">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>150</x>
         <y>20</y>
         <width>31</width>
         <height>20</height>
@@ -146,7 +146,7 @@
        <rect>
         <x>20</x>
         <y>120</y>
-        <width>321</width>
+        <width>381</width>
         <height>111</height>
        </rect>
       </property>
@@ -184,7 +184,7 @@
         <rect>
          <x>180</x>
          <y>20</y>
-         <width>101</width>
+         <width>151</width>
          <height>16</height>
         </rect>
        </property>
@@ -197,7 +197,7 @@
         <rect>
          <x>10</x>
          <y>20</y>
-         <width>121</width>
+         <width>141</width>
          <height>16</height>
         </rect>
        </property>
@@ -210,7 +210,7 @@
         <rect>
          <x>180</x>
          <y>60</y>
-         <width>131</width>
+         <width>171</width>
          <height>16</height>
         </rect>
        </property>
@@ -236,7 +236,7 @@
         <rect>
          <x>10</x>
          <y>60</y>
-         <width>141</width>
+         <width>161</width>
          <height>16</height>
         </rect>
        </property>
@@ -268,7 +268,7 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>381</width>
+        <width>401</width>
         <height>221</height>
        </rect>
       </property>
@@ -280,7 +280,7 @@
         <rect>
          <x>10</x>
          <y>140</y>
-         <width>201</width>
+         <width>221</width>
          <height>71</height>
         </rect>
        </property>
@@ -292,7 +292,7 @@
          <rect>
           <x>20</x>
           <y>20</y>
-          <width>131</width>
+          <width>151</width>
           <height>16</height>
          </rect>
         </property>
@@ -306,7 +306,7 @@
        <widget class="QLineEdit" name="lineEditAtmWHeight">
         <property name="geometry">
          <rect>
-          <x>160</x>
+          <x>180</x>
           <y>40</y>
           <width>31</width>
           <height>20</height>
@@ -319,7 +319,7 @@
        <widget class="QLineEdit" name="lineEditAtmTHeight">
         <property name="geometry">
          <rect>
-          <x>160</x>
+          <x>180</x>
           <y>20</y>
           <width>31</width>
           <height>20</height>
@@ -334,7 +334,7 @@
          <rect>
           <x>40</x>
           <y>40</y>
-          <width>111</width>
+          <width>131</width>
           <height>16</height>
          </rect>
         </property>
@@ -351,7 +351,7 @@
         <rect>
          <x>10</x>
          <y>20</y>
-         <width>361</width>
+         <width>371</width>
          <height>111</height>
         </rect>
        </property>
@@ -372,12 +372,15 @@
          <rect>
           <x>20</x>
           <y>60</y>
-          <width>101</width>
+          <width>131</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
          <string>wind speed (m s-1)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
        <widget class="QLabel" name="label_9">
@@ -385,18 +388,21 @@
          <rect>
           <x>20</x>
           <y>20</y>
-          <width>91</width>
+          <width>131</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
          <string>temperature (°C)</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
        <widget class="QLineEdit" name="lineEditAtmRH">
         <property name="geometry">
          <rect>
-          <x>150</x>
+          <x>160</x>
           <y>40</y>
           <width>31</width>
           <height>20</height>
@@ -409,7 +415,7 @@
        <widget class="QLineEdit" name="lineEditAtmWS">
         <property name="geometry">
          <rect>
-          <x>150</x>
+          <x>160</x>
           <y>60</y>
           <width>31</width>
           <height>20</height>
@@ -422,7 +428,7 @@
        <widget class="QLineEdit" name="lineEditAtmT">
         <property name="geometry">
          <rect>
-          <x>150</x>
+          <x>160</x>
           <y>20</y>
           <width>31</width>
           <height>20</height>
@@ -437,18 +443,21 @@
          <rect>
           <x>20</x>
           <y>40</y>
-          <width>101</width>
+          <width>131</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
          <string>relative humidity (%)</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
        <widget class="QGroupBox" name="groupBox">
         <property name="geometry">
          <rect>
-          <x>200</x>
+          <x>210</x>
           <y>10</y>
           <width>151</width>
           <height>81</height>
@@ -539,20 +548,23 @@
        <widget class="QLabel" name="label_14">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>80</y>
-          <width>121</width>
-          <height>16</height>
+          <width>141</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
          <string>fixed heat flux (W m-2)</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
        <widget class="QLineEdit" name="lineEditAtmFlux">
         <property name="geometry">
          <rect>
-          <x>150</x>
+          <x>160</x>
           <y>80</y>
           <width>31</width>
           <height>20</height>
@@ -569,9 +581,9 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>240</x>
+         <x>250</x>
          <y>160</y>
-         <width>91</width>
+         <width>121</width>
          <height>17</height>
         </rect>
        </property>
@@ -585,9 +597,9 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>240</x>
+         <x>250</x>
          <y>180</y>
-         <width>81</width>
+         <width>101</width>
          <height>23</height>
         </rect>
        </property>
@@ -683,7 +695,7 @@
       <property name="geometry">
        <rect>
         <x>180</x>
-        <y>100</y>
+        <y>110</y>
         <width>41</width>
         <height>20</height>
        </rect>
@@ -727,10 +739,10 @@
      <widget class="QLabel" name="label_23">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>100</y>
-        <width>141</width>
-        <height>16</height>
+        <x>50</x>
+        <y>110</y>
+        <width>121</width>
+        <height>20</height>
        </rect>
       </property>
       <property name="text">
@@ -743,9 +755,9 @@
      <widget class="QLabel" name="label_22">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>50</x>
         <y>70</y>
-        <width>141</width>
+        <width>121</width>
         <height>31</height>
        </rect>
       </property>
@@ -785,7 +797,7 @@
       <widget class="QLineEdit" name="lineEditClay">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>140</x>
          <y>20</y>
          <width>41</width>
          <height>20</height>
@@ -800,7 +812,7 @@
         <rect>
          <x>10</x>
          <y>20</y>
-         <width>61</width>
+         <width>81</width>
          <height>16</height>
         </rect>
        </property>
@@ -813,7 +825,7 @@
         <rect>
          <x>10</x>
          <y>40</y>
-         <width>111</width>
+         <width>121</width>
          <height>21</height>
         </rect>
        </property>
@@ -827,7 +839,7 @@
       <widget class="QLineEdit" name="lineEditOrganic">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>140</x>
          <y>40</y>
          <width>41</width>
          <height>20</height>
@@ -842,7 +854,7 @@
         <rect>
          <x>10</x>
          <y>60</y>
-         <width>111</width>
+         <width>121</width>
          <height>21</height>
         </rect>
        </property>
@@ -858,7 +870,7 @@
         <rect>
          <x>10</x>
          <y>80</y>
-         <width>111</width>
+         <width>121</width>
          <height>21</height>
         </rect>
        </property>
@@ -872,7 +884,7 @@
       <widget class="QLineEdit" name="lineEditThetaS">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>140</x>
          <y>60</y>
          <width>41</width>
          <height>20</height>
@@ -885,7 +897,7 @@
       <widget class="QLineEdit" name="lineEditThetaR">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>140</x>
          <y>80</y>
          <width>41</width>
          <height>20</height>
@@ -904,7 +916,7 @@
        <rect>
         <x>30</x>
         <y>160</y>
-        <width>91</width>
+        <width>141</width>
         <height>17</height>
        </rect>
       </property>
@@ -920,7 +932,7 @@
        <rect>
         <x>30</x>
         <y>180</y>
-        <width>81</width>
+        <width>111</width>
         <height>23</height>
        </rect>
       </property>
@@ -938,8 +950,8 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>161</width>
-        <height>101</height>
+        <width>171</width>
+        <height>91</height>
        </rect>
       </property>
       <property name="title">
@@ -1010,7 +1022,7 @@
         <rect>
          <x>80</x>
          <y>50</y>
-         <width>71</width>
+         <width>91</width>
          <height>17</height>
         </rect>
        </property>
@@ -1025,7 +1037,7 @@
      <widget class="QPushButton" name="pushRunAllPeriod">
       <property name="geometry">
        <rect>
-        <x>310</x>
+        <x>330</x>
         <y>30</y>
         <width>81</width>
         <height>41</height>
@@ -1045,9 +1057,9 @@
      <widget class="QProgressBar" name="prgBar">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>10</x>
         <y>120</y>
-        <width>361</width>
+        <width>401</width>
         <height>23</height>
        </rect>
       </property>
@@ -1078,10 +1090,10 @@
      <widget class="QPushButton" name="pushCopyOutput">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>150</y>
-        <width>91</width>
-        <height>41</height>
+        <x>10</x>
+        <y>160</y>
+        <width>101</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="acceptDrops">
@@ -1103,12 +1115,12 @@ to clipboard</string>
        <rect>
         <x>180</x>
         <y>50</y>
-        <width>61</width>
-        <height>31</height>
+        <width>81</width>
+        <height>41</height>
        </rect>
       </property>
       <property name="text">
-       <string>out time step (s)</string>
+       <string>time step (s)</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1120,9 +1132,9 @@ to clipboard</string>
      <widget class="QLineEdit" name="lineEditTimeStep">
       <property name="geometry">
        <rect>
-        <x>250</x>
+        <x>270</x>
         <y>60</y>
-        <width>31</width>
+        <width>41</width>
         <height>20</height>
        </rect>
       </property>
@@ -1133,9 +1145,9 @@ to clipboard</string>
      <widget class="QLineEdit" name="lineEditSimDuration">
       <property name="geometry">
        <rect>
-        <x>250</x>
+        <x>270</x>
         <y>30</y>
-        <width>31</width>
+        <width>41</width>
         <height>20</height>
        </rect>
       </property>
@@ -1148,8 +1160,8 @@ to clipboard</string>
        <rect>
         <x>190</x>
         <y>30</y>
-        <width>61</width>
-        <height>20</height>
+        <width>81</width>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">
@@ -1164,8 +1176,8 @@ to clipboard</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
-     <height>21</height>
+     <width>1159</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>

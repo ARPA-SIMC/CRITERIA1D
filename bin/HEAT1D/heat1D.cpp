@@ -93,14 +93,14 @@ void setSurface(double myArea, double myRoughness, double minWaterRunoff, double
 
 bool initializeSoil(bool useInputSoils)
 {
-    int myResult;
+    int myResult = CRIT3D_OK;
 
-    // loam (Troy soil db)
-    double VG_he        = 0.023;    //m
-    double VG_alpha     = 1.76;     //m-1
+    // loam
+    double VG_he        = 0.23;     // m
+    double VG_alpha     = 1.76;     // m-1
     double VG_n         = 1.21;
     double mualemTort   = 0.5;
-    double KSat         = 1. / (3600. * 100.);
+    double KSat         = 0.5 / (3600. * 100.);  // [cm h-1] -> [m s-1]
 
     if (useInputSoils)
     {
@@ -167,7 +167,7 @@ bool initializeHeat1D(bool useInputSoils)
         // elemento superficiale
         if (indexNode == 0)
         {
-            myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myHeat1D.surfaceArea, true, false, BOUNDARY_NONE, 0.0);
+            myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myHeat1D.surfaceArea, true, false, BOUNDARY_NONE, 0, 0);
             if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 
             myResult = soilFluxes3D::setNodeSurface(0, 0) ;
@@ -190,12 +190,12 @@ bool initializeHeat1D(bool useInputSoils)
                 else
                     boundaryType = BOUNDARY_NONE;
 
-                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, boundaryType, 0.0);
+                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, boundaryType, 0, myHeat1D.surfaceArea);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
             }
             else if (indexNode == myHeat1D.NodesNumber - 1)
             {
-                myResult = soilFluxes3D::setNode(indexNode, x ,y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, BOUNDARY_FREEDRAINAGE, 0.0);
+                myResult = soilFluxes3D::setNode(indexNode, x ,y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, true, BOUNDARY_FREEDRAINAGE, 0, myHeat1D.surfaceArea);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 
                 if (myHeat1D.computeHeat)
@@ -206,7 +206,7 @@ bool initializeHeat1D(bool useInputSoils)
             }
             else
             {
-                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, false, BOUNDARY_NONE, 0.0);
+                myResult = soilFluxes3D::setNode(indexNode, x, y, myDepth[indexNode], myThickness[indexNode] * myHeat1D.surfaceArea, false, false, BOUNDARY_NONE, 0, 0);
                 if (myResult != CRIT3D_OK) printf("\n error in setNode!");
 			}											  
 									  
