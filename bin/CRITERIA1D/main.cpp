@@ -2,12 +2,13 @@
 #include <QDateTime>
 #include <iostream>
 
-#include "criteria1DProject.h"
 #include "commonConstants.h"
+#include "criteria1DError.h"
+#include "criteria1DProject.h"
 #include "utilities.h"
 
 // uncomment to execute test
-//#define TEST_SQLITE
+#define TEST_SQLITE
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
 
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication myApp(argc, argv);
 
-    Criteria1DProject myProject;
+    Crit1DProject myProject;
 
     QString appPath = myApp.applicationDirPath() + "/";
     QString settingsFileName;
@@ -45,15 +46,15 @@ int main(int argc, char *argv[])
         #endif
 
         #ifdef TEST_FIRSTRUN
-            myProject.criteriaSimulation.firstSimulationDate = QDate::fromString("1995-01-01", "yyyy-MM-dd");
-            myProject.criteriaSimulation.lastSimulationDate = QDate::fromString("2008-05-31", "yyyy-MM-dd");
-            //myProject.criteriaSimulation.lastSimulationDate = QDate::fromString("2007-12-31", "yyyy-MM-dd");
+            myProject.firstSimulationDate = QDate::fromString("1995-01-01", "yyyy-MM-dd");
+            myProject.lastSimulationDate = QDate::fromString("2008-05-31", "yyyy-MM-dd");
+            //myProject.lastSimulationDate = QDate::fromString("2007-12-31", "yyyy-MM-dd");
         #endif
 
         #ifdef TEST_RESTART
-            //myProject.criteriaSimulation.firstSimulationDate = QDate::fromString("2008-01-01", "yyyy-MM-dd");
-            myProject.criteriaSimulation.firstSimulationDate = QDate::fromString("2008-06-01", "yyyy-MM-dd");
-            myProject.criteriaSimulation.lastSimulationDate = QDate::fromString("2008-12-31", "yyyy-MM-dd");
+            //myProject.firstSimulationDate = QDate::fromString("2008-01-01", "yyyy-MM-dd");
+            myProject.firstSimulationDate = QDate::fromString("2008-06-01", "yyyy-MM-dd");
+            myProject.lastSimulationDate = QDate::fromString("2008-12-31", "yyyy-MM-dd");
         #endif
     }
 
@@ -63,8 +64,8 @@ int main(int argc, char *argv[])
         QString dateStr = argv[2];
 
         // check
-        myProject.criteriaSimulation.firstSimulationDate = QDate::fromString(dateStr, "yyyy-MM-dd");
-        if (! myProject.criteriaSimulation.firstSimulationDate.isValid())
+        myProject.firstSimulationDate = QDate::fromString(dateStr, "yyyy-MM-dd");
+        if (! myProject.firstSimulationDate.isValid())
         {
             myProject.logger.writeError("Wrong date format: " + dateStr +"\nRequested format is: YYYY-MM-DD");
             return ERROR_WRONGDATE;
@@ -77,8 +78,8 @@ int main(int argc, char *argv[])
         QString dateStr = argv[3];
 
         // check
-        myProject.criteriaSimulation.lastSimulationDate = QDate::fromString(dateStr, "yyyy-MM-dd");
-        if (! myProject.criteriaSimulation.lastSimulationDate.isValid())
+        myProject.lastSimulationDate = QDate::fromString(dateStr, "yyyy-MM-dd");
+        if (! myProject.lastSimulationDate.isValid())
         {
             myProject.logger.writeError("Wrong date format: " + dateStr +"\nRequested format is: YYYY-MM-DD");
             return ERROR_WRONGDATE;
@@ -97,7 +98,7 @@ int main(int argc, char *argv[])
 
     myProject.logger.writeInfo("COMPUTE...");
 
-    myResult = myProject.compute();
+    myResult = myProject.computeAllUnits();
 
     myProject.logger.writeInfo("END");
 

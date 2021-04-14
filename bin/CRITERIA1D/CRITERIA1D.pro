@@ -40,11 +40,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += _CRT_SECURE_NO_WARNINGS
 
 SOURCES += \
-    main.cpp \
-    criteria1DProject.cpp
+    main.cpp
 
-HEADERS += \
-    criteria1DProject.h
+HEADERS +=
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo \
                 ../../agrolib/soil ../../agrolib/crop ../../agrolib/utilities ../../agrolib/dbMeteoGrid ../../agrolib/criteriaModel
