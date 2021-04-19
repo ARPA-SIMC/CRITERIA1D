@@ -1,0 +1,11 @@
+var,type,color
+TAVG,line,red
+PREC,bar,blue
+ET0,line,green
+DAILY_TMIN,line,cyan
+DAILY_TMAX,line,red
+DAILY_TAVG,line,darkGreen
+DAILY_PREC,bar,blue
+DAILY_ET0_HS,line,darkGreen
+DAILY_ET0_PM,line,green
+DAILY_WATER_TABLE_DEPTH,line,darkCyan
