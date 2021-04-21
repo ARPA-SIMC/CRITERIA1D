@@ -7,7 +7,7 @@
 :: in these project files:
 :: 1) makell_CRITERIAGEO.pro
 :: 2) CRITERIAGEO.pro
-:: 3) agrolib/gdalHandler.pro
+:: 3) agrolib/criteriaOutput.pro
 
 
 :: CLEAN all
@@ -92,11 +92,11 @@ cd DATA\SOIL
 xcopy /Y ..\..\..\..\DATA\SOIL\*.*
  
 
-:: copy kiwifruit project
+:: copy test project
 cd ..\..\
-mkdir DATA\PROJECT\kiwifruit
-cd DATA\PROJECT\kiwifruit
-xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\kiwifruit\*.* 
+mkdir DATA\PROJECT\test
+cd DATA\PROJECT\test
+xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\test\*.* 
 
 :: return to deploy directory
 cd ..\..\..\..\
