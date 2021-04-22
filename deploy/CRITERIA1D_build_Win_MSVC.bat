@@ -80,11 +80,11 @@ mkdir DATA\SOIL
 cd DATA\SOIL
 xcopy /Y ..\..\..\..\DATA\SOIL\*.* 
 
-:: copy kiwifruit project
+:: copy test project
 cd ..\
-mkdir PROJECT\kiwifruit
-cd PROJECT\kiwifruit
-xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\kiwifruit\*.* 
+mkdir PROJECT\test
+cd PROJECT\test
+xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\test\*.* 
 
 :: return to deploy directory
 cd ..\..\..\..\
