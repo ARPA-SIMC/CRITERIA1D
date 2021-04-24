@@ -1,5 +1,6 @@
 language: cpp
 dist: bionic
+sudo: required
 services:
 - docker
 script:
@@ -11,13 +12,13 @@ before_deploy:
 - openssl aes-256-cbc -K $encrypted_6d2e60986cdb_key -iv $encrypted_6d2e60986cdb_iv -in .copr.enc -out .copr -d
 deploy:
 - provider: script
-  cleanup: true
+  skip_cleanup: true
   script: docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ -w /root/src/ fedora:latest /bin/sh -c "dnf install -y copr-cli && copr-cli --config .copr build --nowait simc/stable fedora/SPECS/CRITERIA1D.spec"
   on:
     condition: $DOCKER_IMAGE = centos:8
 - provider: releases
-  cleanup: true
-  token:
+  skip_cleanup: true
+  api_key:
     secure: TXl1VjS/jHsCyNlbCzkbBAIY29pEM9k0TtwKiGOB6Ngbw60zAEZNSrBPa1lJeSeJ5UG+A8xD7mZnCKNCEDtdIQap7syETsjM269md5UDmwLluxFLLnaKSXh0UCyKoKEZw5/EFmN6ZUyrpHJmBZXZyIl91GSZHIDVomIm2OLsYZEqOl9IRCLKLaJ2Ou0SLkgkyYDcHihJ58VE2FA6GUXQkZR/wmiQVvGzAycZHUg+Kb3Zkm4F6JPrY+H6uqPPE7y3ROoM+B37HgTeXUMUvs5ZlabhDkmUEPf859DrFhC+ajo4o0Hntqfx248wr1ylCiVbMtEfqmTsLQMi05q/qRE1F8+aYvvPurqeqa+na0a1R9lZAaDETkgUPlEjrvnNok3uMA3LIElw8nDAfcZslH3R0cpVs6Jx8uq56JifTEvLl92D0P53DYdlVKkP4jrqNRLG9VSS69nURqIj0jqM1g9uDeNsSnzL2AXcLv3Mf6UphtF/9VZiViB6CB2yTJj7MOgjYCcmuNr2BfCEhOrcDx9k++Dib82I3IWGsMgyqE5hGNpnPXCwb1EntB6oLUwe9clgBSKgJ6YNgDnao4OYTyNq/Vqo8GgUy0G89SQ0MBEeC5Z4nI8uTRosdwm2gsFoYbpoUDrGvmYtpo00fgfSCBGiwwj01uXf7k52OBfwH+Lj8u8=
   file_glob: true
   file: '*AppImage*'
