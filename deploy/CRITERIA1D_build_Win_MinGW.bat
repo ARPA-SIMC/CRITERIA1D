@@ -11,6 +11,8 @@
 
 
 :: CLEAN all
+cd ..\mapGraphics
+mingw32-make --silent clean
 cd ..\bin\Makeall_CRITERIA1D
 mingw32-make --silent distclean
 cd ..\Makeall_CROP_EDITOR
