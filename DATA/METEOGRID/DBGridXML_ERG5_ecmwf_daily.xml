@@ -29,54 +29,8 @@
 			<varpraganame>DAILY_TMAX</varpraganame>
 		</varcode>
 		<varcode>
-			<varcode>3</varcode>
-			<varpraganame>DAILY_TAVG</varpraganame>
-		</varcode>
-		<varcode>
 			<varcode>4</varcode>
 			<varpraganame>DAILY_PREC</varpraganame>
 		</varcode>
 	</tabledaily>
-	
-	<tablehourly>
-		<fieldtime>PragaTime</fieldtime>
-		<postfix>_h</postfix>
-		<varcode>
-			<varcode>101</varcode>
-			<varpraganame>TAVG</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>102</varcode>
-			<varpraganame>PREC</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>103</varcode>
-			<varpraganame>RHAVG</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>104</varcode>
-			<varpraganame>RAD</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>105</varcode>
-			<varpraganame>W_SCAL_INT</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>106</varcode>
-			<varpraganame>W_VEC_DIR</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>107</varcode>
-			<varpraganame>LEAFW</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>108</varcode>
-			<varpraganame>ET0</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>109</varcode>
-			<varpraganame>ATM_TRANSMIT</varpraganame>
-		</varcode>
-	</tablehourly>
-	
 </xml>

@@ -17,27 +17,6 @@
 		<ywidth>0.045</ywidth>
 	</gridstructure>
 	
-	<tabledaily>
-		<fieldtime>PragaTime</fieldtime>
-		<postfix>_d</postfix>
-		<varcode>
-			<varcode>1</varcode>
-			<varpraganame>DAILY_TMIN</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>2</varcode>
-			<varpraganame>DAILY_TMAX</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>3</varcode>
-			<varpraganame>DAILY_TAVG</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>4</varcode>
-			<varpraganame>DAILY_PREC</varpraganame>
-		</varcode>
-	</tabledaily>
-	
 	<tablehourly>
 		<fieldtime>PragaTime</fieldtime>
 		<postfix>_h</postfix>
