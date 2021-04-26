@@ -3,7 +3,7 @@
 	<connection>
 		<provider>mysql</provider>
 		<server>agrosql-smr.metarpa</server>
-		<name>LAMI_FORECAST_TEST</name>
+		<name>ERG5_ECMWF_daily_ensemble</name>
 		<user>root</user>
 		<password>Praga</password>
 	</connection>
