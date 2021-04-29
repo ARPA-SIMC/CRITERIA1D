@@ -46,15 +46,19 @@
 		</varcode>
 		<varcode>
 			<varcode>107</varcode>
-			<varpraganame>LEAFW</varpraganame>
+			<varpraganame>W_VEC_INT</varpraganame>
 		</varcode>
 		<varcode>
 			<varcode>108</varcode>
-			<varpraganame>ET0</varpraganame>
+			<varpraganame>LEAFW</varpraganame>
 		</varcode>
 		<varcode>
 			<varcode>109</varcode>
-			<varpraganame>ATM_TRANSMIT</varpraganame>
+			<varpraganame>ET0</varpraganame>
+		</varcode>
+                <varcode>
+			<varcode>110</varcode>
+			<varpraganame>NET_RAD</varpraganame>
 		</varcode>
 	</tablehourly>
 	
