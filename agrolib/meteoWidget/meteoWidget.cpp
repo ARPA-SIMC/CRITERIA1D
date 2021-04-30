@@ -341,6 +341,21 @@ Crit3DMeteoWidget::Crit3DMeteoWidget(bool isGrid, QString projectPath)
     m_tooltip = new Callout(chart);
     m_tooltip->hide();
 
+    // menu
+    QMenuBar* menuBar = new QMenuBar();
+    QMenu *editMenu = new QMenu("Edit");
+
+    menuBar->addMenu(editMenu);
+    mainLayout->setMenuBar(menuBar);
+
+    QAction* changeLeftAxis = new QAction(tr("&Change axis left"), this);
+    QAction* changeRightAxis = new QAction(tr("&Change axis right"), this);
+    QAction* exportGraph = new QAction(tr("&Export graph"), this);
+
+    editMenu->addAction(changeLeftAxis);
+    editMenu->addAction(changeRightAxis);
+    editMenu->addAction(exportGraph);
+
     connect(addVarButton, &QPushButton::clicked, [=](){ showVar(); });
     connect(dailyButton, &QPushButton::clicked, [=](){ showDailyGraph(); });
     connect(hourlyButton, &QPushButton::clicked, [=](){ showHourlyGraph(); });
@@ -348,6 +363,9 @@ Crit3DMeteoWidget::Crit3DMeteoWidget(bool isGrid, QString projectPath)
     connect(redrawButton, &QPushButton::clicked, [=](){ redraw(); });
     connect(shiftPreviousButton, &QPushButton::clicked, [=](){ shiftPrevious(); });
     connect(shiftFollowingButton, &QPushButton::clicked, [=](){ shiftFollowing(); });
+    connect(changeLeftAxis, &QAction::triggered, this, &Crit3DMeteoWidget::on_actionChangeLeftAxis);
+    connect(changeRightAxis, &QAction::triggered, this, &Crit3DMeteoWidget::on_actionChangeRightAxis);
+    connect(exportGraph, &QAction::triggered, this, &Crit3DMeteoWidget::on_actionExportGraph);
 
     plotLayout->addWidget(chartView);
     horizontalGroupBox->setLayout(buttonLayout);
@@ -758,21 +776,28 @@ void Crit3DMeteoWidget::drawEnsembleDailyVar()
                         }
                     }
                 }
+                QBoxSet *box = new QBoxSet();
                 if (!sortedList.isEmpty())
                 {
                     std::sort(sortedList.begin(), sortedList.end());
                     int count = sortedList.count();
-
-                    QBoxSet *box = new QBoxSet();
                     box->setValue(QBoxSet::LowerExtreme, sortedList.first());
                     box->setValue(QBoxSet::UpperExtreme, sortedList.last());
                     box->setValue(QBoxSet::Median, findMedian(sortedList, 0, count));
                     box->setValue(QBoxSet::LowerQuartile, findMedian(sortedList, 0, count / 2));
                     box->setValue(QBoxSet::UpperQuartile, findMedian(sortedList, count / 2 + (count % 2), count));
-                    box->setBrush(colorLines[i]);
-                    listBoxSet.append(box);
-                    ensembleSet.append(listBoxSet);
                 }
+                else
+                {
+                    box->setValue(QBoxSet::LowerExtreme, 0);
+                    box->setValue(QBoxSet::UpperExtreme, 0);
+                    box->setValue(QBoxSet::Median, 0);
+                    box->setValue(QBoxSet::LowerQuartile, 0);
+                    box->setValue(QBoxSet::UpperQuartile, 0);
+                }
+                box->setBrush(colorLines[i]);
+                listBoxSet.append(box);
+                ensembleSet.append(listBoxSet);
             }
             if(!ensembleSet.isEmpty())
             {
@@ -810,20 +835,28 @@ void Crit3DMeteoWidget::drawEnsembleDailyVar()
                         }
                     }
                 }
+                QBoxSet *box = new QBoxSet();
                 if (!sortedList.isEmpty())
                 {
                     std::sort(sortedList.begin(), sortedList.end());
                     int count = sortedList.count();
-                    QBoxSet *box = new QBoxSet();
                     box->setValue(QBoxSet::LowerExtreme, sortedList.first());
                     box->setValue(QBoxSet::UpperExtreme, sortedList.last());
                     box->setValue(QBoxSet::Median, findMedian(sortedList, 0, count));
                     box->setValue(QBoxSet::LowerQuartile, findMedian(sortedList, 0, count / 2));
                     box->setValue(QBoxSet::UpperQuartile, findMedian(sortedList, count / 2 + (count % 2), count));
-                    box->setBrush(colorBar[i]);
-                    listBoxSet.append(box);
-                    ensembleSet.append(listBoxSet);
                 }
+                else
+                {
+                    box->setValue(QBoxSet::LowerExtreme, 0);
+                    box->setValue(QBoxSet::UpperExtreme, 0);
+                    box->setValue(QBoxSet::Median, 0);
+                    box->setValue(QBoxSet::LowerQuartile, 0);
+                    box->setValue(QBoxSet::UpperQuartile, 0);
+                }
+                box->setBrush(colorBar[i]);
+                listBoxSet.append(box);
+                ensembleSet.append(listBoxSet);
             }
             if(!ensembleSet.isEmpty())
             {
@@ -1878,5 +1911,36 @@ void Crit3DMeteoWidget::setMeteoWidgetID(int value)
     meteoWidgetID = value;
 }
 
+void Crit3DMeteoWidget::on_actionChangeLeftAxis()
+{
+    // TO DO
+}
+
+void Crit3DMeteoWidget::on_actionChangeRightAxis()
+{
+    // TO DO
+}
+
+void Crit3DMeteoWidget::on_actionExportGraph()
+{
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current graph"), "", tr("png files (*.png)"));
+
+    if (fileName != "")
+    {
+        const auto dpr = chartView->devicePixelRatioF();
+        QPixmap buffer(chartView->width() * dpr, chartView->height() * dpr);
+        buffer.setDevicePixelRatio(dpr);
+        buffer.fill(Qt::transparent);
+
+        QPainter *paint = new QPainter(&buffer);
+        paint->setPen(*(new QColor(255,34,255,255)));
+        chartView->render(paint);
+
+        QFile file(fileName);
+        file.open(QIODevice::WriteOnly);
+        buffer.save(&file, "PNG");
+    }
+}
 
 
