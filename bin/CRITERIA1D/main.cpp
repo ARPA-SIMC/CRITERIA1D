@@ -16,7 +16,12 @@
 void usage()
 {
     std::cout << "CRITERIA-1D soil water balance" << std::endl
-              << "Usage: CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl;
+              << "\nUsage:" << std::endl
+              << "CRITERIA1D <project.ini> [lastDate]" << std::endl
+              << "CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl
+              << "\ndate must be in YYYY-MM-DD format" << std::endl
+              << "lastDate: default is yesterday" << std::endl
+              << "firstDate: default is value defined in project.ini" << std::endl << std::endl;
 }
 
 
@@ -58,7 +63,22 @@ int main(int argc, char *argv[])
         #endif
     }
 
-    if (argc > 2)
+
+    if (argc == 3)
+    {
+        // last simulation date
+        QString dateStr = argv[2];
+
+        // check
+        myProject.lastSimulationDate = QDate::fromString(dateStr, "yyyy-MM-dd").addDays(-1);
+        if (! myProject.lastSimulationDate.isValid())
+        {
+            myProject.logger.writeError("Wrong date format: " + dateStr +"\nRequested format is: YYYY-MM-DD");
+            return ERROR_WRONGDATE;
+        }
+    }
+
+    if (argc == 4)
     {
         // first simulation date
         QString dateStr = argv[2];
@@ -70,12 +90,9 @@ int main(int argc, char *argv[])
             myProject.logger.writeError("Wrong date format: " + dateStr +"\nRequested format is: YYYY-MM-DD");
             return ERROR_WRONGDATE;
         }
-    }
 
-    if (argc > 3)
-    {
         // last simulation date
-        QString dateStr = argv[3];
+        dateStr = argv[3];
 
         // check
         myProject.lastSimulationDate = QDate::fromString(dateStr, "yyyy-MM-dd");
