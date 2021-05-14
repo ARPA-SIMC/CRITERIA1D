@@ -3,7 +3,7 @@
 	<connection>
 		<provider>mysql</provider>
 		<server>agrosql-smr.metarpa</server>
-		<name>ERG5_ECMWF_hourly_hres</name>
+		<name>ERG5_forecast</name>
 		<user>root</user>
 		<password>Praga</password>
 	</connection>
