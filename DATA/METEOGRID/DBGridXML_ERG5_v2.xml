@@ -2,7 +2,7 @@
 
 	<connection>
 		<provider>mysql</provider>
-		<server>agroper2-smr.arpa.emr.net</server>
+		<server>agrosql-smr.metarpa</server>
 		<name>ERG5_v2</name>
 		<user>root</user>
 		<password>Praga</password>
@@ -60,6 +60,10 @@
 			<varcode>10</varcode>
 			<varpraganame>DAILY_ET0_PM</varpraganame>
 		</varcode>
+		<varcode>
+			<varcode>11</varcode>
+			<varpraganame>DAILY_LEAFW</varpraganame>
+		</varcode>
 	</tabledaily>
 	
 	<tablehourly>
@@ -83,23 +87,23 @@
 		</varcode>
 		<varcode>
 			<varcode>105</varcode>
-			<varpraganame>LEAFW</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>106</varcode>
-			<varpraganame>ET0</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>107</varcode>
 			<varpraganame>W_SCAL_INT</varpraganame>
 		</varcode>
 		<varcode>
-			<varcode>108</varcode>
+			<varcode>106</varcode>
+			<varpraganame>W_VEC_DIR</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>107</varcode>
 			<varpraganame>W_VEC_INT</varpraganame>
 		</varcode>
 		<varcode>
+			<varcode>108</varcode>
+			<varpraganame>LEAFW</varpraganame>
+		</varcode>
+		<varcode>
 			<varcode>109</varcode>
-			<varpraganame>W_VEC_DIR</varpraganame>
+			<varpraganame>ET0</varpraganame>
 		</varcode>
 	</tablehourly>
 	
