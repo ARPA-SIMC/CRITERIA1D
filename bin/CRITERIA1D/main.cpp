@@ -19,10 +19,11 @@ void usage()
               << "\nUsage:" << std::endl
               << "CRITERIA1D <project.ini> [lastDate]" << std::endl
               << "CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl
-              << "\ndate must be in YYYY-MM-DD format" << std::endl
-              << "Point projects (SQLite): default are the first and last date in the meteo table" << std::endl
-              << "Grid projects (MySQL): default lastDate is yesterday" << std::endl
-              << "firstDate and lastDate can be also defined in project.ini" << std::endl << std::endl;
+              << "\nNotes:" << std::endl
+              << "date must be in YYYY-MM-DD format" << std::endl
+              << "firstDate and lastDate can be also defined in the project.ini" << std::endl
+              << "default lastDate in the grid projects (MySQL) is yesterday" << std::endl
+              << "default dates in the point projects (SQLite) are the first and last date in the meteo table" << std::endl;
 }
 
 
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/test/test.ini";
+            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
         #else
             usage();
             return 1;
