@@ -80,6 +80,11 @@ mkdir DATA\SOIL
 cd DATA\SOIL
 xcopy /Y ..\..\..\..\DATA\SOIL\*.* 
 
+cd ..\..\
+mkdir DATA\SETTINGS
+cd DATA\SETTINGS
+xcopy /Y ..\..\..\..\DATA\SETTINGS\*.*
+
 :: copy test project
 cd ..\
 mkdir PROJECT\test
