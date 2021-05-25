@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/criteria/criteria.ini";
+            settingsFileName = path + "PROJECT/C5/C5_monthly.ini";
         #else
             usage();
             return 1;
