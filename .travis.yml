@@ -13,7 +13,7 @@ before_deploy:
 deploy:
 - provider: script
   skip_cleanup: true
-  script: docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ -w /root/src/ fedora:latest /bin/sh -c "dnf install -y copr-cli && copr-cli --config .copr build --nowait simc/stable fedora/SPECS/CRITERIA1D.spec"
+  script: docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ -w /root/src/ fedora:latest /bin/sh -c "dnf install -y copr-cli && copr-cli --config .copr build --chroot epel-8-x86_64 --nowait simc/stable fedora/SPECS/CRITERIA1D.spec"
   on:
     condition: $DOCKER_IMAGE = centos:8
 - provider: releases
