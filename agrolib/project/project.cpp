@@ -78,6 +78,7 @@ void Project::initializeProject()
     parametersFileName = "";
     demFileName = "";
     dbPointsFileName = "";
+    dbAggregationFileName = "";
     dbGridXMLFileName = "";
 
     meteoPointsLoaded = false;
@@ -1042,13 +1043,16 @@ bool Project::loadAggregationdDB(QString dbName)
 {
     if (dbName == "") return false;
 
+    dbAggregationFileName = dbName;
+    dbName = getCompleteFileName(dbName, PATH_METEOPOINT);
+
     aggregationDbHandler = new Crit3DAggregationsDbHandler(dbName);
     if (aggregationDbHandler->error() != "")
     {
         logError(aggregationDbHandler->error());
         return false;
     }
-    if (aggregationDbHandler->loadVariableProperties())
+    if (!aggregationDbHandler->loadVariableProperties())
     {
         return false;
     }
@@ -1909,6 +1913,7 @@ bool Project::loadProjectSettings(QString settingsFileName)
         projectName = projectSettings->value("name").toString();
         demFileName = projectSettings->value("dem").toString();
         dbPointsFileName = projectSettings->value("meteo_points").toString();
+        dbAggregationFileName = projectSettings->value("aggregation_points").toString();
         // for Criteria projects
         if (dbPointsFileName == "")
         {
@@ -1983,6 +1988,7 @@ void Project::saveProjectSettings()
         projectSettings->setValue("name", projectName);
         projectSettings->setValue("dem", getRelativePath(demFileName));
         projectSettings->setValue("meteo_points", getRelativePath(dbPointsFileName));
+        projectSettings->setValue("aggregation_points", getRelativePath(dbAggregationFileName));
         projectSettings->setValue("meteo_grid", getRelativePath(dbGridXMLFileName));
         projectSettings->setValue("load_grid_data_at_start", loadGridDataAtStart);
     projectSettings->endGroup();
@@ -2205,6 +2211,13 @@ bool Project::loadProject()
 
     if (dbPointsFileName != "")
         if (! loadMeteoPointsDB(dbPointsFileName))
+        {
+            errorType = ERROR_DBPOINT;
+            return false;
+        }
+
+    if (dbAggregationFileName != "")
+        if (! loadAggregationdDB(dbAggregationFileName))
         {
             errorType = ERROR_DBPOINT;
             return false;
