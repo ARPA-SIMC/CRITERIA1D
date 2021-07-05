@@ -51,10 +51,10 @@ The executables (*CRITERIA1D, CRITERIA_GEO, CROP_EDITOR, SOIL_EDITOR, HEAT1D*) a
 - Fausto Tomei ftomei@arpae.it
 - Gabriele Antolini gantolini@arpae.it
 
-CRITERIA-1D is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and has been used in various international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander)
+CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and has been used in various international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander)
 
 [Criteria API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to provide the power of the model to the most diverse applications.
 
-[CRITERIA-1D on International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria)
+[CRITERIA on International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria)
 
 [BIBLIOGRAPHY](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-bibliografia)
