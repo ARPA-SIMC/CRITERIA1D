@@ -1487,6 +1487,42 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
             }
             break;
         }
+        case dailyHeatingDegreeDays:
+        {
+            quality::qualityType qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint.obsDataD[index].tAvg);
+            if (qualityTavg == quality::accepted)
+            {
+                res = 0;
+                if ( meteoPoint.obsDataD[index].tAvg < DDHEATING_THRESHOLD)
+                {
+                    res = DDHEATING_THRESHOLD - meteoPoint.obsDataD[index].tAvg;
+                }
+            }
+            else
+            {
+                res = NODATA;
+            }
+            meteoPoint.obsDataD[index].dd_heating = res;
+            break;
+        }
+        case dailyCoolingDegreeDays:
+        {
+            quality::qualityType qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint.obsDataD[index].tAvg);
+            if (qualityTavg == quality::accepted)
+            {
+                res = 0;
+                if ( meteoPoint.obsDataD[index].tAvg > DDCOOLING_THRESHOLD)
+                {
+                    res = meteoPoint.obsDataD[index].tAvg - DDCOOLING_THRESHOLD;
+                }
+            }
+            else
+            {
+                res = NODATA;
+            }
+            meteoPoint.obsDataD[index].dd_heating = res;
+            break;
+        }
         case dailyAirDewTemperatureAvg:
                 res = dewPoint(meteoPoint.obsDataD[index].rhAvg, meteoPoint.obsDataD[index].tAvg); // RHavg, Tavg
                 break;
