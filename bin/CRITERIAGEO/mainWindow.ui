@@ -494,6 +494,9 @@
     <property name="font">
      <font>
       <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="mouseTracking">
@@ -517,7 +520,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>30</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="palette">
@@ -974,6 +977,8 @@
     <addaction name="separator"/>
     <addaction name="actionLoadShapefile"/>
     <addaction name="actionLoadRaster"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_Shape_as_NetCDF"/>
    </widget>
    <widget class="QMenu" name="menuGIS_settings">
     <property name="title">
@@ -1066,7 +1071,7 @@
   </action>
   <action name="actionCreate_Shape_file_from_Csv">
    <property name="text">
-    <string>Create shape from CSV</string>
+    <string>Assign data to shape from CSV</string>
    </property>
   </action>
   <action name="actionCompute_Ucm_intersection">
@@ -1122,6 +1127,11 @@
   <action name="actionClose_Project">
    <property name="text">
     <string>Close Project...</string>
+   </property>
+  </action>
+  <action name="actionExport_Shape_as_NetCDF">
+   <property name="text">
+    <string>Export Shape as NetCDF</string>
    </property>
   </action>
  </widget>

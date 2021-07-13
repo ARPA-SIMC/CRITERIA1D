@@ -62,6 +62,8 @@
 
         void closeGeoProject();
 
+        void on_actionExport_Shape_as_NetCDF_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

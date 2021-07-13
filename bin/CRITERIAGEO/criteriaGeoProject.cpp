@@ -114,7 +114,6 @@ bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath, QString project
 void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo)
 {
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
-    initializeRasterFromShape(shape, *newRaster, cellSize);
 
     FormInfo formInfo;
     if (showInfo)
@@ -122,21 +121,19 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
         formInfo.start("Create raster...", 0);
     }
 
-    if (field == "Shape ID")
+    if (rasterizeShape(shape, *newRaster, field.toStdString(), cellSize))
     {
-        fillRasterWithShapeNumber(*newRaster, shape);
+        gis::updateMinMaxRasterGrid(newRaster);
+        setTemperatureScale(newRaster->colorScale);
+
+        if (showInfo) formInfo.setText("Add raster to map...");
+
+        addRaster(newRaster, outputName, shape.getUtmZone());
     }
     else
     {
-        fillRasterWithField(*newRaster, shape, field.toStdString());
+        logError("Error in rasterize shape.");
     }
-
-    gis::updateMinMaxRasterGrid(newRaster);
-    setTemperatureScale(newRaster->colorScale);
-
-    if (showInfo) formInfo.setText("Add raster to map...");
-
-    addRaster(newRaster, outputName, shape.getUtmZone());
 
     if (showInfo) formInfo.close();
 

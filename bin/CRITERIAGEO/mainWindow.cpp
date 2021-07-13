@@ -740,7 +740,7 @@ void MainWindow::selectShape(QPoint position)
         return;
 
     Position latLon = mapView->mapToScene(mapPos);
-    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+    //Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
     this->ui->statusBar->showMessage(QString::number(latLon.latitude()) + " " + QString::number(latLon.longitude()));
 }
 
@@ -1106,4 +1106,10 @@ void MainWindow::on_actionOutput_Map_triggered()
         this->addShapeObject(myObject);
         setShapeStyle(myObject, fieldName.toStdString());
     }
+}
+
+
+void MainWindow::on_actionExport_Shape_as_NetCDF_triggered()
+{
+
 }

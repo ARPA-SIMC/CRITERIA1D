@@ -37,13 +37,13 @@ win32:{
 INCLUDEPATH +=  ../../mapGraphics \
                 ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop   \
                 ../../agrolib/utilities ../../agrolib/shapeUtilities  \
-                ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib  \
+                ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib  ../../agrolib/netcdfHandler \
                 ../../agrolib/criteriaOutput ../../agrolib/graphics ../../agrolib/commonDialogs
 
 CONFIG += debug_and_release
 
 # comment to compile without GDAL library
-CONFIG += GDAL
+#CONFIG += GDAL
 
 GDAL {
     DEFINES += GDAL
@@ -62,6 +62,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../mapGraphics/debug -lMapGraphics
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
+    LIBS += -L../../agrolib/netcdfHandler/debug -lnetcdfHandler
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/utilities/debug -lutilities
@@ -74,6 +75,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../mapGraphics/release -lMapGraphics
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
+    LIBS += -L../../agrolib/netcdfHandler/release -lnetcdfHandler
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/utilities/release -lutilities
