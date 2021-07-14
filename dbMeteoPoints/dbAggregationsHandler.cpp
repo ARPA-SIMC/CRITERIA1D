@@ -118,7 +118,7 @@ void Crit3DAggregationsDbHandler::initAggregatedTables(int numZones, QString agg
 {
 
     int idVariable = getIdfromMeteoVar(variable);
-    for (int i = 1; i < numZones; i++)
+    for (int i = 1; i <= numZones; i++)
     {
         QString statement = QString("CREATE TABLE IF NOT EXISTS `%1_%2_%3` "
                                     "(date TEXT, id_variable INTEGER, value REAL, PRIMARY KEY(date,id_variable))").arg(i).arg(aggrType).arg(periodType);
@@ -179,10 +179,10 @@ bool Crit3DAggregationsDbHandler::insertTmpAggr(QDate startDate, QDate endDate, 
     for (int day = 0; day < nrDays; day++)
     {
 
-        // LC NB le zone partono da 1, a 0 è NODATA
-        for (int zone = 1; zone < nZones; zone++)
+        // LC NB le zone partono da 1
+        for (int zone = 1; zone <= nZones; zone++)
         {
-            QString value = QString::number(aggregatedValues[day][zone], 'f', 1);
+            QString value = QString::number(aggregatedValues[day][zone-1], 'f', 1);
             if (value != NODATA)
             {
                 dateTimeList << (startDate.addDays(day)).toString("yyyy-MM-dd");
@@ -215,7 +215,7 @@ bool Crit3DAggregationsDbHandler::saveTmpAggrData(QString aggrType, QString peri
 
     QString statement;
 
-    for (int zone = 1; zone < nZones; zone++)
+    for (int zone = 1; zone <= nZones; zone++)
     {
         statement = QString("INSERT INTO `%1_%2_%3` ").arg(zone).arg(aggrType).arg(periodType);
         statement += QString("SELECT date, id_variable, value FROM TmpAggregationData ");
