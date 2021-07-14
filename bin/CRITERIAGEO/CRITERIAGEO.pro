@@ -63,6 +63,15 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/debug -lnetcdfHandler
+    win32:{
+        LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
+    }
+    unix:{
+        LIBS += -lnetcdf
+    }
+    macx:{
+        LIBS += -L/usr/local/lib/ -lnetcdf
+    }
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/utilities/debug -lutilities
@@ -76,6 +85,15 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/release -lnetcdfHandler
+    win32:{
+        LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
+    }
+    unix:{
+        LIBS += -lnetcdf
+    }
+    macx:{
+        LIBS += -L/usr/local/lib/ -lnetcdf
+    }
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/utilities/release -lutilities

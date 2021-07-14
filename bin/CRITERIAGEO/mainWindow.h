@@ -51,18 +51,11 @@
         void on_actionMapGoogle_triggered();
         void on_actionMapGoogleSatellite_triggered();
         void on_actionMapGoogleHybridSatellite_triggered();
-
         void on_actionMapGoogleTerrain_triggered();
-
         void on_actionLoadProject_triggered();
-
         void on_actionOutput_Map_triggered();
-
         void on_actionClose_Project_triggered();
-
         void closeGeoProject();
-
-        void on_actionExport_Shape_as_NetCDF_triggered();
 
     protected:
         /*!
@@ -106,6 +99,7 @@
         void setShapeStyle_GUI(GisObject* myObject);
         void selectShape(QPoint position);
         bool exportToRaster(GisObject* myObject);
+        bool exportToNetCDF(GisObject* myObject);
 
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
         RasterObject* getRasterObject(GisObject* myObject);

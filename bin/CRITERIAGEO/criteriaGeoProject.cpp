@@ -289,13 +289,13 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
 {
     FormInfo formInfo;
 
-    QString outputCsvFileName = outputProject.path + "tmp/" + outputName +".csv";
+    QString outputCsvFileName = output.path + "tmp/" + outputName +".csv";
     int result;
     if (! QFile(outputCsvFileName).exists())
     {
         formInfo.start("Create CSV file...", 0);
         // create CSV
-        result = outputProject.createCsvFileFromGUI(dateComputation, outputCsvFileName);
+        result = output.createCsvFileFromGUI(dateComputation, outputCsvFileName);
         if (result != CRIT1D_OK)
         {
             return result;
@@ -304,7 +304,7 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
     }
 
     formInfo.start("Create shape output...", 0);
-    result = outputProject.createShapeFileFromGUI();
+    result = output.createShapeFileFromGUI();
 
     formInfo.close();
 
@@ -312,7 +312,7 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
         logError("ERROR CODE " + QString::number(result));
 
     // clean .csv
-    QFile::remove(outputProject.path + "tmp/" + outputName +".csv");
+    QFile::remove(output.path + "tmp/" + outputName +".csv");
 
     return result;
 }

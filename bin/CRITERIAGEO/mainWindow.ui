@@ -520,7 +520,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>25</height>
+     <height>26</height>
     </rect>
    </property>
    <property name="palette">
@@ -978,7 +978,6 @@
     <addaction name="actionLoadShapefile"/>
     <addaction name="actionLoadRaster"/>
     <addaction name="separator"/>
-    <addaction name="actionExport_Shape_as_NetCDF"/>
    </widget>
    <widget class="QMenu" name="menuGIS_settings">
     <property name="title">
@@ -1127,11 +1126,6 @@
   <action name="actionClose_Project">
    <property name="text">
     <string>Close Project...</string>
-   </property>
-  </action>
-  <action name="actionExport_Shape_as_NetCDF">
-   <property name="text">
-    <string>Export Shape as NetCDF</string>
    </property>
   </action>
  </widget>
