@@ -272,17 +272,18 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
 }
 
 
+#ifdef GDAL
 bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error)
 {
-#ifdef GDAL
     QString proj = ""; //keep input proj
     if (shapeToRaster(shapeFileName, shapeField, resolution, proj, outputName, error))
     {
         return loadRaster(outputName);
     }
-#endif
     return false;
 }
+#endif
+
 
 int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputName)
 {
@@ -315,6 +316,7 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
 
     return result;
 }
+
 
 //--------------------------------------------------------------
 // LOG
