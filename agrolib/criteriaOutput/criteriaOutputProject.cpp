@@ -827,7 +827,7 @@ bool CriteriaOutputProject::convertShapeToNetcdf(Crit3DShapeHandler &shape, QStr
             {
                 gis::getRowColFromXY(*(myRaster.header), x, y, &utmRow, &utmCol);
                 float value = myRaster.getValueFromRowCol(utmRow, utmCol);
-                if (value != myRaster.header->flag)
+                if (int(value) != int(myRaster.header->flag))
                 {
                     latLonRaster.value[row][col] = value;
                 }
@@ -850,6 +850,8 @@ bool CriteriaOutputProject::convertShapeToNetcdf(Crit3DShapeHandler &shape, QStr
         projectError = "Error in write data to netcdf.";
         return false;
     }
+
+    myNetCDF.close();
 
     return true;
 }
