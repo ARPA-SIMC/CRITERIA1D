@@ -79,6 +79,7 @@ void Project::initializeProject()
     demFileName = "";
     dbPointsFileName = "";
     dbAggregationFileName = "";
+    aggregationPath = "";
     dbGridXMLFileName = "";
 
     meteoPointsLoaded = false;
@@ -1056,6 +1057,7 @@ bool Project::loadAggregationdDB(QString dbName)
     {
         return false;
     }
+    aggregationPath = QFileInfo(dbAggregationFileName).absolutePath();
     return true;
 }
 
