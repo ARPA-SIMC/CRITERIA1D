@@ -842,12 +842,14 @@ bool CriteriaOutputProject::convertShapeToNetcdf(Crit3DShapeHandler &shape, QStr
     if (! myNetCDF.writeGeoDimensions(latLonHeader))
     {
         projectError = "Error in write dimensions to netcdf.";
+        myNetCDF.close();
         return false;
     }
 
     if (! myNetCDF.writeData_NoTime(latLonRaster))
     {
         projectError = "Error in write data to netcdf.";
+        myNetCDF.close();
         return false;
     }
 
