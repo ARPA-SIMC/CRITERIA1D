@@ -1045,7 +1045,7 @@ bool Project::loadAggregationdDB(QString dbName)
     if (dbName == "") return false;
 
     dbAggregationFileName = dbName;
-    dbName = getCompleteFileName(dbName, PATH_METEOPOINT);
+    dbName = getCompleteFileName(dbName, PATH_PROJECT);
 
     aggregationDbHandler = new Crit3DAggregationsDbHandler(dbName);
     if (aggregationDbHandler->error() != "")
@@ -2221,7 +2221,7 @@ bool Project::loadProject()
         }
 
     if (dbAggregationFileName != "")
-        if (! loadAggregationdDB(dbAggregationFileName))
+        if (! loadAggregationdDB(projectPath+"/"+dbAggregationFileName))
         {
             errorType = ERROR_DBPOINT;
             return false;
