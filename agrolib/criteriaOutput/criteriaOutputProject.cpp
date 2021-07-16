@@ -204,7 +204,8 @@ int CriteriaOutputProject::initializeProject(QString settingsFileName, QDate dat
 
     if (isLog)
     {
-        logger.setLog(path, projectName, addDateTimeLogFile);
+        QString fileName = projectName + "_" + operation;
+        logger.setLog(path, fileName, addDateTimeLogFile);
     }
 
     isProjectLoaded = true;
@@ -781,6 +782,12 @@ int CriteriaOutputProject::createAggregationFile()
     }
 
     return myResult;
+}
+
+
+int CriteriaOutputProject::createNetcdf()
+{
+    return CRIT1D_OK;
 }
 
 
