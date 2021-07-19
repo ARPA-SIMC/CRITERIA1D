@@ -457,6 +457,7 @@ int CriteriaOutputProject::createShapeFile()
     if (! QFile(outputCsvFileName).exists())
     {
         // create CSV
+        logger.writeInfo("Missing CSV -> createCsvFile");
         int myResult = createCsvFile();
         if (myResult != CRIT1D_OK)
         {
@@ -787,7 +788,45 @@ int CriteriaOutputProject::createAggregationFile()
 
 int CriteriaOutputProject::createNetcdf()
 {
+    // check field list
+    if (fieldListFileName.isNull() || fieldListFileName.isEmpty())
+    {
+        projectError = "Missing 'field_list' in group [shapefile]";
+        return ERROR_SETTINGS_MISSINGDATA;
+    }
+
+    // check aggregation cell size
+    if (mapCellSize.isNull() || mapCellSize.isEmpty())
+    {
+        projectError = "Missing 'cellsize' in group [maps]";
+        return ERROR_SETTINGS_MISSINGDATA;
+    }
+    bool isNumberOk;
+    int cellSize = mapCellSize.toInt(&isNumberOk, 10);
+    if (!isNumberOk)
+    {
+        projectError = "Invalid cellsize (it must be an integer): " + mapCellSize;
+        return ERROR_SETTINGS_MISSINGDATA;
+    }
+
+    // check shapefile
+    if (! QFile(outputShapeFileName).exists())
+    {
+        // create shapefile
+        logger.writeInfo("Missing shapefile -> createShapeFile");
+        int myResult = createShapeFile();
+        if (myResult != CRIT1D_OK)
+        {
+            return myResult;
+        }
+    }
+
+    logger.writeInfo("EXPORT TO NETCDF");
+
+    // TODO
+
     return CRIT1D_OK;
+
 }
 
 
