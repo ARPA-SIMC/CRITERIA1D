@@ -168,7 +168,7 @@ bool shapeFromCsv(Crit3DShapeHandler &refShapeFile, QString csvFileName,
         }
         if (fieldList.contains(newFields[i]))
         {
-            QStringList valuesList = fieldList.value(newFields[i]);
+            QList<QString> valuesList = fieldList.value(newFields[i]);
             QString field = valuesList[0];
             if (valuesList[1] == "STRING")
             {

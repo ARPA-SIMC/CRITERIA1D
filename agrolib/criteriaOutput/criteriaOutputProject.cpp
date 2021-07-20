@@ -31,6 +31,7 @@ void CriteriaOutputProject::initialize()
 
     path = "";
     projectName = "";
+    operation = "";
     dbUnitsName = "";
     dbDataName = "";
     dbDataHistoricalName = "";
@@ -168,11 +169,12 @@ int CriteriaOutputProject::initializeProjectCsv()
 }
 
 
-int CriteriaOutputProject::initializeProject(QString settingsFileName, QDate dateComputation, bool isLog)
+int CriteriaOutputProject::initializeProject(QString settingsFileName, QString operation, QDate dateComputation, bool isLog)
 {
     closeProject();
     initialize();
     this->dateComputation = dateComputation;
+    this->operation = operation;
 
     if (settingsFileName == "")
     {
@@ -823,10 +825,34 @@ int CriteriaOutputProject::createNetcdf()
 
     logger.writeInfo("EXPORT TO NETCDF");
 
-    // TODO
+    Crit3DShapeHandler shapeHandler;
+    if (!shapeHandler.open(outputShapeFileName.toStdString()))
+    {
+        projectError = "Load shapefile failed: " + outputShapeFileName;
+        return ERROR_SHAPEFILE;
+    }
+
+    // read field list
+    QMap<QString, QList<QString>> fieldList;
+    if (! getFieldList(fieldListFileName, fieldList, projectError))
+    {
+        return ERROR_NETCDF;
+    }
+
+    // cycle on field list
+    foreach (QList<QString> valuesList, fieldList)
+    {
+        QString field = valuesList[0];
+        QString fileName = outputShapeFilePath + "/" + field + ".nc";
+        logger.writeInfo("Export file: " + fileName);
+        if (! convertShapeToNetcdf(shapeHandler, fileName, field, cellSize))
+        {
+            projectError = "Error in export to NetCDF: " + projectError;
+            return ERROR_NETCDF;
+        }
+    }
 
     return CRIT1D_OK;
-
 }
 
 
