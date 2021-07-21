@@ -114,7 +114,6 @@ bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath, QString project
 void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo)
 {
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
-    initializeRasterFromShape(shape, *newRaster, cellSize);
 
     FormInfo formInfo;
     if (showInfo)
@@ -122,21 +121,19 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
         formInfo.start("Create raster...", 0);
     }
 
-    if (field == "Shape ID")
+    if (rasterizeShape(shape, *newRaster, field.toStdString(), cellSize))
     {
-        fillRasterWithShapeNumber(*newRaster, shape);
+        gis::updateMinMaxRasterGrid(newRaster);
+        setTemperatureScale(newRaster->colorScale);
+
+        if (showInfo) formInfo.setText("Add raster to map...");
+
+        addRaster(newRaster, outputName, shape.getUtmZone());
     }
     else
     {
-        fillRasterWithField(*newRaster, shape, field.toStdString());
+        logError("Error in rasterize shape.");
     }
-
-    gis::updateMinMaxRasterGrid(newRaster);
-    setTemperatureScale(newRaster->colorScale);
-
-    if (showInfo) formInfo.setText("Add raster to map...");
-
-    addRaster(newRaster, outputName, shape.getUtmZone());
 
     if (showInfo) formInfo.close();
 
@@ -275,29 +272,30 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
 }
 
 
+#ifdef GDAL
 bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error)
 {
-#ifdef GDAL
     QString proj = ""; //keep input proj
     if (shapeToRaster(shapeFileName, shapeField, resolution, proj, outputName, error))
     {
         return loadRaster(outputName);
     }
-#endif
     return false;
 }
+#endif
+
 
 int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputName)
 {
     FormInfo formInfo;
 
-    QString outputCsvFileName = outputProject.path + "tmp/" + outputName +".csv";
+    QString outputCsvFileName = output.path + "tmp/" + outputName +".csv";
     int result;
     if (! QFile(outputCsvFileName).exists())
     {
         formInfo.start("Create CSV file...", 0);
         // create CSV
-        result = outputProject.createCsvFileFromGUI(dateComputation, outputCsvFileName);
+        result = output.createCsvFileFromGUI(dateComputation, outputCsvFileName);
         if (result != CRIT1D_OK)
         {
             return result;
@@ -306,7 +304,7 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
     }
 
     formInfo.start("Create shape output...", 0);
-    result = outputProject.createShapeFileFromGUI();
+    result = output.createShapeFileFromGUI();
 
     formInfo.close();
 
@@ -314,10 +312,11 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
         logError("ERROR CODE " + QString::number(result));
 
     // clean .csv
-    QFile::remove(outputProject.path + "tmp/" + outputName +".csv");
+    QFile::remove(output.path + "tmp/" + outputName +".csv");
 
     return result;
 }
+
 
 //--------------------------------------------------------------
 // LOG

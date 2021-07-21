@@ -47,6 +47,8 @@
         float globRad;
         float et0_hs;
         float et0_pm;
+        float dd_heating;
+        float dd_cooling;
         float windVecIntAvg;
         float windVecIntMax;
         float windScalIntAvg;
@@ -143,6 +145,7 @@
             float getMeteoPointValueH(const Crit3DDate& myDate, int myHour, int myMinutes, meteoVariable myVar);
             bool setMeteoPointValueH(const Crit3DDate& myDate, int myHour, int myMinutes, meteoVariable myVar, float myValue);
             float getMeteoPointValueD(const Crit3DDate& myDate, meteoVariable myVar, Crit3DMeteoSettings* meteoSettings);
+            float getMeteoPointValueD(const Crit3DDate& myDate, meteoVariable myVar);
             bool setMeteoPointValueD(const Crit3DDate& myDate, meteoVariable myVar, float myValue);
             bool getMeteoPointValueDayH(const Crit3DDate& myDate, TObsDataH *&hourlyValues);
             Crit3DDate getMeteoPointHourlyValuesDate(int index);

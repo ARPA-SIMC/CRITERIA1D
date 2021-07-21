@@ -24,7 +24,7 @@
     public:
         gis::Crit3DGisSettings gisSettings;
         std::vector<GisObject*> objectList;
-        CriteriaOutputProject outputProject;
+        CriteriaOutputProject output;
 
         CriteriaGeoProject();
 

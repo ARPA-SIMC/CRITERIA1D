@@ -78,6 +78,8 @@ void Project::initializeProject()
     parametersFileName = "";
     demFileName = "";
     dbPointsFileName = "";
+    dbAggregationFileName = "";
+    aggregationPath = "";
     dbGridXMLFileName = "";
 
     meteoPointsLoaded = false;
@@ -252,7 +254,7 @@ bool Project::loadParameters(QString parametersFileName)
     std::deque <bool> proxyActiveTmp;
     std::vector <int> proxyOrder;
 
-    QStringList myList;
+    QList<QString> myList;
     std::vector <QString> proxyGridSeriesNames;
     std::vector <unsigned> proxyGridSeriesYears;
 
@@ -495,7 +497,7 @@ bool Project::loadParameters(QString parametersFileName)
 
             if (parameters->contains("linke_monthly"))
             {
-                QStringList myLinkeStr = parameters->value("linke_monthly").toStringList();
+                QList<QString> myLinkeStr = parameters->value("linke_monthly").toStringList();
                 if (myLinkeStr.size() < 12)
                 {
                     errorString = "Incomplete monthly Linke values";
@@ -507,7 +509,7 @@ bool Project::loadParameters(QString parametersFileName)
 
             if (parameters->contains("albedo_monthly"))
             {
-                QStringList myAlbedoStr = parameters->value("albedo_monthly").toStringList();
+                QList<QString> myAlbedoStr = parameters->value("albedo_monthly").toStringList();
                 if (myAlbedoStr.size() < 12)
                 {
                     errorString = "Incomplete monthly albedo values";
@@ -1038,10 +1040,12 @@ bool Project::loadMeteoGridDB(QString xmlName)
     return true;
 }
 
-
 bool Project::loadAggregationdDB(QString dbName)
 {
     if (dbName == "") return false;
+
+    dbAggregationFileName = dbName;
+    dbName = getCompleteFileName(dbName, PATH_PROJECT);
 
     aggregationDbHandler = new Crit3DAggregationsDbHandler(dbName);
     if (aggregationDbHandler->error() != "")
@@ -1049,10 +1053,11 @@ bool Project::loadAggregationdDB(QString dbName)
         logError(aggregationDbHandler->error());
         return false;
     }
-    if (aggregationDbHandler->loadVariableProperties())
+    if (!aggregationDbHandler->loadVariableProperties())
     {
         return false;
     }
+    aggregationPath = QFileInfo(dbAggregationFileName).absolutePath();
     return true;
 }
 
@@ -1910,6 +1915,7 @@ bool Project::loadProjectSettings(QString settingsFileName)
         projectName = projectSettings->value("name").toString();
         demFileName = projectSettings->value("dem").toString();
         dbPointsFileName = projectSettings->value("meteo_points").toString();
+        dbAggregationFileName = projectSettings->value("aggregation_points").toString();
         // for Criteria projects
         if (dbPointsFileName == "")
         {
@@ -1984,6 +1990,7 @@ void Project::saveProjectSettings()
         projectSettings->setValue("name", projectName);
         projectSettings->setValue("dem", getRelativePath(demFileName));
         projectSettings->setValue("meteo_points", getRelativePath(dbPointsFileName));
+        projectSettings->setValue("aggregation_points", getRelativePath(dbAggregationFileName));
         projectSettings->setValue("meteo_grid", getRelativePath(dbGridXMLFileName));
         projectSettings->setValue("load_grid_data_at_start", loadGridDataAtStart);
     projectSettings->endGroup();
@@ -2080,14 +2087,16 @@ void Project::saveGenericParameters()
     parameters->endGroup();
 
     parameters->beginGroup("climate");
-        parameters->setValue("tmin", FloatVectorToStringList(climateParameters.tmin));
-        parameters->setValue("tmax", FloatVectorToStringList(climateParameters.tmax));
-        parameters->setValue("tdmin", FloatVectorToStringList(climateParameters.tdmin));
-        parameters->setValue("tdmax", FloatVectorToStringList(climateParameters.tdmax));
-        parameters->setValue("tmin_lapserate", FloatVectorToStringList(climateParameters.tminLapseRate));
-        parameters->setValue("tmax_lapserate", FloatVectorToStringList(climateParameters.tmaxLapseRate));
-        parameters->setValue("tdmin_lapserate", FloatVectorToStringList(climateParameters.tdMinLapseRate));
-        parameters->setValue("tdmax_lapserate", FloatVectorToStringList(climateParameters.tdMaxLapseRate));
+
+    parameters->setValue("tmin", FloatVectorToStringList(climateParameters.tmin));
+    parameters->setValue("tmax", FloatVectorToStringList(climateParameters.tmax));
+    parameters->setValue("tdmin", FloatVectorToStringList(climateParameters.tdmin));
+    parameters->setValue("tdmax", FloatVectorToStringList(climateParameters.tdmax));
+    parameters->setValue("tmin_lapserate", FloatVectorToStringList(climateParameters.tminLapseRate));
+    parameters->setValue("tmax_lapserate", FloatVectorToStringList(climateParameters.tmaxLapseRate));
+    parameters->setValue("tdmin_lapserate", FloatVectorToStringList(climateParameters.tdMinLapseRate));
+    parameters->setValue("tdmax_lapserate", FloatVectorToStringList(climateParameters.tdMaxLapseRate));
+
     parameters->endGroup();
 
     parameters->sync();
@@ -2211,6 +2220,13 @@ bool Project::loadProject()
             return false;
         }
 
+    if (dbAggregationFileName != "")
+        if (! loadAggregationdDB(projectPath+"/"+dbAggregationFileName))
+        {
+            errorType = ERROR_DBPOINT;
+            return false;
+        }
+
     if (dbGridXMLFileName != "")
         if (! loadMeteoGridDB(dbGridXMLFileName))
         {
@@ -2263,7 +2279,7 @@ gis::Crit3DRasterGrid* Project::getHourlyMeteoRaster(meteoVariable myVar)
 void Project::importHourlyMeteoData(const QString& csvFileName, bool importAllFiles, bool deletePreviousData)
 {
     QString filePath = getFilePath(csvFileName);
-    QStringList fileList;
+    QList<QString> fileList;
 
     if (importAllFiles)
     {
@@ -2493,6 +2509,64 @@ void Project::deleteMeteoWidgetGrid(int id)
 }
 
 
+bool Project::parseMeteoPointsPropertiesCSV(QString csvFileName, QList<QString>* csvFields)
+{
+    if (! QFile(csvFileName).exists() || ! QFileInfo(csvFileName).isFile())
+    {
+        logError("Missing file: " + csvFileName);
+        return false;
+    }
+    importProperties = new ImportPropertiesCSV(csvFileName);
+
+    errorString = "";
+    if (!importProperties->parserCSV(&errorString))
+    {
+        logError(errorString);
+        delete importProperties;
+        return false;
+    }
+    *csvFields = importProperties->getHeader();
+    return true;
+}
+
+
+bool Project::writeMeteoPointsProperties(QList<QString> joinedList)
+{
+    QList<QString> header = importProperties->getHeader();
+    QList<QList<QString>> dataFields = importProperties->getData();
+
+    QList<QString> column;
+    QList<int> posValues;
+
+    for (int i = 0; i<joinedList.size(); i++)
+    {
+        QList<QString> couple = joinedList[i].split("-->");
+        QString pragaProperties = couple[0];
+        QString fileProperties = couple[1];
+        int pos = header.indexOf(fileProperties);
+        if (pos != -1)
+        {
+            column << pragaProperties;
+            posValues << pos;
+        }
+    }
+
+    QList<QString> values;
+
+    for (int row = 0; row<dataFields.size(); row++)
+    {
+        values.clear();
+        for (int j = 0; j<posValues.size(); j++)
+        {
+            values << dataFields[row][posValues[j]];
+        }
+        meteoPointsDbHandler->updatePointProperties(column, values);
+    }
+
+    return true;
+}
+
+
 
 /* ---------------------------------------------
  * LOG functions
@@ -2597,6 +2671,10 @@ void Project::logError()
     }
 }
 
+
+/* ---------------------------------------------
+ * Progress bar
+ * --------------------------------------------*/
 
 int Project::setProgressBar(QString myStr, int nrValues)
 {

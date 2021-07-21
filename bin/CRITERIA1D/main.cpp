@@ -8,7 +8,7 @@
 #include "utilities.h"
 
 // uncomment to execute test
-//#define TEST_SQLITE
+//#define TEST
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
 
@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
     {
         QString path;
         if (! searchDataPath(&path)) return -1;
-        #ifdef TEST_SQLITE
-            settingsFileName = path + "PROJECT/criteria/criteria.ini";
+        #ifdef TEST
+            settingsFileName = path + "PROJECT/criteria_numerical/criteria.ini";
         #else
             usage();
             return 1;

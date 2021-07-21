@@ -10,6 +10,7 @@
 #include "shapeToRaster.h"
 #include "zonalStatistic.h"
 #include "computationUnitsDb.h"
+#include "netcdfHandler.h"
 
 #ifdef GDAL
     #include "gdalShapeFunctions.h"
@@ -30,6 +31,7 @@ void CriteriaOutputProject::initialize()
 
     path = "";
     projectName = "";
+    operation = "";
     dbUnitsName = "";
     dbDataName = "";
     dbDataHistoricalName = "";
@@ -167,11 +169,12 @@ int CriteriaOutputProject::initializeProjectCsv()
 }
 
 
-int CriteriaOutputProject::initializeProject(QString settingsFileName, QDate dateComputation, bool isLog)
+int CriteriaOutputProject::initializeProject(QString settingsFileName, QString operation, QDate dateComputation, bool isLog)
 {
     closeProject();
     initialize();
     this->dateComputation = dateComputation;
+    this->operation = operation;
 
     if (settingsFileName == "")
     {
@@ -203,7 +206,8 @@ int CriteriaOutputProject::initializeProject(QString settingsFileName, QDate dat
 
     if (isLog)
     {
-        logger.setLog(path, projectName, addDateTimeLogFile);
+        QString fileName = projectName + "_" + operation;
+        logger.setLog(path, fileName, addDateTimeLogFile);
     }
 
     isProjectLoaded = true;
@@ -455,6 +459,7 @@ int CriteriaOutputProject::createShapeFile()
     if (! QFile(outputCsvFileName).exists())
     {
         // create CSV
+        logger.writeInfo("Missing CSV -> createCsvFile");
         int myResult = createCsvFile();
         if (myResult != CRIT1D_OK)
         {
@@ -780,6 +785,149 @@ int CriteriaOutputProject::createAggregationFile()
     }
 
     return myResult;
+}
+
+
+int CriteriaOutputProject::createNetcdf()
+{
+    // check field list
+    if (fieldListFileName.isNull() || fieldListFileName.isEmpty())
+    {
+        projectError = "Missing 'field_list' in group [shapefile]";
+        return ERROR_SETTINGS_MISSINGDATA;
+    }
+
+    // check aggregation cell size
+    if (mapCellSize.isNull() || mapCellSize.isEmpty())
+    {
+        projectError = "Missing 'cellsize' in group [maps]";
+        return ERROR_SETTINGS_MISSINGDATA;
+    }
+    bool isNumberOk;
+    int cellSize = mapCellSize.toInt(&isNumberOk, 10);
+    if (!isNumberOk)
+    {
+        projectError = "Invalid cellsize (it must be an integer): " + mapCellSize;
+        return ERROR_SETTINGS_MISSINGDATA;
+    }
+
+    // check shapefile
+    if (! QFile(outputShapeFileName).exists())
+    {
+        // create shapefile
+        logger.writeInfo("Missing shapefile -> createShapeFile");
+        int myResult = createShapeFile();
+        if (myResult != CRIT1D_OK)
+        {
+            return myResult;
+        }
+    }
+
+    logger.writeInfo("EXPORT TO NETCDF");
+
+    Crit3DShapeHandler shapeHandler;
+    if (!shapeHandler.open(outputShapeFileName.toStdString()))
+    {
+        projectError = "Load shapefile failed: " + outputShapeFileName;
+        return ERROR_SHAPEFILE;
+    }
+
+    // read field list
+    QMap<QString, QList<QString>> fieldList;
+    if (! getFieldList(fieldListFileName, fieldList, projectError))
+    {
+        return ERROR_NETCDF;
+    }
+
+    // cycle on field list
+    foreach (QList<QString> valuesList, fieldList)
+    {
+        QString field = valuesList[0];
+        QString fileName = outputShapeFilePath + "/" + field + ".nc";
+        logger.writeInfo("Export file: " + fileName);
+        if (! convertShapeToNetcdf(shapeHandler, fileName, field, cellSize))
+        {
+            projectError = "Error in export to NetCDF: " + projectError;
+            return ERROR_NETCDF;
+        }
+    }
+
+    return CRIT1D_OK;
+}
+
+
+bool CriteriaOutputProject::convertShapeToNetcdf(Crit3DShapeHandler &shape, QString outputFileName, QString field, double cellSize)
+{
+    if (! shape.getIsWGS84())
+    {
+        projectError = "Shapefile is not WGS84.";
+        return false;
+    }
+
+    // rasterize shape
+    gis::Crit3DRasterGrid myRaster;
+    if (! rasterizeShape(shape, myRaster, field.toStdString(), cellSize))
+    {
+        projectError = "Error in rasterize shape.";
+        return false;
+    }
+
+    // set UTM zone and emisphere
+    gis::Crit3DGisSettings gisSettings;
+    gisSettings.utmZone = shape.getUtmZone();
+    double sign = 1;
+    if (! shape.getIsNorth()) sign = -1;
+    gisSettings.startLocation.latitude = sign * abs(gisSettings.startLocation.latitude);
+
+    // convert to lat lon raster
+    gis::Crit3DGridHeader latLonHeader;
+    gis::getGeoExtentsFromUTMHeader(gisSettings, myRaster.header, &latLonHeader);
+
+    gis::Crit3DRasterGrid latLonRaster;
+    latLonRaster.initializeGrid(latLonHeader);
+
+    // assign lat lon values
+    double lat, lon, x, y;
+    int utmRow, utmCol;
+    for (int row = 0; row < latLonHeader.nrRows; row++)
+    {
+        for (int col = 0; col < latLonHeader.nrCols; col++)
+        {
+            gis::getLatLonFromRowCol(latLonHeader, row, col, &lat, &lon);
+            gis::latLonToUtmForceZone(gisSettings.utmZone, lat, lon, &x, &y);
+            if (! gis::isOutOfGridXY(x, y, myRaster.header))
+            {
+                gis::getRowColFromXY(*(myRaster.header), x, y, &utmRow, &utmCol);
+                float value = myRaster.getValueFromRowCol(utmRow, utmCol);
+                if (int(value) != int(myRaster.header->flag))
+                {
+                    latLonRaster.value[row][col] = value;
+                }
+            }
+        }
+    }
+
+    // create netcdf
+    NetCDFHandler myNetCDF;
+    myNetCDF.createNewFile(outputFileName.toStdString());
+
+    if (! myNetCDF.writeGeoDimensions(latLonHeader))
+    {
+        projectError = "Error in write dimensions to netcdf.";
+        myNetCDF.close();
+        return false;
+    }
+
+    if (! myNetCDF.writeData_NoTime(latLonRaster))
+    {
+        projectError = "Error in write data to netcdf.";
+        myNetCDF.close();
+        return false;
+    }
+
+    myNetCDF.close();
+
+    return true;
 }
 
 

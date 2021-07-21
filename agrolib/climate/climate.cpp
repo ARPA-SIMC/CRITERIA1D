@@ -1487,6 +1487,68 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
             }
             break;
         }
+        case dailyHeatingDegreeDays:
+        {
+            quality::qualityType qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint.obsDataD[index].tAvg);
+            if (qualityTavg == quality::accepted)
+            {
+                res = 0;
+                if ( meteoPoint.obsDataD[index].tAvg < DDHEATING_THRESHOLD)
+                {
+                    res = DDHEATING_THRESHOLD - meteoPoint.obsDataD[index].tAvg;
+                }
+            }
+            else
+            {
+                meteoPoint.obsDataD[index].tAvg = dailyAverageT(meteoPoint.obsDataD[index].tMin, meteoPoint.obsDataD[index].tMax);
+                qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint.obsDataD[index].tAvg);
+                if (qualityTavg == quality::accepted)
+                {
+                    res = 0;
+                    if ( meteoPoint.obsDataD[index].tAvg < DDHEATING_THRESHOLD)
+                    {
+                        res = DDHEATING_THRESHOLD - meteoPoint.obsDataD[index].tAvg;
+                    }
+                }
+                else
+                {
+                    res = NODATA;
+                }
+            }
+            meteoPoint.obsDataD[index].dd_heating = res;
+            break;
+        }
+        case dailyCoolingDegreeDays:
+        {
+            quality::qualityType qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint.obsDataD[index].tAvg);
+            if (qualityTavg == quality::accepted)
+            {
+                res = 0;
+                if ( meteoPoint.obsDataD[index].tAvg > DDCOOLING_THRESHOLD)
+                {
+                    res = meteoPoint.obsDataD[index].tAvg - DDCOOLING_SUBTRACTION;
+                }
+            }
+            else
+            {
+                meteoPoint.obsDataD[index].tAvg = dailyAverageT(meteoPoint.obsDataD[index].tMin, meteoPoint.obsDataD[index].tMax);
+                qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint.obsDataD[index].tAvg);
+                if (qualityTavg == quality::accepted)
+                {
+                    res = 0;
+                    if ( meteoPoint.obsDataD[index].tAvg > DDCOOLING_THRESHOLD)
+                    {
+                        res = meteoPoint.obsDataD[index].tAvg - DDCOOLING_SUBTRACTION;
+                    }
+                }
+                else
+                {
+                    res = NODATA;
+                }
+            }
+            meteoPoint.obsDataD[index].dd_heating = res;
+            break;
+        }
         case dailyAirDewTemperatureAvg:
                 res = dewPoint(meteoPoint.obsDataD[index].rhAvg, meteoPoint.obsDataD[index].tAvg); // RHavg, Tavg
                 break;
@@ -1744,6 +1806,10 @@ bool preElaboration(QString *myError, Crit3DMeteoPointsDbHandler* meteoPointsDbH
                     if (loadDailyVarSeries(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureMax, startDate, endDate) > 0)
                     {
                         preElaboration = elaborateDailyAggregatedVar(dailyReferenceEvapotranspirationHS, *meteoPoint, outputValues, percValue, meteoSettings);
+                        for (int outputIndex = 0; outputIndex<outputValues.size(); outputIndex++)
+                        {
+                            meteoPoint->obsDataD[outputIndex].et0_hs = outputValues[outputIndex];
+                        }
                     }
                 }
             }
@@ -1826,6 +1892,56 @@ bool preElaboration(QString *myError, Crit3DMeteoPointsDbHandler* meteoPointsDbH
                     if (loadDailyVarSeries(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureMax, startDate, endDate) > 0)
                     {
                         preElaboration = elaborateDailyAggregatedVar(dailyReferenceEvapotranspirationHS, *meteoPoint, outputValues, percValue, meteoSettings);
+                    }
+                }
+            }
+            break;
+        }
+        case dailyHeatingDegreeDays:
+        {
+            if (loadDailyVarSeries_SaveOutput(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyHeatingDegreeDays, startDate, endDate, outputValues) > 0)
+            {
+                preElaboration = true;
+            }
+            else
+            {
+                if (loadDailyVarSeries(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureAvg, startDate, endDate) > 0)
+                {
+                    preElaboration = elaborateDailyAggregatedVar(dailyHeatingDegreeDays, *meteoPoint, outputValues, percValue, meteoSettings);
+                }
+                else
+                {
+                    if (loadDailyVarSeries(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureMin, startDate, endDate) > 0)
+                    {
+                        if (loadDailyVarSeries(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureMax, startDate, endDate) > 0)
+                        {
+                            preElaboration = elaborateDailyAggregatedVar(dailyHeatingDegreeDays, *meteoPoint, outputValues, percValue, meteoSettings);
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case dailyCoolingDegreeDays:
+        {
+            if (loadDailyVarSeries_SaveOutput(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyCoolingDegreeDays, startDate, endDate, outputValues) > 0)
+            {
+                preElaboration = true;
+            }
+            else
+            {
+                if (loadDailyVarSeries(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureAvg, startDate, endDate) > 0)
+                {
+                    preElaboration = elaborateDailyAggregatedVar(dailyCoolingDegreeDays, *meteoPoint, outputValues, percValue, meteoSettings);
+                }
+                else
+                {
+                    if (loadDailyVarSeries(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureMin, startDate, endDate) > 0)
+                    {
+                        if (loadDailyVarSeries(myError, meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureMax, startDate, endDate) > 0)
+                        {
+                            preElaboration = elaborateDailyAggregatedVar(dailyCoolingDegreeDays, *meteoPoint, outputValues, percValue, meteoSettings);
+                        }
                     }
                 }
             }
@@ -2193,7 +2309,7 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
 
 QString getTable(QString elab)
 {
-    QStringList words = elab.split('_');
+    QList<QString> words = elab.split('_');
     QString periodTypeStr = words[2];
     QString tableName = "climate_"+periodTypeStr.toLower();
 
@@ -2203,7 +2319,7 @@ QString getTable(QString elab)
 int getClimateIndexFromElab(QDate myDate, QString elab)
 {
 
-    QStringList words = elab.split('_');
+    QList<QString> words = elab.split('_');
     QString periodTypeStr = words[2];
 
     period periodType = getPeriodTypeFromString(periodTypeStr);
@@ -2228,7 +2344,7 @@ int getClimateIndexFromElab(QDate myDate, QString elab)
 int getNumberClimateIndexFromElab(QString elab)
 {
 
-    QStringList words = elab.split('_');
+    QList<QString> words = elab.split('_');
     QString periodTypeStr = words[2];
 
     period periodType = getPeriodTypeFromString(periodTypeStr);
