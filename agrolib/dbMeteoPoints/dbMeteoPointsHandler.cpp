@@ -381,6 +381,77 @@ bool Crit3DMeteoPointsDbHandler::existData(Crit3DMeteoPoint *meteoPoint, frequen
     return false;
 }
 
+bool Crit3DMeteoPointsDbHandler::deleteData(QString pointCode, frequencyType myFreq, QDate first, QDate last)
+{
+
+    QString tableName = pointCode + ((myFreq == daily) ?  "_D" : "_H");
+    QSqlQuery qry(_db);
+    QString statement;
+    if (myFreq == daily)
+    {
+        QString firstStr = first.toString("yyyy-MM-dd");
+        QString lastStr = last.toString("yyyy-MM-dd");
+        statement = QString( "DELETE FROM `%1` WHERE date_time BETWEEN DATE('%2') AND DATE('%3')")
+                                .arg(tableName).arg(firstStr).arg(lastStr);
+    }
+    else
+    {
+        QString firstStr = first.toString("yyyy-MM-dd");
+        QString lastStr = last.toString("yyyy-MM-dd");
+        statement = QString( "DELETE FROM `%1` WHERE date_time BETWEEN DATETIME('%2 00:00:00') AND DATETIME('%3 23:00:00')")
+                                .arg(tableName).arg(firstStr).arg(lastStr);
+    }
+
+    if( !qry.exec(statement) )
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool Crit3DMeteoPointsDbHandler::deleteAllData(frequencyType myFreq)
+{
+    QSqlQuery qry(_db);
+    QList<QString> tables;
+
+    QString dayHour;
+    if (myFreq == daily)
+        dayHour = "D";
+    else if (myFreq == hourly)
+        dayHour = "H";
+
+    qry.prepare( "SELECT name FROM sqlite_master WHERE type='table' AND name like :dayHour ESCAPE '^'");
+    qry.bindValue(":dayHour",  "%^" + dayHour  + "%");
+
+    if( !qry.exec() )
+    {
+        error = qry.lastError().text();
+    }
+    else
+    {
+        while (qry.next())
+        {
+            QString table = qry.value(0).toString();
+            tables << table;
+        }
+    }
+
+    QString statement;
+    foreach (QString table, tables)
+    {
+        statement = QString( "DELETE FROM `%1`").arg(table);
+        if( !qry.exec(statement) )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool Crit3DMeteoPointsDbHandler::loadDailyData(Crit3DDate dateStart, Crit3DDate dateEnd, Crit3DMeteoPoint *meteoPoint)
 {
     QString dateStr;
