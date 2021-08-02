@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "project.h"
+#include "commonConstants.h"
 #include <iostream>
 #include <sstream>
 #include <QString>
@@ -171,73 +172,87 @@ QList<QString> getSharedCommandList()
 }
 
 
-bool cmdExit(Project* myProject)
+int cmdExit(Project* myProject)
 {
     myProject->requestedExit = true;
 
     // TODO: close project
 
-    return true;
+    return PRAGA_OK;
 }
 
 
-bool cmdLoadDEM(Project* myProject, QList<QString> argumentList)
+int cmdLoadDEM(Project* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
         myProject->logError("Missing DEM file name.");
         // TODO: USAGE
-        return false;
+        return PRAGA_MISSING_FILE;
     }
     else
     {
-        return myProject->loadDEM(argumentList[1]);
+        if (myProject->loadDEM(argumentList[1]))
+        {
+            return PRAGA_OK;
+        }
+        else
+        {
+            return PRAGA_ERROR;
+        }
     }
 }
 
 
-bool cmdLoadMeteoGrid(Project* myProject, QList<QString> argumentList)
+int cmdLoadMeteoGrid(Project* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
         myProject->logError("Missing Grid file name.");
         // TODO: USAGE
-        return false;
+        return PRAGA_MISSING_FILE;
     }
     else
     {
         if (!myProject->loadMeteoGridDB(argumentList[1]))
         {
-            return false;
+            return PRAGA_ERROR;
         }
         else
         {
             myProject->meteoGridDbHandler->meteoGrid()->createRasterGrid();
-            return true;
+            return PRAGA_OK;
         }
     }
 }
 
 
-bool cmdSetLogFile(Project* myProject, QList<QString> argumentList)
+int cmdSetLogFile(Project* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
         myProject->logError("Missing Log file name.");
         // TODO: USAGE
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
     else
     {
-        return myProject->setLogFile(argumentList[1]);
+        if (myProject->setLogFile(argumentList[1]))
+        {
+            return PRAGA_OK;
+        }
+        else
+        {
+            return PRAGA_ERROR;
+        }
     }
 }
 
 
-bool executeSharedCommand(Project* myProject, QList<QString> argumentList, bool* isCommandFound)
+int executeSharedCommand(Project* myProject, QList<QString> argumentList, bool* isCommandFound)
 {
     *isCommandFound = false;
-    if (argumentList.size() == 0) return false;
+    if (argumentList.size() == 0) return PRAGA_INVALID_COMMAND;
 
     QString command = argumentList[0].toUpper();
 
@@ -267,6 +282,6 @@ bool executeSharedCommand(Project* myProject, QList<QString> argumentList, bool*
         // other shared commands
     }
 
-    return false;
+    return PRAGA_INVALID_COMMAND;
 }
 

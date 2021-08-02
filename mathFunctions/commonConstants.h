@@ -70,6 +70,12 @@
 
     #define CRIT1D_OK 0
     #define CRIT3D_OK 1
+    // --------------- PRAGA errors ----------------
+    #define PRAGA_OK 0
+    #define PRAGA_ERROR -1
+    #define PRAGA_INVALID_COMMAND -2
+    #define PRAGA_MISSING_FILE -3
+    #define PRAGA_ENV_ERROR -4
 
     #define VANGENUCHTEN 0
     #define MODIFIEDVANGENUCHTEN 1
