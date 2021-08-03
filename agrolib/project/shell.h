@@ -16,12 +16,12 @@
     QString getCommandLine(QString programName);
     QList<QString> getSharedCommandList();
 
-    bool executeSharedCommand(Project* myProject, QList<QString> argumentList, bool *isCommandFound);
+    int executeSharedCommand(Project* myProject, QList<QString> argumentList, bool *isCommandFound);
 
-    bool cmdLoadDEM(Project* myProject, QList<QString> argumentList);
-    bool cmdLoadMeteoGrid(Project* myProject, QList<QString> argumentList);
-    bool cmdSetLogFile(Project* myProject, QList<QString> argumentList);
-    bool cmdExit(Project* myProject);
+    int cmdLoadDEM(Project* myProject, QList<QString> argumentList);
+    int cmdLoadMeteoGrid(Project* myProject, QList<QString> argumentList);
+    int cmdSetLogFile(Project* myProject, QList<QString> argumentList);
+    int cmdExit(Project* myProject);
 
 
 #endif // SHELL_H
