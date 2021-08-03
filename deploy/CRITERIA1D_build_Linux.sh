@@ -6,11 +6,10 @@ QMAKE=$QT_DIR/bin/qmake
 
 # # build mapGraphics
 cd ../mapGraphics
+rm -f Makefile
 $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile all
-
-export LD_LIBRARY_PATH=`pwd`/../mapGraphics/release/:$LD_LIBRARY_PATH
 
 cd -
 
