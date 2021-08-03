@@ -977,7 +977,7 @@ void MainWindow::on_actionLoadProject_triggered()
     if (projFileName == "") return;
 
     // set current dateTime, then GUI overwrite this information
-    int myResult = myProject.output.initializeProject(projFileName, QDateTime::currentDateTime().date(), false);
+    int myResult = myProject.output.initializeProject(projFileName, "", QDateTime::currentDateTime().date(), false);
     if (myResult != CRIT1D_OK)
     {
         QMessageBox::information(nullptr, "Project setting error", myProject.output.projectError);

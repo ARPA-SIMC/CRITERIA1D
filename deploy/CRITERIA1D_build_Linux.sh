@@ -105,7 +105,13 @@ cp -r ../DOC/img/textural_soil.png CRITERIA1D/DOC/img
 mkdir -p CRITERIA1D/DATA/SOIL
 cp -r ../DATA/SOIL/* CRITERIA1D/DATA/SOIL
 
-# copy kiwifruit project
-mkdir -p CRITERIA1D/DATA/PROJECT/kiwifruit
-cp -r ../DATA/PROJECT/kiwifruit/* CRITERIA1D/DATA/PROJECT/kiwifruit
+# copy settings and template
+mkdir CRITERIA1D/DATA/SETTINGS
+cp -r ../DATA/SETTINGS/* CRITERIA1D/DATA/SETTINGS
+mkdir CRITERIA1D/DATA/TEMPLATE
+cp -r ../DATA/TEMPLATE/* CRITERIA1D/DATA/TEMPLATE
+
+# copy test project
+mkdir -p CRITERIA1D/DATA/PROJECT/test
+cp -r ../DATA/PROJECT/test/* CRITERIA1D/DATA/PROJECT/test
 
