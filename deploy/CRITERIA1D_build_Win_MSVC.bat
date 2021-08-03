@@ -80,16 +80,23 @@ mkdir DATA\SOIL
 cd DATA\SOIL
 xcopy /Y ..\..\..\..\DATA\SOIL\*.* 
 
+:: copy settings and template
 cd ..\..\
 mkdir DATA\SETTINGS
 cd DATA\SETTINGS
 xcopy /Y ..\..\..\..\DATA\SETTINGS\*.*
+
+cd ..\..\
+mkdir DATA\TEMPLATE
+cd DATA\TEMPLATE
+xcopy /Y ..\..\..\..\DATA\TEMPLATE\*.*
 
 :: copy test project
 cd ..\
 mkdir PROJECT\test
 cd PROJECT\test
 xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\test\*.* 
+
 
 :: return to deploy directory
 cd ..\..\..\..\
