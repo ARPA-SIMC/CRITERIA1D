@@ -1,4 +1,5 @@
 #include "cereali.h"
+#include "float.h"
 
 
 // calcolo delle date di semina ed emergenza fittizie

@@ -1,5 +1,6 @@
 
 #include "bietola.h"
+#include "math.h"
 
 
 double Bietola::R(double T) 

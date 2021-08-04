@@ -1,5 +1,6 @@
 #include <time.h>
 #include "console.h"
+#include "string.h"
 
 using namespace std;
 
