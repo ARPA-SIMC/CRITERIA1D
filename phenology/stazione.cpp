@@ -1,6 +1,8 @@
 #include "stazione.h"
 #include "commonConstants.h"
 
+#include "math.h"
+
 
 // calcolo del fotoperiodo alla data corrente
 double Stazione::Fotoperiodo(const long& i) 

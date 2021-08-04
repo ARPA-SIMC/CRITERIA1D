@@ -23,6 +23,8 @@
 #include "olivo.h"
 #include "vite.h"
 
+#include "math.h"
+
 
 void feno( float soglia, int coltura, int varieta, char* logfile, int max_giorni_interpolazione,
            float dato_mancante, int tipoScala, int giornoInizio, int meseInizio, int annoInizio,

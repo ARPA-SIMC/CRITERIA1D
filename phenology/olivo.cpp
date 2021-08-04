@@ -1,6 +1,9 @@
 
 #include "olivo.h"
 
+#include "math.h"
+
+
 void Olivo::InduzioneFiorale(const Stazione& stazione) 
 {
 	long i = m_faseFenologica.size() - 1;

@@ -1,6 +1,8 @@
 
 #include "pomodoro.h"
 
+#include "math.h"
+
 
 double Pomodoro::Dday(Stazione& stazione, const long& i)
 {
