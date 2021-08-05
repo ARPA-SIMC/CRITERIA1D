@@ -397,7 +397,6 @@ namespace interpolation
         }
 
         mySSE = normGeneric(idFunction, parameters, nrParameters, x, y, nrData);
-        diffSSE = myEpsilon * 1000;
 
         int iterationNr = 0;
         do
@@ -424,7 +423,15 @@ namespace interpolation
 
             newSSE = normGeneric(idFunction, newParameters, nrParameters, x, y, nrData);
 
-            if (newSSE == NODATA) return false;
+            if (newSSE == NODATA)
+            {
+                // free memory
+                free(lambda);
+                free(paramChange);
+                free(newParameters);
+
+                return false;
+            }
 
             diffSSE = mySSE - newSSE ;
 
@@ -936,7 +943,7 @@ namespace matricial
 
             double **temp3 = (double**) malloc(nsize * sizeof(double *));
             for(i=0;i<nsize;i++){
-                temp3[i]= (double *)malloc(nsize*sizeof(int));
+                temp3[i]= (double *)malloc(nsize * sizeof(double));
             }
             add(c21,c22,nsize,temp3);
             multiplyStrassen(temp3,d11,nsize,m2);
@@ -1494,7 +1501,7 @@ double cauchyRandom(double gamma)
                 r = v1 * v1 + v2 * v2;
             } while ( (r>=1) | (r==0) ); // see if they are in the unit circle, and if they are not, try again.
             // Box-Muller transformation to get two normal deviates. Return one and save the other for next time.
-            fac = sqrt(-2 * log(r) / r);
+            fac = float(sqrt(-2 * log(r) / r));
             *gasDevGset = v1 * fac; //Gaussian random deviates
             normalRandom = v2 * fac;
             *gasDevIset = 1; //set the flag
@@ -1593,7 +1600,7 @@ double cauchyRandom(double gamma)
             do
             {
                 //counter++;
-                srand(time(0));
+                srand(unsigned(time(0)));
                 firstRandom = rand();
             }
             while(firstRandom == *randomNumberInitial);
@@ -1760,7 +1767,7 @@ namespace statistics
     double inverseTabulatedERF(double value)
     {
         // precision on the third digit after dot
-        if (fabs(value >= 1)) return PARAMETER_ERROR;
+        if (fabs(value) >= 1) return PARAMETER_ERROR;
 
         double output = 0;
         double variable;
@@ -1825,5 +1832,4 @@ namespace statistics
         return result;
     }
 }
-
 

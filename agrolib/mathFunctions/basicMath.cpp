@@ -352,6 +352,7 @@
                 // switch
                 *nrList = n;
                 *list = *cleanList;
+                delete[] cleanList;
 
                 // check on data presence
                 if (*nrList < MINIMUM_PERCENTILE_DATA)
