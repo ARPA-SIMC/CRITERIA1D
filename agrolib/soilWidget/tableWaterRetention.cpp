@@ -44,7 +44,7 @@ void TableWaterRetention::keyPressEvent(QKeyEvent *event){
         {
 
             QString text = QApplication::clipboard()->text();
-            QStringList rowContents = text.split("\n", Qt::SkipEmptyParts);
+            QStringList rowContents = text.split("\n", QString::SkipEmptyParts);
 
             QModelIndex initIndex = selectedIndexes().at(0);
             auto initRow = initIndex.row();
