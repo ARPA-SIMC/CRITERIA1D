@@ -38,12 +38,16 @@ QT_BEGIN_NAMESPACE
 class QGraphicsSceneMouseEvent;
 QT_END_NAMESPACE
 
-QT_CHARTS_BEGIN_NAMESPACE
-class QChart;
-class QAbstractSeries;
-QT_CHARTS_END_NAMESPACE
-
-QT_CHARTS_USE_NAMESPACE
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    class QChart;
+    class QAbstractSeries;
+#else
+    QT_CHARTS_BEGIN_NAMESPACE
+    class QChart;
+    class QAbstractSeries;
+    QT_CHARTS_END_NAMESPACE
+    QT_CHARTS_USE_NAMESPACE
+#endif
 
 class SoilCallout : public QGraphicsItem
 {
