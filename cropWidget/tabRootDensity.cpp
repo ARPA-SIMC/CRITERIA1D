@@ -131,9 +131,9 @@ void TabRootDensity::computeRootDensity(Crit3DCrop* myCrop, Crit3DMeteoPoint *me
     updateRootDensity();
 }
 
-void TabRootDensity::on_actionChooseYear(QString year)
+void TabRootDensity::on_actionChooseYear(QString myYear)
 {
-    this->year = year.toInt();
+    this->year = myYear.toInt();
     if (year == lastMeteoDate.year())
     {
         slider->setMaximum(lastMeteoDate.dayOfYear());
