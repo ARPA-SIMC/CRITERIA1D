@@ -283,8 +283,8 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
                 inputTMax[i] = obsDataD[iStation][i].tMax;
                 inputPrec[i] = obsDataD[iStation][i].prec;
             }
-            //computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,true,outputFileName,monthlyClimateAveragePrecipitation[iStation],consecutiveDry,consecutiveWet,12,91);
-            computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,false,outputFileName,monthlyClimateAveragePrecipitation[iStation]);
+            computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,true,outputFileName,monthlyClimateAveragePrecipitation[iStation],consecutiveDry,consecutiveWet,12,91);
+            //computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,false,outputFileName,monthlyClimateAveragePrecipitation[iStation]);
             for (int jMonth=0;jMonth<12;jMonth++)
             {
                 free(consecutiveDry[jMonth]);
@@ -389,20 +389,20 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
                 if (outputWeatherData[iStation].precipitation[iDays] < precThreshold)
                 {
                     nrConsecutiveDryDays++;
-                    //++(simulatedConsecutiveDays[iStation].dry[outputWeatherData[iStation].monthSimulated[iDays]-1][MINVALUE(nrConsecutiveDryDays,90)]);
+                    ++(simulatedConsecutiveDays[iStation].dry[outputWeatherData[iStation].monthSimulated[iDays]-1][MINVALUE(nrConsecutiveDryDays,90)]);
                     nrConsecutiveWetDays = 0;
                 }
                 if (outputWeatherData[iStation].precipitation[iDays] >= precThreshold)
                 {
                     nrConsecutiveWetDays++;
-                    //++(simulatedConsecutiveDays[iStation].wet[outputWeatherData[iStation].monthSimulated[iDays]-1][MINVALUE(nrConsecutiveWetDays,90)]);
+                    ++(simulatedConsecutiveDays[iStation].wet[outputWeatherData[iStation].monthSimulated[iDays]-1][MINVALUE(nrConsecutiveWetDays,90)]);
                     nrConsecutiveDryDays = 0;
                 }
 
             }
             double sumOfEventsDry[12]= {0};
             double sumOfEventsWet[12]= {0};
-            /*
+
             for (int jMonth=0;jMonth<12;jMonth++)
             {
                 //printf("month %d\n",jMonth+1);
@@ -413,10 +413,17 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
                     // printf("%.0f,",simulatedConsecutiveDays[iStation].dry[jMonth][iMonth]);
                 }
                 //printf("%f,%f\n",sumOfEventsWet[jMonth],sumOfEventsDry[jMonth]);
+
                 for (int iMonth=0;iMonth<91;iMonth++)
                 {
-                    simulatedConsecutiveDays[iStation].dry[jMonth][iMonth] /= sumOfEventsDry[jMonth];
-                    simulatedConsecutiveDays[iStation].wet[jMonth][iMonth] /= sumOfEventsWet[jMonth];
+                    if (sumOfEventsDry[jMonth] != 0)
+                        simulatedConsecutiveDays[iStation].dry[jMonth][iMonth] /= sumOfEventsDry[jMonth];
+                    else
+                        simulatedConsecutiveDays[iStation].dry[jMonth][iMonth] = 0;
+                    if (sumOfEventsWet[jMonth] != 0)
+                        simulatedConsecutiveDays[iStation].wet[jMonth][iMonth] /= sumOfEventsWet[jMonth];
+                    else
+                        simulatedConsecutiveDays[iStation].wet[jMonth][iMonth] = 0;
                 }
             }
             //pressEnterToContinue();
@@ -436,18 +443,18 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
                     consecutiveDry[j][i] = simulatedConsecutiveDays[iStation].dry[j][i];
                     consecutiveWet[j][i] = simulatedConsecutiveDays[iStation].wet[j][i];
                 }
-            }*/
+            }
 
-            //computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,true,outputFileName,monthlySimulatedAveragePrecipitation[iStation],consecutiveDry,consecutiveWet,12,91);
-            computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,false,outputFileName,monthlySimulatedAveragePrecipitation[iStation]);
-            /*for (int jMonth=0;jMonth<12;jMonth++)
+            computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,true,outputFileName,monthlySimulatedAveragePrecipitation[iStation],consecutiveDry,consecutiveWet,12,91);
+            //computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,false,outputFileName,monthlySimulatedAveragePrecipitation[iStation]);
+            for (int jMonth=0;jMonth<12;jMonth++)
             {
                 free(consecutiveDry[jMonth]);
                 free(consecutiveWet[jMonth]);
             }
             free(consecutiveDry);
             free(consecutiveWet);
-            */
+
         }
 
         free(inputTMin);

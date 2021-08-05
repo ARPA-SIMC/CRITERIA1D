@@ -47,6 +47,12 @@
     struct TprecOccurrence{
         double p00;
         double p10;
+
+        double p000;
+        double p100;
+        double p010;
+        double p110;
+
         int month;
     };
 
@@ -259,6 +265,7 @@
         void precipitation29February(int idStation);
         void precipitationAmountsOccurences(int idStation, double* precipitationAmountsD,bool* precipitationOccurencesD);
         void precipitationP00P10();
+        void weatherGenerator2D::precipitationP000P100P010P110();
         void precipitationCorrelationMatrices();
         void precipitationMultisiteOccurrenceGeneration();
         void spatialIterationOccurrence(double ** M, double **K, double **occurrences, double** matrixOccurrence, double** normalizedMatrixRandom, double **transitionNormal, int lengthSeries);
