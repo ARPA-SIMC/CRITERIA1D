@@ -1,6 +1,8 @@
 
 #include "soia.h"
 
+#include "math.h"
+
 
 double Soia::M(const long& i, const long& j, double& T, Stazione& stazione, const Parametri& parametri) 
 {

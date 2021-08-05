@@ -1,6 +1,8 @@
 
 #include "mais.h"
 
+#include "math.h"
+
 extern long doy(const Crit3DDate& data);
 
 // funzione semplificata per il calcolo della temperatura del suolo

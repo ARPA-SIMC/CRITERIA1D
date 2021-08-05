@@ -284,7 +284,7 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
                 inputPrec[i] = obsDataD[iStation][i].prec;
             }
             computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,true,outputFileName,monthlyClimateAveragePrecipitation[iStation],consecutiveDry,consecutiveWet,12,91);
-            //computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,true,outputFileName2,monthlyClimateAveragePrecipitation[iStation]);
+            //computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,false,outputFileName,monthlyClimateAveragePrecipitation[iStation]);
             for (int jMonth=0;jMonth<12;jMonth++)
             {
                 free(consecutiveDry[jMonth]);
@@ -382,8 +382,10 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
 
             int nrConsecutiveDryDays = 0;
             int nrConsecutiveWetDays = 0;
+
             for (int iDays=0;iDays<nrDays;iDays++)
             {
+
                 if (outputWeatherData[iStation].precipitation[iDays] < precThreshold)
                 {
                     nrConsecutiveDryDays++;
@@ -396,6 +398,7 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
                     ++(simulatedConsecutiveDays[iStation].wet[outputWeatherData[iStation].monthSimulated[iDays]-1][MINVALUE(nrConsecutiveWetDays,90)]);
                     nrConsecutiveDryDays = 0;
                 }
+
             }
             double sumOfEventsDry[12]= {0};
             double sumOfEventsWet[12]= {0};
@@ -410,10 +413,17 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
                     // printf("%.0f,",simulatedConsecutiveDays[iStation].dry[jMonth][iMonth]);
                 }
                 //printf("%f,%f\n",sumOfEventsWet[jMonth],sumOfEventsDry[jMonth]);
+
                 for (int iMonth=0;iMonth<91;iMonth++)
                 {
-                    simulatedConsecutiveDays[iStation].dry[jMonth][iMonth] /= sumOfEventsDry[jMonth];
-                    simulatedConsecutiveDays[iStation].wet[jMonth][iMonth] /= sumOfEventsWet[jMonth];
+                    if (sumOfEventsDry[jMonth] != 0)
+                        simulatedConsecutiveDays[iStation].dry[jMonth][iMonth] /= sumOfEventsDry[jMonth];
+                    else
+                        simulatedConsecutiveDays[iStation].dry[jMonth][iMonth] = 0;
+                    if (sumOfEventsWet[jMonth] != 0)
+                        simulatedConsecutiveDays[iStation].wet[jMonth][iMonth] /= sumOfEventsWet[jMonth];
+                    else
+                        simulatedConsecutiveDays[iStation].wet[jMonth][iMonth] = 0;
                 }
             }
             //pressEnterToContinue();
@@ -436,7 +446,7 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
             }
 
             computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,true,outputFileName,monthlySimulatedAveragePrecipitation[iStation],consecutiveDry,consecutiveWet,12,91);
-            //computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,true,outputFileName2,monthlySimulatedAveragePrecipitation[iStation]);
+            //computeWG2DClimate(nrDays,inputFirstDate,inputTMin,inputTMax,inputPrec,precThreshold,minPrecData,&weatherGenClimate,writeOutput,false,outputFileName,monthlySimulatedAveragePrecipitation[iStation]);
             for (int jMonth=0;jMonth<12;jMonth++)
             {
                 free(consecutiveDry[jMonth]);
@@ -444,11 +454,13 @@ void weatherGenerator2D::prepareWeatherGeneratorOutput()
             }
             free(consecutiveDry);
             free(consecutiveWet);
+
         }
 
         free(inputTMin);
         free(inputTMax);
         free(inputPrec);
+
         weatherGenerator2D::precipitationCorrelationMatricesSimulation();
     }
 

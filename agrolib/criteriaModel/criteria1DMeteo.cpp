@@ -869,6 +869,7 @@ bool readDailyDataCriteria1D(QSqlQuery *query, Crit3DMeteoPoint *meteoPoint, QSt
 
     bool existEtp = !(query->value("etp").isNull());
     bool existWatertable = !(query->value("watertable").isNull());
+    bool existTavg = !(query->value("tavg").isNull());
 
     do
     {
@@ -948,9 +949,13 @@ bool readDailyDataCriteria1D(QSqlQuery *query, Crit3DMeteoPoint *meteoPoint, QSt
             // NOT mandatory variables
 
             // TAVG [°C]
-            getValue(query->value("tavg"), &tmed);
-            if (int(tmed) == int(NODATA) || tmed < -40.f || tmed > 40.f)
-                 tmed = (tmin + tmax) * 0.5f;
+            if (existTavg)
+            {
+                getValue(query->value("tavg"), &tmed);
+                if (int(tmed) == int(NODATA) || tmed < -40.f || tmed > 40.f)
+                     tmed = (tmin + tmax) * 0.5f;
+            }
+            else tmed = (tmin + tmax) * 0.5f;
 
             // ET0 [mm]
             if (existEtp)
