@@ -2,6 +2,7 @@
 #define CEREALI_H
 
     #include "coltura.h"
+    #include "math.h"
 
     // Classe per gli oggetti Cereali, Grano duro e Orzo
     class Cereali : public Coltura

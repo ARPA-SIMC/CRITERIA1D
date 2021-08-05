@@ -1,5 +1,6 @@
 #include "cereali.h"
-
+#include "float.h"
+#include "math.h"
 
 // calcolo delle date di semina ed emergenza fittizie
 bool Cereali::CalcoloDateFittizie(const Stazione& stazione, const Parametri& parametri, Console& console)

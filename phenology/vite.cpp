@@ -1,6 +1,8 @@
 
 #include "vite.h"
 
+#include "math.h"
+
 
 double Vite::GradiGiorno(const long& i, const Stazione& stazione)
 {

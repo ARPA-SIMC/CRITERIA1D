@@ -1,6 +1,8 @@
 
 #include "girasole.h"
 
+#include "math.h"
+
 
 void Girasole::Emergenza(const Stazione& stazione) 
 {
