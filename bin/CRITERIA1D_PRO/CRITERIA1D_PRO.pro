@@ -1,6 +1,6 @@
 #-----------------------------------------------------------
 #
-#   CROP EDITOR
+#   CRITERIA1D PRO
 #   This project is part of CRITERIA3D distribution
 #
 #-----------------------------------------------------------
@@ -13,20 +13,20 @@ CONFIG += debug_and_release
 
 unix:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/CROP_EDITOR
+        TARGET = debug/CRITERIA1D_PRO
     } else {
-        TARGET = release/CROP_EDITOR
+        TARGET = release/CRITERIA1D_PRO
     }
 }
 macx:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/CROP_EDITOR
+        TARGET = debug/CRITERIA1D_PRO
     } else {
-        TARGET = release/CROP_EDITOR
+        TARGET = release/CRITERIA1D_PRO
     }
 }
 win32:{
-    TARGET = CROP_EDITOR
+    TARGET = CRITERIA1D_PRO
 }
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
