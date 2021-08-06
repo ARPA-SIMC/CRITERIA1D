@@ -23,9 +23,9 @@ then
 
     cd -
 
-    # build CROP_EDITOR
-    cd bin/Makeall_CROP_EDITOR
-    $QMAKE Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler 
+    # build CRITERIA1D_PRO
+    cd bin/Makeall_CRITERIA1D_PRO
+    $QMAKE Makeall_CRITERIA1D_PRO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler 
     make clean
     make
 
@@ -64,9 +64,9 @@ then
 
     cd -
 
-    # build CROP_EDITOR
-    cd bin/Makeall_CROP_EDITOR
-    $QMAKE Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=$QT_DIR
+    # build CRITERIA1D_PRO
+    cd bin/Makeall_CRITERIA1D_PRO
+    $QMAKE Makeall_CRITERIA1D_PRO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=$QT_DIR
     make clean
     make
 
@@ -107,10 +107,10 @@ then
     cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
     
-    # build appimage CROP_EDITOR
+    # build appimage CRITERIA1D_PRO
     cp -rf deploy/appimage deploy/tmpbuild
-    cp bin/CROP_EDITOR/release/CROP_EDITOR deploy/tmpbuild/usr/bin/CROP_EDITOR
-    ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CROP_EDITOR.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+    cp bin/CRITERIA1D_PRO/release/CRITERIA1D_PRO deploy/tmpbuild/usr/bin/CRITERIA1D_PRO
+    ./linuxqtdeploy --appimage-extract-and-run deploy/tmpbuild/usr/share/applications/CRITERIA1D_PRO.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
     cp deploy/tmpbuild/usr/bin/* deploy
     rm -rf deploy/tmpbuild/
     
