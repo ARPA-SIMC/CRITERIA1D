@@ -70,7 +70,7 @@
             m_faseFenologica.clear();
         }
 
-        double TassoSviluppoEmergenza(const double& T) { return __max( 0., -0.006 + 0.0065*T); }
+        double TassoSviluppoEmergenza(const double& T) { return std::max( 0., -0.006 + 0.0065*T); }
         double NumeroFoglieEmerse(const double& P) { return ( 1. - exp( -0.03 * ( P - 4. ) ) ) / 0.03; }
 
         // calcolo delle date di semina ed emergenza fittizie

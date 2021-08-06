@@ -120,7 +120,13 @@ void Crit1DCase::initializeWaterContent(Crit3DDate myDate)
 bool Crit1DCase::initializeNumericalFluxes(std::string &error)
 {
     unsigned nrLayers = unsigned(soilLayers.size());
-    int lastLayer = nrLayers-1;
+    if (nrLayers < 1)
+    {
+        error = "Missing soil layers";
+        return false;
+    }
+
+    unsigned lastLayer = nrLayers-1;
     int nrlateralLinks = 0;
 
     int result = soilFluxes3D::initialize(nrLayers, nrLayers, nrlateralLinks, true, false, false);
@@ -215,7 +221,7 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &error)
  */
 bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &error)
 {
-    int nrLayers = soilLayers.size();
+    int nrLayers = int(soilLayers.size());
     int lastLayer = nrLayers - 1;
     error = "";
 
