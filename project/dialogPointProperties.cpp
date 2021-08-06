@@ -87,12 +87,12 @@ void DialogPointProperties::addCouple()
     QList<QListWidgetItem *> item = propertiesList->findItems(propertiesSelected, Qt::MatchExactly);
     if (!item.isEmpty())
     {
-        propertiesList->setItemHidden(item[0], true);
+        propertiesList->item(0)->setHidden(true);
     }
     item = csvList->findItems(csvSelected, Qt::MatchExactly);
     if (!item.isEmpty())
     {
-        csvList->setItemHidden(item[0], true);
+        csvList->item(0)->setHidden(true);
     }
     propertiesSelected.clear();
     csvSelected.clear();
@@ -109,12 +109,12 @@ void DialogPointProperties::deleteCouple()
         QList<QListWidgetItem *> item = propertiesList->findItems(splitItemList[0], Qt::MatchExactly);
         if (!item.isEmpty())
         {
-            propertiesList->setItemHidden(item[0], false);
+            propertiesList->item(0)->setHidden(false);
         }
         item = csvList->findItems(splitItemList[1], Qt::MatchExactly);
         if (!item.isEmpty())
         {
-            csvList->setItemHidden(item[0], false);
+            csvList->item(0)->setHidden(false);
         }
         joinedList->takeItem(joinedList->row(itemList[i]));
     }

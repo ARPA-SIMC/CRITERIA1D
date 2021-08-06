@@ -917,10 +917,7 @@ bool Crit3DMeteoPointsDbHandler::getNameColumn(QString tableName, QList<QString>
 {
     QSqlQuery qry(_db);
 
-    int id_variable;
-    QString variable;
     std::string varStdString;
-    meteoVariable meteoVar;
     std::pair<std::map<int, meteoVariable>::iterator,bool> ret;
 
     QString statement = QString( "PRAGMA table_info('%1')").arg(tableName);
@@ -966,7 +963,7 @@ bool Crit3DMeteoPointsDbHandler::existIdPoint(const QString& idPoint)
 
     if (! qry.exec()) return false;
     qry.last();
-    return (qry.value(0) > 0);
+    return (qry.value(0).toInt() > 0);
 }
 
 
@@ -1103,7 +1100,7 @@ bool Crit3DMeteoPointsDbHandler::importHourlyMeteoData(QString csvFileName, bool
         }
 
         // don't use QDateTime because it has a bug at the end of March (vs2015 version)
-        char timeStr[9];
+        char timeStr[10];
         sprintf (timeStr, " %02d:00:00", hour);
         dateTimeStr = currentDate.toString("yyyy-MM-dd") + timeStr;
 
