@@ -743,20 +743,20 @@ QList<Crit3DMeteoPoint> Crit3DMeteoPointsDbHandler::getPropertiesFromDb(const gi
 
             // check position
             isPositionOk = false;
-            if ((meteoPoint.latitude != NODATA || meteoPoint.longitude != NODATA)
-                && (meteoPoint.point.utm.x != NODATA && meteoPoint.point.utm.y != NODATA))
+            if ((int(meteoPoint.latitude) != int(NODATA) || int(meteoPoint.longitude) != int(NODATA))
+                && (int(meteoPoint.point.utm.x) != int(NODATA) && int(meteoPoint.point.utm.y) != int(NODATA)))
             {
                 isPositionOk = true;
             }
-            else if ((meteoPoint.latitude == NODATA || meteoPoint.longitude == NODATA)
-                && (meteoPoint.point.utm.x != NODATA && meteoPoint.point.utm.y != NODATA))
+            else if ((int(meteoPoint.latitude) == int(NODATA) || int(meteoPoint.longitude) == int(NODATA))
+                && (int(meteoPoint.point.utm.x) != int(NODATA) && int(meteoPoint.point.utm.y) != int(NODATA)))
             {
                 gis::getLatLonFromUtm(gisSettings, meteoPoint.point.utm.x, meteoPoint.point.utm.y,
                                         &(meteoPoint.latitude), &(meteoPoint.longitude));
                 isPositionOk = true;
             }
-            else if ((meteoPoint.latitude != NODATA || meteoPoint.longitude != NODATA)
-                && (meteoPoint.point.utm.x == NODATA && meteoPoint.point.utm.y == NODATA))
+            else if ((int(meteoPoint.latitude) != int(NODATA) || int(meteoPoint.longitude) != int(NODATA))
+                     && (int(meteoPoint.point.utm.x) == int(NODATA) && int(meteoPoint.point.utm.y) == int(NODATA)))
             {
                 gis::latLonToUtmForceZone(gisSettings.utmZone, meteoPoint.latitude, meteoPoint.longitude,
                                           &(meteoPoint.point.utm.x), &(meteoPoint.point.utm.y));
@@ -917,10 +917,7 @@ bool Crit3DMeteoPointsDbHandler::getNameColumn(QString tableName, QList<QString>
 {
     QSqlQuery qry(_db);
 
-    int id_variable;
-    QString variable;
     std::string varStdString;
-    meteoVariable meteoVar;
     std::pair<std::map<int, meteoVariable>::iterator,bool> ret;
 
     QString statement = QString( "PRAGMA table_info('%1')").arg(tableName);
@@ -966,7 +963,7 @@ bool Crit3DMeteoPointsDbHandler::existIdPoint(const QString& idPoint)
 
     if (! qry.exec()) return false;
     qry.last();
-    return (qry.value(0) > 0);
+    return (qry.value(0).toInt() > 0);
 }
 
 
@@ -1103,7 +1100,7 @@ bool Crit3DMeteoPointsDbHandler::importHourlyMeteoData(QString csvFileName, bool
         }
 
         // don't use QDateTime because it has a bug at the end of March (vs2015 version)
-        char timeStr[9];
+        char timeStr[10];
         sprintf (timeStr, " %02d:00:00", hour);
         dateTimeStr = currentDate.toString("yyyy-MM-dd") + timeStr;
 
