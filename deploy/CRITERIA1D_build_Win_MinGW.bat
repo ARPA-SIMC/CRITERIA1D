@@ -5,9 +5,9 @@
 :: GDAL library (for GEO) doesn't work with MinGW compiler 
 :: To disable GDAL comment the line CONFIG += GDAL 
 :: in these project files:
-:: 1) makell_CRITERIAGEO.pro
-:: 2) CRITERIAGEO.pro
-:: 3) agrolib/criteriaOutput.pro
+:: 1) bin\Makeall_CRITERIAGEO\makell_CRITERIAGEO.pro
+:: 2) bin\CRITERIAGEO\CRITERIAGEO.pro
+:: 3) agrolib\criteriaOutput\criteriaOutput.pro
 
 
 :: CLEAN all
@@ -15,9 +15,9 @@ cd ..\mapGraphics
 mingw32-make --silent clean
 cd ..\bin\Makeall_CRITERIA1D
 mingw32-make --silent distclean
-cd ..\Makeall_CROP_EDITOR
-mingw32-make --silent distclean
 cd ..\Makeall_SOIL_EDITOR
+mingw32-make --silent distclean
+cd ..\Makeall_CRITERIA1D_PRO
 mingw32-make --silent distclean
 cd ..\Makeall_HEAT1D
 mingw32-make --silent distclean
@@ -35,8 +35,8 @@ cd ..\Makeall_SOIL_EDITOR
 qmake -platform win32-g++ CONFIG+=release
 mingw32-make --silent release
 
-:: build CROP_EDITOR
-cd ..\Makeall_CROP_EDITOR
+:: build CRITERIA1D_PRO
+cd ..\Makeall_CRITERIA1D_PRO
 qmake -platform win32-g++ CONFIG+=release
 mingw32-make --silent release
 
@@ -45,7 +45,7 @@ cd ..\Makeall_HEAT1D
 qmake -platform win32-g++ CONFIG+=release
 mingw32-make --silent release
 
-:: mapGraphics
+:: build mapGraphics
 cd ..\..\mapGraphics
 qmake -platform win32-g++ CONFIG+=release
 mingw32-make --silent release
@@ -62,7 +62,7 @@ mkdir CRITERIA1D\bin
 cd CRITERIA1D\bin
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
-copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
+copy ..\..\..\bin\CRITERIA1D_PRO\release\CRITERIA1D_PRO.exe
 copy ..\..\..\bin\HEAT1D\release\HEAT1D.exe
 copy ..\..\..\bin\CRITERIAGEO\release\CRITERIA_GEO.exe
 
@@ -71,7 +71,7 @@ copy ..\..\..\bin\CRITERIAGEO\release\CRITERIA_GEO.exe
 windeployqt HEAT1D.exe
 windeployqt CRITERIA1D.exe
 windeployqt SOIL_EDITOR.exe
-windeployqt CROP_EDITOR.exe
+windeployqt CRITERIA1D_PRO.exe
 windeployqt CRITERIA_GEO.exe
 
 
@@ -112,4 +112,3 @@ xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\test\*.*
 
 :: return to deploy directory
 cd ..\..\..\..\
-
