@@ -11,7 +11,7 @@ cd ..\mapGraphics
 nmake /S /NOLOGO distclean
 cd ..\bin\Makeall_CRITERIA1D
 nmake /S /NOLOGO distclean
-cd ..\Makeall_CROP_EDITOR
+cd ..\Makeall_CRITERIA1D_PRO
 nmake /S /NOLOGO distclean
 cd ..\Makeall_SOIL_EDITOR
 nmake /S /NOLOGO distclean
@@ -20,29 +20,33 @@ nmake /S /NOLOGO distclean
 cd ..\Makeall_CRITERIAGEO
 nmake /S /NOLOGO distclean
 
-:: mapGraphics
+:: build CRITERIA-1D
+cd ..\Makeall_CRITERIA1D
+qmake CONFIG+=release
+nmake /S /NOLOGO release
+
+:: build SOIL_EDITOR
+cd ..\Makeall_SOIL_EDITOR
+qmake CONFIG+=release
+nmake /S /NOLOGO release
+
+:: build CRITERIA1D_PRO
+cd ..\Makeall_CRITERIA1D_PRO
+qmake CONFIG+=release
+nmake /S /NOLOGO release
+
+:: build HEAT1D
+cd ..\Makeall_HEAT1D
+qmake CONFIG+=release
+nmake /S /NOLOGO release
+
+:: build mapGraphics
 cd ..\..\mapGraphics
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
-:: CRITERIA-1D/GEO
-cd ..\bin\Makeall_CRITERIA1D
-qmake CONFIG+=release
-nmake /S /NOLOGO release
-
-cd ..\Makeall_CROP_EDITOR
-qmake CONFIG+=release
-nmake /S /NOLOGO release
-
-cd ..\Makeall_SOIL_EDITOR
-qmake CONFIG+=release
-nmake /S /NOLOGO release
-
-cd ..\Makeall_HEAT1D
-qmake CONFIG+=release
-nmake /S /NOLOGO release
-
-cd ..\Makeall_CRITERIAGEO
+:: build CRITERIAGEO
+cd ..\bin\Makeall_CRITERIAGEO
 qmake CONFIG+=release
 nmake /S /NOLOGO release
 
@@ -51,16 +55,17 @@ cd ..\..\deploy
 mkdir CRITERIA1D\bin
 cd CRITERIA1D\bin
 copy ..\..\..\bin\HEAT1D\release\HEAT1D.exe
-copy ..\..\..\bin\CRITERIAGEO\release\CRITERIA_GEO.exe
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
-copy ..\..\..\bin\CROP_EDITOR\release\CROP_EDITOR.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
+copy ..\..\..\bin\CRITERIA1D_PRO\release\CRITERIA1D_PRO.exe
+copy ..\..\..\bin\CRITERIAGEO\release\CRITERIA_GEO.exe
+
 
 :: deploy executables
 windeployqt HEAT1D.exe
 windeployqt CRITERIA1D.exe
-windeployqt CROP_EDITOR.exe
 windeployqt SOIL_EDITOR.exe
+windeployqt CRITERIA1D_PRO.exe
 windeployqt CRITERIA_GEO.exe
 
 :: copy doc and img files

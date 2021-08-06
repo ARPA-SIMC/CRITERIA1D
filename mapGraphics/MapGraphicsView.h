@@ -20,9 +20,20 @@
 #include "guts/MapTileGraphicsObject.h"
 #include "guts/PrivateQGraphicsInfoSource.h"
 
+class MapGraphicsView;
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    using qhash_result_t = size_t;
+#else
+    using qhash_result_t = uint;
+#endif
+qhash_result_t qHash(const QPointF &key, qhash_result_t seed = 0) noexcept;
+
+
 class MAPGRAPHICSSHARED_EXPORT MapGraphicsView : public QWidget, public PrivateQGraphicsInfoSource
 {
     Q_OBJECT
+
 public:
     enum DragMode
     {
@@ -71,6 +82,8 @@ public:
 
     void zoomIn(ZoomMode zMode = CenterZoom);
     void zoomOut(ZoomMode zMode = CenterZoom);
+
+    friend qhash_result_t qHash(const QPointF &key, qhash_result_t seed) noexcept;
     
 signals:
     void zoomLevelChanged(quint8 nZoom);
@@ -106,10 +119,12 @@ private:
     DragMode _dragMode;
 };
 
-inline uint qHash(const QPointF& key)
+
+inline qhash_result_t qHash(const QPointF &key, qhash_result_t seed) noexcept
 {
     const QString temp = QString::number(key.x()) % "," % QString::number(key.y());
-    return qHash(temp);
+    return qHash(temp, seed);
 }
+
 
 #endif // MAPGRAPHICSVIEW_H
