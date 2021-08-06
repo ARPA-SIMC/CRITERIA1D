@@ -32,7 +32,11 @@ void TableDbf::keyPressEvent(QKeyEvent *event){
         {
 
             QString text = QApplication::clipboard()->text();
-            QStringList rowContents = text.split("\n", QString::SkipEmptyParts);
+            #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+                QList<QString> rowContents = text.split("\n", Qt::SkipEmptyParts);
+            #else
+                QList<QString> rowContents = text.split("\n", QString::SkipEmptyParts);
+            #endif
 
             QModelIndex initIndex = selectedIndexes().at(0);
             auto initRow = initIndex.row();

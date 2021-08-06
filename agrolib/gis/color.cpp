@@ -344,12 +344,12 @@ bool roundColorScale(Crit3DColorScale* myScale, int nrIntervals, bool lessRounde
 
     if (isEqual(myScale->minimum, myScale->maximum)) return false;
 
-    float avg = myScale->minimum + (myScale->maximum - myScale->minimum) / 2;
-    float level = (myScale->maximum - myScale->minimum) / nrIntervals;
-    float logLevel = log10(level);
+    double avg = myScale->minimum + (myScale->maximum - myScale->minimum) / 2;
+    double level = (myScale->maximum - myScale->minimum) / nrIntervals;
+    double logLevel = log10(level);
 
-    float myExp;
-    float roundAvg = avg;
+    double myExp;
+    double roundAvg = avg;
 
     if (avg == 0.f)
     {
@@ -357,7 +357,7 @@ bool roundColorScale(Crit3DColorScale* myScale, int nrIntervals, bool lessRounde
     }
     else
     {
-        float logAvg = log10(avg);
+        double logAvg = log10(avg);
         if (lessRounded)
         {
             myExp = std::min(floor(logLevel)-1, floor(logAvg)-1);
@@ -368,8 +368,8 @@ bool roundColorScale(Crit3DColorScale* myScale, int nrIntervals, bool lessRounde
         }
     }
 
-    float pow10 = powf(10.0, myExp);
-    float roundLevel = ceil(level / pow10) * pow10;
+    double pow10 = pow(10, myExp);
+    double roundLevel = ceil(level / pow10) * pow10;
 
     if (avg != 0.f)
         roundAvg = round(avg / pow10) * pow10;
@@ -377,12 +377,12 @@ bool roundColorScale(Crit3DColorScale* myScale, int nrIntervals, bool lessRounde
     if (myScale->minimum == 0.f)
     {
         //precipitation
-        myScale->maximum = roundLevel * nrIntervals;
+        myScale->maximum = float(roundLevel * nrIntervals);
     }
     else
     {
-        myScale->minimum = roundAvg - roundLevel*(nrIntervals/2);
-        myScale->maximum = roundAvg + roundLevel*(nrIntervals/2);
+        myScale->minimum = float(roundAvg - roundLevel*(nrIntervals/2));
+        myScale->maximum = float(roundAvg + roundLevel*(nrIntervals/2));
     }
 
     return true;
