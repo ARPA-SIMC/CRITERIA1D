@@ -743,20 +743,20 @@ QList<Crit3DMeteoPoint> Crit3DMeteoPointsDbHandler::getPropertiesFromDb(const gi
 
             // check position
             isPositionOk = false;
-            if ((meteoPoint.latitude != NODATA || meteoPoint.longitude != NODATA)
-                && (meteoPoint.point.utm.x != NODATA && meteoPoint.point.utm.y != NODATA))
+            if ((int(meteoPoint.latitude) != int(NODATA) || int(meteoPoint.longitude) != int(NODATA))
+                && (int(meteoPoint.point.utm.x) != int(NODATA) && int(meteoPoint.point.utm.y) != int(NODATA)))
             {
                 isPositionOk = true;
             }
-            else if ((meteoPoint.latitude == NODATA || meteoPoint.longitude == NODATA)
-                && (meteoPoint.point.utm.x != NODATA && meteoPoint.point.utm.y != NODATA))
+            else if ((int(meteoPoint.latitude) == int(NODATA) || int(meteoPoint.longitude) == int(NODATA))
+                && (int(meteoPoint.point.utm.x) != int(NODATA) && int(meteoPoint.point.utm.y) != int(NODATA)))
             {
                 gis::getLatLonFromUtm(gisSettings, meteoPoint.point.utm.x, meteoPoint.point.utm.y,
                                         &(meteoPoint.latitude), &(meteoPoint.longitude));
                 isPositionOk = true;
             }
-            else if ((meteoPoint.latitude != NODATA || meteoPoint.longitude != NODATA)
-                && (meteoPoint.point.utm.x == NODATA && meteoPoint.point.utm.y == NODATA))
+            else if ((int(meteoPoint.latitude) != int(NODATA) || int(meteoPoint.longitude) != int(NODATA))
+                     && (int(meteoPoint.point.utm.x) == int(NODATA) && int(meteoPoint.point.utm.y) == int(NODATA)))
             {
                 gis::latLonToUtmForceZone(gisSettings.utmZone, meteoPoint.latitude, meteoPoint.longitude,
                                           &(meteoPoint.point.utm.x), &(meteoPoint.point.utm.y));
