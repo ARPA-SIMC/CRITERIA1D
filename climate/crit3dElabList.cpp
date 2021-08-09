@@ -381,3 +381,20 @@ void Crit3DElabList::addElab(unsigned int index)
     _listAll.append(elabAdded);
 }
 
+std::vector<QString> Crit3DElabList::listFileName() const
+{
+    return _listFileName;
+}
+
+void Crit3DElabList::setListFileName(const std::vector<QString> &listFileName)
+{
+    _listFileName = listFileName;
+}
+
+void Crit3DElabList::insertFileName(QString filename)
+{
+    _listFileName.push_back(filename);
+}
+
+
+
