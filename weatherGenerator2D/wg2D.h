@@ -53,6 +53,9 @@
         double p010;
         double p110;
 
+        double p0000;
+        double p00000;
+
         int month;
     };
 
@@ -265,10 +268,10 @@
         void precipitation29February(int idStation);
         void precipitationAmountsOccurences(int idStation, double* precipitationAmountsD,bool* precipitationOccurencesD);
         void precipitationP00P10();
-        void weatherGenerator2D::precipitationP000P100P010P110();
+        void precipitationP000P100P010P110();
         void precipitationCorrelationMatrices();
         void precipitationMultisiteOccurrenceGeneration();
-        void spatialIterationOccurrence(double ** M, double **K, double **occurrences, double** matrixOccurrence, double** normalizedMatrixRandom, double **transitionNormal, int lengthSeries);
+        void spatialIterationOccurrence(double ** M, double **K, double **occurrences, double** matrixOccurrence, double** normalizedMatrixRandom, double **transitionNormal, double ***transitionNormalAugmentedMemory, int lengthSeries);
         void precipitationMultiDistributionParameterization();
         void precipitationMultisiteAmountsGeneration();
         void initializeBaseWeatherVariables();
