@@ -3,7 +3,7 @@
 # CRITERIA1D
 CRITERIA-1D is a agro-hydrological model simulating one-dimensional soil water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different levels of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of water table depth to estimate the capillary rise. 
 
-The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the CriteriaOutput tool. The software is multi-platform (Windows, Linux, Mac OS).
+The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. The software is multi-platform (Windows, Linux, Mac OS).
 
 # CRITERIA1D_PRO
 CRITERIA1D_PRO is a tool to manage a 1D project, change the crop parameters, test the model and show the main output (Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs). 
