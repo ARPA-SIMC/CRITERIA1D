@@ -2474,6 +2474,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
 
     QDomNode ancestor = xmlDoc.documentElement().firstChild();
     QString myTag;
+    QString mySecondTag;
 
     QString firstYear;
     QString lastYear;
@@ -2492,6 +2493,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
     bool param1IsClimate = false;
     bool anomalyIsClimate;
     QString elabParam2;
+    QString filename;
 
     int nElab = 0;
     int nAnomaly = 0;
@@ -2661,6 +2663,27 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                     }
                     listXMLElab->insertElab2(elab.toLower());
                 }
+                if (myTag == "EXPORT")
+                {
+                    secondChild = child.firstChild();
+                    while( !secondChild.isNull())
+                    {
+                        mySecondTag = secondChild.toElement().tagName().toUpper();
+                        if (mySecondTag == "FILENAME")
+                        {
+                            filename = secondChild.toElement().text();
+                            if (filename.isEmpty())
+                            {
+                                listXMLElab->insertFileName("");
+                            }
+                            else
+                            {
+                                listXMLElab->insertFileName(filename);
+                            }
+                        }
+                        secondChild = secondChild.nextSibling();
+                    }
+                }
                 if (errorElab)
                 {
                     errorElab = false;
@@ -2672,7 +2695,6 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                 {
                     child = child.nextSibling();
                 }
-
             }
             nElab = nElab + 1;
             qDebug() << "nElab " << nElab;
@@ -3012,6 +3034,27 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                             refElab2 = "average";
                         }
                         listXMLAnomaly->insertRefElab2(refElab2.toLower());
+                    }
+                }
+                if (myTag == "EXPORT")
+                {
+                    secondChild = child.firstChild();
+                    while( !secondChild.isNull())
+                    {
+                        mySecondTag = secondChild.toElement().tagName().toUpper();
+                        if (mySecondTag == "FILENAME")
+                        {
+                            filename = secondChild.toElement().text();
+                            if (filename.isEmpty())
+                            {
+                                listXMLAnomaly->insertFileName("");
+                            }
+                            else
+                            {
+                                listXMLAnomaly->insertFileName(filename);
+                            }
+                        }
+                        secondChild = secondChild.nextSibling();
                     }
                 }
                 if (errorAnomaly)
