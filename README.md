@@ -1,5 +1,3 @@
-[![Build Status](https://badges.herokuapp.com/travis/ARPA-SIMC/CRITERIA1D?branch=master&env=DOCKER_IMAGE=centos:8&label=centos8)](https://travis-ci.org/ARPA-SIMC/CRITERIA1D)
-[![Build Status](https://badges.herokuapp.com/travis/ARPA-SIMC/CRITERIA1D?branch=master&env=DOCKER_IMAGE=ubuntu:xenial&label=ubuntuxenial)](https://travis-ci.org/ARPA-SIMC/CRITERIA1D)
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
 
 # CRITERIA-1D
