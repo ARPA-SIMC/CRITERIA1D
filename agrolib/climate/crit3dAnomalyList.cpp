@@ -764,3 +764,18 @@ void Crit3DAnomalyList::setListAll(const QList<QString> &listAll)
 {
     _listAll = listAll;
 }
+
+std::vector<QString> Crit3DAnomalyList::listFileName() const
+{
+    return _listFileName;
+}
+
+void Crit3DAnomalyList::setListFileName(const std::vector<QString> &listFileName)
+{
+    _listFileName = listFileName;
+}
+
+void Crit3DAnomalyList::insertFileName(QString filename)
+{
+    _listFileName.push_back(filename);
+}

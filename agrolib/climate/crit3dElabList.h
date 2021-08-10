@@ -94,6 +94,10 @@ public:
 
     void addElab(unsigned int index);
 
+    std::vector<QString> listFileName() const;
+    void setListFileName(const std::vector<QString> &listFileName);
+    void insertFileName(QString filename);
+
 private:
 
     QList<QString> _listAll;
@@ -112,6 +116,7 @@ private:
     std::vector<QString> _listParam1ClimateField;
     std::vector<QString> _listElab2;
     std::vector<float> _listParam2;
+    std::vector<QString> _listFileName;
 };
 
 #endif // CRIT3DELABLIST_H

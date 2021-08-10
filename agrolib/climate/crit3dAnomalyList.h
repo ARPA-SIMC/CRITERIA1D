@@ -161,6 +161,10 @@ public:
     QList<QString> listAll() const;
     void setListAll(const QList<QString> &listAll);
 
+    std::vector<QString> listFileName() const;
+    void setListFileName(const std::vector<QString> &listFileName);
+    void insertFileName(QString filename);
+
 private:
 
     QList<QString> _listAll;
@@ -200,6 +204,8 @@ private:
     std::vector<QString> _listRefParam1ClimateField;
     std::vector<QString> _listRefElab2;
     std::vector<float> _listRefParam2;
+
+    std::vector<QString> _listFileName;
 };
 
 #endif // CRIT3DANOMALYLIST_H
