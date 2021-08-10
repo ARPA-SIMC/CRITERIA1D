@@ -488,6 +488,66 @@ void weatherGenerator2D::precipitationP00P10()
     //getchar();*/
 }
 
+int weatherGenerator2D::recursiveAccountDryDays(int idStation, int i, int iMonth,int step, int** consecutiveDays, int** occurrence)
+{
+    consecutiveDays[iMonth-1][step]++;
+    if (obsDataD[idStation][i+step].prec < parametersModel.precipitationThreshold && step<30)
+    {
+        occurrence[iMonth-1][step]++;
+        recursiveAccountDryDays(idStation, i, iMonth, step+1, consecutiveDays, occurrence);
+    }
+    return 0;
+}
+
+void weatherGenerator2D::precipitationPDryUp30()
+{
+    for (int idStation=0;idStation<nrStations;idStation++)
+    {
+        int** occurrence0;
+        int** daysDry;
+        occurrence0 = (int **)calloc(12, sizeof(int*));
+        daysDry = (int **)calloc(12, sizeof(int*));
+        for(int i=0;i<12;i++)
+        {
+            occurrence0[i] = (int *)calloc(30, sizeof(int));
+            daysDry[i] = (int *)calloc(30, sizeof(int));
+            for(int j=0;j<30;j++)
+            {
+                occurrence0[i][j]=0;
+                daysDry[i][j]=0;
+            }
+        }
+
+        for(int i=0;i<nrData-30;i++)
+        {
+            if ((obsDataD[idStation][i].prec >= 0 && obsDataD[idStation][i+1].prec >= 0 && obsDataD[idStation][i+2].prec >= 0) && isPrecipitationRecordOK(obsDataD[idStation][i+2].prec) && isPrecipitationRecordOK(obsDataD[idStation][i+1].prec) && isPrecipitationRecordOK(obsDataD[idStation][i].prec))
+            {
+                for (int iMonth=1;iMonth<13;iMonth++)
+                {
+                    if(obsDataD[idStation][i].date.month == iMonth)
+                    {
+                        /*for (int step=0;step<30;step++)
+                        {
+                            daysDry[iMonth-1][step]++;
+                            if (obsDataD[idStation][i+step].prec < parametersModel.precipitationThreshold)
+                            {
+                                occurrence0[iMonth-1][step]++;
+                            }
+                        }*/
+                        int step=0;
+                        recursiveAccountDryDays(idStation,i,iMonth,step,daysDry,occurrence0);
+                    }
+                }
+            }
+        }
+        for (int iMonth=0;iMonth<12;iMonth++)
+        {
+
+        }
+    }
+
+}
+
 void weatherGenerator2D::precipitationP000P100P010P110()
 {
     // initialization
