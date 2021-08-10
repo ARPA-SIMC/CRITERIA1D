@@ -2,7 +2,7 @@
 %{!?srcarchivename: %global srcarchivename CRITERIA1D-%{version}}
 
 Name:           CRITERIA1D
-Version:        1.2.5
+Version:        1.3.0
 Release:        1%{?dist}
 Summary:        One-dimensional soil water balance
 
@@ -43,13 +43,13 @@ qmake-qt5 Makeall_CRITERIA1D.pro -spec linux-g++-64 CONFIG+=release CONFIG+=forc
 make
 popd
 
-pushd bin/Makeall_CROP_EDITOR
-qmake-qt5 Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler
+pushd bin/Makeall_SOIL_EDITOR
+qmake-qt5 Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
 popd
 
-pushd bin/Makeall_SOIL_EDITOR
-qmake-qt5 Makeall_SOIL_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler
+pushd bin/Makeall_CRITERIA1D_PRO
+qmake-qt5 Makeall_CRITERIA1D_PRO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler
 make
 popd
 
@@ -62,20 +62,23 @@ popd
 rm -rf $RPM_BUILD_ROOT
 mkdir -p %{buildroot}/%{_bindir}/
 cp -a bin/CRITERIA1D/release/CRITERIA1D %{buildroot}/%{_bindir}/
-cp -a bin/CROP_EDITOR/release/CROP_EDITOR %{buildroot}/%{_bindir}/
 cp -a bin/SOIL_EDITOR/release/SOIL_EDITOR %{buildroot}/%{_bindir}/
+cp -a bin/CRITERIA1D_PRO/release/CRITERIA1D_PRO %{buildroot}/%{_bindir}/
 cp -a bin/CRITERIAGEO/release/CRITERIA_GEO %{buildroot}/%{_bindir}/
 mkdir -p %{buildroot}/%{_datadir}/
 cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 
 %files
 %{_bindir}/CRITERIA1D
-%{_bindir}/CROP_EDITOR
 %{_bindir}/SOIL_EDITOR
+%{_bindir}/CRITERIA1D_PRO
 %{_bindir}/CRITERIA_GEO
 %{_datadir}/CRITERIA1D/*
 
 %changelog
+* Tue Aug 10 2021 Fausto Tomei <ftomei@arpae.it> - 1.3.0-1
+- Release 1.3.0
+
 * Tue May 25 2021 Fausto Tomei <ftomei@arpae.it> - 1.2.5-1
 - Release 1.2.5
 
