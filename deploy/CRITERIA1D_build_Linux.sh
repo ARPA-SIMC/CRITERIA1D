@@ -4,12 +4,14 @@
 QT_DIR=/opt/Qt/5.12.8/gcc_64/
 QMAKE=$QT_DIR/bin/qmake
 
-# # build mapGraphics
+# build mapGraphics
 cd ../mapGraphics
 rm -f Makefile
 $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile all
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`realpath ../mapGraphics/release/`
 
 cd -
 
@@ -68,7 +70,7 @@ function make_appimage {
     BIN_NAME=`basename $1`
 
     rm -rf build
-    # make tree and copy executables and images
+    make tree and copy executables and images
     cp -rf appimage build
     
     cp $BIN_PATH build/usr/bin/$BIN_NAME
