@@ -24,6 +24,7 @@
 
 #include "cropWidget.h"
 #include "dialogNewCrop.h"
+#include "dialogNewProject.h"
 #include "cropDbTools.h"
 #include "cropDbQuery.h"
 #include "criteria1DMeteo.h"
@@ -33,6 +34,7 @@
 #include "soilWidget.h"
 #include "meteoWidget.h"
 #include "criteria1DMeteo.h"
+#include "utilities.h"
 
 #include <QFileInfo>
 #include <QFileDialog>
@@ -48,7 +50,7 @@
 
 Crit3DCropWidget::Crit3DCropWidget()
 {
-    setWindowTitle(QStringLiteral("CRITERIA 1D - Crop Editor"));
+    setWindowTitle(QStringLiteral("CRITERIA 1D_PRO"));
     resize(1400, 700);
 
     isRedraw = true;
@@ -452,6 +454,7 @@ Crit3DCropWidget::Crit3DCropWidget()
     this->layout()->setMenuBar(menuBar);
 
     QAction* openProject = new QAction(tr("&Open CRITERIA-1D Project"), this);
+    QAction* newProject = new QAction(tr("&New CRITERIA-1D Project"), this);
     QAction* openCropDB = new QAction(tr("&Open dbCrop"), this);
     QAction* openMeteoDB = new QAction(tr("&Open dbMeteo"), this);
     QAction* openSoilDB = new QAction(tr("&Open dbSoil"), this);
@@ -464,6 +467,7 @@ Crit3DCropWidget::Crit3DCropWidget()
     restoreData = new QAction(tr("&Restore Data"), this);
 
     fileMenu->addAction(openProject);
+    fileMenu->addAction(newProject);
     fileMenu->addSeparator();
     fileMenu->addAction(openCropDB);
     fileMenu->addAction(openMeteoDB);
@@ -483,6 +487,7 @@ Crit3DCropWidget::Crit3DCropWidget()
     cropChanged = false;
 
     connect(openProject, &QAction::triggered, this, &Crit3DCropWidget::on_actionOpenProject);
+    connect(newProject, &QAction::triggered, this, &Crit3DCropWidget::on_actionNewProject);
     connect(&caseListComboBox, &QComboBox::currentTextChanged, this, &Crit3DCropWidget::on_actionChooseCase);
 
     connect(openCropDB, &QAction::triggered, this, &Crit3DCropWidget::on_actionOpenCropDB);
@@ -569,6 +574,44 @@ void Crit3DCropWidget::on_actionOpenProject()
     }
 
     isRedraw = true;
+}
+
+void Crit3DCropWidget::on_actionNewProject()
+{
+    DialogNewProject dialog;
+    if (dialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        QString dataPath;
+        QString projectName = dialog.getProjectName();
+        projectName = projectName.simplified().remove(' ');
+        if (searchDataPath(&dataPath))
+        {
+            QString completePath = dataPath+PATH_PROJECT+projectName;
+            if(!QDir().mkdir(completePath))
+            {
+                QMessageBox::StandardButton confirm;
+                QString msg = "Project dir "+ completePath + " already exists, do you want to overwrite it?";
+                confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+
+                if (confirm == QMessageBox::Yes)
+                {
+                    // TO DO
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                QDir().mkdir(completePath+"/data");
+            }
+        }
+    }
 }
 
 

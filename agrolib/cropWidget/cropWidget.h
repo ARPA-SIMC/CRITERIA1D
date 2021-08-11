@@ -30,6 +30,7 @@
         public:
             Crit3DCropWidget();
             void on_actionOpenProject();
+            void on_actionNewProject();
             void on_actionOpenCropDB();
             void on_actionChooseCase();
             void on_actionChooseCrop(QString idCrop);
