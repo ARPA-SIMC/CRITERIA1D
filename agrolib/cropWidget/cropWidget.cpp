@@ -599,7 +599,8 @@ void Crit3DCropWidget::on_actionNewProject()
 
                 if (confirm == QMessageBox::Yes)
                 {
-                    // TO DO
+                    clearDir(completePath);
+                    QDir().mkdir(completePath+"/data");
                 }
                 else
                 {
