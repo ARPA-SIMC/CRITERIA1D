@@ -38,6 +38,7 @@ SOURCES += \
     cropCallout.cpp \
     cropWidget.cpp \
     dialogNewCrop.cpp \
+    dialogNewProject.cpp \
     tabIrrigation.cpp \
     tabLAI.cpp \
     tabRootDensity.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
     cropCallout.h \
     cropWidget.h \
     dialogNewCrop.h \
+    dialogNewProject.h \
     tabIrrigation.h \
     tabLAI.h \
     tabRootDensity.h \
