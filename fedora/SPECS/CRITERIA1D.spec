@@ -18,6 +18,8 @@ BuildRequires:  gdal-libs
 BuildRequires:  gdal-devel
 BuildRequires:  geos
 BuildRequires:  geos-devel
+BuildRequires:  netcdf
+BuildRequires:  netcdf-devel
 
 Requires:       qt5-qtbase-mysql
 
