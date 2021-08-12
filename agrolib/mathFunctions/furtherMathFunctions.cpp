@@ -47,7 +47,10 @@ float blackBodyShape(TfunctionInput fInput)
     y = b * float(pow(fInput.x, 3)*(1. / (exp(b*fInput.x)-0.99)));
     return (y);
 }
-
+double parabolicFunction(double x, double* par)
+{
+    return par[1]*(x - par[0])*(x - par[0]) + par[2] ;
+}
 
 double twoParametersAndExponentialPolynomialFunctions(double x, double* par)
 {
@@ -618,6 +621,9 @@ namespace interpolation
 
             case FUNCTION_CODE_MODIFIED_VAN_GENUCHTEN_RESTRICTED :
                 return modifiedVanGenuchten(x, parameters, true);
+
+            case FUNCTION_CODE_PARABOLIC :
+            return parabolicFunction(x, parameters);
 
             default:
                 return NODATA ;
