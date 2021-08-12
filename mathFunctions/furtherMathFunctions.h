@@ -19,6 +19,7 @@
     double harmonicsFourierGeneral(double x, double* par,int nrPar);
     float errorFunctionPrimitive(float x);
     double errorFunctionPrimitive(double x);
+    double parabolicFunction(double x, double* par);
 
 
     struct TfunctionInput{
