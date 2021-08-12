@@ -46,6 +46,7 @@
     bool removeDirectory(QString myPath);
     bool searchDocPath(QString* docPath);
     bool searchDataPath(QString* dataPath);
+    void clearDir( const QString path );
 
 
 #endif // UTILITIES_H
