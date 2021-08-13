@@ -379,7 +379,7 @@ void MainWindow::on_actionLoadRaster_triggered()
     // resize and center map
     gis::Crit3DGeoPoint* center = this->rasterObjList.back()->getRasterCenter();
     float size = this->rasterObjList.back()->getRasterMaxSize();
-    this->mapView->setZoomLevel(quint8(log2(ui->widgetMap->width() / size)));
+    this->mapView->setZoomLevel(quint8(log2(float(ui->widgetMap->width()) / size)));
     this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
     this->updateMaps();
 }
@@ -1077,10 +1077,9 @@ void MainWindow::on_actionClose_Project_triggered()
 
 void MainWindow::on_actionOutput_Map_triggered()
 {
-    QString error;
-    if (!myProject.output.getAllDbVariable(error))
+    if (!myProject.output.getAllDbVariable())
     {
-        QMessageBox::critical(nullptr, "Error", "Error in load db data variables:\n" + error);
+        QMessageBox::critical(nullptr, "Error", "Error in load db data variables:\n" + myProject.output.projectError);
         return;
     }
     else
@@ -1090,9 +1089,9 @@ void MainWindow::on_actionOutput_Map_triggered()
     }
     QDate firstDate;
     QDate lastDate;
-    if (!myProject.output.getDbDataDates(&firstDate, &lastDate, error))
+    if (!myProject.output.getDbDataDates(firstDate, lastDate))
     {
-        QMessageBox::critical(nullptr, "Ivalid first and last date db data.\n", error);
+        QMessageBox::critical(nullptr, "Ivalid first and last date db data.\n", myProject.output.projectError);
         return;
     }
 
