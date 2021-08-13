@@ -797,7 +797,7 @@ void Crit3DCropWidget::openCropDB(QString newDbCropName)
     }
 
     // read crop list
-    QStringList cropStringList;
+    QList<QString> cropStringList;
     if (! getCropIdList(&(myProject.dbCrop), &cropStringList, &error))
     {
         QMessageBox::critical(nullptr, "Error!", error);

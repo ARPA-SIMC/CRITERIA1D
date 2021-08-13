@@ -42,10 +42,10 @@ DialogNewProject::DialogNewProject()
 QGroupBox *DialogNewProject::createSoilGroup()
 {
 
-    QGroupBox *groupBox = new QGroupBox(tr("Select soil db"));
+    QGroupBox *groupBox = new QGroupBox(tr("Select SOIL db"));
 
     newSoil = new QRadioButton(tr("&New Db"));
-    defaultSoil = new QRadioButton(tr("&Default Db"));
+    defaultSoil = new QRadioButton(tr("&Default Db (ER soil)"));
     chooseSoil = new QRadioButton(tr("&Choose Db"));
 
     newSoil->setChecked(true);
@@ -70,10 +70,10 @@ QGroupBox *DialogNewProject::createSoilGroup()
 QGroupBox *DialogNewProject::createMeteoGroup()
 {
 
-    QGroupBox *groupBox = new QGroupBox(tr("Select meteo db"));
+    QGroupBox *groupBox = new QGroupBox(tr("Select METEO db"));
 
     newMeteo = new QRadioButton(tr("&New Db"));
-    defaultMeteo = new QRadioButton(tr("&Default Db"));
+    defaultMeteo = new QRadioButton(tr("&Default Db (test data)"));
     chooseMeteo = new QRadioButton(tr("&Choose Db"));
 
     newMeteo->setChecked(true);
@@ -98,7 +98,7 @@ QGroupBox *DialogNewProject::createMeteoGroup()
 QGroupBox *DialogNewProject::createCropGroup()
 {
 
-    QGroupBox *groupBox = new QGroupBox(tr("Select crop db"));
+    QGroupBox *groupBox = new QGroupBox(tr("Select CROP parameters db"));
 
     defaultCrop = new QRadioButton(tr("&Default Db"));
     chooseCrop = new QRadioButton(tr("&Choose Db"));
@@ -221,6 +221,7 @@ void DialogNewProject::hideCropName()
     dbCropName->setText("");
 }
 
+
 int DialogNewProject::getSoilDbOption()
 {
     if (newSoil->isChecked())
@@ -235,7 +236,12 @@ int DialogNewProject::getSoilDbOption()
     {
         return CHOOSE_DB;
     }
+    else
+    {
+        return NEW_DB;
+    }
 }
+
 
 int DialogNewProject::getMeteoDbOption()
 {
@@ -251,7 +257,12 @@ int DialogNewProject::getMeteoDbOption()
     {
         return CHOOSE_DB;
     }
+    else
+    {
+        return NEW_DB;
+    }
 }
+
 
 int DialogNewProject::getCropDbOption()
 {
@@ -262,5 +273,9 @@ int DialogNewProject::getCropDbOption()
     else if(chooseCrop->isChecked())
     {
         return CHOOSE_DB;
+    }
+    else
+    {
+        return DEFAULT_DB;
     }
 }
