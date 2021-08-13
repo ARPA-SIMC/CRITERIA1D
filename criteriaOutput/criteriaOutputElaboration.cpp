@@ -8,6 +8,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlRecord>
+#include <QTextStream>
 
 int computeAllDtxUnit(QSqlDatabase db, QString idCase, QString &error)
 {
