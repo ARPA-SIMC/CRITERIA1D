@@ -5,7 +5,7 @@
 #include <QtSql>
 
 
-bool getCropIdList(QSqlDatabase* dbCrop, QStringList* cropIdList, QString* error)
+bool getCropIdList(QSqlDatabase* dbCrop, QList<QString>* cropIdList, QString* error)
 {
     // query crop list
     QString queryString = "SELECT id_crop FROM crop";

@@ -5,6 +5,7 @@
 #include <QDate>
 #include <fstream>
 #include <QSqlDatabase>
+
 #include "logger.h"
 #include "criteriaOutputVariable.h"
 #include "criteriaAggregationVariable.h"
@@ -94,6 +95,7 @@ public:
 
     void initialize();
     void closeProject();
+
     int initializeProject(QString settingsFileName, QString operation, QDate dateComputation, bool isLog);
     int initializeProjectDtx();
     int initializeProjectCsv();
@@ -108,8 +110,8 @@ public:
     int createMaps();
 
     bool initializeCsvOutputFile();
-    bool getAllDbVariable(QString &projectError);   
-    bool getDbDataDates(QDate* firstDate, QDate* lastDate, QString &projectError);
+    bool getAllDbVariable();
+    bool getDbDataDates(QDate &firstDate, QDate &lastDate);
     int createCsvFileFromGUI(QDate dateComputation, QString csvFileName);
     int createShapeFileFromGUI();
     bool convertShapeToNetcdf(Crit3DShapeHandler &shape, QString outputFileName, QString field, double cellSize);

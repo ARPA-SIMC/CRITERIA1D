@@ -439,7 +439,7 @@ int CriteriaOutputProject::createCsvFile()
         idCase = unitList[i].idCase;
         idCropClass = unitList[i].idCropClass;
 
-        myResult = writeCsvOutputUnit(idCase, idCropClass, dbData, dbCrop, dbDataHistorical, dateComputation, outputVariable, outputCsvFileName, &projectError);
+        myResult = writeCsvOutputUnit(idCase, idCropClass, dbData, dbCrop, dbDataHistorical, dateComputation, outputVariable, outputCsvFileName, projectError);
         if (myResult != CRIT1D_OK)
         {
             if (QFile(outputCsvFileName).exists())
@@ -541,8 +541,8 @@ int CriteriaOutputProject::createMaps()
     logger.writeInfo("MAPS");
 
     // parser csv file mapListFileName
-    QStringList inputField;
-    QStringList outputName;
+    QList<QString> inputField;
+    QList<QString> outputName;
     QFile mapList(mapListFileName);
     if ( !mapList.open(QFile::ReadOnly | QFile::Text) )
     {
@@ -554,7 +554,7 @@ int CriteriaOutputProject::createMaps()
         QTextStream in(&mapList);
         //skip header
         QString line = in.readLine();
-        QStringList header = line.split(",");
+        QList<QString> header = line.split(",");
         // whitespace removed from the start and the end.
         QMutableListIterator<QString> it(header);
         while (it.hasNext()) {
@@ -564,7 +564,7 @@ int CriteriaOutputProject::createMaps()
         while (!in.atEnd())
         {
             line = in.readLine();
-            QStringList items = line.split(",");
+            QList<QString> items = line.split(",");
             if (items.size() < REQUIREDMAPLISTCSVINFO)
             {
                 projectError = "invalid map list format CSV, input field and output file name required";
@@ -967,7 +967,7 @@ bool CriteriaOutputProject::initializeCsvOutputFile()
     return true;
 }
 
-bool CriteriaOutputProject::getAllDbVariable(QString &projectError)
+bool CriteriaOutputProject::getAllDbVariable()
 {
     // check DB
     if (!QFile(dbDataName).exists())
@@ -987,7 +987,7 @@ bool CriteriaOutputProject::getAllDbVariable(QString &projectError)
     QSqlQuery qry(dbData);
     QString statement = QString("SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%' ESCAPE '^'");
     QString tableName;
-    QStringList varList;
+    QList<QString> varList;
     if( !qry.exec(statement) )
     {
         projectError = qry.lastError().text();
@@ -1034,9 +1034,9 @@ bool CriteriaOutputProject::getAllDbVariable(QString &projectError)
     }
 }
 
-bool CriteriaOutputProject::getDbDataDates(QDate* firstDate, QDate* lastDate, QString &projectError)
+bool CriteriaOutputProject::getDbDataDates(QDate &firstDate, QDate &lastDate)
 {
-    QStringList tablesList = dbData.tables();
+    QList<QString> tablesList = dbData.tables();
     if (tablesList.isEmpty())
     {
         projectError = "Db is empty";
@@ -1049,8 +1049,8 @@ bool CriteriaOutputProject::getDbDataDates(QDate* firstDate, QDate* lastDate, QS
     QDate firstTmp;
     QDate lastTmp;
 
-    *firstDate = QDate::currentDate();
-    *lastDate = QDate(1800,1,1);
+    firstDate = QDate::currentDate();
+    lastDate = QDate(1800,1,1);
 
     for (int i = 0; i < tablesList.size(); i++)
     {
@@ -1070,17 +1070,17 @@ bool CriteriaOutputProject::getDbDataDates(QDate* firstDate, QDate* lastDate, QS
         getValue(qry.value("MIN(DATE)"), &firstTmp);
         getValue(qry.value("MAX(DATE)"), &lastTmp);
 
-        if (firstTmp < *firstDate)
+        if (firstTmp < firstDate)
         {
-            *firstDate = firstTmp;
+            firstDate = firstTmp;
         }
-        if (lastTmp > *lastDate)
+        if (lastTmp > lastDate)
         {
-            *lastDate = lastTmp;
+            lastDate = lastTmp;
         }
     }
 
-    if (!firstDate->isValid() || !lastDate->isValid())
+    if (!firstDate.isValid() || !lastDate.isValid())
     {
         projectError = "Invalid date";
         return false;
@@ -1088,6 +1088,7 @@ bool CriteriaOutputProject::getDbDataDates(QDate* firstDate, QDate* lastDate, QS
 
     return true;
 }
+
 
 int CriteriaOutputProject::createCsvFileFromGUI(QDate dateComputation, QString csvFileName)
 {
@@ -1126,7 +1127,7 @@ int CriteriaOutputProject::createCsvFileFromGUI(QDate dateComputation, QString c
         idCase = unitList[i].idCase;
         idCropClass = unitList[i].idCropClass;
 
-        myResult = writeCsvOutputUnit(idCase, idCropClass, dbData, dbCrop, dbDataHistorical, dateComputation, outputVariable, csvFileName, &projectError);
+        myResult = writeCsvOutputUnit(idCase, idCropClass, dbData, dbCrop, dbDataHistorical, dateComputation, outputVariable, csvFileName, projectError);
         if (myResult != CRIT1D_OK)
         {
             if (QFile(csvFileName).exists())
