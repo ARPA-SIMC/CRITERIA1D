@@ -1,6 +1,10 @@
 #ifndef GAMMAFUNCTION
 #define GAMMAFUNCTION
 
+#ifndef _VECTOR_
+    #include <vector>
+#endif
+
     /*!
      * code from http://www.mymathlib.com/
      * Copyright © 2004 RLH. All rights reserved.
@@ -28,14 +32,20 @@
     double Ln_Gamma_Function(double x);
     long double xLn_Gamma_Function(long double x);
 
-    namespace gammaDistributions
-    {
-        double gammaNaturalLogarithm(double value);
-        void gammaIncompleteP(double *gammaDevelopmentSeries, double alpha, double x, double *gammaLn);
-        void gammaIncompleteComplementaryFunction(double *gammaComplementaryFunction, double alpha, double x, double *gammaLn);
-        double incompleteGamma(double alpha, double x, double *lnGammaValue); // incomplete + complete
-        double incompleteGamma(double alpha, double x); // only incomplete
-    }
+    double standardGaussianInvCDF(double prob);
+    float gammaCDF(float x, double beta, double gamma,  double pZero) ;
+    void probabilityWeightedMoments(std::vector<float> series, int n, std::vector<float> &probWeightedMoments, float a, float b, bool isBeta);
+    void logLogisticFitting(std::vector<float> probWeightedMoments, double *alpha, double *beta, double *gamma);
+    float logLogisticCDF(float myValue, double alpha, double beta, double gamma);
+
+
+    double gammaNaturalLogarithm(double value);
+    void gammaIncompleteP(double *gammaDevelopmentSeries, double alpha, double x, double *gammaLn);
+    void gammaIncompleteComplementaryFunction(double *gammaComplementaryFunction, double alpha, double x, double *gammaLn);
+    double incompleteGamma(double alpha, double x, double *lnGammaValue); // incomplete + complete
+    double incompleteGamma(double alpha, double x); // only incomplete
+    bool gammaFitting(std::vector<float> &series, int n, double* beta, double* gamma,  double* pZero);
+
 
 
 #endif // GAMMAFUNCTION

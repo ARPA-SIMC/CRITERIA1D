@@ -83,18 +83,19 @@
 
     enum lapseRateCodeType {primary, secondary, supplemental};
 
-    enum meteoVariable {airTemperature, dailyAirTemperatureMin, dailyAirTemperatureMax, dailyAirTemperatureAvg, dailyAirTemperatureRange,
-                    precipitation, dailyPrecipitation,
+    enum meteoVariable {airTemperature, dailyAirTemperatureMin, monthlyAirTemperatureMin, dailyAirTemperatureMax, monthlyAirTemperatureMax,
+                    dailyAirTemperatureAvg, monthlyAirTemperatureAvg, dailyAirTemperatureRange,
+                    precipitation, dailyPrecipitation, monthlyPrecipitation,
                     airRelHumidity, dailyAirRelHumidityMin, dailyAirRelHumidityMax, dailyAirRelHumidityAvg,
                     airDewTemperature, dailyAirDewTemperatureMin, dailyAirDewTemperatureMax, dailyAirDewTemperatureAvg,
                     thom, dailyThomMax, dailyThomAvg, dailyThomHoursAbove, dailyThomDaytime, dailyThomNighttime,
                     globalIrradiance, netIrradiance, directIrradiance, diffuseIrradiance, reflectedIrradiance, atmTransmissivity,
-                    dailyGlobalRadiation, dailyDirectRadiation, dailyDiffuseRadiation, dailyReflectedRadiation,
+                    dailyGlobalRadiation, monthlyGlobalRadiation, dailyDirectRadiation, dailyDiffuseRadiation, dailyReflectedRadiation,
                     windScalarIntensity, windVectorIntensity, windVectorDirection, windVectorX, windVectorY,
                     dailyWindVectorIntensityAvg, dailyWindVectorIntensityMax, dailyWindVectorDirectionPrevailing, dailyWindScalarIntensityAvg, dailyWindScalarIntensityMax,
                     leafWetness, dailyLeafWetness, atmPressure,
-                    referenceEvapotranspiration, dailyReferenceEvapotranspirationHS, dailyReferenceEvapotranspirationPM, actualEvaporation,
-                    dailyBIC, dailyHeatingDegreeDays, dailyCoolingDegreeDays,
+                    referenceEvapotranspiration, dailyReferenceEvapotranspirationHS, monthlyReferenceEvapotranspirationHS, dailyReferenceEvapotranspirationPM, actualEvaporation,
+                    dailyBIC, monthlyBIC, dailyHeatingDegreeDays, dailyCoolingDegreeDays,
                     dailyWaterTableDepth,
                     snowWaterEquivalent, snowFall, snowSurfaceTemperature, snowInternalEnergy, snowSurfaceInternalEnergy,
                     anomaly, noMeteoTerrain, noMeteoVar};
@@ -216,10 +217,32 @@
         { actualEvaporation, "ACTUAL_EVAPO"}
     };
 
+    const std::map<std::string, meteoVariable> MapMonthlyMeteoVar = {
+      { "MONTHLY_TAVG", monthlyAirTemperatureAvg },
+      { "MONTHLY_TMIN", monthlyAirTemperatureMin },
+      { "MONTHLY_TMAX", monthlyAirTemperatureMax },
+      { "MONTHLY_PREC", monthlyPrecipitation },
+      { "MONTHLY_ET0_HS", monthlyReferenceEvapotranspirationHS },
+      { "MONTHLY_BIC", monthlyBIC },
+      { "MONTHLY_RAD", monthlyGlobalRadiation }
+    };
+
+    const std::map<meteoVariable, std::string> MapMonthlyMeteoVarToString = {
+        { monthlyAirTemperatureAvg, "MONTHLY_TAVG"} ,
+        { monthlyAirTemperatureMin, "MONTHLY_TMIN" },
+        { monthlyAirTemperatureMax, "MONTHLY_TMAX" },
+        { monthlyPrecipitation, "MONTHLY_PREC" },
+        { monthlyReferenceEvapotranspirationHS, "MONTHLY_ET0_HS" },
+        { monthlyBIC, "MONTHLY_BIC" },
+        { monthlyGlobalRadiation, "MONTHLY_RAD" }
+    };
+
 
     enum frequencyType {hourly, daily, monthly, noFrequency};
 
     enum surfaceType   {SurfaceTypeWater, SurfaceTypeSoil, SurfaceTypeCrop};
+
+    enum droughtIndex {INDEX_SPI, INDEX_SPEI, INDEX_DECILES};
 
     class Crit3DClimateParameters
     {
@@ -236,7 +259,8 @@
         std::vector <float> tdMaxLapseRate;
 
         float getClimateLapseRate(meteoVariable myVar, Crit3DTime myTime);
-        float getClimateVar(meteoVariable myVar, Crit3DDate myDate, int myHour);
+        float getClimateLapseRate(meteoVariable myVar, int month);
+        float getClimateVar(meteoVariable myVar, int month, float height, float refHeight);
     };
 
     bool computeWindCartesian(float intensity, float direction, float* u, float* v);
