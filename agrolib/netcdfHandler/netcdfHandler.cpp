@@ -759,26 +759,45 @@ bool NetCDFHandler::createNewFile(std::string fileName)
 }
 
 
-bool NetCDFHandler::writeGeoDimensions(const gis::Crit3DGridHeader& latLonHeader)
+bool NetCDFHandler::writeMetadata(const gis::Crit3DGridHeader& latLonHeader, const string& title,
+                                              const string& variableName, const Crit3DDate& myDate)
 {
     if (ncId == NODATA) return false;
 
+    bool dateDimensionExists = (myDate != NO_DATE);
     nrLat = latLonHeader.nrRows;
     nrLon = latLonHeader.nrCols;
-    int varLat, varLon;
+    int varLat, varLon, varDate, status;
 
-    // def dimensions (lat/lon)
-    int status = nc_def_dim(ncId, "latitude", unsigned(nrLat), &idLat);
+    // write global attributes
+    status = nc_put_att_text(ncId, NC_GLOBAL, "title", title.length(), title.c_str());
+    if (status != NC_NOERR) return false;
+    status = nc_put_att_text(ncId, NC_GLOBAL, "history", 11, "Version 1.0");
+    if (status != NC_NOERR) return false;
+    status = nc_put_att_text(ncId, NC_GLOBAL, "Conventions", 6, "CF-1.7");
     if (status != NC_NOERR) return false;
 
-    status = nc_def_dim(ncId, "longitude", unsigned(nrLon), &idLon);
+    // date
+    if (dateDimensionExists)
+    {
+        status = nc_def_dim(ncId, "date", unsigned(1), &idTime);
+        if (status != NC_NOERR) return false;
+
+        status = nc_def_var (ncId, "date", NC_STRING, 1, &idTime, &varDate);
+        if (status != NC_NOERR) return false;
+    }
+
+    // lat lon
+    status = nc_def_dim(ncId, "lat", unsigned(nrLat), &idLat);
     if (status != NC_NOERR) return false;
 
-    // def geo variables (lat/lon)
-    status = nc_def_var (ncId, "latitude", NC_FLOAT, 1, &idLat, &varLat);
+    status = nc_def_dim(ncId, "lon", unsigned(nrLon), &idLon);
     if (status != NC_NOERR) return false;
 
-    status = nc_def_var (ncId, "longitude", NC_FLOAT, 1, &idLon, &varLon);
+    status = nc_def_var (ncId, "lat", NC_FLOAT, 1, &idLat, &varLat);
+    if (status != NC_NOERR) return false;
+
+    status = nc_def_var (ncId, "lon", NC_FLOAT, 1, &idLon, &varLon);
     if (status != NC_NOERR) return false;
 
     // def generic variable
@@ -786,7 +805,7 @@ bool NetCDFHandler::writeGeoDimensions(const gis::Crit3DGridHeader& latLonHeader
     int varDimId[2];
     varDimId[0] = idLat;
     varDimId[1] = idLon;
-    status = nc_def_var (ncId, "var", NC_FLOAT, 2, varDimId, &(variables[0].id));
+    status = nc_def_var (ncId, variableName.c_str(), NC_FLOAT, 2, varDimId, &(variables[0].id));
     if (status != NC_NOERR) return false;
 
     // compression
@@ -797,9 +816,13 @@ bool NetCDFHandler::writeGeoDimensions(const gis::Crit3DGridHeader& latLonHeader
     if (status != NC_NOERR) return false;
 
     // attributes
+    status = nc_put_att_text(ncId, varLat, "standard_name", 8, "latitude");
+    if (status != NC_NOERR) return false;
     status = nc_put_att_text(ncId, varLat, "units", 13, "degrees_north");
     if (status != NC_NOERR) return false;
 
+    status = nc_put_att_text(ncId, varLon, "standard_name", 9, "longitude");
+    if (status != NC_NOERR) return false;
     status = nc_put_att_text(ncId, varLon, "units", 12, "degrees_east");
     if (status != NC_NOERR) return false;
 
@@ -817,10 +840,18 @@ bool NetCDFHandler::writeGeoDimensions(const gis::Crit3DGridHeader& latLonHeader
     status = nc_enddef(ncId);
     if (status != NC_NOERR) return false;
 
+    // write date
+    if (dateDimensionExists)
+    {
+        const char **dateStr = new const char*;
+        *dateStr = myDate.toStdString().c_str();
+        status = nc_put_var_string(ncId, varDate, dateStr);
+        if (status != NC_NOERR) return false;
+    }
+
     // set lat/lon arrays
     lat = new float[unsigned(nrLat)];
     lon = new float[unsigned(nrLon)];
-
     for (int row = 0; row < nrLat; row++)
     {
         lat[row] = float(latLonHeader.llCorner.latitude + latLonHeader.dy * (latLonHeader.nrRows - row - 0.5));
