@@ -11,6 +11,7 @@
 #include "zonalStatistic.h"
 #include "computationUnitsDb.h"
 #include "netcdfHandler.h"
+#include "utilities.h"
 
 #ifdef GDAL
     #include "gdalShapeFunctions.h"
@@ -48,6 +49,7 @@ void CriteriaOutputProject::initialize()
     mapCellSize = "";
     mapFormat = "";
     mapProjection = "";
+    mapAreaName = "";
 
     outputCsvFileName = "";
     outputShapeFileName = "";
@@ -361,6 +363,8 @@ bool CriteriaOutputProject::readSettings()
     mapProjection = projectSettings->value("projection", "").toString();
     // map cell size
     mapCellSize = projectSettings->value("cellsize","").toString();
+    // map area name
+    mapAreaName = projectSettings->value("area_name","").toString();
 
     projectSettings->endGroup();
 
@@ -843,9 +847,17 @@ int CriteriaOutputProject::createNetcdf()
     foreach (QList<QString> valuesList, fieldList)
     {
         QString field = valuesList[0];
-        QString fileName = outputShapeFilePath + "/" + field + ".nc";
+        QString fileName = outputShapeFilePath + "/" + mapAreaName + "_" + field + ".nc";
+        std::string variableName = field.left(4).toStdString();         // TODO inserire var name nel file
+        std::string variableUnit = "mm";                                // TODO inserire var unit nel file
+        Crit3DDate computationDate = getCrit3DDate(dateComputation);
+        Crit3DDate date1 = computationDate;
+        int nrDays = 28;                                                // TODO inserire var nr days nel file
+        Crit3DDate date2 = getCrit3DDate(dateComputation.addDays(nrDays));
+
         logger.writeInfo("Export file: " + fileName);
-        if (! convertShapeToNetcdf(shapeHandler, fileName, field, cellSize))
+        if (! convertShapeToNetcdf(shapeHandler, fileName.toStdString(), field.toStdString(), variableName,
+                                   variableUnit, cellSize, computationDate, date1, date2))
         {
             projectError = "Error in export to NetCDF: " + projectError;
             return ERROR_NETCDF;
@@ -856,7 +868,9 @@ int CriteriaOutputProject::createNetcdf()
 }
 
 
-bool CriteriaOutputProject::convertShapeToNetcdf(Crit3DShapeHandler &shape, QString outputFileName, QString field, double cellSize)
+bool CriteriaOutputProject::convertShapeToNetcdf(Crit3DShapeHandler &shape, std::string outputFileName,
+                                                 std::string field, std::string variableName, std::string variableUnit, double cellSize,
+                                                 Crit3DDate computationDate, Crit3DDate firstDate, Crit3DDate lastDate)
 {
     if (! shape.getIsWGS84())
     {
@@ -866,7 +880,7 @@ bool CriteriaOutputProject::convertShapeToNetcdf(Crit3DShapeHandler &shape, QStr
 
     // rasterize shape
     gis::Crit3DRasterGrid myRaster;
-    if (! rasterizeShape(shape, myRaster, field.toStdString(), cellSize))
+    if (! rasterizeShape(shape, myRaster, field, cellSize))
     {
         projectError = "Error in rasterize shape.";
         return false;
@@ -909,11 +923,13 @@ bool CriteriaOutputProject::convertShapeToNetcdf(Crit3DShapeHandler &shape, QStr
 
     // create netcdf
     NetCDFHandler myNetCDF;
-    myNetCDF.createNewFile(outputFileName.toStdString());
+    myNetCDF.createNewFile(outputFileName);
 
-    if (! myNetCDF.writeGeoDimensions(latLonHeader))
+    std::string title = projectName.toStdString();
+
+    if (! myNetCDF.writeMetadata(latLonHeader, title, variableName, variableUnit, computationDate, firstDate, lastDate))
     {
-        projectError = "Error in write dimensions to netcdf.";
+        projectError = "Error in write metadata to netcdf.";
         myNetCDF.close();
         return false;
     }
