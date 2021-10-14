@@ -34,10 +34,10 @@ Only for CRITERIA GEO:
 - [GDAL library](https://gdal.org/): follow the instructions in agrolib/gdal.pri (for windows: it works only with Visual Studio compiler)
 
 Build:
-- ALL PLATFORM: please read the info in the first lines of the script
-- Linux: run deploy/CRITERIA1D_build_Linux.sh
-- Windows (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
-- Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat       
+- ALL PLATFORMS: please read the info in the first lines of the script
+- LINUX: run deploy/CRITERIA1D_build_Linux.sh
+- WINDOWS (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
+- WINDOWS (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat       
 - MACOS: TODO
 
 The distribution will be created in the directory deploy/CRITERIA1D
