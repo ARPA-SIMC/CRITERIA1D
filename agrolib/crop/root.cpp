@@ -485,21 +485,31 @@ namespace root
         }
         else if (myCrop->roots.rootShape == GAMMA_DISTRIBUTION)
         {
-            //double normalizationFactor ;
             double kappa, theta,a,b;
             double mean, mode;
             mean = myCrop->roots.rootLength * 0.5;
-            mode = myCrop->roots.rootLength * 0.2;
-            theta = mean - mode;
-            kappa = mean / theta;
+            int iterations=0;
+            double integralComplementary;
+            do{
+                mode = 0.6*mean;
+                theta = mean - mode;
+                kappa = mean / theta;
+                iterations++;
+                integralComplementary=incompleteGamma(kappa,3*myCrop->roots.rootLength/theta) - incompleteGamma(kappa,myCrop->roots.rootLength/theta);
+                mean *= 0.99;
+            } while(integralComplementary>0.01 && iterations<1000);
 
             for (i=1 ; i < nrLayers; i++)
             {
                 b = MAXVALUE(soilLayers[i].depth + soilLayers[i].thickness*0.5 - myCrop->roots.rootDepthMin,0); // right extreme
-                if (b>0)
+                if (b>0 && b< myCrop->roots.rootLength)
                 {
                     a = MAXVALUE(soilLayers[i].depth - soilLayers[i].thickness*0.5 - myCrop->roots.rootDepthMin,0); // left extreme
                     myCrop->roots.rootDensity[i] = incompleteGamma(kappa,b/theta) - incompleteGamma(kappa,a/theta); // incompleteGamma is already normalized by gamma(kappa)
+                }
+                else
+                {
+                    myCrop->roots.rootDensity[i] = 0;
                 }
             }
         }
