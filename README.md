@@ -6,7 +6,7 @@ CRITERIA-1D is a agro-hydrological model simulating one-dimensional soil water f
 The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. The software is multi-platform (Windows, Linux, Mac OS).
 
 # CRITERIA1D_PRO
-CRITERIA1D_PRO is a tool to manage a 1D project, change the crop parameters, test the model and show the main output (Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs). 
+CRITERIA1D_PRO is a tool to manage a 1D project, change the crop parameters, test the model and show the main output: Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs. 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
 
@@ -34,10 +34,11 @@ Only for CRITERIA GEO:
 - [GDAL library](https://gdal.org/): follow the instructions in agrolib/gdal.pri (for windows: it works only with Visual Studio compiler)
 
 Build:
-- Linux: run deploy/CRITERIA1D_build_Linux.sh
-- Windows (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
-- Windows (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat       
-- ALL: please read the info in the first lines of the script
+- ALL PLATFORMS: please read the info in the first lines of the script
+- LINUX: run deploy/CRITERIA1D_build_Linux.sh
+- WINDOWS (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
+- WINDOWS (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat       
+- MACOS: TODO
 
 The distribution will be created in the directory deploy/CRITERIA1D
 
