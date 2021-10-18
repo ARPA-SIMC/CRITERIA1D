@@ -853,10 +853,12 @@ void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
     if (ucmFileName == "") return;
 
     bool isPrevailing = true;
+    double threshold = 0.5;         // TODO aggiungere a ucmDialog
 
     if (myProject.addUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
                                  ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
-                                 ucmDialog.getIdMeteo().toStdString(), ucmDialog.getCellSize(), ucmFileName, isPrevailing, true))
+                                 ucmDialog.getIdMeteo().toStdString(), ucmDialog.getCellSize(), threshold,
+                                 ucmFileName, isPrevailing, true))
     {
         addShapeObject(myProject.objectList.back());
     }
@@ -884,10 +886,12 @@ void MainWindow::on_actionCompute_Ucm_intersection_triggered()
     if (ucmFileName == "") return;
 
     bool isPrevailing = false;
+    double threshold = 0.5;
 
     if (myProject.addUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
                                  ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
-                                 ucmDialog.getIdMeteo().toStdString(), NODATA, ucmFileName, isPrevailing, true))
+                                 ucmDialog.getIdMeteo().toStdString(), NODATA, threshold,
+                                 ucmFileName, isPrevailing, true))
     {
         addShapeObject(myProject.objectList.back());
     }
