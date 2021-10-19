@@ -70,7 +70,7 @@ function make_appimage {
     BIN_NAME=`basename $1`
 
     rm -rf build
-    make tree and copy executables and images
+    # make tree and copy executables and images
     cp -rf appimage build
     
     cp $BIN_PATH build/usr/bin/$BIN_NAME
