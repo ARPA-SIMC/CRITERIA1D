@@ -142,7 +142,8 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
 
 bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHandler *soil, Crit3DShapeHandler *meteo,
                                 std::string idCrop, std::string idSoil, std::string idMeteo,
-                                double cellSize, QString ucmFileName, bool isPrevailing, bool showInfo)
+                                double cellSize, double threshold,
+                                QString ucmFileName, bool isPrevailing, bool showInfo)
 {
     std::string errorStr;
 
@@ -150,7 +151,8 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
 
     if (isPrevailing)
     {
-        if (computeUcmPrevailing(*ucm, *crop, *soil, *meteo, idCrop, idSoil, idMeteo, cellSize, ucmFileName, errorStr, showInfo))
+        if (computeUcmPrevailing(*ucm, *crop, *soil, *meteo, idCrop, idSoil, idMeteo,
+                                 cellSize, threshold, ucmFileName, errorStr, showInfo))
         {
             addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), "", ucm->getUtmZone());
             return true;
