@@ -11,7 +11,7 @@ Source0:        https://github.com/ARPA-SIMC/CRITERIA1D/archive/v%{version}.tar.
 License:        GPL
 
 BuildRequires:  qt5-qtbase
-BuildRequires:  qt5-devel
+BuildRequires:  qt5-qtbase-devel
 BuildRequires:  qt5-qtcharts
 BuildRequires:  qt5-qtcharts-devel
 BuildRequires:  gdal-libs
