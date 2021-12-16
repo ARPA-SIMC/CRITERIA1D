@@ -569,7 +569,7 @@ bool MainWindow::exportToNetCDF(GisObject* myObject)
     std::string variableName = field.toStdString();     // TODO
     std::string unit = "";                              // TODO
     bool isOK = myProject.output.convertShapeToNetcdf(*(myObject->getShapeHandler()), outputFileName.toStdString(),
-                                                      field.toStdString(), variableName, unit, cellSize, NO_DATE, NO_DATE, NO_DATE);
+                                                      field.toStdString(), variableName, unit, cellSize, NO_DATE, 0);
     formInfo.close();
 
     if (! isOK)
