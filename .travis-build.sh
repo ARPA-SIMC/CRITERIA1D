@@ -52,6 +52,7 @@ then
     update-alternatives --install /usr/bin/qmake qmake /opt/qt512/bin/qmake 90
     export QT_DIR=/opt/qt512
     export QMAKE=$QT_DIR/bin/qmake
+    apt-get install -y libnetcdf-dev libnetcdf11
     apt-get install -y qt512charts-no-lgpl curl
     apt-get install -y libgeos-3.5.0 libgeos-dev
     add-apt-repository -y ppa:nextgis/ppa
