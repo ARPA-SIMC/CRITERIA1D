@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         QString path;
         if (! searchDataPath(&path)) return -1;
         #ifdef TEST
-            settingsFileName = path + "PROJECT/criteria_numerical/criteria.ini";
+            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
         #else
             usage();
             return 1;
@@ -56,11 +56,9 @@ int main(int argc, char *argv[])
         #ifdef TEST_FIRSTRUN
             myProject.firstSimulationDate = QDate::fromString("1995-01-01", "yyyy-MM-dd");
             myProject.lastSimulationDate = QDate::fromString("2008-05-31", "yyyy-MM-dd");
-            //myProject.lastSimulationDate = QDate::fromString("2007-12-31", "yyyy-MM-dd");
         #endif
 
         #ifdef TEST_RESTART
-            //myProject.firstSimulationDate = QDate::fromString("2008-01-01", "yyyy-MM-dd");
             myProject.firstSimulationDate = QDate::fromString("2008-06-01", "yyyy-MM-dd");
             myProject.lastSimulationDate = QDate::fromString("2008-12-31", "yyyy-MM-dd");
         #endif
