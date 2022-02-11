@@ -45,7 +45,7 @@
 
 
 #define MAPBORDER 11
-#define INFOHEIGHT 40
+#define INFOHEIGHT 42
 #define TOOLSWIDTH 260
 
 
@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapView->setZoomLevel(8);
     this->mapView->centerOn(startCenter->lonLat());
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
-    //connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
+    connect(this->mapView, SIGNAL(mouseMoveSignal(QPoint)), this, SLOT(mouseMove(QPoint)));
 
     connect(ui->checkList, &QListWidget::itemClicked, [=](QListWidgetItem* item){ this->itemClicked(item); });
     ui->checkList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -175,12 +175,14 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 }
 
 
-void MainWindow::mouseMove(const QPoint& eventPos)
+void MainWindow::mouseMove(QPoint eventPos)
 {
     if (! isInsideMap(eventPos)) return;
 
-    Position geoPoint = this->mapView->mapToScene(eventPos);
-    this->ui->statusBar->showMessage(QString::number(geoPoint.latitude()) + " " + QString::number(geoPoint.longitude()));
+    Position pos = this->mapView->mapToScene(eventPos);
+    QString infoStr = "Lat:" + QString::number(pos.latitude()) + "  Lon:" + QString::number(pos.longitude());
+
+    this->ui->statusBar->showMessage(infoStr);
 }
 
 

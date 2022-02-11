@@ -50,7 +50,7 @@ The distribution will be created in the directory deploy/CRITERIA1D
 CRITERIA-1D has been developed under contract issued by 
 [ARPAE Hydro-Meteo-Climate Service](https://github.com/ARPA-SIMC), Emilia-Romagna, Italy
 
-The executables (*CRITERIA1D, CRITERIA_GEO, CROP_EDITOR, SOIL_EDITOR, HEAT1D*) are released under the GNU GPL license, the libraries (*agrolib*) are released under the GNU LGPL license.
+The executables (*CRITERIA1D, CRITERIA_GEO, SOIL_EDITOR, HEAT1D*) are released under the GNU GPL license, the libraries (*agrolib*) are released under the GNU LGPL license.
 
 ## Contacts
 - Fausto Tomei ftomei@arpae.it
