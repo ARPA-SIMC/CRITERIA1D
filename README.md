@@ -6,7 +6,7 @@
 # CRITERIA1D
 CRITERIA-1D is a agro-hydrological model simulating one-dimensional soil water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different levels of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of water table depth to estimate the capillary rise. 
 
-The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. The software is multi-platform (Windows, Linux, Mac OS).
+The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. The software is multi-platform (Windows, Linux, Mac OS). See [documentation](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/CRITERIA1D_technical_manual.pdf) for more information.
 
 # CRITERIA1D_PRO
 CRITERIA1D_PRO is a tool to manage a 1D project, change the crop parameters, test the model and show the main output: Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs. 
@@ -34,7 +34,6 @@ Dependencies:
 
 Only for CRITERIA GEO:
 - [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/): on Windows download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set Netcdf installation path (e.g C:\Program Files\netCDF 4.7.1) in NC4_INSTALL_DIR system variable.
-- [GDAL library](https://gdal.org/): follow the instructions in agrolib/gdal.pri (for windows: it works only with Visual Studio compiler)
 
 Build:
 - ALL PLATFORMS: please read the info in the first lines of the script
