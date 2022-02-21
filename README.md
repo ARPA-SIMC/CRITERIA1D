@@ -30,7 +30,7 @@ HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D dom
 
 ## How to compile the CRITERIA-1D/GEO distribution
 Dependencies:
-- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
+- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts and Qt 5 Compatibility Module for Qt6.x).
 
 Only for CRITERIA GEO:
 - [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/): on Windows download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set Netcdf installation path (e.g C:\Program Files\netCDF 4.7.1) in NC4_INSTALL_DIR system variable.
