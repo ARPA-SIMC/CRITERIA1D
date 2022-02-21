@@ -1,16 +1,20 @@
-:: build CRITERIA-1D/GEO
-:: run on Qt shell (MINGW version) 
-:: move into the deploy directory (cd [local path]\CRITERIA1D\deploy)
+:: **** CRITERIA1D_build_Win_MinGW.bat ****
+:: it build CRITERIA1D/GEO on Windows 
+:: requires Qt 5.x or greater and MinGW compiler
 
-:: GDAL library (for GEO) doesn't work with MinGW compiler 
-:: To disable GDAL comment the line CONFIG += GDAL 
-:: in these project files:
+:: 1) open Qt shell (MinGW version) 
+:: 2) move into the deploy directory (cd [local path]\CRITERIA1D\deploy)
+:: 3) execute CRITERIA1D_build_Win_MinGW.bat
+:: build takes several minutes to finish
+
+:: WARNING: GDAL library (for CRITERIA-GEO) doesn't work with MinGW compiler 
+:: To disable GDAL comment the line CONFIG += GDAL in these project files:
 :: 1) bin\Makeall_CRITERIAGEO\makell_CRITERIAGEO.pro
 :: 2) bin\CRITERIAGEO\CRITERIAGEO.pro
 :: 3) agrolib\criteriaOutput\criteriaOutput.pro
 
 
-:: CLEAN all
+:: clean all
 cd ..\mapGraphics
 mingw32-make --silent clean
 cd ..\bin\Makeall_HEAT1D
