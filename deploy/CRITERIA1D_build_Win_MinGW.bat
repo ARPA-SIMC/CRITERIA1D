@@ -13,17 +13,26 @@
 :: CLEAN all
 cd ..\mapGraphics
 mingw32-make --silent clean
-cd ..\bin\Makeall_CRITERIA1D
+cd ..\bin\Makeall_HEAT1D
+mingw32-make --silent distclean
+cd ..\Makeall_CRITERIA1D
 mingw32-make --silent distclean
 cd ..\Makeall_SOIL_EDITOR
 mingw32-make --silent distclean
 cd ..\Makeall_CRITERIA1D_PRO
 mingw32-make --silent distclean
-cd ..\Makeall_HEAT1D
-mingw32-make --silent distclean
 cd ..\Makeall_CRITERIAGEO
 mingw32-make --silent distclean
 
+:: build mapGraphics
+cd ..\..\mapGraphics
+qmake -platform win32-g++ CONFIG+=release
+mingw32-make --silent release
+
+:: build HEAT1D
+cd ..\bin\Makeall_HEAT1D
+qmake -platform win32-g++ CONFIG+=release
+mingw32-make --silent release
 
 :: build CRITERIA1D
 cd ..\Makeall_CRITERIA1D
@@ -40,18 +49,8 @@ cd ..\Makeall_CRITERIA1D_PRO
 qmake -platform win32-g++ CONFIG+=release
 mingw32-make --silent release
 
-:: build HEAT1D
-cd ..\Makeall_HEAT1D
-qmake -platform win32-g++ CONFIG+=release
-mingw32-make --silent release
-
-:: build mapGraphics
-cd ..\..\mapGraphics
-qmake -platform win32-g++ CONFIG+=release
-mingw32-make --silent release
-
 :: build CRITERIAGEO
-cd ..\bin\Makeall_CRITERIAGEO
+cd ..\Makeall_CRITERIAGEO
 qmake -platform win32-g++ CONFIG+=release
 mingw32-make --silent release
 
@@ -60,10 +59,10 @@ mingw32-make --silent release
 cd ..\..\DEPLOY
 mkdir CRITERIA1D\bin
 cd CRITERIA1D\bin
+copy ..\..\..\bin\HEAT1D\release\HEAT1D.exe
 copy ..\..\..\bin\CRITERIA1D\release\CRITERIA1D.exe
 copy ..\..\..\bin\SOIL_EDITOR\release\SOIL_EDITOR.exe
 copy ..\..\..\bin\CRITERIA1D_PRO\release\CRITERIA1D_PRO.exe
-copy ..\..\..\bin\HEAT1D\release\HEAT1D.exe
 copy ..\..\..\bin\CRITERIAGEO\release\CRITERIA_GEO.exe
 
 
