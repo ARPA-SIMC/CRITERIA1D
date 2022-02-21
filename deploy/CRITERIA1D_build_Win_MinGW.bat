@@ -3,9 +3,9 @@
 :: requires Qt 5.x or greater and MinGW compiler
 
 :: 1) open Qt shell (MinGW version) 
-:: 2) move into the deploy directory (cd [local path]\CRITERIA1D\deploy)
+:: 2) change to the deploy directory (cd [local path]\CRITERIA1D\deploy)
 :: 3) execute CRITERIA1D_build_Win_MinGW.bat
-:: build takes several minutes to finish
+:: it takes several minutes to end
 
 :: WARNING: GDAL library (for CRITERIA-GEO) doesn't work with MinGW compiler 
 :: To disable GDAL comment the line CONFIG += GDAL in these project files:
