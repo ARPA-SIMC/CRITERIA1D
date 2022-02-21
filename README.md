@@ -4,9 +4,9 @@
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
 
 # CRITERIA1D
-CRITERIA-1D is a agro-hydrological model simulating one-dimensional soil water fluxes, crop development and crop water needs. The soil and crop parameters can be defined at different levels of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of water table depth to estimate the capillary rise. 
+CRITERIA-1D is a agro-hydrological model simulating one-dimensional water flow in variably saturated soils, crop development, root water extraction and crop water needs. Water flow can be simulated with two different approaches depending on the user's choice: a numerical physically-based model or a layer-based conceptual model. Soil and crop parameters can be defined at different levels of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of water table depth to estimate the capillary rise. 
 
-The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. The software is written in C++ using Qt libraries, so cross-platform building is possible (Windows, Linux, Mac OS). See [thechnical manual](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/CRITERIA1D_technical_manual.pdf) for more information.
+The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. Software is written in C++ using Qt libraries, so cross-platform building is possible (Windows, Linux, Mac OS). See [thechnical manual](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/CRITERIA1D_technical_manual.pdf) for more information.
 
 # CRITERIA1D_PRO
 CRITERIA1D_PRO is a tool to manage a 1D project, change the crop parameters, test the model and show the main output: Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs. 
@@ -30,7 +30,7 @@ HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D dom
 
 ## How to compile the CRITERIA-1D/GEO distribution
 Dependencies:
-- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts).
+- [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts and Qt 5 Compatibility Module for Qt6.x).
 
 Only for CRITERIA GEO:
 - [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/): on Windows download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set Netcdf installation path (e.g C:\Program Files\netCDF 4.7.1) in NC4_INSTALL_DIR system variable.
