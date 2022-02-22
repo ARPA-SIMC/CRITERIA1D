@@ -8,6 +8,14 @@ CRITERIA-1D is a agro-hydrological model simulating one-dimensional water flow i
 
 The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. Software is written in C++ using Qt libraries, so cross-platform building is possible (Windows, Linux, Mac OS). See [thechnical manual](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/CRITERIA1D_technical_manual.pdf) for more information.
 
+CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and in the [Climate Service for Irrigation Forecasting](https://servizigis.arpae.it/moses/home/index.html). It has been used in several international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander, ADA).
+
+[Criteria API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to integrate the model to the most diverse applications, such as in the [ZENTRA cloud](https://ieeexplore.ieee.org/document/9628475).
+
+[CRITERIA on International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria)
+
+[BIBLIOGRAPHY](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-bibliografia)
+
 # CRITERIA1D_PRO
 CRITERIA1D_PRO is a tool to manage a 1D project, change the crop parameters, test the model and show the main output: Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs. 
 
@@ -55,10 +63,3 @@ The executables (*CRITERIA1D, CRITERIA_GEO, SOIL_EDITOR, HEAT1D*) are released u
 - Fausto Tomei ftomei@arpae.it
 - Gabriele Antolini gantolini@arpae.it
 
-CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and has been used in many international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander, ADA)
-
-[Criteria API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to provide the power of the model to the most diverse applications.
-
-[CRITERIA on International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria)
-
-[BIBLIOGRAPHY](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-bibliografia)
