@@ -8,7 +8,7 @@ CRITERIA-1D is a agro-hydrological model simulating one-dimensional water flow i
 
 The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. Software is written in C++ using Qt libraries, so cross-platform building is possible (Windows, Linux, Mac OS). See [thechnical manual](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/CRITERIA1D_technical_manual.pdf) for more information.
 
-CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and in the [Climate Service for Irrigation Forecasting](https://servizigis.arpae.it/moses/home/index.html). It has been used in several international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander, ADA).
+CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and in the [Climate Service for Irrigation Forecasting](https://servizigis.arpae.it/moses/home/index.html). It has been used in several international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander, ADA) and it is reported in the [International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria)
 
 [Criteria API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to integrate the model to the most diverse applications, such as in the [ZENTRA cloud](https://ieeexplore.ieee.org/document/9628475).
 
