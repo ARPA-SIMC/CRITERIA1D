@@ -10,9 +10,7 @@ The output is stored in a SQLite database and can be exported to csv, shapefile 
 
 CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and in the [Climate Service for Irrigation Forecasting](https://servizigis.arpae.it/moses/home/index.html). It has been used in several international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander, ADA) and it is reported in the [International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria)
 
-[Criteria API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to integrate the model to the most diverse applications, such as in the [ZENTRA cloud](https://ieeexplore.ieee.org/document/9628475).
-
-[CRITERIA on International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria)
+[Criteria-1D API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to integrate the model to the most diverse applications, such as in the [ZENTRA cloud](https://ieeexplore.ieee.org/document/9628475).
 
 [BIBLIOGRAPHY](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-bibliografia)
 
