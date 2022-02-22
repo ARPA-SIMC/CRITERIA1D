@@ -4,18 +4,18 @@
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
 
 # CRITERIA1D
-CRITERIA-1D is a agro-hydrological model simulating one-dimensional water flow in variably saturated soils, crop development, root water extraction and crop water needs. Water flow can be simulated with two different approaches depending on the user's choice: a numerical physically-based model or a layer-based conceptual model. Soil and crop parameters can be defined at different levels of detail. It requires as input daily agro-meteorological data: minimum and maximum air temperature, total precipitation and, if available, data of water table depth to estimate the capillary rise. 
+CRITERIA-1D is an agro-hydrological model that simulates one-dimensional water flow in variable saturation soils, crop development, root water extraction and irrigation water needs. Soil water flow can be simulated with two different approaches depending on the user's choice: a physics-based numerical model or a level-based conceptual model. Soil and crop parameters can be defined at different levels of detail. It requires daily agro-meteorological data as input: minimum and maximum air temperature, total precipitation and, if available, water table depth data to estimate capillary rise.
 
 The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. Software is written in C++ using Qt libraries, so cross-platform building is possible (Windows, Linux, Mac OS). See [thechnical manual](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/CRITERIA1D_technical_manual.pdf) for more information.
 
 CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and in the [Climate Service for Irrigation Forecasting](https://servizigis.arpae.it/moses/home/index.html). It has been used in several international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander, ADA) and it is reported in the [International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria)
 
-[Criteria-1D API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to integrate the model to the most diverse applications, such as in the [ZENTRA cloud](https://ieeexplore.ieee.org/document/9628475).
+[Criteria-1D API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to integrate the model into the most diverse applications, such as in [ZENTRA cloud](https://ieeexplore.ieee.org/document/9628475).
 
 [BIBLIOGRAPHY](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-bibliografia)
 
 # CRITERIA1D_PRO
-CRITERIA1D_PRO is a graphical interface to manage a Criteria-1D project, change the crop parameters, test the model and show the main output: Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs. 
+CRITERIA1D_PRO is a graphical interface to manage a Criteria-1D project, modify the crop parameters, test the model and the main outputs: leaf area index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs. 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
 
@@ -39,14 +39,14 @@ Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following is needed (download also QtCharts and Qt 5 Compatibility Module for Qt6.x).
 
 Only for CRITERIA GEO:
-- [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/): on Windows download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set Netcdf installation path (e.g C:\Program Files\netCDF 4.7.1) in NC4_INSTALL_DIR system variable.
+- [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/): on Windows download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set Netcdf installation path (e.g C:\Program Files\netCDF 4.7.1) in the *NC4_INSTALL_DIR* system variable.
 
 Build:
-- ALL PLATFORMS: please read the info in the first lines of the script
-- LINUX: run deploy/CRITERIA1D_build_Linux.sh
-- WINDOWS (Visual Studio compiler): run deploy/CRITERIA1D_build_MSVC_bat
-- WINDOWS (MinGW compiler): run deploy/CRITERIA1D_build_MinGW_bat       
+- LINUX: run *deploy/CRITERIA1D_build_Linux.sh*
+- WINDOWS (Visual Studio compiler): run *deploy/CRITERIA1D_build_MSVC_bat*
+- WINDOWS (MinGW compiler): *run deploy/CRITERIA1D_build_MinGW_bat*       
 - MACOS: TODO
+- ALL platforms: please read the information in the first few lines of the script.
 
 The distribution will be created in the directory deploy/CRITERIA1D
 
