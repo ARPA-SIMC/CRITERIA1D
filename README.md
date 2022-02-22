@@ -15,7 +15,7 @@ CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-a
 [BIBLIOGRAPHY](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-bibliografia)
 
 # CRITERIA1D_PRO
-CRITERIA1D_PRO is a tool to manage a 1D project, change the crop parameters, test the model and show the main output: Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs. 
+CRITERIA1D_PRO is a graphical interface to manage a Criteria-1D project, change the crop parameters, test the model and show the main output: Leaf Area Index, evaporation and transpiration, root depth and root density, soil moisture and irrigation water needs. 
 
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/cropEditor.png)
 
