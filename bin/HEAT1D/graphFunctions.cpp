@@ -25,24 +25,26 @@ outputType getOutputType(outputGroup myOut)
 
 }
 
+
 void setColorScale(Crit3DColorScale* myColorScale, outputGroup outGroup, Crit3DOut *myOut, bool* graphLinear)
 {
-
     outputType outType = getOutputType(outGroup);
     myColorScale->nrKeyColors = 3;
-    myColorScale->nrColors = 256;
-    myColorScale->keyColor = new Crit3DColor[myColorScale->nrKeyColors];
-    myColorScale->color = new Crit3DColor[myColorScale->nrColors];
-    myColorScale->classification = classificationMethod::EqualInterval;
+
+    myColorScale->keyColor.resize(unsigned(myColorScale->nrKeyColors));
     myColorScale->keyColor[0] = Crit3DColor(0, 0, 255);         /*!< blue */
     myColorScale->keyColor[1] = Crit3DColor(255, 255, 0);       /*!< yellow */
     myColorScale->keyColor[2] = Crit3DColor(255, 0, 0);         /*!< red */
+
+    myColorScale->nrColors = 256;
+    myColorScale->color.resize(unsigned(myColorScale->nrColors));
+    myColorScale->classification = classificationMethod::EqualInterval;
+
     myColorScale->minimum = 0;
 
     if (outType == outputType::profile)
     {
-        myColorScale->maximum = myOut->nrLayers-1;
-        myColorScale->classify();
+        myColorScale->maximum = float(myOut->nrLayers-1);
         *graphLinear = false;
     }
     else
@@ -54,11 +56,12 @@ void setColorScale(Crit3DColorScale* myColorScale, outputGroup outGroup, Crit3DO
         else if (outGroup == outputGroup::surfaceResistances)
             myColorScale->maximum = 2;
 
-        myColorScale->classify();
         *graphLinear = true;
     }
 
+    myColorScale->classify();
 }
+
 
 QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVALUE, float* MAXVALUE)
 {
