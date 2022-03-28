@@ -27,6 +27,7 @@
 #include "interpolation.h"
 #include "spatialControl.h"
 #include "commonConstants.h"
+#include "basicMath.h"
 #include "climate.h"
 #include "formInfo.h"
 
@@ -407,12 +408,17 @@ void Crit3DPointStatisticsWidget::plot()
             classWidth.setEnabled(false);
             valMax.setEnabled(false);
             valMin.setEnabled(false);
+            sigma.setEnabled(false);
+            mode.setEnabled(false);
+            median.setEnabled(false);
+
             smoothing.setEnabled(false);
             availability.clear();
             significance.clear();
             average.clear();
             r2.clear();
             rate.clear();
+
             int firstYear = yearFrom.currentText().toInt();
             int lastYear = yearTo.currentText().toInt();
             // check years
@@ -478,6 +484,9 @@ void Crit3DPointStatisticsWidget::plot()
                 }
                 count = count + 1;
             }
+            // draw
+            chartView->drawTrend(years, outputValues);
+
             float availab = ((float)validYears/(float)years.size())*100.0;
             availability.setText(QString::number(availab));
             float mkendall = statisticalElab(mannKendall, NODATA, outputValues, outputValues.size(), meteoSettings->getRainfallThreshold());
@@ -495,7 +504,17 @@ void Crit3DPointStatisticsWidget::plot()
             r2.setText(QString::number(myR2, 'f', 3));
             rate.setText(QString::number(myCoeff, 'f', 3));
 
-            chartView->drawTrend(years, outputValues);
+            /*
+            float stdDev = statistics::standardDeviation(outputValues, outputValues.size());
+            sigma.setText(QString::number(stdDev, 'f', 3));
+
+            int nrValues = int(outputValues.size());
+            float percentile = sorting::percentile(outputValues, &nrValues, 50.0, true);
+            median.setText(QString::number(percentile, 'f', 3));
+
+            float modeVal = sorting::mode(outputValues, &nrValues, true);
+            mode.setText(QString::number(modeVal, 'f', 3));
+            */
         }
     }
     else if (currentFrequency == hourly)
