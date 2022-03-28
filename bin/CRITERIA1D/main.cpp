@@ -22,8 +22,9 @@ void usage()
               << "\nNotes:" << std::endl
               << "date must be in YYYY-MM-DD format" << std::endl
               << "firstDate and lastDate can be also defined in the project.ini" << std::endl
-              << "default lastDate in the grid projects (MySQL) is yesterday" << std::endl
-              << "default dates in the point projects (SQLite) are the first and last date in the meteo table" << std::endl;
+              << "default dates in the projects with meteoPoints data (SQLite) are the first and last date in the meteo data tables" << std::endl
+              << "default lastDate in the projects with meteoGrid projects (MySQL) is yesterday" << std::endl;
+
     std::cout << std::flush;
 }
 
