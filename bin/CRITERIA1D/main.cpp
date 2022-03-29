@@ -8,7 +8,7 @@
 #include "utilities.h"
 
 // uncomment to execute test
-#define TEST
+//#define TEST
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
 
