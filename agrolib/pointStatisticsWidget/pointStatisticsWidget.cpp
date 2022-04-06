@@ -31,6 +31,7 @@
 #include "climate.h"
 #include "dialogElaboration.h"
 #include "gammaFunction.h"
+#include "furtherMathFunctions.h"
 #include "formInfo.h"
 
 #include <QLayout>
@@ -199,12 +200,15 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     classWidth.setMaximumWidth(60);
     classWidth.setMaximumHeight(30);
     classWidth.setText("1");
+    classWidth.setValidator(new QDoubleValidator(1.0, 5.0, 1));
     gridLeftLayout->addWidget(&classWidth,3,0,1,-1);
     valMax.setMaximumWidth(60);
     valMax.setMaximumHeight(30);
+    valMax.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
     gridLeftLayout->addWidget(&valMax,3,1,1,-1);
     valMin.setMaximumWidth(60);
     valMin.setMaximumHeight(30);
+    valMin.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
     gridLeftLayout->addWidget(&valMin,3,2,1,-1);
     smoothing.setMaximumWidth(60);
     smoothing.setMaximumHeight(30);
@@ -315,12 +319,12 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     connect(&hourlyButton, &QRadioButton::clicked, [=](){ hourlyVar(); });
     connect(&variable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ this->changeVar(newVariable); });
     connect(&graph, &QComboBox::currentTextChanged, [=](const QString &newGraph){ this->changeGraph(newGraph); });
-    connect(&compute, &QPushButton::clicked, [=](){ plot(); });
+    connect(&compute, &QPushButton::clicked, [=](){ computePlot(); });
     connect(&elaboration, &QPushButton::clicked, [=](){ showElaboration(); });
-    connect(&smoothing, &QLineEdit::textChanged, [=](){ updatePlot(); });
-    connect(&valMax, &QLineEdit::textChanged, [=](){ updatePlot(); });
-    connect(&valMin, &QLineEdit::textChanged, [=](){ updatePlot(); });
-    connect(&classWidth, &QLineEdit::textChanged, [=](){ updatePlot(); });
+    connect(&smoothing, &QLineEdit::editingFinished, [=](){ updatePlot(); });
+    connect(&valMax, &QLineEdit::editingFinished, [=](){ updatePlot(); });
+    connect(&valMin, &QLineEdit::editingFinished, [=](){ updatePlot(); });
+    connect(&classWidth, &QLineEdit::editingFinished, [=](){ updatePlot(); });
 
     plot();
     show();
@@ -334,14 +338,16 @@ Crit3DPointStatisticsWidget::~Crit3DPointStatisticsWidget()
 
 void Crit3DPointStatisticsWidget::closeEvent(QCloseEvent *event)
 {
-    emit closePointStatistics();
     event->accept();
-
 }
 
 void Crit3DPointStatisticsWidget::dailyVar()
 {
     currentFrequency = daily;
+
+    variable.blockSignals(true);
+    graph.blockSignals(true);
+
     hour.setEnabled(false);
     variable.clear();
     yearFrom.clear();
@@ -378,11 +384,17 @@ void Crit3DPointStatisticsWidget::dailyVar()
         QMessageBox::information(nullptr, "Warning", "No daily data");
     }
 
+    variable.blockSignals(false);
+    graph.blockSignals(false);
+    computePlot();
 }
 
 void Crit3DPointStatisticsWidget::hourlyVar()
 {
     currentFrequency = hourly;
+    variable.blockSignals(true);
+    graph.blockSignals(true);
+
     hour.setEnabled(true);
     variable.clear();
     yearFrom.clear();
@@ -410,6 +422,9 @@ void Crit3DPointStatisticsWidget::hourlyVar()
     {
         QMessageBox::information(nullptr, "Warning", "No hourly data");
     }
+    variable.blockSignals(false);
+    graph.blockSignals(false);
+    computePlot();
 
 }
 
@@ -443,7 +458,7 @@ void Crit3DPointStatisticsWidget::changeVar(const QString varName)
     {
         myVar = getKeyMeteoVarMeteoMap(MapHourlyMeteoVarToString, varName.toStdString());
     }
-    plot();
+    computePlot();
 }
 
 void Crit3DPointStatisticsWidget::plot()
@@ -798,7 +813,7 @@ void Crit3DPointStatisticsWidget::plot()
                         }
                         if (check == quality::accepted)
                         {
-                            if (myVar = dailyPrecipitation)
+                            if (myVar == dailyPrecipitation)
                             {
                                 if (myDailyValue < meteoSettings->getRainfallThreshold())
                                 {
@@ -859,6 +874,9 @@ void Crit3DPointStatisticsWidget::plot()
             float modeVal = NODATA;
             int nrValues = int(series.size());
             std::vector<float> sortedSeries = series;
+            double beta;
+            double gamma;
+            double pzero;
 
             if (myVar == dailyPrecipitation)
             {
@@ -870,10 +888,6 @@ void Crit3DPointStatisticsWidget::plot()
                         bucket[index] = bucket[index] + 1;
                     }
                 }
-
-                double beta;
-                double gamma;
-                double pzero;
                 if (!gammaFitting(series, nrValues, &beta, &gamma,  &pzero))
                 {
                     return;
@@ -883,11 +897,8 @@ void Crit3DPointStatisticsWidget::plot()
             {
                 for (int i = 0; i < nrValues; i++)
                 {
-                    if (series[i] > 0)
-                    {
-                        int index = (series[i] - minValueInt)/classWidthValue;
-                        bucket[index] = bucket[index] + 1;
-                    }
+                    int index = (series[i] - minValueInt)/classWidthValue;
+                    bucket[index] = bucket[index] + 1;
                 }
                 avg = statistics::mean(series, nrValues);
                 dev_std = statistics::standardDeviation(series, nrValues);
@@ -934,12 +945,276 @@ void Crit3DPointStatisticsWidget::plot()
             valMax.blockSignals(false);
             valMin.blockSignals(false);
 
+            std::vector<float> barValues;
+            QList<QPointF> lineValues;
+            for (int i = 0; i<bucket.size(); i++)
+            {
+                float x = valMinValue + (i*classWidthValue) + (classWidthValue/2);
+                if (x < valMaxValue)
+                {
+                    barValues.push_back(bucket[i]);
+                    if (myVar == dailyPrecipitation)
+                    {
+                        if (x > 0)
+                        {
+                            float gammaFun = gammaCDF(x, beta, gamma, pzero);
+                            if (gammaFun != NODATA)
+                            {
+                                float probGamma = probabilityGamma(x, 1/beta, gamma, gammaFun);
+                                lineValues.append(QPointF(x,probGamma));
+                            }
+                            else
+                            {
+                                QMessageBox::information(nullptr, "Error", "Error in gamma distribution");
+                                return;
+                            }
+                        }
+                    }
+                    else if (myVar != dailyAirRelHumidityMin && myVar != dailyAirRelHumidityMax && myVar != dailyAirRelHumidityAvg)
+                    {
+                        float gauss = gaussianFunction(x, avg, dev_std);
+                        lineValues.append(QPointF(x,gauss));
+                    }
+                }
+            }
+            chartView->drawDistribution(barValues, lineValues, valMinValue, valMaxValue);
 
         }
     }
     else if (currentFrequency == hourly)
     {
+        classWidth.setEnabled(true);
+        valMax.setEnabled(true);
+        valMin.setEnabled(true);
+        smoothing.setEnabled(false);
 
+        availability.clear();
+        significance.clear();
+        average.clear();
+        r2.clear();
+        rate.clear();
+        std::vector<float> series;
+
+        bool ok = true;
+        int classWidthValue = classWidth.text().toInt(&ok);
+        if (!ok || classWidthValue <= 0)
+        {
+            QMessageBox::information(nullptr, "Error", "Wrong class Width value");
+            return;
+        }
+        float myMinValue = NODATA;
+        float myMaxValue = NODATA;
+        bool isFirstData = true;
+
+        int firstYear = yearFrom.currentText().toInt();
+        int lastYear = yearTo.currentText().toInt();
+        int myHour = hour.text().toInt();
+        QDate firstDate(firstYear, dayFrom.date().month(), dayFrom.date().day());
+        QDate lastDate(lastYear, dayTo.date().month(), dayTo.date().day());
+
+        bool insideInterval = true;
+        QDate dateStartPeriod = firstDate;
+        QDate dateEndPeriod = lastDate;
+        if (firstDate.dayOfYear() <= lastDate.dayOfYear())
+        {
+            insideInterval = true;
+            dateEndPeriod.setDate(dateStartPeriod.year(), dateEndPeriod.month(), dateEndPeriod.day());
+        }
+        else
+        {
+            insideInterval = false;
+            dateEndPeriod.setDate(dateStartPeriod.year()+1, dateEndPeriod.month(), dateEndPeriod.day());
+        }
+
+        int totDays = 0;
+        quality::qualityType check;
+        for (QDate myDate = firstDate; myDate <= lastDate; myDate = myDate.addDays(1))
+        {
+            if (myDate >= dateStartPeriod && myDate <= dateEndPeriod)
+            {
+                totDays = totDays + 1;
+                if (myDate >= firstHourly.date() && myDate <= lastHourly.date())
+                {
+                    int i = firstHourly.date().daysTo(myDate);
+                    float myHourlyValue = meteoPoints[0].getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar);
+                    if (i<0 || i>meteoPoints[0].nrObsDataDaysH)
+                    {
+                        check = quality::missing_data;
+                    }
+                    else
+                    {
+                        check = quality->checkFastValueHourly_SingleValue(myVar, climateParameters, myHourlyValue, myDate.month(), meteoPoints[0].point.z);
+                    }
+                    if (check == quality::accepted)
+                    {
+                        if (myVar == precipitation)
+                        {
+                            if (myHourlyValue < meteoSettings->getRainfallThreshold())
+                            {
+                                myHourlyValue = 0;
+                            }
+                        }
+                        series.push_back(myHourlyValue);
+                        if (isFirstData)
+                        {
+                            myMinValue = myHourlyValue;
+                            myMaxValue = myHourlyValue;
+                            isFirstData = false;
+                        }
+                        else if (myHourlyValue < myMinValue)
+                        {
+                            myMinValue = myHourlyValue;
+                        }
+                        else if (myHourlyValue > myMaxValue)
+                        {
+                            myMaxValue = myHourlyValue;
+                        }
+                    }
+                }
+                if (myDate == dateEndPeriod)
+                {
+                    if (insideInterval)
+                    {
+                        dateStartPeriod.setDate(myDate.year()+1, firstDate.month(), firstDate.day());
+                        dateEndPeriod.setDate(myDate.year()+1, lastDate.month(), lastDate.day());
+                    }
+                    else
+                    {
+                        dateStartPeriod.setDate(myDate.year(), firstDate.month(), firstDate.day());
+                        dateEndPeriod.setDate(myDate.year()+1, lastDate.month(), lastDate.day());
+                    }
+                    myDate = dateStartPeriod.addDays(-1);
+                }
+            }
+        }
+        if (myMinValue == NODATA || myMaxValue == NODATA)
+        {
+            return; // no data
+        }
+        int minValueInt = myMinValue;
+        int maxValueInt = myMaxValue + 1;
+
+        // init
+        std::vector<float> bucket;
+        for (int i = 0; i<= (maxValueInt - minValueInt)/classWidthValue; i++)
+        {
+            bucket.push_back(0);
+        }
+
+        float dev_std = NODATA;
+        float millile_3Dev = NODATA;
+        float millile3dev = NODATA;
+        float avg = NODATA;
+        float modeVal = NODATA;
+        int nrValues = int(series.size());
+        std::vector<float> sortedSeries = series;
+        double beta;
+        double gamma;
+        double pzero;
+
+        if (myVar == precipitation)
+        {
+            for (int i = 0; i < nrValues; i++)
+            {
+                if (series[i] > 0)
+                {
+                    int index = (series[i] - minValueInt)/classWidthValue;
+                    bucket[index] = bucket[index] + 1;
+                }
+            }
+            if (!gammaFitting(series, nrValues, &beta, &gamma,  &pzero))
+            {
+                return;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < nrValues; i++)
+            {
+                if (series[i] > 0)
+                {
+                    int index = (series[i] - minValueInt)/classWidthValue;
+                    bucket[index] = bucket[index] + 1;
+                }
+            }
+            avg = statistics::mean(series, nrValues);
+            dev_std = statistics::standardDeviation(series, nrValues);
+            millile3dev = sorting::percentile(sortedSeries, &nrValues, 99.73, true);
+            millile_3Dev = sorting::percentile(sortedSeries, &nrValues, 0.27, false);
+        }
+        availability.setText(QString::number(nrValues/totDays * 100, 'f', 3));
+        average.setText(QString::number(avg, 'f', 3));
+
+        int numModeData = 0;
+        for (int i = 0; i<bucket.size(); i++)
+        {
+            if (bucket[i] > numModeData)
+            {
+                numModeData = bucket[i];
+                modeVal = i;
+            }
+        }
+
+        if (modeVal != NODATA)
+        {
+            mode.setText(QString::number(minValueInt + (modeVal*classWidthValue) + (classWidthValue/2), 'f', 3));
+        }
+        if (dev_std != NODATA)
+        {
+            sigma.setText(QString::number(dev_std, 'f', 3));
+        }
+        median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 3));
+
+        valMax.blockSignals(true);
+        valMin.blockSignals(true);
+        int valMaxValue = valMax.text().toInt(&ok);
+        if (!ok || valMax.text().isEmpty() || valMaxValue == NODATA)
+        {
+            valMaxValue = maxValueInt;
+            valMax.setText(QString::number(valMaxValue));
+        }
+        int valMinValue = valMin.text().toInt(&ok);
+        if (!ok || valMin.text().isEmpty() || valMinValue == NODATA)
+        {
+            valMinValue = minValueInt;
+            valMin.setText(QString::number(valMinValue));
+        }
+        valMax.blockSignals(false);
+        valMin.blockSignals(false);
+
+        std::vector<float> barValues;
+        QList<QPointF> lineValues;
+        for (int i = 0; i<bucket.size(); i++)
+        {
+            float x = valMinValue + (i*classWidthValue) + (classWidthValue/2);
+            if (x < valMaxValue)
+            {
+                barValues.push_back(bucket[i]);
+                if (myVar == precipitation)
+                {
+                    if (x > 0)
+                    {
+                        float gammaFun = gammaCDF(x, beta, gamma, pzero);
+                        if (gammaFun != NODATA)
+                        {
+                            float probGamma = probabilityGamma(x, 1/beta, gamma, gammaFun);
+                            lineValues.append(QPointF(x,probGamma));
+                        }
+                        else
+                        {
+                            QMessageBox::information(nullptr, "Error", "Error in gamma distribution");
+                            return;
+                        }
+                    }
+                }
+                else if (myVar != airRelHumidity && myVar != windVectorDirection)
+                {
+                    float gauss = gaussianFunction(x, avg, dev_std);
+                    lineValues.append(QPointF(x,gauss));
+                }
+            }
+        }
+        chartView->drawDistribution(barValues, lineValues, valMinValue, valMaxValue);
     }
 }
 
@@ -1038,5 +1313,17 @@ void Crit3DPointStatisticsWidget::showElaboration()
 
 void Crit3DPointStatisticsWidget::updatePlot()
 {
+    if (valMin.text().toInt() > valMax.text().toInt())
+    {
+        QMessageBox::information(nullptr, "Error", "Min value > Max vaue");
+        return;
+    }
+    plot();
+}
+
+void Crit3DPointStatisticsWidget::computePlot()
+{
+    valMax.clear();
+    valMin.clear();
     plot();
 }
