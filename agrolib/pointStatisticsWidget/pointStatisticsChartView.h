@@ -8,7 +8,7 @@
 #include <QtCharts/QBarCategoryAxis>
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
-#include "pointStatisticsCallout.h"
+#include "callout.h"
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     QT_CHARTS_USE_NAMESPACE
@@ -29,6 +29,8 @@ public:
     void cleanTrendSeries();
     void cleanClimaSeries();
     void cleanDistribution();
+    void setYmax(float value);
+    void setYmin(float value);
 
 private:
     QScatterSeries* trend;
@@ -37,11 +39,11 @@ private:
     QLineSeries* climaMonthly;
     QBarSeries *distributionBar;
     QLineSeries *distributionLine;
-    //QBarCategoryAxis *axisX;
+    QBarCategoryAxis *axisX;
     QValueAxis* axisXvalue;
     QValueAxis* axisY;
-    //QList<QString> categories;
-    PointStatisticsCallout *m_tooltip;
+    QList<QString> categories;
+    Callout *m_tooltip;
 };
 
 #endif // PointStatisticsChartView_H

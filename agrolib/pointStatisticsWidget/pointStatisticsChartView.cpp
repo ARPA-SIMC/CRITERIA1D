@@ -32,27 +32,30 @@ PointStatisticsChartView::PointStatisticsChartView(QWidget *parent) :
     climaMonthly->setColor(Qt::green);
 
     axisXvalue = new QValueAxis();
-    //axisX = new QBarCategoryAxis();
+    axisX = new QBarCategoryAxis();
+    axisX->hide();
     axisY = new QValueAxis();
 
-    //chart()->addAxis(axisX, Qt::AlignBottom);
     chart()->addAxis(axisXvalue, Qt::AlignBottom);
-    //axisX->setVisible(false);
+    chart()->addAxis(axisX, Qt::AlignBottom);
     chart()->addAxis(axisY, Qt::AlignLeft);
     chart()->setDropShadowEnabled(false);
 
     chart()->legend()->setVisible(true);
     chart()->legend()->setAlignment(Qt::AlignBottom);
-    m_tooltip = new PointStatisticsCallout(chart());
+    m_tooltip = new Callout(chart());
     m_tooltip->hide();
 }
 
 void PointStatisticsChartView::drawTrend(std::vector<int> years, std::vector<float> outputValues)
 {
 
-    cleanTrendSeries();
-    cleanClimaSeries();
-    cleanDistribution();
+    if (chart()->series().size() > 0)
+    {
+        cleanClimaSeries();
+        cleanDistribution();
+        cleanTrendSeries();
+    }
     chart()->legend()->setVisible(true);
 
     float maxValue = NODATA;
@@ -87,6 +90,7 @@ void PointStatisticsChartView::drawTrend(std::vector<int> years, std::vector<flo
     axisXvalue->setRange(years[0], years[years.size()-1]);
     axisXvalue->setTickCount(years.size());
     axisXvalue->setLabelFormat("%d");
+    axisY->setLabelFormat("%.1f");
     chart()->addSeries(trend);
     trend->attachAxis(axisXvalue);
     trend->attachAxis(axisY);
@@ -123,9 +127,12 @@ void PointStatisticsChartView::cleanTrendSeries()
 
 void PointStatisticsChartView::drawClima(QList<QPointF> dailyPointList, QList<QPointF> decadalPointList, QList<QPointF> monthlyPointList)
 {
-    cleanClimaSeries();
-    cleanTrendSeries();
-    cleanDistribution();
+    if (chart()->series().size() > 0)
+    {
+        cleanClimaSeries();
+        cleanDistribution();
+        cleanTrendSeries();
+    }
     chart()->legend()->setVisible(true);
 
     float maxValue = NODATA;
@@ -183,7 +190,7 @@ void PointStatisticsChartView::drawClima(QList<QPointF> dailyPointList, QList<QP
     axisXvalue->setRange(1, 366);
     axisXvalue->setTickCount(20);
     axisXvalue->setLabelFormat("%d");
-    axisY->setLabelFormat("%.3f");
+    axisY->setLabelFormat("%.1f");
 
     chart()->addSeries(climaDaily);
     chart()->addSeries(climaDecadal);
@@ -201,10 +208,14 @@ void PointStatisticsChartView::drawClima(QList<QPointF> dailyPointList, QList<QP
 
 void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QList<QPointF> lineValues, int minValue, int maxValue)
 {
-    cleanClimaSeries();
-    cleanTrendSeries();
-    cleanDistribution();
+    if (chart()->series().size() > 0)
+    {
+        cleanClimaSeries();
+        cleanDistribution();
+        cleanTrendSeries();
+    }
     chart()->legend()->setVisible(false);
+    categories.clear();
 
     QBarSet *distributionSet = new QBarSet("Distribution");
     distributionSet->setColor(Qt::red);
@@ -215,6 +226,7 @@ void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QL
 
     for (int i = 0; i<barValues.size(); i++)
     {
+        categories.append(QString::number(i));
         *distributionSet << barValues[i];
         if(barValues[i] != NODATA)
         {
@@ -244,20 +256,23 @@ void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QL
             }
         }
     }
+
     distributionBar->append(distributionSet);
     axisY->setMax(maxValueY);
     axisY->setMin(minValueY);
     axisXvalue->setRange(minValue, maxValue);
+    axisX->setCategories(categories);
 
-    distributionLine->attachAxis(axisXvalue);
-    distributionLine->attachAxis(axisY);
-    distributionBar->attachAxis(axisXvalue);
-    distributionBar->attachAxis(axisY);
     chart()->addSeries(distributionBar);
     chart()->addSeries(distributionLine);
+
+    distributionLine->attachAxis(axisXvalue);
+
+    distributionBar->attachAxis(axisX);
+    distributionBar->attachAxis(axisY);
+
     connect(distributionLine, &QLineSeries::hovered, this, &PointStatisticsChartView::tooltipDistributionSeries);
     connect(distributionBar, &QBarSeries::hovered, this, &PointStatisticsChartView::tooltipBar);
-
 }
 
 void PointStatisticsChartView::cleanDistribution()
@@ -324,7 +339,7 @@ void PointStatisticsChartView::tooltipDistributionSeries(QPointF point, bool sta
     auto serie = qobject_cast<QLineSeries *>(sender());
     if (state)
     {
-        int xValue = point.x();
+        double xValue = point.x();
         double yValue = point.y();
 
         m_tooltip->setText(QString("%1,%2").arg(xValue, 0, 'f', 1).arg(yValue, 0, 'f', 3));
@@ -358,7 +373,7 @@ void PointStatisticsChartView::tooltipBar(bool state, int index, QBarSet *barset
             tooltipDistributionSeries(pointF, true);
         }
 
-        QString valueStr = QString("%1").arg(barset->at(index), 0, 'f', 1);
+        QString valueStr = QString("%1").arg(barset->at(index), 0, 'f', 3);
         m_tooltip->setSeries(series);
         m_tooltip->setText(valueStr);
         m_tooltip->setAnchor(pointF);
@@ -371,5 +386,15 @@ void PointStatisticsChartView::tooltipBar(bool state, int index, QBarSet *barset
     {
         m_tooltip->hide();
     }
+}
+
+void PointStatisticsChartView::setYmax(float value)
+{
+    axisY->setMax(value);
+}
+
+void PointStatisticsChartView::setYmin(float value)
+{
+    axisY->setMin(value);
 }
 

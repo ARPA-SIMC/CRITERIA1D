@@ -30,6 +30,7 @@
 #include "basicMath.h"
 #include "climate.h"
 #include "dialogElaboration.h"
+#include "dialogChangeAxis.h"
 #include "gammaFunction.h"
 #include "furtherMathFunctions.h"
 #include "formInfo.h"
@@ -79,15 +80,33 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     
     dailyButton.setText("Daily");
     hourlyButton.setText("Hourly");
-    if (!firstDaily.isNull() || !lastDaily.isNull())
+    if (firstDaily.isNull() || lastDaily.isNull())
     {
-        dailyButton.setChecked(true); //default
-        currentFrequency = daily; //default
+        dailyButton.setEnabled(false);
     }
     else
     {
-        hourlyButton.setChecked(true);
-        currentFrequency = hourly;
+        dailyButton.setEnabled(true);
+        dailyButton.setChecked(true); //default
+        currentFrequency = daily; //default
+    }
+
+    if (firstHourly.isNull() || lastHourly.isNull())
+    {
+        hourlyButton.setEnabled(false);
+    }
+    else
+    {
+        hourlyButton.setEnabled(true);
+        if (dailyButton.isEnabled())
+        {
+            hourlyButton.setChecked(false);
+        }
+        else
+        {
+            hourlyButton.setChecked(true);
+            currentFrequency = hourly;
+        }
     }
 
     std::map<meteoVariable, std::string>::const_iterator it;
@@ -307,8 +326,22 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     sigma.setMaximumHeight(30);
     gridRightLayout->addWidget(&sigma,5,3,1,1);
 
-    rightLayout->addLayout(gridRightLayout);
+    // menu
+    QMenuBar* menuBar = new QMenuBar();
+    QMenu *editMenu = new QMenu("Edit");
 
+    menuBar->addMenu(editMenu);
+    mainLayout->setMenuBar(menuBar);
+
+    QAction* changeLeftAxis = new QAction(tr("&Change axis left"), this);
+    QAction* exportGraph = new QAction(tr("&Export graph"), this);
+    QAction* exportData = new QAction(tr("&Export data"), this);
+
+    editMenu->addAction(changeLeftAxis);
+    editMenu->addAction(exportGraph);
+    editMenu->addAction(exportData);
+
+    rightLayout->addLayout(gridRightLayout);
     upperLayout->addLayout(leftLayout);
     upperLayout->addLayout(rightLayout);
     mainLayout->addLayout(upperLayout);
@@ -325,6 +358,9 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     connect(&valMax, &QLineEdit::editingFinished, [=](){ updatePlot(); });
     connect(&valMin, &QLineEdit::editingFinished, [=](){ updatePlot(); });
     connect(&classWidth, &QLineEdit::editingFinished, [=](){ updatePlot(); });
+    connect(changeLeftAxis, &QAction::triggered, this, &Crit3DPointStatisticsWidget::on_actionChangeLeftAxis);
+    connect(exportGraph, &QAction::triggered, this, &Crit3DPointStatisticsWidget::on_actionExportGraph);
+    connect(exportData, &QAction::triggered, this, &Crit3DPointStatisticsWidget::on_actionExportData);
 
     plot();
     show();
@@ -523,9 +559,11 @@ void Crit3DPointStatisticsWidget::plot()
             // meteoPointTemp should be init
             meteoPointTemp.nrObsDataDaysH = 0;
             meteoPointTemp.nrObsDataDaysD = 0;
-
+            FormInfo formInfo;
+            formInfo.showInfo("compute annual series...");
             int validYears = computeAnnualSeriesOnPointFromDaily(&myError, meteoPointsDbHandler, meteoGridDbHandler,
                                                      &meteoPointTemp, &clima, isGrid, isAnomaly, meteoSettings, outputValues);
+            formInfo.close();
             if (validYears < 3)
             {
                 QMessageBox::information(nullptr, "Error", "Number of valid years < 3");
@@ -624,10 +662,22 @@ void Crit3DPointStatisticsWidget::plot()
 
             QDate startDate(clima.yearStart(), clima.genericPeriodDateStart().month(), clima.genericPeriodDateStart().day());
             QDate endDate(clima.yearEnd(), clima.genericPeriodDateEnd().month(), clima.genericPeriodDateEnd().day());
-            if (!elaborationOnPoint(&myError, meteoPointsDbHandler, nullptr, &meteoPointTemp, &clima, isGrid, startDate, endDate, isAnomaly, meteoSettings))
+
+            if (isGrid)
             {
-                QMessageBox::information(nullptr, "Error", "Data not available in the reference period");
-                return;
+                if (!elaborationOnPoint(&myError, nullptr, meteoGridDbHandler, &meteoPointTemp, &clima, isGrid, startDate, endDate, isAnomaly, meteoSettings))
+                {
+                    QMessageBox::information(nullptr, "Error", "Data not available in the reference period");
+                    return;
+                }
+            }
+            else
+            {
+                if (!elaborationOnPoint(&myError, meteoPointsDbHandler, nullptr, &meteoPointTemp, &clima, isGrid, startDate, endDate, isAnomaly, meteoSettings))
+                {
+                    QMessageBox::information(nullptr, "Error", "Data not available in the reference period");
+                    return;
+                }
             }
 
             firstYear = analysisYearFrom.currentText().toInt();
@@ -638,8 +688,12 @@ void Crit3DPointStatisticsWidget::plot()
             clima.setGenericPeriodDateEnd(QDate(lastYear, dayTo.date().month(), dayTo.date().day()));
             float elabResult = meteoPointTemp.elaboration;
 
+            FormInfo formInfo;
+            formInfo.showInfo("compute annual series...");
+
             int validYears = computeAnnualSeriesOnPointFromDaily(&myError, meteoPointsDbHandler, meteoGridDbHandler,
                                                      &meteoPointTemp, &clima, isGrid, isAnomaly, meteoSettings, outputValues);
+            formInfo.close();
             if (validYears < 3)
             {
                 QMessageBox::information(nullptr, "Error", "Number of valid years < 3");
@@ -860,74 +914,6 @@ void Crit3DPointStatisticsWidget::plot()
             int minValueInt = myMinValue;
             int maxValueInt = myMaxValue + 1;
 
-            // init
-            std::vector<float> bucket;
-            for (int i = 0; i<= (maxValueInt - minValueInt)/classWidthValue; i++)
-            {
-                bucket.push_back(0);
-            }
-
-            float dev_std = NODATA;
-            float millile_3Dev = NODATA;
-            float millile3dev = NODATA;
-            float avg = NODATA;
-            float modeVal = NODATA;
-            int nrValues = int(series.size());
-            std::vector<float> sortedSeries = series;
-            double beta;
-            double gamma;
-            double pzero;
-
-            if (myVar == dailyPrecipitation)
-            {
-                for (int i = 0; i < nrValues; i++)
-                {
-                    if (series[i] > 0)
-                    {
-                        int index = (series[i] - minValueInt)/classWidthValue;
-                        bucket[index] = bucket[index] + 1;
-                    }
-                }
-                if (!gammaFitting(series, nrValues, &beta, &gamma,  &pzero))
-                {
-                    return;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < nrValues; i++)
-                {
-                    int index = (series[i] - minValueInt)/classWidthValue;
-                    bucket[index] = bucket[index] + 1;
-                }
-                avg = statistics::mean(series, nrValues);
-                dev_std = statistics::standardDeviation(series, nrValues);
-                millile3dev = sorting::percentile(sortedSeries, &nrValues, 99.73, true);
-                millile_3Dev = sorting::percentile(sortedSeries, &nrValues, 0.27, false);
-            }
-            availability.setText(QString::number(nrValues/totDays * 100, 'f', 3));
-            average.setText(QString::number(avg, 'f', 3));
-
-            int numModeData = 0;
-            for (int i = 0; i<bucket.size(); i++)
-            {
-                if (bucket[i] > numModeData)
-                {
-                    numModeData = bucket[i];
-                    modeVal = i;
-                }
-            }
-
-            if (modeVal != NODATA)
-            {
-                mode.setText(QString::number(minValueInt + (modeVal*classWidthValue) + (classWidthValue/2), 'f', 3));
-            }
-            if (dev_std != NODATA)
-            {
-                sigma.setText(QString::number(dev_std, 'f', 3));
-            }
-            median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 3));
-
             valMax.blockSignals(true);
             valMin.blockSignals(true);
             int valMaxValue = valMax.text().toInt(&ok);
@@ -945,14 +931,92 @@ void Crit3DPointStatisticsWidget::plot()
             valMax.blockSignals(false);
             valMin.blockSignals(false);
 
-            std::vector<float> barValues;
+            // init
+            std::vector<float> bucket;
+            for (int i = 0; i<= (valMaxValue - valMinValue)/classWidthValue; i++)
+            {
+                bucket.push_back(0);
+            }
+
+            float dev_std = NODATA;
+            float millile_3Dev = NODATA;
+            float millile3dev = NODATA;
+            float avg = NODATA;
+            float modeVal = NODATA;
+            int nrValues = int(series.size());
+            std::vector<float> sortedSeries = series;
+            double beta;
+            double gamma;
+            double pzero;
+
+            int visualizedNrValues = 0;
+
+            if (myVar == dailyPrecipitation)
+            {
+                for (int i = 0; i < nrValues; i++)
+                {
+                    if (series[i] > 0)
+                    {
+                        int index = (series[i] - valMinValue)/classWidthValue;
+                        if( index >= 0)
+                        {
+                            bucket[index] = bucket[index] + 1;
+                            visualizedNrValues = visualizedNrValues + 1;
+                        }
+                    }
+                }
+                if (!gammaFitting(series, nrValues, &beta, &gamma,  &pzero))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < nrValues; i++)
+                {
+                    int index = (series[i] - valMinValue)/classWidthValue;
+                    if( index >= 0)
+                    {
+                        bucket[index] = bucket[index] + 1;
+                        visualizedNrValues = visualizedNrValues + 1;
+                    }
+                }
+                avg = statistics::mean(series, nrValues);
+                dev_std = statistics::standardDeviation(series, nrValues);
+                millile3dev = sorting::percentile(sortedSeries, &nrValues, 99.73, true);
+                millile_3Dev = sorting::percentile(sortedSeries, &nrValues, 0.27, false);
+            }
+
+            availability.setText(QString::number(nrValues/totDays * 100, 'f', 3));
+            average.setText(QString::number(avg, 'f', 3));
+
+            int numModeData = 0;
+            for (int i = 0; i<bucket.size(); i++)
+            {
+                if (bucket[i] > numModeData)
+                {
+                    numModeData = bucket[i];
+                    modeVal = i;
+                }
+            }
+
+            if (modeVal != NODATA)
+            {
+                float myMode = minValueInt + (modeVal*classWidthValue) + (classWidthValue/2.0); // use minValueInt not the displayed minValue
+                mode.setText(QString::number(myMode, 'f', 3));
+            }
+            if (dev_std != NODATA)
+            {
+                sigma.setText(QString::number(dev_std, 'f', 3));
+            }
+            median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 3));
+
             QList<QPointF> lineValues;
             for (int i = 0; i<bucket.size(); i++)
             {
-                float x = valMinValue + (i*classWidthValue) + (classWidthValue/2);
+                float x = valMinValue + (i*classWidthValue) + (classWidthValue/2.0);
                 if (x < valMaxValue)
                 {
-                    barValues.push_back(bucket[i]);
                     if (myVar == dailyPrecipitation)
                     {
                         if (x > 0)
@@ -977,7 +1041,12 @@ void Crit3DPointStatisticsWidget::plot()
                     }
                 }
             }
-            chartView->drawDistribution(barValues, lineValues, valMinValue, valMaxValue);
+            for (int i = 0; i<bucket.size(); i++)
+            {
+                bucket[i] = bucket[i]/visualizedNrValues;
+            }
+            chartView->drawDistribution(bucket, lineValues, valMinValue, valMaxValue);
+
 
         }
     }
@@ -1094,9 +1163,26 @@ void Crit3DPointStatisticsWidget::plot()
         int minValueInt = myMinValue;
         int maxValueInt = myMaxValue + 1;
 
+        valMax.blockSignals(true);
+        valMin.blockSignals(true);
+        int valMaxValue = valMax.text().toInt(&ok);
+        if (!ok || valMax.text().isEmpty() || valMaxValue == NODATA)
+        {
+            valMaxValue = maxValueInt;
+            valMax.setText(QString::number(valMaxValue));
+        }
+        int valMinValue = valMin.text().toInt(&ok);
+        if (!ok || valMin.text().isEmpty() || valMinValue == NODATA)
+        {
+            valMinValue = minValueInt;
+            valMin.setText(QString::number(valMinValue));
+        }
+        valMax.blockSignals(false);
+        valMin.blockSignals(false);
+
         // init
         std::vector<float> bucket;
-        for (int i = 0; i<= (maxValueInt - minValueInt)/classWidthValue; i++)
+        for (int i = 0; i<= (valMaxValue - valMinValue)/classWidthValue; i++)
         {
             bucket.push_back(0);
         }
@@ -1112,14 +1198,19 @@ void Crit3DPointStatisticsWidget::plot()
         double gamma;
         double pzero;
 
+        int visualizedNrValues = 0;
         if (myVar == precipitation)
         {
             for (int i = 0; i < nrValues; i++)
             {
                 if (series[i] > 0)
                 {
-                    int index = (series[i] - minValueInt)/classWidthValue;
-                    bucket[index] = bucket[index] + 1;
+                    int index = (series[i] - valMinValue)/classWidthValue;
+                    if( index >= 0)
+                    {
+                        bucket[index] = bucket[index] + 1;
+                        visualizedNrValues = visualizedNrValues + 1;
+                    }
                 }
             }
             if (!gammaFitting(series, nrValues, &beta, &gamma,  &pzero))
@@ -1133,8 +1224,12 @@ void Crit3DPointStatisticsWidget::plot()
             {
                 if (series[i] > 0)
                 {
-                    int index = (series[i] - minValueInt)/classWidthValue;
-                    bucket[index] = bucket[index] + 1;
+                    int index = (series[i] - valMinValue)/classWidthValue;
+                    if( index >= 0)
+                    {
+                        bucket[index] = bucket[index] + 1;
+                        visualizedNrValues = visualizedNrValues + 1;
+                    }
                 }
             }
             avg = statistics::mean(series, nrValues);
@@ -1157,7 +1252,8 @@ void Crit3DPointStatisticsWidget::plot()
 
         if (modeVal != NODATA)
         {
-            mode.setText(QString::number(minValueInt + (modeVal*classWidthValue) + (classWidthValue/2), 'f', 3));
+            float myMode = minValueInt + (modeVal*classWidthValue) + (classWidthValue/2.0); // use minValueInt not the displayed minValue
+            mode.setText(QString::number(myMode, 'f', 3));
         }
         if (dev_std != NODATA)
         {
@@ -1165,31 +1261,12 @@ void Crit3DPointStatisticsWidget::plot()
         }
         median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 3));
 
-        valMax.blockSignals(true);
-        valMin.blockSignals(true);
-        int valMaxValue = valMax.text().toInt(&ok);
-        if (!ok || valMax.text().isEmpty() || valMaxValue == NODATA)
-        {
-            valMaxValue = maxValueInt;
-            valMax.setText(QString::number(valMaxValue));
-        }
-        int valMinValue = valMin.text().toInt(&ok);
-        if (!ok || valMin.text().isEmpty() || valMinValue == NODATA)
-        {
-            valMinValue = minValueInt;
-            valMin.setText(QString::number(valMinValue));
-        }
-        valMax.blockSignals(false);
-        valMin.blockSignals(false);
-
-        std::vector<float> barValues;
         QList<QPointF> lineValues;
         for (int i = 0; i<bucket.size(); i++)
         {
-            float x = valMinValue + (i*classWidthValue) + (classWidthValue/2);
+            float x = valMinValue + (i*classWidthValue) + (classWidthValue/2.0);
             if (x < valMaxValue)
             {
-                barValues.push_back(bucket[i]);
                 if (myVar == precipitation)
                 {
                     if (x > 0)
@@ -1214,7 +1291,11 @@ void Crit3DPointStatisticsWidget::plot()
                 }
             }
         }
-        chartView->drawDistribution(barValues, lineValues, valMinValue, valMaxValue);
+        for (int i = 0; i<bucket.size(); i++)
+        {
+            bucket[i] = bucket[i]/visualizedNrValues;
+        }
+        chartView->drawDistribution(bucket, lineValues, valMinValue, valMaxValue);
     }
 }
 
@@ -1327,3 +1408,44 @@ void Crit3DPointStatisticsWidget::computePlot()
     valMin.clear();
     plot();
 }
+
+void Crit3DPointStatisticsWidget::on_actionChangeLeftAxis()
+{
+    DialogChangeAxis changeAxisDialog(true);
+    if (changeAxisDialog.result() == QDialog::Accepted)
+    {
+        chartView->setYmax(changeAxisDialog.getMaxVal());
+        chartView->setYmin(changeAxisDialog.getMinVal());
+    }
+}
+
+
+void Crit3DPointStatisticsWidget::on_actionExportGraph()
+{
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current graph"), "", tr("png files (*.png)"));
+
+    if (fileName != "")
+    {
+        const auto dpr = chartView->devicePixelRatioF();
+        QPixmap buffer(chartView->width() * dpr, chartView->height() * dpr);
+        buffer.setDevicePixelRatio(dpr);
+        buffer.fill(Qt::transparent);
+
+        QPainter *paint = new QPainter(&buffer);
+        paint->setPen(*(new QColor(255,34,255,255)));
+        chartView->render(paint);
+
+        QFile file(fileName);
+        file.open(QIODevice::WriteOnly);
+        buffer.save(&file, "PNG");
+    }
+}
+
+void Crit3DPointStatisticsWidget::on_actionExportData()
+{
+     // TO DO
+}
+
+
+
