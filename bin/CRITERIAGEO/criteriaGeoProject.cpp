@@ -200,7 +200,7 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
     {
         if (shapeHandler->getFieldName(i) == "ID_CASE" || shapeHandler->getFieldName(i) == "ID_SOIL"
             || shapeHandler->getFieldName(i) == "ID_CROP" || shapeHandler->getFieldName(i) == "ID_METEO"
-            || shapeHandler->getFieldName(i) == "hectares")
+            || shapeHandler->getFieldName(i) == "hectares" || shapeHandler->getFieldName(i) == "Hectares")
         {
             fieldRequired = fieldRequired + 1;
         }
