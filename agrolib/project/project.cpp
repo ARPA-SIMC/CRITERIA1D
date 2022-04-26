@@ -1923,108 +1923,61 @@ bool Project::interpolationOutputPoints(std::vector <Crit3DInterpolationDataPoin
     return true;
 }
 
-bool Project::computeStatisticsCrossValidation(meteoVariable myVar, crossValidationStatistics myStats)
+bool Project::computeStatisticsCrossValidation(Crit3DTime myTime, meteoVariable myVar, crossValidationStatistics* myStats)
 {
+    myStats->initialize();
 
-/*
-Dim i As Long
-Dim myObs() As Single, myPre() As Single
-Dim myFrequency As Byte
-Dim myValue As Single, myEstimate As Single, myResidual As Single
+    std::vector <float> obs;
+    std::vector <float> pre;
 
-    computeStatisticCrossValidation = False
+    float value;
 
-    MAE = Definitions.NO_DATA
-    MBE = Definitions.NO_DATA
-    RMSE = Definitions.NO_DATA
-    PC = Definitions.NO_DATA
-    R2 = Definitions.NO_DATA
-    CRE = Definitions.NO_DATA
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (meteoPoints[i].active)
+        {
+            value = meteoPoints[i].getMeteoPointValue(myTime, myVar, meteoSettings);
 
-    ReDim myObs(0)
-    ReDim myPre(0)
+            if (! isEqual(value, NODATA) && ! isEqual(meteoPoints[i].residual, NODATA))
+            {
+                obs.push_back(value);
+                pre.push_back(value + meteoPoints[i].residual);
+            }
+        }
+    }
 
-    If myVar = Definitions.GENERIC_CLIMA Then
-        Dim myPeriodType As Byte, myClimateVar As String
+    if (obs.size() > 0)
+    {
+        myStats->setMeanAbsoluteError(statistics::meanAbsoluteError(obs, pre));
+        myStats->setMeanBiasError(statistics::meanError(obs, pre));
+        myStats->setRootMeanSquareError(statistics::rootMeanSquareError(obs, pre));
+        myStats->setCompoundRelativeError(statistics::compoundRelativeError(obs, pre));
 
-        myClimateVar = Climate.parserElaborationOnlyVar(climateCurrentItem)
-        myPeriodType = Climate.parserElaborationOnlyPeriodType(climateCurrentItem)
-        If loadClimateData Then Climate.ClimateRead climateCurrentItem, Climate.getClimateIndexFromDate(currentDay, myPeriodType), False
-
-        For i = 0 To UBound(PragaClimate.Point)
-            With PragaClimate.Point(i)
-                If .active And .selected Then
-                    myValue = passaggioDati.GetClimateData(myPeriodType, PragaClimate.Point(i), Climate.getClimateIndexFromDate(currentDay, myPeriodType))
-                    myResidual = .residual
-                    If myValue <> Definitions.NO_DATA And myResidual <> Definitions.NO_DATA Then
-                        myEstimate = myValue + myResidual
-                        ReDim Preserve myObs(UBound(myObs) + 1)
-                        ReDim Preserve myPre(UBound(myPre) + 1)
-                        myObs(UBound(myObs)) = myValue
-                        myPre(UBound(myPre)) = myEstimate
-                    End If
-                End If
-            End With
-        Next i
-
-    Else
-
-        myFrequency = passaggioDati.getDataFrequency(myVar)
-        For i = 0 To UBound(meteoPoint)
-
-            With meteoPoint(i).Point
-                If meteoPoint(i).Point.active And meteoPoint(i).Point.selected Then
-                    myValue = passaggioDati.getPointData(myVar, meteoPoint(i).Point)
-
-                    Select Case myFrequency
-                        Case Definitions.DAILY
-                            myResidual = meteoPoint(i).Point.values_D.residual
-                        Case Definitions.HOURLY
-                            myResidual = meteoPoint(i).Point.values_H.residual_h(getCurrentHour)
-                        Case Else
-                            myResidual = meteoPoint(i).Point.values_D.residual
-                    End Select
-
-                    If myValue <> Definitions.NO_DATA And myResidual <> Definitions.NO_DATA Then
-                        myEstimate = myValue + myResidual
-                        ReDim Preserve myObs(UBound(myObs) + 1)
-                        ReDim Preserve myPre(UBound(myPre) + 1)
-                        myObs(UBound(myObs)) = myValue
-                        myPre(UBound(myPre)) = myEstimate
-
-                    End If
-                End If
-            End With
-        Next i
-
-    End If
-
-    If UBound(myObs) > 0 Then
-        MAE = math.computeMAE(myObs, myPre)
-        MBE = math.computeMBE(myObs, myPre)
-        RMSE = math.computeRMSE(myObs, myPre)
-
-        Dim myIntercept As Single, myCoeff As Single
-        math.RegLineare myObs, myPre, False, myIntercept, myCoeff, R2
-
-        CRE = math.computeCRE(myObs, myPre)
-
-        If myVar = Definitions.DAILY_PREC Or myVar = Definitions.HOURLY_PREC Then
-            PC = math.computePercentCorrect(myObs, myPre, Environment.RainfallThreshold)
-        Else
-            PC = Definitions.NO_DATA
-        End If
-    End If
-
-    computeStatisticCrossValidation = True
-*/
+        float intercept, slope, r2;
+        statistics::linearRegression(obs, pre, int(obs.size()), false, &intercept, &slope, &r2);
+        myStats->setR2(r2);
+    }
 
     return true;
 }
 
-bool Project::interpolationCv(meteoVariable myVar, const Crit3DTime& myTime, crossValidationStatistics myStats)
+bool Project::interpolationCv(meteoVariable myVar, const Crit3DTime& myTime, crossValidationStatistics *myStats)
 {
     if (! checkInterpolationMain(myVar)) return false;
+
+    if ((interpolationSettings.getUseDewPoint() && (myVar == dailyAirRelHumidityAvg ||
+            myVar == dailyAirRelHumidityMin || myVar == dailyAirRelHumidityMax || myVar == airRelHumidity)) ||
+            myVar == dailyGlobalRadiation ||
+            myVar == dailyLeafWetness ||
+            myVar == dailyWindVectorDirectionPrevailing ||
+            myVar == dailyWindVectorIntensityAvg ||
+            myVar == dailyWindVectorIntensityMax ||
+            myVar == globalIrradiance)
+    {
+        logError("Not available for " + QString::fromStdString(getVariableString(myVar)));
+        return false;
+    }
+
 
     std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
 
@@ -2037,10 +1990,7 @@ bool Project::interpolationCv(meteoVariable myVar, const Crit3DTime& myTime, cro
         return false;
     }
 
-    // detrending and checking precipitation
-    bool interpolationReady = preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters, meteoPoints, nrMeteoPoints, myVar, myTime);
-
-    if (! interpolationReady)
+    if (! preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters, meteoPoints, nrMeteoPoints, myVar, myTime))
     {
         logError("Interpolation: error in function preInterpolation");
         return false;
@@ -2049,7 +1999,7 @@ bool Project::interpolationCv(meteoVariable myVar, const Crit3DTime& myTime, cro
     if (! computeResiduals(myVar, meteoPoints, nrMeteoPoints, interpolationPoints, &interpolationSettings, meteoSettings, true, true))
         return false;
 
-    if (! computeStatisticsCrossValidation(myVar, myStats))
+    if (! computeStatisticsCrossValidation(myTime, myVar, myStats))
         return false;
 
     return true;

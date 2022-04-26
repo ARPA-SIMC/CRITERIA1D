@@ -46,6 +46,16 @@ void crossValidationStatistics::setMeanBiasError(float newMeanBiasError)
     meanBiasError = newMeanBiasError;
 }
 
+const Crit3DTime &crossValidationStatistics::getRefTime() const
+{
+    return refTime;
+}
+
+void crossValidationStatistics::setRefTime(const Crit3DTime &newRefTime)
+{
+    refTime = newRefTime;
+}
+
 const Crit3DProxyCombination &crossValidationStatistics::getProxyCombination() const
 {
     return proxyCombination;
@@ -54,6 +64,30 @@ const Crit3DProxyCombination &crossValidationStatistics::getProxyCombination() c
 void crossValidationStatistics::setProxyCombination(const Crit3DProxyCombination &newProxyCombination)
 {
     proxyCombination = newProxyCombination;
+}
+
+float crossValidationStatistics::getR2() const
+{
+    return R2;
+}
+
+void crossValidationStatistics::setR2(float newR2)
+{
+    R2 = newR2;
+}
+
+crossValidationStatistics::crossValidationStatistics()
+{
+    initialize();
+}
+
+void crossValidationStatistics::initialize()
+{
+    meanAbsoluteError = NODATA;
+    rootMeanSquareError = NODATA;
+    compoundRelativeError = NODATA;
+    meanBiasError = NODATA;
+    R2 = NODATA;
 }
 
 void Crit3DProxyGridSeries::initialize()

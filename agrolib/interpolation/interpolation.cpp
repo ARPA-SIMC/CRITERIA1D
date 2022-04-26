@@ -195,7 +195,6 @@ void computeDistances(meteoVariable myVar, vector <Crit3DInterpolationDataPoint>
         else
         {            
             myPoints[i].distance = gis::computeDistance(x, y, float((myPoints[i]).point->utm.x) , float((myPoints[i]).point->utm.y));
-            myPoints[i].deltaZ = float(fabs(myPoints[i].point->z - z));
 
             if (mySettings->getUseTD() && getUseTdVar(myVar))
             {
@@ -220,7 +219,7 @@ void computeDistances(meteoVariable myVar, vector <Crit3DInterpolationDataPoint>
                                                            *(mySettings->getCurrentDEM()));
                 }
 
-                myPoints[i].distance += (kh * topoDistance) + (mySettings->getTopoDist_Kz() * myPoints[i].deltaZ);
+                myPoints[i].distance += (kh * topoDistance);
             }
         }
     }
@@ -982,7 +981,9 @@ bool getUseDetrendingVar(meteoVariable myVar)
 bool getUseTdVar(meteoVariable myVar)
 {
     //exclude large scale variables
-    if (myVar == globalIrradiance ||
+    if (myVar == precipitation ||
+            myVar == dailyPrecipitation ||
+            myVar == globalIrradiance ||
             myVar == atmTransmissivity ||
             myVar == dailyGlobalRadiation ||
             myVar == atmPressure ||
@@ -1162,11 +1163,8 @@ void topographicDistanceOptimize(meteoVariable myVar,
 {
     float avgError;
 
-    // deactive Kz
-    int bestKz = 0;
-    mySettings->setTopoDist_Kz(bestKz);
+    mySettings->initializeKhSeries();
 
-    // optimize kh
     int kh = 0;
     int bestKh = kh;
     float bestError = NODATA;
@@ -1181,30 +1179,13 @@ void topographicDistanceOptimize(meteoVariable myVar,
                 bestError = avgError;
                 bestKh = kh;
             }
+
+            mySettings->addToKhSeries(kh, avgError);
         }
         kh = ((kh == 0) ? 1 : kh*2);
     }
 
     mySettings->setTopoDist_Kh(bestKh);
-
-    // optimize kz
-    /*int kz = 1;
-    while (kz <= 64)
-    {
-        mySettings->setTopoDist_Kz(kz);
-        if (computeResiduals(myVar, myMeteoPoints, nrMeteoPoints, interpolationPoints, mySettings, meteoSettings, true, true))
-        {
-            avgError = computeErrorCrossValidation(myVar, myMeteoPoints, nrMeteoPoints, myTime, meteoSettings);
-            if (avgError < bestError)
-            {
-                bestError = avgError;
-                bestKz = kz;
-            }
-        }
-        kz *= 2;
-    }
-    mySettings->setTopoDist_Kz(bestKz);*/
-
 }
 
 

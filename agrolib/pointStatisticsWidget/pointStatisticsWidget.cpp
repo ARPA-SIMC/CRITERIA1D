@@ -44,7 +44,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
   lastDaily(lastDaily), firstHourly(firstHourly), lastHourly(lastHourly), meteoSettings(meteoSettings), settings(settings), climateParameters(climateParameters), quality(quality)
 {
     this->setWindowTitle("Point statistics Id:"+QString::fromStdString(meteoPoints[0].id)+" "+QString::fromStdString(meteoPoints[0].name));
-    this->resize(1240, 700);
+    this->resize(1000, 700);
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setAttribute(Qt::WA_DeleteOnClose);
     
@@ -191,7 +191,6 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     jointStationsSelectLayout->addWidget(&saveToDb);
     jointStationsLayout->addLayout(jointStationsSelectLayout);
     jointStationsSelected.setMaximumWidth(this->width()/4);
-    jointStationsSelected.setMaximumHeight(this->height()/4);
     jointStationsLayout->addWidget(&jointStationsSelected);
     jointStationsGroupBox->setTitle("Joint stations");
     jointStationsGroupBox->setLayout(jointStationsLayout);
@@ -210,45 +209,49 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
 
     QLabel *classWidthLabel = new QLabel(tr("Class width"));
     gridLeftLayout->addWidget(classWidthLabel,0,0,1,1);
-    QLabel *valMaxLabel = new QLabel(tr("Val max"));
-    gridLeftLayout->addWidget(valMaxLabel,0,1,1,1);
     QLabel *valMinLabel = new QLabel(tr("Val min"));
-    gridLeftLayout->addWidget(valMinLabel,0,2,1,1);
+    gridLeftLayout->addWidget(valMinLabel,0,1,1,1);
+    QLabel *valMaxLabel = new QLabel(tr("Val max"));
+    gridLeftLayout->addWidget(valMaxLabel,0,2,1,1);
     QLabel *smoothingLabel = new QLabel(tr("Smoothing"));
     gridLeftLayout->addWidget(smoothingLabel,0,3,1,1);
     classWidth.setMaximumWidth(60);
-    classWidth.setMaximumHeight(30);
+    classWidth.setMaximumHeight(24);
     classWidth.setText("1");
-    classWidth.setValidator(new QDoubleValidator(1.0, 5.0, 1));
+    classWidth.setValidator(new QIntValidator(1.0, 5.0));
     gridLeftLayout->addWidget(&classWidth,3,0,1,-1);
-    valMax.setMaximumWidth(60);
-    valMax.setMaximumHeight(30);
-    valMax.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
-    gridLeftLayout->addWidget(&valMax,3,1,1,-1);
+
     valMin.setMaximumWidth(60);
-    valMin.setMaximumHeight(30);
+    valMin.setMaximumHeight(24);
     valMin.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
-    gridLeftLayout->addWidget(&valMin,3,2,1,-1);
+    gridLeftLayout->addWidget(&valMin,3,1,1,-1);
+    valMax.setMaximumWidth(60);
+    valMax.setMaximumHeight(24);
+    valMax.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
+    gridLeftLayout->addWidget(&valMax,3,2,1,-1);
     smoothing.setMaximumWidth(60);
-    smoothing.setMaximumHeight(30);
+    smoothing.setMaximumHeight(24);
     smoothing.setValidator(new QIntValidator(0, 366));
     smoothing.setText("0");
     gridLeftLayout->addWidget(&smoothing,3,3,1,-1);
-    gridLeftGroupBox->setMaximumHeight(this->height()/6);
+    gridLeftGroupBox->setMaximumHeight(this->height()/8);
     gridLeftGroupBox->setLayout(gridLeftLayout);
     leftLayout->addWidget(gridLeftGroupBox);
 
     rightLayout->addWidget(jointStationsGroupBox);
-    QLabel *selectGraphLabel = new QLabel(tr("Select graph:"));
-    rightLayout->addWidget(selectGraphLabel);
+
+    QGroupBox *graphTypeGroupBox = new QGroupBox();
+    graphTypeGroupBox->setTitle("Graph type");
+    QHBoxLayout *graphTypeLayout = new QHBoxLayout();
+    graphTypeLayout->setAlignment(Qt::AlignCenter);
     if (currentFrequency == daily)
     {
         if (!firstDaily.isNull() || !lastDaily.isNull())
         {
-            graph.addItem("Distribution");
-            graph.addItem("Climate");
-            graph.addItem("Trend");
-            graph.addItem("Anomaly trend");
+            graphType.addItem("Distribution");
+            graphType.addItem("Climate");
+            graphType.addItem("Trend");
+            graphType.addItem("Anomaly trend");
 
             for(int i = 0; i <= lastDaily.year()-firstDaily.year(); i++)
             {
@@ -265,7 +268,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     {
         if (!firstHourly.isNull() || !lastHourly.isNull())
         {
-            graph.addItem("Distribution");
+            graphType.addItem("Distribution");
             for(int i = 0; i <= lastHourly.date().year() - firstHourly.date().year(); i++)
             {
                 yearFrom.addItem(QString::number(firstHourly.date().year()+i));
@@ -274,57 +277,59 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
             yearTo.setCurrentText(QString::number(lastHourly.date().year()));
         }
     }
-    graph.setMaximumWidth(this->width()/5);
-    graph.setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    rightLayout->addWidget(&graph);
+    graphType.setMinimumWidth(200);
+    graphTypeLayout->addWidget(&graphType);
+    graphTypeGroupBox->setLayout(graphTypeLayout);
+    rightLayout->addWidget(graphTypeGroupBox);
+
     QLabel *availabilityLabel = new QLabel(tr("availability [%]"));
     gridRightLayout->addWidget(availabilityLabel,0,0,1,1);
     availability.setEnabled(false);
     availability.setMaximumWidth(80);
-    availability.setMaximumHeight(30);
-    gridRightLayout->addWidget(&availability,1,0,1,1);
+    availability.setMaximumHeight(24);
+    gridRightLayout->addWidget(&availability,0,1,1,1);
     QLabel *rateLabel = new QLabel(tr("rate"));
-    gridRightLayout->addWidget(rateLabel,2,0,1,1);
+    gridRightLayout->addWidget(rateLabel,1,0,1,1);
     QLabel *r2Label = new QLabel(tr("r2"));
-    gridRightLayout->addWidget(r2Label,2,1,1,1);
+    gridRightLayout->addWidget(r2Label,1,1,1,1);
     QLabel *significanceLabel = new QLabel(tr("significance [MK]"));
-    gridRightLayout->addWidget(significanceLabel,2,2,1,1);
+    gridRightLayout->addWidget(significanceLabel,1,2,1,1);
     rate.setEnabled(false);
     rate.setMaximumWidth(80);
-    rate.setMaximumHeight(30);
-    gridRightLayout->addWidget(&rate,3,0,1,1);
+    rate.setMaximumHeight(24);
+    gridRightLayout->addWidget(&rate,2,0,1,1);
     r2.setEnabled(false);
     r2.setMaximumWidth(80);
-    r2.setMaximumHeight(30);
-    gridRightLayout->addWidget(&r2,3,1,1,1);
+    r2.setMaximumHeight(24);
+    gridRightLayout->addWidget(&r2,2,1,1,1);
     significance.setEnabled(false);
     significance.setMaximumWidth(80);
-    significance.setMaximumHeight(30);
-    gridRightLayout->addWidget(&significance,3,2,1,1);
+    significance.setMaximumHeight(24);
+    gridRightLayout->addWidget(&significance,2,2,1,1);
     QLabel *averageLabel = new QLabel(tr("average"));
-    gridRightLayout->addWidget(averageLabel,4,0,1,1);
+    gridRightLayout->addWidget(averageLabel,3,0,1,1);
     QLabel *modeLabel = new QLabel(tr("mode"));
-    gridRightLayout->addWidget(modeLabel,4,1,1,1);
+    gridRightLayout->addWidget(modeLabel,3,1,1,1);
     QLabel *medianLabel = new QLabel(tr("median"));
-    gridRightLayout->addWidget(medianLabel,4,2,1,1);
+    gridRightLayout->addWidget(medianLabel,3,2,1,1);
     QLabel *sigmaLabel = new QLabel(tr("sigma"));
-    gridRightLayout->addWidget(sigmaLabel,4,3,1,1);
+    gridRightLayout->addWidget(sigmaLabel,3,3,1,1);
     average.setEnabled(false);
     average.setMaximumWidth(80);
-    average.setMaximumHeight(30);
-    gridRightLayout->addWidget(&average,5,0,1,1);
+    average.setMaximumHeight(24);
+    gridRightLayout->addWidget(&average,4,0,1,1);
     mode.setEnabled(false);
     mode.setMaximumWidth(80);
-    mode.setMaximumHeight(30);
-    gridRightLayout->addWidget(&mode,5,1,1,1);
+    mode.setMaximumHeight(24);
+    gridRightLayout->addWidget(&mode,4,1,1,1);
     median.setEnabled(false);
     median.setMaximumWidth(80);
-    median.setMaximumHeight(30);
-    gridRightLayout->addWidget(&median,5,2,1,1);
+    median.setMaximumHeight(24);
+    gridRightLayout->addWidget(&median,4,2,1,1);
     sigma.setEnabled(false);
     sigma.setMaximumWidth(80);
-    sigma.setMaximumHeight(30);
-    gridRightLayout->addWidget(&sigma,5,3,1,1);
+    sigma.setMaximumHeight(24);
+    gridRightLayout->addWidget(&sigma,4,3,1,1);
 
     // menu
     QMenuBar* menuBar = new QMenuBar();
@@ -351,12 +356,12 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     connect(&dailyButton, &QRadioButton::clicked, [=](){ dailyVar(); });
     connect(&hourlyButton, &QRadioButton::clicked, [=](){ hourlyVar(); });
     connect(&variable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ this->changeVar(newVariable); });
-    connect(&graph, &QComboBox::currentTextChanged, [=](const QString &newGraph){ this->changeGraph(newGraph); });
+    connect(&graphType, &QComboBox::currentTextChanged, [=](const QString &newGraph){ this->changeGraph(newGraph); });
     connect(&compute, &QPushButton::clicked, [=](){ computePlot(); });
     connect(&elaboration, &QPushButton::clicked, [=](){ showElaboration(); });
     connect(&smoothing, &QLineEdit::editingFinished, [=](){ updatePlot(); });
-    connect(&valMax, &QLineEdit::editingFinished, [=](){ updatePlot(); });
-    connect(&valMin, &QLineEdit::editingFinished, [=](){ updatePlot(); });
+    connect(&valMax, &QLineEdit::editingFinished, [=](){ updatePlotByVal(); });
+    connect(&valMin, &QLineEdit::editingFinished, [=](){ updatePlotByVal(); });
     connect(&classWidth, &QLineEdit::editingFinished, [=](){ updatePlot(); });
     connect(changeLeftAxis, &QAction::triggered, this, &Crit3DPointStatisticsWidget::on_actionChangeLeftAxis);
     connect(exportGraph, &QAction::triggered, this, &Crit3DPointStatisticsWidget::on_actionExportGraph);
@@ -382,7 +387,7 @@ void Crit3DPointStatisticsWidget::dailyVar()
     currentFrequency = daily;
 
     variable.blockSignals(true);
-    graph.blockSignals(true);
+    graphType.blockSignals(true);
 
     hour.setEnabled(false);
     variable.clear();
@@ -397,13 +402,13 @@ void Crit3DPointStatisticsWidget::dailyVar()
     }
     myVar = getKeyMeteoVarMeteoMap(MapDailyMeteoVarToString, variable.currentText().toStdString());
 
-    graph.clear();
+    graphType.clear();
     if (!firstDaily.isNull() || !lastDaily.isNull())
     {
-        graph.addItem("Distribution");
-        graph.addItem("Climate");
-        graph.addItem("Trend");
-        graph.addItem("Anomaly trend");
+        graphType.addItem("Distribution");
+        graphType.addItem("Climate");
+        graphType.addItem("Trend");
+        graphType.addItem("Anomaly trend");
 
         for(int i = 0; i <= lastDaily.year()-firstDaily.year(); i++)
         {
@@ -421,7 +426,7 @@ void Crit3DPointStatisticsWidget::dailyVar()
     }
 
     variable.blockSignals(false);
-    graph.blockSignals(false);
+    graphType.blockSignals(false);
     computePlot();
 }
 
@@ -429,7 +434,7 @@ void Crit3DPointStatisticsWidget::hourlyVar()
 {
     currentFrequency = hourly;
     variable.blockSignals(true);
-    graph.blockSignals(true);
+    graphType.blockSignals(true);
 
     hour.setEnabled(true);
     variable.clear();
@@ -442,10 +447,10 @@ void Crit3DPointStatisticsWidget::hourlyVar()
     }
     myVar = getKeyMeteoVarMeteoMap(MapHourlyMeteoVarToString, variable.currentText().toStdString());
 
-    graph.clear();
+    graphType.clear();
     if (!firstHourly.isNull() || !lastHourly.isNull())
     {
-        graph.addItem("Distribution");
+        graphType.addItem("Distribution");
 
         for(int i = 0; i <= lastHourly.date().year() - firstHourly.date().year(); i++)
         {
@@ -459,7 +464,7 @@ void Crit3DPointStatisticsWidget::hourlyVar()
         QMessageBox::information(nullptr, "Warning", "No hourly data");
     }
     variable.blockSignals(false);
-    graph.blockSignals(false);
+    graphType.blockSignals(false);
     computePlot();
 
 }
@@ -501,7 +506,7 @@ void Crit3DPointStatisticsWidget::plot()
 {
     if (currentFrequency == daily)
     {
-        if (graph.currentText() == "Trend")
+        if (graphType.currentText() == "Trend")
         {
             classWidth.setEnabled(false);
             valMax.setEnabled(false);
@@ -570,25 +575,27 @@ void Crit3DPointStatisticsWidget::plot()
                 return;
             }
 
-            float sum = 0;
+            double sum = 0;
             int count = 0;
+            int validData = 0;
             for (int i = firstYear; i<=lastYear; i++)
             {
                 years.push_back(i);
                 if (outputValues[count] != NODATA)
                 {
-                    sum = sum + outputValues[count];
+                    sum += double(outputValues[unsigned(count)]);
+                    validData = validData + 1;
                 }
                 count = count + 1;
             }
             // draw
             chartView->drawTrend(years, outputValues);
 
-            float availab = ((float)validYears/(float)years.size())*100.0;
+            double availab = double(validData) / double(count) * 100.0;
             availability.setText(QString::number(availab, 'f', 3));
-            float mkendall = statisticalElab(mannKendall, NODATA, outputValues, outputValues.size(), meteoSettings->getRainfallThreshold());
+            double mkendall = statisticalElab(mannKendall, NODATA, outputValues, outputValues.size(), meteoSettings->getRainfallThreshold());
             significance.setText(QString::number(mkendall, 'f', 3));
-            float averageValue = sum/validYears;
+            double averageValue = sum / validYears;
             average.setText(QString::number(averageValue, 'f', 1));
 
             float myCoeff = NODATA;
@@ -598,10 +605,10 @@ void Crit3DPointStatisticsWidget::plot()
             std::vector<float> yearsFloat(years.begin(), years.end());
             statistics::linearRegression(yearsFloat, outputValues, outputValues.size(), isZeroIntercept,
                                              &myIntercept, &myCoeff, &myR2);
-            r2.setText(QString::number(myR2, 'f', 3));
-            rate.setText(QString::number(myCoeff, 'f', 3));
+            r2.setText(QString::number(double(myR2), 'f', 3));
+            rate.setText(QString::number(double(myCoeff), 'f', 3));
         }
-        else if (graph.currentText() == "Anomaly trend")
+        else if (graphType.currentText() == "Anomaly trend")
         {
             classWidth.setEnabled(false);
             valMax.setEnabled(false);
@@ -702,6 +709,7 @@ void Crit3DPointStatisticsWidget::plot()
 
             float sum = 0;
             int count = 0;
+            int validData = 0;
             for (int i = firstYear; i<=lastYear; i++)
             {
                 years.push_back(i);
@@ -709,13 +717,14 @@ void Crit3DPointStatisticsWidget::plot()
                 {
                     outputValues[count] = outputValues[count] - elabResult;
                     sum = sum + outputValues[count];
+                    validData = validData + 1;
                 }
                 count = count + 1;
             }
             // draw
             chartView->drawTrend(years, outputValues);
 
-            float availab = ((float)validYears/(float)years.size())*100.0;
+            float availab = ((float)validData/(float)count)*100.0;
             availability.setText(QString::number(availab, 'f', 3));
             float mkendall = statisticalElab(mannKendall, NODATA, outputValues, outputValues.size(), meteoSettings->getRainfallThreshold());
             significance.setText(QString::number(mkendall, 'f', 3));
@@ -732,7 +741,7 @@ void Crit3DPointStatisticsWidget::plot()
             r2.setText(QString::number(myR2, 'f', 3));
             rate.setText(QString::number(myCoeff, 'f', 3));
         }
-        else if (graph.currentText() == "Climate")
+        else if (graphType.currentText() == "Climate")
         {
             classWidth.setEnabled(false);
             valMax.setEnabled(false);
@@ -801,8 +810,10 @@ void Crit3DPointStatisticsWidget::plot()
             // draw
             chartView->drawClima(dailyPointList, decadalPointList, monthlyPointList);
         }
-        else if (graph.currentText() == "Distribution")
+        else if (graphType.currentText() == "Distribution")
         {
+            valMax.blockSignals(true);
+            valMin.blockSignals(true);
 
             classWidth.setEnabled(true);
             valMax.setEnabled(true);
@@ -914,15 +925,13 @@ void Crit3DPointStatisticsWidget::plot()
             int minValueInt = myMinValue;
             int maxValueInt = myMaxValue + 1;
 
-            valMax.blockSignals(true);
-            valMin.blockSignals(true);
-            int valMaxValue = valMax.text().toInt(&ok);
+            valMaxValue = valMax.text().toInt(&ok);
             if (!ok || valMax.text().isEmpty() || valMaxValue == NODATA)
             {
                 valMaxValue = maxValueInt;
                 valMax.setText(QString::number(valMaxValue));
             }
-            int valMinValue = valMin.text().toInt(&ok);
+            valMinValue = valMin.text().toInt(&ok);
             if (!ok || valMin.text().isEmpty() || valMinValue == NODATA)
             {
                 valMinValue = minValueInt;
@@ -958,7 +967,7 @@ void Crit3DPointStatisticsWidget::plot()
                     if (series[i] > 0)
                     {
                         int index = (series[i] - valMinValue)/classWidthValue;
-                        if( index >= 0)
+                        if( index >= 0 && index<bucket.size())
                         {
                             bucket[index] = bucket[index] + 1;
                             visualizedNrValues = visualizedNrValues + 1;
@@ -975,7 +984,7 @@ void Crit3DPointStatisticsWidget::plot()
                 for (int i = 0; i < nrValues; i++)
                 {
                     int index = (series[i] - valMinValue)/classWidthValue;
-                    if( index >= 0)
+                    if( index >= 0 && index<bucket.size())
                     {
                         bucket[index] = bucket[index] + 1;
                         visualizedNrValues = visualizedNrValues + 1;
@@ -987,8 +996,8 @@ void Crit3DPointStatisticsWidget::plot()
                 millile_3Dev = sorting::percentile(sortedSeries, &nrValues, 0.27, false);
             }
 
-            availability.setText(QString::number(nrValues/totDays * 100, 'f', 3));
-            average.setText(QString::number(avg, 'f', 3));
+            availability.setText(QString::number((float)nrValues/(float)totDays * 100, 'f', 3));
+            average.setText(QString::number(avg, 'f', 1));
 
             int numModeData = 0;
             for (int i = 0; i<bucket.size(); i++)
@@ -1003,13 +1012,13 @@ void Crit3DPointStatisticsWidget::plot()
             if (modeVal != NODATA)
             {
                 float myMode = minValueInt + (modeVal*classWidthValue) + (classWidthValue/2.0); // use minValueInt not the displayed minValue
-                mode.setText(QString::number(myMode, 'f', 3));
+                mode.setText(QString::number(myMode, 'f', 1));
             }
             if (dev_std != NODATA)
             {
-                sigma.setText(QString::number(dev_std, 'f', 3));
+                sigma.setText(QString::number(dev_std, 'f', 1));
             }
-            median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 3));
+            median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 1));
 
             QList<QPointF> lineValues;
             for (int i = 0; i<bucket.size(); i++)
@@ -1045,13 +1054,14 @@ void Crit3DPointStatisticsWidget::plot()
             {
                 bucket[i] = bucket[i]/visualizedNrValues;
             }
-            chartView->drawDistribution(bucket, lineValues, valMinValue, valMaxValue);
-
-
+            chartView->drawDistribution(bucket, lineValues, valMinValue, valMaxValue, classWidthValue);
         }
     }
     else if (currentFrequency == hourly)
     {
+        valMax.blockSignals(true);
+        valMin.blockSignals(true);
+
         classWidth.setEnabled(true);
         valMax.setEnabled(true);
         valMin.setEnabled(true);
@@ -1163,15 +1173,13 @@ void Crit3DPointStatisticsWidget::plot()
         int minValueInt = myMinValue;
         int maxValueInt = myMaxValue + 1;
 
-        valMax.blockSignals(true);
-        valMin.blockSignals(true);
-        int valMaxValue = valMax.text().toInt(&ok);
+        valMaxValue = valMax.text().toInt(&ok);
         if (!ok || valMax.text().isEmpty() || valMaxValue == NODATA)
         {
             valMaxValue = maxValueInt;
             valMax.setText(QString::number(valMaxValue));
         }
-        int valMinValue = valMin.text().toInt(&ok);
+        valMinValue = valMin.text().toInt(&ok);
         if (!ok || valMin.text().isEmpty() || valMinValue == NODATA)
         {
             valMinValue = minValueInt;
@@ -1206,7 +1214,7 @@ void Crit3DPointStatisticsWidget::plot()
                 if (series[i] > 0)
                 {
                     int index = (series[i] - valMinValue)/classWidthValue;
-                    if( index >= 0)
+                    if( index >= 0 && index<bucket.size())
                     {
                         bucket[index] = bucket[index] + 1;
                         visualizedNrValues = visualizedNrValues + 1;
@@ -1225,7 +1233,7 @@ void Crit3DPointStatisticsWidget::plot()
                 if (series[i] > 0)
                 {
                     int index = (series[i] - valMinValue)/classWidthValue;
-                    if( index >= 0)
+                    if( index >= 0 && index<bucket.size())
                     {
                         bucket[index] = bucket[index] + 1;
                         visualizedNrValues = visualizedNrValues + 1;
@@ -1237,8 +1245,8 @@ void Crit3DPointStatisticsWidget::plot()
             millile3dev = sorting::percentile(sortedSeries, &nrValues, 99.73, true);
             millile_3Dev = sorting::percentile(sortedSeries, &nrValues, 0.27, false);
         }
-        availability.setText(QString::number(nrValues/totDays * 100, 'f', 3));
-        average.setText(QString::number(avg, 'f', 3));
+        availability.setText(QString::number((float)nrValues/(float)totDays * 100, 'f', 3));
+        average.setText(QString::number(avg, 'f', 1));
 
         int numModeData = 0;
         for (int i = 0; i<bucket.size(); i++)
@@ -1253,13 +1261,13 @@ void Crit3DPointStatisticsWidget::plot()
         if (modeVal != NODATA)
         {
             float myMode = minValueInt + (modeVal*classWidthValue) + (classWidthValue/2.0); // use minValueInt not the displayed minValue
-            mode.setText(QString::number(myMode, 'f', 3));
+            mode.setText(QString::number(myMode, 'f', 1));
         }
         if (dev_std != NODATA)
         {
-            sigma.setText(QString::number(dev_std, 'f', 3));
+            sigma.setText(QString::number(dev_std, 'f', 1));
         }
-        median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 3));
+        median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 1));
 
         QList<QPointF> lineValues;
         for (int i = 0; i<bucket.size(); i++)
@@ -1295,7 +1303,7 @@ void Crit3DPointStatisticsWidget::plot()
         {
             bucket[i] = bucket[i]/visualizedNrValues;
         }
-        chartView->drawDistribution(bucket, lineValues, valMinValue, valMaxValue);
+        chartView->drawDistribution(bucket, lineValues, valMinValue, valMaxValue, classWidthValue);
     }
 }
 
@@ -1392,18 +1400,38 @@ void Crit3DPointStatisticsWidget::showElaboration()
     return;
 }
 
-void Crit3DPointStatisticsWidget::updatePlot()
+void Crit3DPointStatisticsWidget::updatePlotByVal()
 {
-    if (valMin.text().toInt() > valMax.text().toInt())
+    // check valMax and valMin
+    if (valMin.text().toInt() == valMinValue && valMax.text().toInt() == valMaxValue)
     {
-        QMessageBox::information(nullptr, "Error", "Min value > Max vaue");
+        return; //nothing changed
+    }
+    if (valMin.text().toInt() >= valMax.text().toInt())
+    {
+        valMax.blockSignals(true);
+        valMin.blockSignals(true);
+
+        valMin.setText(QString::number(valMinValue));
+        valMax.setText(QString::number(valMaxValue));
+
+        valMax.blockSignals(false);
+        valMin.blockSignals(false);
+        QMessageBox::information(nullptr, "Error", "Min value >= Max vaue");
         return;
     }
     plot();
 }
 
+void Crit3DPointStatisticsWidget::updatePlot()
+{
+    // does not compute valMax and valMin
+    plot();
+}
+
 void Crit3DPointStatisticsWidget::computePlot()
 {
+    // compute valMax and valMin
     valMax.clear();
     valMin.clear();
     plot();
@@ -1458,17 +1486,17 @@ void Crit3DPointStatisticsWidget::on_actionExportData()
         QTextStream myStream (&myFile);
         myStream.setRealNumberNotation(QTextStream::FixedNotation);
         myStream.setRealNumberPrecision(3);
-        if (graph.currentText() == "Trend" || graph.currentText() == "Anomaly trend")
+        if (graphType.currentText() == "Trend" || graphType.currentText() == "Anomaly trend")
         {
             QString header = "x,y";
             myStream << header << "\n";
             QList<QPointF> dataPoins = chartView->exportTrend();
             for (int i = 0; i < dataPoins.size(); i++)
             {
-                myStream << dataPoins[i].x() << "," << dataPoins[i].y() << "\n";
+                myStream << dataPoins[i].toPoint().x() << "," << dataPoins[i].y() << "\n";
             }
         }
-        else if (graph.currentText() == "Climate")
+        else if (graphType.currentText() == "Climate")
         {
             myStream << "Daily" << "\n";
             QString header = "x,y";
@@ -1497,14 +1525,16 @@ void Crit3DPointStatisticsWidget::on_actionExportData()
                 myStream << dataPoins[i].x() << "," << dataPoins[i].y() << "\n";
             }
         }
-        else if (graph.currentText() == "Distribution")
+        else if (graphType.currentText() == "Distribution")
         {
-            QString header = "x";
+            QString header = "x1,x2,frequency";
             myStream << header << "\n";
-            QList<float> bar = chartView->exportDistribution();
+            QList< QList<float> > bar = chartView->exportDistribution();
             for (int i = 0; i < bar.size(); i++)
             {
-                myStream << bar[i] << "\n";
+                int x1 = bar[i].at(0);
+                int x2 = bar[i].at(1);
+                myStream << x1 << "," << x2 << "," << bar[i].at(2) << "\n";
             }
         }
 

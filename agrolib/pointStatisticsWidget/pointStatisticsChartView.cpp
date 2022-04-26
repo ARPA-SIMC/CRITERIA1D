@@ -88,7 +88,14 @@ void PointStatisticsChartView::drawTrend(std::vector<int> years, std::vector<flo
         axisY->setMin(minValue-3);
     }
     axisXvalue->setRange(years[0], years[years.size()-1]);
-    axisXvalue->setTickCount(years.size());
+    if (years.size() <= 30)
+    {
+        axisXvalue->setTickCount(years.size());
+    }
+    else
+    {
+        axisXvalue->setTickCount(30);
+    }
     axisXvalue->setLabelFormat("%d");
     axisY->setLabelFormat("%.1f");
     chart()->addSeries(trend);
@@ -206,8 +213,9 @@ void PointStatisticsChartView::drawClima(QList<QPointF> dailyPointList, QList<QP
     connect(climaMonthly, &QLineSeries::hovered, this, &PointStatisticsChartView::tooltipClimaSeries);
 }
 
-void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QList<QPointF> lineValues, int minValue, int maxValue)
+void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QList<QPointF> lineValues, int minValue, int maxValue, int classWidthValue)
 {
+
     if (chart()->series().size() > 0)
     {
         cleanClimaSeries();
@@ -216,6 +224,8 @@ void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QL
     }
     chart()->legend()->setVisible(false);
     categories.clear();
+    widthValue = classWidthValue;
+
 
     QBarSet *distributionSet = new QBarSet("Distribution");
     distributionSet->setColor(Qt::red);
@@ -260,6 +270,7 @@ void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QL
     distributionBar->append(distributionSet);
     axisY->setMax(maxValueY);
     axisY->setMin(minValueY);
+    axisY->setLabelFormat("%.3f");
     axisXvalue->setRange(minValue, maxValue);
     axisX->setCategories(categories);
 
@@ -273,6 +284,7 @@ void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QL
 
     connect(distributionLine, &QLineSeries::hovered, this, &PointStatisticsChartView::tooltipDistributionSeries);
     connect(distributionBar, &QBarSeries::hovered, this, &PointStatisticsChartView::tooltipBar);
+
 }
 
 void PointStatisticsChartView::cleanDistribution()
@@ -366,6 +378,9 @@ void PointStatisticsChartView::tooltipBar(bool state, int index, QBarSet *barset
         QPoint CursorPoint = QCursor::pos();
         QPoint mapPoint = mapFromGlobal(CursorPoint);
         QPointF pointF = this->chart()->mapToValue(mapPoint,series);
+        float xStart = axisXvalue->min() + (index*widthValue);
+        float xEnd = axisXvalue->min() + ((index+1)*widthValue);
+
 
         // check if bar is hiding QlineSeries
         if (  static_cast<int>( distributionLine->at(pointF.toPoint().x()).y() ) == pointF.toPoint().y())
@@ -373,7 +388,7 @@ void PointStatisticsChartView::tooltipBar(bool state, int index, QBarSet *barset
             tooltipDistributionSeries(pointF, true);
         }
 
-        QString valueStr = QString("%1").arg(barset->at(index), 0, 'f', 3);
+        QString valueStr = QString("[%1:%2] frequency %3").arg(xStart, 0, 'f', 1).arg(xEnd, 0, 'f', 1).arg(barset->at(index), 0, 'f', 3);
         m_tooltip->setSeries(series);
         m_tooltip->setText(valueStr);
         m_tooltip->setAnchor(pointF);
@@ -418,16 +433,25 @@ QList<QPointF> PointStatisticsChartView::exportClimaMonthly()
     return climaMonthly->points();
 }
 
-QList<float> PointStatisticsChartView::exportDistribution()
+QList< QList<float> > PointStatisticsChartView::exportDistribution()
 {
-    QList<float> barValues;
+    QList< QList<float> > barValues;
     QList<QBarSet *> barSet = distributionBar->barSets();
+    QList<float> tuple;
+    float xStart;
+    float xEnd;
 
     if (barSet.size() != 0)
     {
         for (int i = 0; i<barSet[0]->count(); i++)
         {
-            barValues.append(barSet[0]->at(i));
+            tuple.clear();
+            xStart = axisXvalue->min() + (i*widthValue);
+            xEnd = axisXvalue->min() + ((i+1)*widthValue);
+            tuple.append(xStart);
+            tuple.append(xEnd);
+            tuple.append(barSet[0]->at(i));
+            barValues.append(tuple);
         }
     }
     return barValues;
