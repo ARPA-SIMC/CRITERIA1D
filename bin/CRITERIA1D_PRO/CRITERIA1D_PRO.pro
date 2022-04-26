@@ -30,8 +30,9 @@ win32:{
 }
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
-                ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities ../../agrolib/soil ../../agrolib/crop \
-                ../../agrolib/qcustomplot ../../agrolib/criteriaModel ../../agrolib/commonDialogs \
+                ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities \
+                ../../agrolib/soil ../../agrolib/crop ../../agrolib/criteriaModel \
+                ../../agrolib/qcustomplot ../../agrolib/commonDialogs \
                 ../../agrolib/commonChartElements ../../agrolib/meteoWidget \
                 ../../agrolib/soilWidget ../../agrolib/cropWidget
 

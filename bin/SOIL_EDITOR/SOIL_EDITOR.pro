@@ -30,10 +30,12 @@ win32:{
 }
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions  \
-                ../../agrolib/utilities ../../agrolib/soil ../../agrolib/soilWidget
+                ../../agrolib/utilities ../../agrolib/soil \
+                ../../agrolib/commonChartElements ../../agrolib/soilWidget
 
 CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/soilWidget/debug -lsoilWidget
+    LIBS += -L../../agrolib/commonChartElements/debug -lcommonChartElements
     LIBS += -L../../agrolib/soil/debug -lsoil
     LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
@@ -41,6 +43,7 @@ CONFIG(debug, debug|release) {
 } else {
 
     LIBS += -L../../agrolib/soilWidget/release -lsoilWidget
+    LIBS += -L../../agrolib/commonChartElements/release -lcommonChartElements
     LIBS += -L../../agrolib/soil/release -lsoil
     LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
