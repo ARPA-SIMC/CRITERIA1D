@@ -328,6 +328,19 @@
         return gammaIncomplete;
     }
 
+    bool getGammaParameters(double mean, double variance, double* alpha, double* beta)
+    {
+        // beta is intended as rate parameter
+        if (variance == 0 || mean == 0)
+        {
+            return false;
+        }
+
+        *alpha = variance/mean;
+        *beta = mean*mean/variance;
+        return true;
+    }
+
     bool gammaFitting(std::vector<float> &series, int n, double *beta, double *gamma,  double *pZero)
     {
         if (n<=0)
@@ -404,14 +417,91 @@
     Input:     beta, gamma (gamma parameters)
                pzero (probability of zero)
                x (value)
-    Output:    GammaCDF (probability  a<=x)
+    Output:    generalizedGammaCDF (probability  a<=x)
     */
-    float gammaCDF(float x, double beta, double gamma,  double pZero)
+
+    double inverseGammaCumulativeDistributionFunction(double valueProbability, double alpha, double beta, double accuracy)
+    {
+       double x;
+       double y;
+       double rightBound = 25.0;
+       double leftBound = 0.0;
+       int counter = 0;
+       do {
+           y = incompleteGamma(alpha,rightBound/beta);
+           if (valueProbability>y)
+           {
+               rightBound *= 2;
+               counter++;
+               if (counter == 7) return rightBound;
+           }
+       } while ((valueProbability>y));
+
+       x = (rightBound + leftBound)*0.5;
+       y = incompleteGamma(alpha,x/beta);
+       while ((fabs(valueProbability - y) > accuracy) && (counter < 200))
+       {
+           if (y > valueProbability)
+           {
+               rightBound = x;
+           }
+           else
+           {
+               leftBound = x;
+           }
+           x = (rightBound + leftBound)*0.5;
+           y = incompleteGamma(alpha,x/beta);
+           ++counter;
+       }
+       x = (rightBound + leftBound)*0.5;
+       return x;
+    }
+
+    float inverseGeneralizedGammaCDF(double valueProbability, double alpha, double beta, double accuracy,double pZero)
+    {
+       float x;
+       float y;
+       float rightBound = 25.0;
+       float leftBound = 0.0;
+       int counter = 0;
+       do {
+           //y = incompleteGamma(alpha,rightBound/beta);
+           y = generalizedGammaCDF(rightBound,beta,alpha,pZero);
+           if (valueProbability>y)
+           {
+               rightBound *= 2;
+               counter++;
+               if (counter == 7) return rightBound;
+           }
+       } while ((valueProbability>y));
+
+       x = (rightBound + leftBound)*0.5;
+       y = generalizedGammaCDF(x,beta,alpha,pZero);
+       while ((fabs(valueProbability - y) > accuracy) && (counter < 200))
+       {
+           if (y > valueProbability)
+           {
+               rightBound = x;
+           }
+           else
+           {
+               leftBound = x;
+           }
+           x = (rightBound + leftBound)*0.5;
+           y = generalizedGammaCDF(x,beta,alpha,pZero);
+           ++counter;
+       }
+       x = (rightBound + leftBound)*0.5;
+       return x;
+    }
+
+
+    float generalizedGammaCDF(float x, double beta, double gamma,  double pZero)
     {
 
         float gammaCDF = NODATA;
 
-        if (x == NODATA || beta == NODATA || gamma == NODATA || pZero == NODATA || beta == 0)
+        if (fabs(x - NODATA) < EPSILON || fabs(beta - NODATA)< EPSILON || fabs(gamma - NODATA) < EPSILON || fabs(pZero - NODATA) < EPSILON || beta == 0)
         {
             return gammaCDF;
         }
@@ -422,7 +512,7 @@
         }
         else
         {
-            gammaCDF = pZero + (1 - pZero) * incompleteGamma(gamma, x / beta);
+            gammaCDF = pZero + (1 - pZero) * incompleteGamma(gamma, double(x) / beta);
         }
         return gammaCDF;
 
@@ -513,6 +603,14 @@
     {
         double value;
         value = 1 - exp(-pow((x/lambda),kappa));
+        return value;
+    }
+
+    double inverseWeibullCDF(double x, double lambda, double kappa)
+    {
+        double value;
+        if (x >= 1  || x < 0 || kappa <= 0 || lambda <= 0) return PARAMETER_ERROR;
+        value = lambda*pow(-log(1-x),1./kappa);
         return value;
     }
 
