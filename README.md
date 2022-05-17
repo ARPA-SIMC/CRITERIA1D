@@ -41,20 +41,20 @@ HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D dom
 ## How to compile the CRITERIA-1D/GEO distribution
 Dependencies:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following (download also *QtCharts*).
-- Only for Qt 6.x : download also *Qt5 Compatibility Module*.
+- Only for Qt 6.x : download also *Qt5 Compatibility Module*
 
 Only for CRITERIA GEO:
 - [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/)
-For Windows: download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set Netcdf installation path (e.g C:\Program Files\netCDF 4.7.1) in the *NC4_INSTALL_DIR* system variable.
+- How to install NetCDF on Windows: download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set Netcdf installation path (e.g C:\Program Files\netCDF 4.7.1) in the *NC4_INSTALL_DIR* system variable.
 
-Build:
+### Build
 - LINUX: run */deploy/CRITERIA1D_build_Linux.sh*
-- WINDOWS (Visual Studio compiler): run */deploy/CRITERIA1D_build_MSVC_bat*
-- WINDOWS (MinGW compiler): run */deploy/CRITERIA1D_build_MinGW_bat*       
+- WINDOWS (Visual Studio c++ compiler): run */deploy/CRITERIA1D_build_MSVC_bat*
+- WINDOWS (MinGW c++ compiler): run */deploy/CRITERIA1D_build_MinGW_bat*       
 - MACOS: TODO
 - ALL platforms: please read the information in the first lines of the script.
 
-The distribution will be created in the directory /deploy/CRITERIA1D/.
+The distribution will be created in the directory /deploy/CRITERIA1D/
 
 
 ## License
