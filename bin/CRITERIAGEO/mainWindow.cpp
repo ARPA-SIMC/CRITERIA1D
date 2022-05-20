@@ -1140,8 +1140,10 @@ void MainWindow::on_actionOutput_Map_triggered()
             // climate computation is empty
             myProject.output.outputVariable.climateComputation << "";
         }
+
         QString fieldName = "outputVar";
         myProject.output.outputVariable.outputVarName << fieldName;
+
         // create CSV and shapeOutput
         QString outputName = outputMap.getTabMapOutputName();
         int result = myProject.createShapeOutput(dateComputation, outputName);
@@ -1150,6 +1152,7 @@ void MainWindow::on_actionOutput_Map_triggered()
             QMessageBox::critical(nullptr, "ERROR", "createShapeOutput error");
             return;
         }
+
         // add shape to GUI
         if (! myProject.loadShapefile(myProject.output.path + "tmp/" + outputName +".shp", ""))
             return;
