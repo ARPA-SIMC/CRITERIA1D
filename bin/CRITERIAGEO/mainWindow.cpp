@@ -444,6 +444,7 @@ void MainWindow::saveRaster(GisObject* myObject)
     if (fileName == "") return;
 
     std::string error;
+    fileName = fileName.left(fileName.length() - 4);
     if (! gis::writeEsriGrid(fileName.toStdString(), myObject->getRaster(), &error))
     {
         QMessageBox::information(nullptr, "Error", QString::fromStdString(error));
