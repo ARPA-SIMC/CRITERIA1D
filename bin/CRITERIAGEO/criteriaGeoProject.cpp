@@ -193,8 +193,6 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
 {
     QString errorStr;
 
-    //TODO: select area field and unit (m2 or ha)
-
     int fieldRequired = 0;
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
     {
@@ -226,7 +224,7 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
     }
 
     FormInfo formInfo;
-    if (showInfo) formInfo.start("Extract UCM list in: " + dbName, 0);
+    if (showInfo) formInfo.start("Extract computational units in: " + dbName, 0);
 
     bool result = writeUcmListToDb(*shapeHandler, dbName, errorStr);
 
