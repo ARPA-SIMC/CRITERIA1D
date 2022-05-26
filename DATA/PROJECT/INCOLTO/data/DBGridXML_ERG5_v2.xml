@@ -3,7 +3,7 @@
 	<connection>
 		<provider>mysql</provider>
 		<server>agrosql-smr.metarpa</server>
-		<name>LAMI_FORECAST</name>
+		<name>ERG5_v2</name>
 		<user>root</user>
 		<password>Praga</password>
 	</connection>
@@ -54,19 +54,15 @@
 		</varcode>
 		<varcode>
 			<varcode>9</varcode>
-			<varpraganame>DAILY_W_SCAL_INT_AVG</varpraganame>
+			<varpraganame>DAILY_ET0_HS</varpraganame>
 		</varcode>
 		<varcode>
 			<varcode>10</varcode>
-			<varpraganame>DAILY_W_VEC_DIR_PREV</varpraganame>
+			<varpraganame>DAILY_ET0_PM</varpraganame>
 		</varcode>
 		<varcode>
 			<varcode>11</varcode>
-			<varpraganame>DAILY_W_SCAL_INT_MAX</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>12</varcode>
-			<varpraganame>DAILY_ET0_HS</varpraganame>
+			<varpraganame>DAILY_LEAFW</varpraganame>
 		</varcode>
 	</tabledaily>
 	
@@ -99,15 +95,15 @@
 		</varcode>
 		<varcode>
 			<varcode>107</varcode>
-			<varpraganame>LEAFW</varpraganame>
+			<varpraganame>W_VEC_INT</varpraganame>
 		</varcode>
 		<varcode>
 			<varcode>108</varcode>
-			<varpraganame>ET0</varpraganame>
+			<varpraganame>LEAFW</varpraganame>
 		</varcode>
 		<varcode>
 			<varcode>109</varcode>
-			<varpraganame>ATM_TRANSMIT</varpraganame>
+			<varpraganame>ET0</varpraganame>
 		</varcode>
 	</tablehourly>
 	
