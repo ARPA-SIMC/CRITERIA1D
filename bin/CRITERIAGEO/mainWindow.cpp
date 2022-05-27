@@ -644,7 +644,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
     {
         if (myObject->projectName.isEmpty())
         {
-            submenu.addAction("Close");
+            submenu.addAction("Remove");
             submenu.addSeparator();
             submenu.addAction("Save as");
             submenu.addSeparator();
@@ -664,7 +664,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
     }
     else if (myObject->type == gisObjectRaster)
     {
-        submenu.addAction("Close");
+        submenu.addAction("Remove");
         submenu.addSeparator();
         myRasterObject = getRasterObject(myObject);
         if (myRasterObject != nullptr)
@@ -684,7 +684,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
 
     if (rightClickItem)
     {
-        if (rightClickItem->text() == "Close" )
+        if (rightClickItem->text() == "Remove" )
         {
             if (myObject->type == gisObjectRaster)
             {
