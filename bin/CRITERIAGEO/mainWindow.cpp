@@ -444,6 +444,7 @@ void MainWindow::saveRaster(GisObject* myObject)
     if (fileName == "") return;
 
     std::string error;
+    fileName = fileName.left(fileName.length() - 4);
     if (! gis::writeEsriGrid(fileName.toStdString(), myObject->getRaster(), &error))
     {
         QMessageBox::information(nullptr, "Error", QString::fromStdString(error));
@@ -643,7 +644,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
     {
         if (myObject->projectName.isEmpty())
         {
-            submenu.addAction("Close");
+            submenu.addAction("Remove");
             submenu.addSeparator();
             submenu.addAction("Save as");
             submenu.addSeparator();
@@ -663,7 +664,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
     }
     else if (myObject->type == gisObjectRaster)
     {
-        submenu.addAction("Close");
+        submenu.addAction("Remove");
         submenu.addSeparator();
         myRasterObject = getRasterObject(myObject);
         if (myRasterObject != nullptr)
@@ -683,7 +684,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
 
     if (rightClickItem)
     {
-        if (rightClickItem->text() == "Close" )
+        if (rightClickItem->text() == "Remove" )
         {
             if (myObject->type == gisObjectRaster)
             {
@@ -1140,8 +1141,10 @@ void MainWindow::on_actionOutput_Map_triggered()
             // climate computation is empty
             myProject.output.outputVariable.climateComputation << "";
         }
+
         QString fieldName = "outputVar";
         myProject.output.outputVariable.outputVarName << fieldName;
+
         // create CSV and shapeOutput
         QString outputName = outputMap.getTabMapOutputName();
         int result = myProject.createShapeOutput(dateComputation, outputName);
@@ -1150,6 +1153,7 @@ void MainWindow::on_actionOutput_Map_triggered()
             QMessageBox::critical(nullptr, "ERROR", "createShapeOutput error");
             return;
         }
+
         // add shape to GUI
         if (! myProject.loadShapefile(myProject.output.path + "tmp/" + outputName +".shp", ""))
             return;

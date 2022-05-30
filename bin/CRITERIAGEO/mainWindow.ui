@@ -520,7 +520,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="palette">
@@ -1065,7 +1065,7 @@
   </action>
   <action name="actionExtract_Unit_Crop_Map_list">
    <property name="text">
-    <string>Extract computation units list</string>
+    <string>Extract computational units</string>
    </property>
   </action>
   <action name="actionCreate_Shape_file_from_Csv">
