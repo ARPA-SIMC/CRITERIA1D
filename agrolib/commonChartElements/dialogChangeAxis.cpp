@@ -1,8 +1,8 @@
 #include "dialogChangeAxis.h"
 
-DialogChangeAxis::DialogChangeAxis(bool isLeftAxis)
+DialogChangeAxis::DialogChangeAxis(bool isLeftAxis_)
 {
-    isLeftAxis = isLeftAxis;
+    isLeftAxis = isLeftAxis_;
     QString title;
     if (isLeftAxis)
     {
@@ -21,11 +21,11 @@ DialogChangeAxis::DialogChangeAxis(bool isLeftAxis)
 
     QLabel minValueLabel("Minimum value:");
     minValueLabel.setBuddy(&minVal);
-    minVal.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
+    minVal.setValidator(new QDoubleValidator(-999.0, 999.0, 3));
 
     QLabel maxValueLabel("Maximum value:");
     maxValueLabel.setBuddy(&maxVal);
-    maxVal.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
+    maxVal.setValidator(new QDoubleValidator(-999.0, 999.0, 3));
 
     layoutEdit->addWidget(&minValueLabel);
     layoutEdit->addWidget(&minVal);

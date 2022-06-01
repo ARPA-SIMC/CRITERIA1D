@@ -193,14 +193,12 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
 {
     QString errorStr;
 
-    //TODO: select area field and unit (m2 or ha)
-
     int fieldRequired = 0;
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
     {
         if (shapeHandler->getFieldName(i) == "ID_CASE" || shapeHandler->getFieldName(i) == "ID_SOIL"
             || shapeHandler->getFieldName(i) == "ID_CROP" || shapeHandler->getFieldName(i) == "ID_METEO"
-            || shapeHandler->getFieldName(i) == "hectares")
+            || shapeHandler->getFieldName(i) == "hectares" || shapeHandler->getFieldName(i) == "Hectares")
         {
             fieldRequired = fieldRequired + 1;
         }
@@ -226,7 +224,7 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
     }
 
     FormInfo formInfo;
-    if (showInfo) formInfo.start("Extract UCM list in: " + dbName, 0);
+    if (showInfo) formInfo.start("Extract computational units in: " + dbName, 0);
 
     bool result = writeUcmListToDb(*shapeHandler, dbName, errorStr);
 
@@ -296,7 +294,6 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
     if (! QFile(outputCsvFileName).exists())
     {
         formInfo.start("Create CSV file...", 0);
-        // create CSV
         result = output.createCsvFileFromGUI(dateComputation, outputCsvFileName);
         if (result != CRIT1D_OK)
         {
@@ -305,7 +302,7 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
         formInfo.close();
     }
 
-    formInfo.start("Create shape output...", 0);
+    formInfo.start("Create output map...", 0);
     result = output.createShapeFileFromGUI();
 
     formInfo.close();

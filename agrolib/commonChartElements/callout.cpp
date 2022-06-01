@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "proxyCallout.h"
+#include "callout.h"
 #include <QtGui/QPainter>
 #include <QtGui/QFontMetrics>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
@@ -36,14 +36,14 @@
 #include <qdebug.h>
 
 
-ProxyCallout::ProxyCallout(QChart *chart):
+Callout::Callout(QChart *chart):
     QGraphicsItem(chart),
     m_chart(chart)
 {
     m_series = nullptr;
 }
 
-QRectF ProxyCallout::boundingRect() const
+QRectF Callout::boundingRect() const
 {
     QPointF anchor;
     if (m_series != nullptr)
@@ -62,7 +62,7 @@ QRectF ProxyCallout::boundingRect() const
     return rect;
 }
 
-void ProxyCallout::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void Callout::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option)
     Q_UNUSED(widget)
@@ -99,12 +99,12 @@ void ProxyCallout::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         bool vertical = qAbs(anchor.x() - x) > qAbs(anchor.y() - y);
 
         qreal x1 = x + leftOfCenter * 10 - rightOfCenter * 20 + cornerCase * !vertical * (onLeft * 10 - onRight * 20);
-        qreal y1 = y + aboveCenter * 10 - belowCenter * 20 + cornerCase * vertical * (above * 10 - below * 20);;
+        qreal y1 = y + aboveCenter * 10 - belowCenter * 20 + cornerCase * vertical * (above * 10 - below * 20);
         point1.setX(x1);
         point1.setY(y1);
 
-        qreal x2 = x + leftOfCenter * 20 - rightOfCenter * 10 + cornerCase * !vertical * (onLeft * 20 - onRight * 10);;
-        qreal y2 = y + aboveCenter * 20 - belowCenter * 10 + cornerCase * vertical * (above * 20 - below * 10);;
+        qreal x2 = x + leftOfCenter * 20 - rightOfCenter * 10 + cornerCase * !vertical * (onLeft * 20 - onRight * 10);
+        qreal y2 = y + aboveCenter * 20 - belowCenter * 10 + cornerCase * vertical * (above * 20 - below * 10);
         point2.setX(x2);
         point2.setY(y2);
 
@@ -118,12 +118,12 @@ void ProxyCallout::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->drawText(m_textRect, m_text);
 }
 
-void ProxyCallout::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void Callout::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     event->setAccepted(true);
 }
 
-void ProxyCallout::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void Callout::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton){
         setPos(mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)));
@@ -133,12 +133,12 @@ void ProxyCallout::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void ProxyCallout::setSeries(QAbstractSeries *series)
+void Callout::setSeries(QAbstractSeries *series)
 {
     m_series = series;
 }
 
-void ProxyCallout::setText(const QString &text)
+void Callout::setText(const QString &text)
 {
     m_text = text;
     QFontMetrics metrics(m_font);
@@ -148,12 +148,12 @@ void ProxyCallout::setText(const QString &text)
     m_rect = m_textRect.adjusted(-5, -5, 5, 5);
 }
 
-void ProxyCallout::setAnchor(QPointF point)
+void Callout::setAnchor(QPointF point)
 {
     m_anchor = point;
 }
 
-void ProxyCallout::updateGeometry()
+void Callout::updateGeometry()
 {
     prepareGeometryChange();
     if (m_series != nullptr)
@@ -165,4 +165,3 @@ void ProxyCallout::updateGeometry()
         setPos(m_chart->mapToPosition(m_anchor) + QPoint(10, -50));
     }
 }
-

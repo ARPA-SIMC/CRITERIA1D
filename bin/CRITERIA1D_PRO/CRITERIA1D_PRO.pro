@@ -30,15 +30,18 @@ win32:{
 }
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
-                ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities ../../agrolib/soil ../../agrolib/crop \
-                ../../agrolib/qcustomplot ../../agrolib/criteriaModel ../../agrolib/commonDialogs  \
-                ../../agrolib/meteoWidget ../../agrolib/soilWidget ../../agrolib/cropWidget
+                ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities \
+                ../../agrolib/soil ../../agrolib/crop ../../agrolib/criteriaModel \
+                ../../agrolib/qcustomplot ../../agrolib/commonDialogs \
+                ../../agrolib/commonChartElements ../../agrolib/meteoWidget \
+                ../../agrolib/soilWidget ../../agrolib/cropWidget
 
 CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/cropWidget/debug -lcropWidget
     LIBS += -L../../agrolib/soilWidget/debug -lsoilWidget
     LIBS += -L../../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
+    LIBS += -L../../agrolib/commonChartElements/debug -lcommonChartElements
     LIBS += -L../../agrolib/criteriaModel/debug -lcriteriaModel
     LIBS += -L../../agrolib/qcustomplot/debug -lqcustomplot
     LIBS += -L../../agrolib/crop/debug -lcrop
@@ -56,6 +59,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/soilWidget/release -lsoilWidget
     LIBS += -L../../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
+    LIBS += -L../../agrolib/commonChartElements/release -lcommonChartElements
     LIBS += -L../../agrolib/criteriaModel/release -lcriteriaModel
     LIBS += -L../../agrolib/qcustomplot/release -lqcustomplot
     LIBS += -L../../agrolib/crop/release -lcrop

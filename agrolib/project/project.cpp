@@ -123,6 +123,11 @@ void Project::clearProject()
     outputPoints.clear();
     outputPointsFileName = "";
 
+    if (proxyWidget != nullptr)
+    {
+        delete proxyWidget;
+    }
+
     isProjectLoaded = false;
 }
 
@@ -583,6 +588,12 @@ bool Project::loadParameters(QString parametersFileName)
             {
                 interpolationSettings.setMinRegressionR2(parameters->value("minRegressionR2").toFloat());
                 qualityInterpolationSettings.setMinRegressionR2(parameters->value("minRegressionR2").toFloat());
+            }
+
+            if (parameters->contains("topographicDistanceMaxMultiplier"))
+            {
+                interpolationSettings.setTopoDist_maxKh(parameters->value("topographicDistanceMaxMultiplier").toInt());
+                qualityInterpolationSettings.setTopoDist_maxKh(parameters->value("topographicDistanceMaxMultiplier").toInt());
             }
 
             if (parameters->contains("useDewPoint"))
@@ -1912,6 +1923,87 @@ bool Project::interpolationOutputPoints(std::vector <Crit3DInterpolationDataPoin
     return true;
 }
 
+bool Project::computeStatisticsCrossValidation(Crit3DTime myTime, meteoVariable myVar, crossValidationStatistics* myStats)
+{
+    myStats->initialize();
+
+    std::vector <float> obs;
+    std::vector <float> pre;
+
+    float value;
+
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (meteoPoints[i].active)
+        {
+            value = meteoPoints[i].getMeteoPointValue(myTime, myVar, meteoSettings);
+
+            if (! isEqual(value, NODATA) && ! isEqual(meteoPoints[i].residual, NODATA))
+            {
+                obs.push_back(value);
+                pre.push_back(value + meteoPoints[i].residual);
+            }
+        }
+    }
+
+    if (obs.size() > 0)
+    {
+        myStats->setMeanAbsoluteError(statistics::meanAbsoluteError(obs, pre));
+        myStats->setMeanBiasError(statistics::meanError(obs, pre));
+        myStats->setRootMeanSquareError(statistics::rootMeanSquareError(obs, pre));
+        myStats->setCompoundRelativeError(statistics::compoundRelativeError(obs, pre));
+
+        float intercept, slope, r2;
+        statistics::linearRegression(obs, pre, int(obs.size()), false, &intercept, &slope, &r2);
+        myStats->setR2(r2);
+    }
+
+    return true;
+}
+
+bool Project::interpolationCv(meteoVariable myVar, const Crit3DTime& myTime, crossValidationStatistics *myStats)
+{
+    if (! checkInterpolationMain(myVar)) return false;
+
+    if ((interpolationSettings.getUseDewPoint() && (myVar == dailyAirRelHumidityAvg ||
+            myVar == dailyAirRelHumidityMin || myVar == dailyAirRelHumidityMax || myVar == airRelHumidity)) ||
+            myVar == dailyGlobalRadiation ||
+            myVar == dailyLeafWetness ||
+            myVar == dailyWindVectorDirectionPrevailing ||
+            myVar == dailyWindVectorIntensityAvg ||
+            myVar == dailyWindVectorIntensityMax ||
+            myVar == globalIrradiance)
+    {
+        logError("Not available for " + QString::fromStdString(getVariableString(myVar)));
+        return false;
+    }
+
+
+    std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
+
+    // check quality and pass data to interpolation
+    if (!checkAndPassDataToInterpolation(quality, myVar, meteoPoints, nrMeteoPoints, myTime,
+                                         &qualityInterpolationSettings, &interpolationSettings, meteoSettings, &climateParameters, interpolationPoints,
+                                         checkSpatialQuality))
+    {
+        logError("No data available: " + QString::fromStdString(getVariableString(myVar)));
+        return false;
+    }
+
+    if (! preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters, meteoPoints, nrMeteoPoints, myVar, myTime))
+    {
+        logError("Interpolation: error in function preInterpolation");
+        return false;
+    }
+
+    if (! computeResiduals(myVar, meteoPoints, nrMeteoPoints, interpolationPoints, &interpolationSettings, meteoSettings, true, true))
+        return false;
+
+    if (! computeStatisticsCrossValidation(myTime, myVar, myStats))
+        return false;
+
+    return true;
+}
 
 bool Project::interpolationDem(meteoVariable myVar, const Crit3DTime& myTime, gis::Crit3DRasterGrid *myRaster)
 {
@@ -2034,8 +2126,7 @@ bool Project::interpolateDemRadiation(const Crit3DTime& myTime, gis::Crit3DRaste
     return true;
 }
 
-
-bool Project::interpolationDemMain(meteoVariable myVar, const Crit3DTime& myTime, gis::Crit3DRasterGrid *myRaster)
+bool Project::checkInterpolationMain(meteoVariable myVar)
 {
     if (! DEM.isLoaded)
     {
@@ -2054,6 +2145,14 @@ bool Project::interpolationDemMain(meteoVariable myVar, const Crit3DTime& myTime
         logError("Select a variable before.");
         return false;
     }
+
+    return true;
+
+}
+
+bool Project::interpolationDemMain(meteoVariable myVar, const Crit3DTime& myTime, gis::Crit3DRasterGrid *myRaster)
+{
+    if (! checkInterpolationMain(myVar)) return false;
 
     if (myVar == globalIrradiance)
     {
@@ -2177,16 +2276,15 @@ bool Project::loadProjectSettings(QString settingsFileName)
 
         projectName = projectSettings->value("name").toString();
         demFileName = projectSettings->value("dem").toString();
+
         dbPointsFileName = projectSettings->value("meteo_points").toString();
+
         outputPointsFileName = projectSettings->value("output_points").toString();
         dbAggregationFileName = projectSettings->value("aggregation_points").toString();
-        // for Criteria projects
-        if (dbPointsFileName == "")
-        {
-            dbPointsFileName = projectSettings->value("db_meteo").toString();
-        }
+
         dbGridXMLFileName = projectSettings->value("meteo_grid").toString();
         loadGridDataAtStart = projectSettings->value("load_grid_data_at_start").toBool();
+
     projectSettings->endGroup();
 
     projectSettings->beginGroup("settings");
@@ -2300,11 +2398,12 @@ void Project::saveInterpolationParameters()
         parameters->setValue("lapseRateCode", interpolationSettings.getUseLapseRateCode());
         parameters->setValue("thermalInversion", interpolationSettings.getUseThermalInversion());
         parameters->setValue("topographicDistance", interpolationSettings.getUseTD());
+        parameters->setValue("topographicDistanceMaxMultiplier", QString::number(interpolationSettings.getTopoDist_maxKh()));
         parameters->setValue("optimalDetrending", interpolationSettings.getUseBestDetrending());
         parameters->setValue("useDewPoint", interpolationSettings.getUseDewPoint());
         parameters->setValue("useInterpolationTemperatureForRH", interpolationSettings.getUseInterpolatedTForRH());
         parameters->setValue("thermalInversion", interpolationSettings.getUseThermalInversion());
-        parameters->setValue("minRegressionR2", QString::number(interpolationSettings.getMinRegressionR2()));
+        parameters->setValue("minRegressionR2", QString::number(double(interpolationSettings.getMinRegressionR2())));
     parameters->endGroup();
 
     saveProxies();
@@ -3197,6 +3296,75 @@ bool Project::getComputeOnlyPoints()
 {
     return computeOnlyPoints;
 }
+
+bool Project::exportMeteoGridToESRI(QString fileName, double cellSize)
+{
+    if (fileName != "")
+    {
+        gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
+
+        if (!meteoGridDbHandler->gridStructure().isUTM())
+        {
+            // lat lon grid
+            gis::Crit3DGridHeader latlonHeader = meteoGridDbHandler->gridStructure().header();
+            gis::getGeoExtentsFromLatLonHeader(gisSettings, cellSize, myGrid->header, &latlonHeader);
+            if (!myGrid->initializeGrid(NODATA))
+            {
+                errorString = "initializeGrid failed";
+                delete myGrid;
+                return false;
+            }
+            double utmx;
+            double utmy;
+            double lat;
+            double lon;
+            int dataGridRow;
+            int dataGridCol;
+            float myValue;
+
+            for (int row = 0; row < myGrid->header->nrRows; row++)
+            {
+                for (int col = 0; col < myGrid->header->nrCols; col++)
+                {
+                    myGrid->getXY(row,col,&utmx,&utmy);
+                    gis::getLatLonFromUtm(gisSettings,utmx,utmy,&lat,&lon);
+                    gis::getMeteoGridRowColFromXY (latlonHeader, lon, lat, &dataGridRow, &dataGridCol);
+                    if (dataGridRow < 0 || dataGridRow >= latlonHeader.nrRows || dataGridCol < 0 || dataGridCol >= latlonHeader.nrCols)
+                    {
+                        myValue = NODATA;
+                    }
+                    else
+                    {
+                        myValue = meteoGridDbHandler->meteoGrid()->dataMeteoGrid.value[latlonHeader.nrRows-1-dataGridRow][dataGridCol];
+                    }
+                    if (myValue != NO_ACTIVE && myValue != NODATA)
+                    {
+                        myGrid->value[row][col] = myValue;
+                    }
+                }
+            }
+        }
+        else
+        {
+            myGrid->copyGrid(meteoGridDbHandler->meteoGrid()->dataMeteoGrid);
+        }
+
+        std::string myError = errorString.toStdString();
+        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), myGrid, &myError))
+        {
+            errorString = QString::fromStdString(myError);
+            delete myGrid;
+            return false;
+        }
+        delete myGrid;
+        return true;
+
+    }
+    return false;
+}
+
+
 
 
 /* ---------------------------------------------

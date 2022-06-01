@@ -273,14 +273,18 @@
         double* normalRandomNumbers;
 
 
-        double** monthlyAverageOverYearsAverageTmax;
-        double** monthlyAverageOverYearsAverageTmin;
-        double** monthlyAverageOverYearsAverageTmean;
-        double** monthlyAverageOverYearsAveragePrec;
-        double** monthlyStdDevOverYearsAverageTmax;
-        double** monthlyStdDevOverYearsAverageTmin;
-        double** monthlyStdDevOverYearsAverageTmean;
-        double** monthlyStdDevOverYearsAveragePrec;
+        float** monthlyAverageTmax;
+        float** monthlyAverageTmin;
+        float** monthlyAverageTmean;
+        float** monthlyAveragePrec;
+        float** monthlyStdDevTmax;
+        float** monthlyStdDevTmin;
+        float** monthlyStdDevTmean;
+        float** monthlyStdDevPrec;
+        float** interpolatedDailyValuePrecAverage;
+        float** interpolatedDailyValuePrecVariance;
+        double** weibullDailyParameterLambda;
+        double** weibullDailyParameterKappa;
 
         //float** monthlyRandomDeviationTmean;
         //functions
@@ -302,11 +306,8 @@
         void initializePrecipitationOutputs(int lengthSeason[]);
         void initializePrecipitationInternalArrays();
         void spatialIterationAmounts(double** correlationMatrixSimulatedData,double ** amountsCorrelationMatrix , double** randomMatrix, int length, double** occurrences, double** phatAlpha, double** phatBeta,double** simulatedPrecipitationAmounts);
-        double inverseGammaFunction(double valueProbability, double alpha, double beta, double accuracy);
-
-
         void temperatureCompute();
-        void computeMonthlyTemperatures();
+        void computeMonthlyVariables();
         void computeTemperatureParameters();
         void initializeTemperatureParameters();
         int  doyFromDate(int day,int month,int year);

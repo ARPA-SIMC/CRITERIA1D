@@ -13,6 +13,7 @@
 
 
 QT    += core gui network widgets sql
+greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TEMPLATE = app
 

@@ -9,21 +9,23 @@
 
 // uncomment to execute test
 //#define TEST
+//#define TEST_GEO
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
 
 
 void usage()
 {
-    std::cout << "CRITERIA-1D soil water balance" << std::endl
+    std::cout << "CRITERIA-1D agro-hydrological model" << std::endl
               << "\nUsage:" << std::endl
               << "CRITERIA1D <project.ini> [lastDate]" << std::endl
-              << "CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl
+              << "CRITERIA1D <project.ini> [firstDate lastDate]" << std::endl
               << "\nNotes:" << std::endl
-              << "date must be in YYYY-MM-DD format" << std::endl
-              << "firstDate and lastDate can be also defined in the project.ini" << std::endl
-              << "default lastDate in the grid projects (MySQL) is yesterday" << std::endl
-              << "default dates in the point projects (SQLite) are the first and last date in the meteo table" << std::endl;
+              << "- dates must be in YYYY-MM-DD format;" << std::endl
+              << "- firstDate and lastDate can be defined in the project.ini;" << std::endl
+              << "- default dates are the first and last date of the data tables in the db_meteo (SQLite);" << std::endl
+              << "- in the projects with MySQL meteoGrid data, default lastDate is yesterday." << std::endl;
+
     std::cout << std::flush;
 }
 
@@ -44,13 +46,20 @@ int main(int argc, char *argv[])
     }
     else
     {
-        QString path;
-        if (! searchDataPath(&path)) return -1;
+        QString dataPath;
+        if (! searchDataPath(&dataPath))
+            return -1;
+        QString projectPath = dataPath + PATH_PROJECT;
+
         #ifdef TEST
-            settingsFileName = path + "PROJECT/kiwifruit/kiwifruit.ini";
+            settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
         #else
-            usage();
-            return 1;
+            #ifdef TEST_GEO
+                settingsFileName = projectPath + "INCOLTO/incolto.ini";
+            #else
+                usage();
+                return 1;
+            #endif
         #endif
 
         #ifdef TEST_FIRSTRUN

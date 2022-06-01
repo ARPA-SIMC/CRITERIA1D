@@ -2,7 +2,7 @@
 %{!?srcarchivename: %global srcarchivename CRITERIA1D-%{version}}
 
 Name:           CRITERIA1D
-Version:        1.4.0
+Version:        1.5.2
 Release:        1%{?dist}
 Summary:        One-dimensional soil water balance
 
@@ -24,12 +24,13 @@ BuildRequires:  netcdf-devel
 Requires:       qt5-qtbase-mysql
 
 %description
-CRITERIA-1D is a soil water balance model simulating one-dimensional water
-fluxes, crop development and crop water needs. The soil and crop parameters can
-be defined at different level of detail. It requires as input daily
-agro-meteorological data: minimum and maximum air temperature, total
-precipitation and, if available, data of hypodermic watertable depth to
-estimate the capillary rise.
+CRITERIA-1D is an agro-hydrological model that simulates one-dimensional water flow 
+in variable saturation soils, crop development, root water extraction and irrigation water needs. 
+Soil water flow can be simulated with two different approaches depending on the user's choice: 
+a physically based numerical model or a layer-based conceptual model. 
+Soil and crop parameters can be defined at different levels of detail. 
+It requires daily agro-meteorological data as input: minimum and maximum air temperature, 
+total precipitation and, if available, water table depth data to estimate capillary rise.
 
 %prep
 %autosetup -n %{srcarchivename}
@@ -78,6 +79,9 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
+* Tue May 17 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.2-1
+- Release 1.5.2
+
 * Thu Oct 14 2021 Fausto Tomei <ftomei@arpae.it> - 1.4.0-1
 - Release 1.4.0
 

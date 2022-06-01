@@ -30,7 +30,7 @@
         QString dbOutputName;
         QString dbMeteoName;
         QString dbForecastName;
-        QString dbUnitsName;
+        QString dbComputationUnitsName;
 
         QSqlDatabase dbCrop;
         QSqlDatabase dbSoil;
@@ -45,14 +45,14 @@
         // soil
         soil::Crit3DTextureClass soilTexture[13];
 
-        std::vector<Crit1DUnit> unitList;
+        std::vector<Crit1DCompUnit> compUnitList;
 
         Crit1DProject();
 
         void initialize();
         int initializeProject(QString settingsFileName);
         int computeAllUnits();
-        bool computeUnit(const Crit1DUnit& myUnit);
+        bool computeUnit(const Crit1DCompUnit& myUnit);
 
     private:
         QString projectName;
@@ -88,6 +88,8 @@
         std::vector<int> waterPotentialDepth;
         std::vector<int> waterDeficitDepth;
         std::vector<int> awcDepth;
+        std::vector<int> availableWaterDepth;
+        std::vector<int> fractionAvailableWaterDepth;
 
         // DATABASE
         QSqlDatabase dbForecast;
@@ -108,7 +110,7 @@
         bool setSoil(QString soilCode, QString &myError);
 
         bool setMeteoSqlite(QString idMeteo, QString idForecast);
-        bool setMeteoXmlGrid(QString idMeteo, QString idForecast, int memberNr);
+        bool setMeteoXmlGrid(QString idMeteo, QString idForecast, unsigned int memberNr);
 
         bool setPercentileOutputCsv();
         void updateSeasonalForecastOutput(Crit3DDate myDate, int &index);
@@ -131,7 +133,7 @@
 
 
     QString getOutputStringNullZero(double value);
-    bool setVariableDepth(QStringList &depthList, std::vector<int> &variableDepth);
+    bool setVariableDepth(QList<QString> &depthList, std::vector<int> &variableDepth);
 
 
 #endif // CRITERIA1DPROJECT_H
