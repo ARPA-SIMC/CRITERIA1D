@@ -24,7 +24,7 @@
     public:
         gis::Crit3DGisSettings gisSettings;
         std::vector<GisObject*> objectList;
-        CriteriaOutputProject outputProject;
+        CriteriaOutputProject output;
 
         CriteriaGeoProject();
 
@@ -40,8 +40,8 @@
         bool extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bool showInfo);
 
         bool addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHandler *soil, Crit3DShapeHandler *meteo,
-                            std::string idCrop, std::string idSoil, std::string idMeteo, double cellSize,
-                            QString ucmFileName, bool isPrevailing, bool showInfo);
+                            std::string idCrop, std::string idSoil, std::string idMeteo,
+                            double cellSize, double threshold, QString ucmFileName, bool isPrevailing, bool showInfo);
 
         bool createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error);
 

@@ -9,18 +9,23 @@ class MAPGRAPHICSSHARED_EXPORT CircleObject : public MapGraphicsObject
     Q_OBJECT
 public:
     explicit CircleObject(qreal radius,bool sizeIsZoomInvariant=true, QColor fillColor = QColor(0,0,0,0), MapGraphicsObject *parent = nullptr);
-    virtual ~CircleObject();
+    virtual ~CircleObject() override;
 
     //pure-virtual from MapGraphicsObject
-    QRectF boundingRect() const;
+    QRectF boundingRect() const override;
 
     //pure-virtual from MapGraphicsObject
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     qreal radius() const;
+    qreal currentValue() const;
     QColor color() const;
     void setRadius(qreal radius);
     void setFillColor(const QColor& color);
+    void setCurrentValue(qreal currentValue);
+    void setShowText(bool isShowText);
+    void setMultiColorText(bool isMultiColorText);
+    void setMarked(bool isMarked);
     
 signals:
     
@@ -28,11 +33,15 @@ public slots:
 
 protected:
     //virtual from MapGraphicsObject
-    virtual void keyReleaseEvent(QKeyEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     qreal _radius;
+    qreal _currentValue;
     QColor _fillColor;
+    bool _isText;
+    bool _isMultiColorText;
+    bool _isMarked;
     
 };
 

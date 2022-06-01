@@ -4,13 +4,14 @@
 QT_DIR=/opt/Qt/5.12.8/gcc_64/
 QMAKE=$QT_DIR/bin/qmake
 
-# # build mapGraphics
+# build mapGraphics
 cd ../mapGraphics
+rm -f Makefile
 $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile all
 
-export LD_LIBRARY_PATH=`pwd`/../mapGraphics/release/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`realpath ../mapGraphics/release/`
 
 cd -
 
@@ -23,9 +24,9 @@ make
 
 cd -
 
-# build CROP_EDITOR
-cd ../bin/Makeall_CROP_EDITOR
-$QMAKE Makeall_CROP_EDITOR.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
+# build CRITERIA1D_PRO
+cd ../bin/Makeall_CRITERIA1D_PRO
+$QMAKE Makeall_CRITERIA1D_PRO.pro -spec linux-g++-64 CONFIG+=release CONFIG+=force_debug_info CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
 make -f Makefile clean
 make -f Makefile qmake_all
 make 
@@ -79,8 +80,8 @@ function make_appimage {
 # build appimage CRITERIA1D
 make_appimage ../bin/CRITERIA1D/release/CRITERIA1D
 
-# build appimage CROP_EDITOR
-make_appimage ../bin/CROP_EDITOR/release/CROP_EDITOR
+# build appimage CRITERIA1D_PRO
+make_appimage ../bin/CRITERIA1D_PRO/release/CRITERIA1D_PRO
 
 # build appimage SOIL_EDITOR
 make_appimage ../bin/SOIL_EDITOR/release/SOIL_EDITOR
@@ -105,7 +106,13 @@ cp -r ../DOC/img/textural_soil.png CRITERIA1D/DOC/img
 mkdir -p CRITERIA1D/DATA/SOIL
 cp -r ../DATA/SOIL/* CRITERIA1D/DATA/SOIL
 
-# copy kiwifruit project
-mkdir -p CRITERIA1D/DATA/PROJECT/kiwifruit
-cp -r ../DATA/PROJECT/kiwifruit/* CRITERIA1D/DATA/PROJECT/kiwifruit
+# copy settings and template
+mkdir CRITERIA1D/DATA/SETTINGS
+cp -r ../DATA/SETTINGS/* CRITERIA1D/DATA/SETTINGS
+mkdir CRITERIA1D/DATA/TEMPLATE
+cp -r ../DATA/TEMPLATE/* CRITERIA1D/DATA/TEMPLATE
+
+# copy test project
+mkdir -p CRITERIA1D/DATA/PROJECT/test
+cp -r ../DATA/PROJECT/test/* CRITERIA1D/DATA/PROJECT/test
 

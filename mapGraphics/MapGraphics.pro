@@ -9,6 +9,7 @@
 #===========================================================
 
 QT       += widgets network sql
+greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TEMPLATE = lib
 CONFIG += staticlib
@@ -28,6 +29,7 @@ win32:{
 #DEFINES += MAPGRAPHICS_LIBRARY
 
 SOURCES += \
+    SquareObject.cpp \
     tileSources/CompositeTileSource.cpp \
     tileSources/GridTileSource.cpp \
     tileSources/WebTileSource.cpp \
@@ -51,6 +53,7 @@ SOURCES += \
 
 
 HEADERS += \
+    SquareObject.h \
     tileSources/CompositeTileSource.h \
     tileSources/GridTileSource.h \
     tileSources/WebTileSource.h \

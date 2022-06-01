@@ -21,6 +21,20 @@ then
     mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
     git archive --prefix=$pkgname/ --format=tar HEAD | gzip -c > ~/rpmbuild/SOURCES/$pkgname.tar.gz
     rpmbuild -ba --define "srcarchivename $pkgname" fedora/SPECS/CRITERIA1D.spec
+elif [[ $image =~ ^fedora: ]]
+then
+    pkgcmd="dnf"
+    builddep="dnf builddep"
+    sed -i '/^tsflags=/d' /etc/dnf/dnf.conf
+    dnf install -q -y 'dnf-command(builddep)'
+    dnf install -q -y git
+    dnf install -q -y rpmdevtools
+    dnf copr enable -y simc/stable
+    dnf builddep -y fedora/SPECS/CRITERIA1D.spec
+    pkgname=CRITERIA1D-HEAD
+    mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+    git archive --prefix=$pkgname/ --format=tar HEAD | gzip -c > ~/rpmbuild/SOURCES/$pkgname.tar.gz
+    rpmbuild -ba --define "srcarchivename $pkgname" fedora/SPECS/CRITERIA1D.spec
 elif [[ $image =~ ^ubuntu: ]]
 then
     apt-get update
@@ -38,6 +52,7 @@ then
     update-alternatives --install /usr/bin/qmake qmake /opt/qt512/bin/qmake 90
     export QT_DIR=/opt/qt512
     export QMAKE=$QT_DIR/bin/qmake
+    apt-get install -y libnetcdf-dev libnetcdf11
     apt-get install -y qt512charts-no-lgpl curl
     apt-get install -y libgeos-3.5.0 libgeos-dev
     add-apt-repository -y ppa:nextgis/ppa

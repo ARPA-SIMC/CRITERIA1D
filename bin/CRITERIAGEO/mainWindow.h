@@ -29,18 +29,17 @@
     public:
 
         explicit MainWindow(QWidget *parent = nullptr);
-        ~MainWindow();
+        ~MainWindow() override;
 
     private slots:
+        void updateMaps();
+        void mouseMove(QPoint eventPos);
 
         void on_actionLoadRaster_triggered();
         void on_actionLoadShapefile_triggered();
         void on_actionRasterize_shape_triggered();
         void on_actionCompute_Ucm_prevailing_triggered();
         void on_actionCompute_Ucm_intersection_triggered();
-
-        void updateMaps();
-        void mouseMove(const QPoint &eventPos);
 
         void on_actionExtract_Unit_Crop_Map_list_triggered();
         void on_actionCreate_Shape_file_from_Csv_triggered();
@@ -51,15 +50,10 @@
         void on_actionMapGoogle_triggered();
         void on_actionMapGoogleSatellite_triggered();
         void on_actionMapGoogleHybridSatellite_triggered();
-
         void on_actionMapGoogleTerrain_triggered();
-
         void on_actionLoadProject_triggered();
-
         void on_actionOutput_Map_triggered();
-
         void on_actionClose_Project_triggered();
-
         void closeGeoProject();
 
     protected:
@@ -67,17 +61,17 @@
          * \brief mouseReleaseEvent call moveCenter
          * \param event
          */
-        void mouseReleaseEvent(QMouseEvent *event);
+        void mouseReleaseEvent(QMouseEvent *event) override;
 
         /*!
          * \brief mouseDoubleClickEvent implements zoom In and zoom Out
          * \param event
          */
-        void mouseDoubleClickEvent(QMouseEvent * event);
+        void mouseDoubleClickEvent(QMouseEvent * event) override;
 
-        void mousePressEvent(QMouseEvent *event);
+        void mousePressEvent(QMouseEvent *event) override;
 
-        void resizeEvent(QResizeEvent * event);
+        void resizeEvent(QResizeEvent * event) override;
 
     private:
         Ui::MainWindow* ui;
@@ -104,6 +98,7 @@
         void setShapeStyle_GUI(GisObject* myObject);
         void selectShape(QPoint position);
         bool exportToRaster(GisObject* myObject);
+        bool exportToNetCDF(GisObject* myObject);
 
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
         RasterObject* getRasterObject(GisObject* myObject);

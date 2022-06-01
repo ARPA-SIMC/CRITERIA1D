@@ -24,21 +24,21 @@ make
 
 cd -
 
-# build CROP_EDITOR
-cd ../bin/Makeall_CROP_EDITOR
-$QMAKE Makeall_CROP_EDITOR.pro -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
-make -f Makefile clean
-make -f Makefile qmake_all
-make 
-
-cd -
-
 # build SOIL_EDITOR
 cd ../bin/Makeall_SOIL_EDITOR
 $QMAKE Makeall_SOIL_EDITOR.pro -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
 make -f Makefile clean
 make -f Makefile qmake_all
 make
+
+cd -
+
+# build CRITERIA1D_PRO
+cd ../bin/Makeall_CRITERIA1D_PRO
+$QMAKE Makeall_CRITERIA1D_PRO -spec macx-clang CONFIG+=release CONFIG+=force_debug_info CONFIG+=x86_64 CONFIG+=qtquickcompiler
+make -f Makefile clean
+make -f Makefile qmake_all
+make 
 
 cd -
 
@@ -64,16 +64,16 @@ mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
 
 cp -r ../bin/CRITERIA1D/release/CRITERIA1D CRITERIA1D/bin/CRITERIA1D
-cp -r ../bin/CROP_EDITOR/release/CROP_EDITOR CRITERIA1D/bin/CROP_EDITOR
 cp -r ../bin/SOIL_EDITOR/release/SOIL_EDITOR CRITERIA1D/bin/SOIL_EDITOR
+cp -r ../bin/CRITERIA1D_PRO/release/CRITERIA1D_PRO CRITERIA1D/bin/CRITERIA1D_PRO
 cp -r ../bin/CRITERIAGEO/release/CRITERIA_GEO CRITERIA1D/bin/CRITERIA_GEO
 cp -r ../bin/HEAT1D/release/HEAT1D CRITERIA1D/bin/HEAT1D
 
 # deploy apps
 cd CRITERIA1D/bin
 $DEPLOY CRITERIA1D.app
-$DEPLOY CROP_EDITOR.app
 $DEPLOY SOIL_EDITOR.app
+$DEPLOY CRITERIA1D_PRO.app
 $DEPLOY CRITERIA_GEO.app
 $DEPLOY HEAT1D.app
 
@@ -89,7 +89,13 @@ mkdir CRITERIA1D/DATA
 mkdir CRITERIA1D/DATA/SOIL
 cp -r ../DATA/SOIL/* CRITERIA1D/DATA/SOIL
 
-# copy kiwifruit project
+# copy settings and template
+mkdir CRITERIA1D/DATA/SETTINGS
+cp -r ../DATA/SETTINGS/* CRITERIA1D/DATA/SETTINGS
+mkdir CRITERIA1D/DATA/TEMPLATE
+cp -r ../DATA/TEMPLATE/* CRITERIA1D/DATA/TEMPLATE
+
+# copy TEST project
 mkdir CRITERIA1D/DATA/PROJECT
-mkdir CRITERIA1D/DATA/PROJECT/kiwifruit
-cp -r ../DATA/PROJECT/kiwifruit/* CRITERIA1D/DATA/PROJECT/kiwifruit
+mkdir CRITERIA1D/DATA/PROJECT/test
+cp -r ../DATA/PROJECT/test/* CRITERIA1D/DATA/PROJECT/test
