@@ -238,10 +238,10 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
 }
 
 
-bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fileCsvRef, QString outputFileName)
+bool CriteriaGeoProject::createShapeFromCsv(int shapeIndex, QString fileCsv, QString fileCsvFormat,
+                                            QString outputFileName, QString &errorStr)
 {
-    Crit3DShapeHandler* shapeHandler = (objectList.at(unsigned(pos)))->getShapeHandler();
-    QString errorStr;
+    Crit3DShapeHandler* shapeHandler = (objectList.at(unsigned(shapeIndex)))->getShapeHandler();
 
     bool found = false;
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
@@ -253,20 +253,16 @@ bool CriteriaGeoProject::createShapeFromCsv(int pos, QString fileCsv, QString fi
     }
     if (!found)
     {
-        errorStr = "Ivalid Unit Crop Map - Missing ID_CASE";
-        logError(errorStr);
+        errorStr = "Ivalid Computational Units Map - missing ID_CASE";
         return false;
     }
 
     FormInfo formInfo;
     formInfo.start("Create shapefile...", 0);
 
-    bool isOk = shapeFromCsv(*shapeHandler, fileCsv, fileCsvRef, outputFileName, errorStr);
+    bool isOk = shapeFromCsv(*shapeHandler, fileCsv, fileCsvFormat, outputFileName, errorStr);
 
     formInfo.close();
-
-    if (!isOk)
-        logError(errorStr);
 
     return isOk;
 }
