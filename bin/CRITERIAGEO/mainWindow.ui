@@ -1055,22 +1055,22 @@
   </action>
   <action name="actionRasterize_shape">
    <property name="text">
-    <string>Rasterize shape</string>
+    <string>Rasterize shape...</string>
    </property>
   </action>
   <action name="actionCompute_Ucm_prevailing">
    <property name="text">
-    <string>Create Unit Crop Map (prevailing)</string>
+    <string>Create Computational Units Map (prevailing)...</string>
    </property>
   </action>
   <action name="actionExtract_Unit_Crop_Map_list">
    <property name="text">
-    <string>Extract computational units</string>
+    <string>Extract computational units to db...</string>
    </property>
   </action>
   <action name="actionCreate_Shape_file_from_Csv">
    <property name="text">
-    <string>Assign data to shape from CSV</string>
+    <string>Assign data to shape from CSV...</string>
    </property>
   </action>
   <action name="actionCompute_Ucm_intersection">
@@ -1120,7 +1120,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Output map</string>
+    <string>Output map...</string>
    </property>
   </action>
   <action name="actionClose_Project">

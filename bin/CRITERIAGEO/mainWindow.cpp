@@ -838,7 +838,7 @@ void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
 
     if (shapeObjList.empty())
     {
-        QMessageBox::information(nullptr, "No shape loaded", "Load a shape");
+        QMessageBox::information(nullptr, "No shape loaded", "Load crop, soil and meteo shape before.");
         return;
     }
 
@@ -871,7 +871,7 @@ void MainWindow::on_actionCompute_Ucm_intersection_triggered()
 {
     if (shapeObjList.empty())
     {
-        QMessageBox::information(nullptr, "No shape loaded", "Load a shape");
+        QMessageBox::information(nullptr, "No shape loaded", "Load crop, soil and meteo shape before.");
         return;
     }
 
@@ -907,7 +907,7 @@ void MainWindow::on_actionExtract_Unit_Crop_Map_list_triggered()
     QListWidgetItem * itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
     {
-        QMessageBox::information(nullptr, "No shape selected", "Select a shape");
+        QMessageBox::information(nullptr, "No shape selected", "Select a Computational Units Map.");
         return;
     }
     else
@@ -923,45 +923,49 @@ void MainWindow::on_actionExtract_Unit_Crop_Map_list_triggered()
 
 void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
 {
-
-    QListWidgetItem * itemSelected = ui->checkList->currentItem();
     if (shapeObjList.empty())
     {
-        QMessageBox::information(nullptr, "No shape loaded", "Load a shape");
+        QMessageBox::information(nullptr, "No shape loaded", "Load a Computational Units Map.");
         return;
     }
-    else if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
+
+    QListWidgetItem * itemSelected = ui->checkList->currentItem();
+
+    if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
     {
         QMessageBox::information(nullptr, "No shape selected", "Select a shape");
         return;
     }
-    else
+    int shapeIndex = ui->checkList->row(itemSelected);
+
+    QString fileCsv = QFileDialog::getOpenFileName(this, tr("Open CSV data file"), "", tr("CSV files (*.csv)"));
+
+    if (fileCsv == "")
     {
-        int pos = ui->checkList->row(itemSelected);
-        QString fileCsv = QFileDialog::getOpenFileName(this, tr("Open CSV data file"), "", tr("CSV files (*.csv)"));
+        QMessageBox::information(nullptr, "missing CSV data", "Select CSV data to read.");
+        return;
+    }
 
-        if (fileCsv == "")
-        {
-            QMessageBox::information(nullptr, "Select CSV data to read", "missing CSV data");
-            return;
-        }
+    QString fileCsvFormat = QFileDialog::getOpenFileName(this, tr("Open output format"), "", tr("CSV files (*.csv)"));
 
-        QString fileCsvRef = QFileDialog::getOpenFileName(this, tr("Open output format"), "", tr("CSV files (*.csv)"));
+    if (fileCsvFormat == "")
+    {
+        QMessageBox::information(nullptr, "missing CSV file", "Select CSV output format.");
+        return;
+    }
 
-        if (fileCsvRef == "")
-        {
-            QMessageBox::information(nullptr, "Select output format", "missing CSV file");
-            return;
-        }
+    QString outputFileName = QFileDialog::getSaveFileName(this, tr("Save Shapefile as"), "", tr("shp files (*.shp)"));
 
-        QString outputName = QFileDialog::getSaveFileName(this, tr("Save Shapefile as"), "", tr("shp files (*.shp)"));
-        if (outputName == "")
-        {
-            QMessageBox::information(nullptr, "Insert output name", "missing shapefile name");
-            return;
-        }
+    if (outputFileName == "")
+    {
+        QMessageBox::information(nullptr, "Insert output name", "missing shapefile name");
+        return;
+    }
 
-        myProject.createShapeFromCsv(pos, fileCsv, fileCsvRef, outputName);
+    QString errorStr;
+    if (! myProject.createShapeFromCsv(shapeIndex, fileCsv, fileCsvFormat, outputFileName, errorStr))
+    {
+        myProject.logError(errorStr);
     }
 }
 

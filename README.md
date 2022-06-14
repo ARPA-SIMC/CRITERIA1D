@@ -1,6 +1,7 @@
 [![Build Status](https://github.com/arpa-simc/CRITERIA1D/actions/workflows/build-ubuntu-xenial.yml/badge.svg)](https://github.com/ARPA-SIMC/CRITERIA1D/actions/workflows/build-ubuntu-xenial.yml)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/centos8.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/fedora34.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
+[![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/fedora36.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
 
 # CRITERIA1D / GEO
