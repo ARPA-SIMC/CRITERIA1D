@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
         #else
             #ifdef TEST_GEO
                 settingsFileName = projectPath + "INCOLTO/incolto.ini";
+                //settingsFileName = "//moses-arpae/CRITERIA1D/PROJECTS/Highlander_Puglia/Highlander_Puglia_seasonal.ini";
             #else
                 usage();
                 return 1;
@@ -122,8 +123,6 @@ int main(int argc, char *argv[])
         myProject.logger.writeError(myProject.projectError);
         return myResult;
     }
-
-    myProject.logger.writeInfo("COMPUTE...");
 
     myResult = myProject.computeAllUnits();
 
