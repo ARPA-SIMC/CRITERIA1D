@@ -1192,6 +1192,16 @@ bool Project::newMeteoGridDB(QString xmlName)
     return true;
 }
 
+bool Project::deleteMeteoGridDB()
+{
+    if (!meteoGridDbHandler->deleteDatabase(&errorString))
+    {
+        logInfoGUI("delete meteo grid error: " + errorString);
+        return false;
+    }
+    return true;
+}
+
 
 bool Project::loadAggregationdDB(QString dbName)
 {
@@ -3397,6 +3407,27 @@ bool Project::exportMeteoGridToESRI(QString fileName, double cellSize)
 
     }
     return false;
+}
+
+int Project::computeCellSize()
+{
+    int cellSize;
+    if (!meteoGridDbHandler->gridStructure().isUTM())
+    {
+        // lat lon grid
+        gis::Crit3DGridHeader latlonHeader = meteoGridDbHandler->gridStructure().header();
+        cellSize = gis::getGeoCellSizeFromLatLonHeader(gisSettings, &latlonHeader);
+    }
+    else
+    {
+        cellSize = meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->cellSize;
+    }
+    cellSize = cellSize / 10;
+    // round cellSize
+    int nTimes = log10(cellSize);
+    int roundValue = round(cellSize / pow(10,nTimes));
+    cellSize = roundValue * pow(10,nTimes);
+    return cellSize;
 }
 
 
