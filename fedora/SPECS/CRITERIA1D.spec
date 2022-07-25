@@ -2,7 +2,7 @@
 %{!?srcarchivename: %global srcarchivename CRITERIA1D-%{version}}
 
 Name:           CRITERIA1D
-Version:        1.5.4
+Version:        1.5.5
 Release:        1%{?dist}
 Summary:        One-dimensional soil water balance
 
@@ -79,6 +79,9 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
+* Mon Jul 25 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.5-1
+- Release 1.5.5
+
 * Mon Jun 06 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.4-1
 - Release 1.5.4
 
