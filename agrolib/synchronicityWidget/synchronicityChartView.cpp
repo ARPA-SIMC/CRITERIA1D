@@ -1,4 +1,4 @@
-#include "homogeneityChartView.h"
+#include "synchronicityChartView.h"
 #include "commonConstants.h"
 #include <QtCharts/QLegendMarker>
 #include <QtGui/QImage>
@@ -6,14 +6,9 @@
 #include <QtCore/QtMath>
 #include <qdebug.h>
 
-HomogeneityChartView::HomogeneityChartView(QWidget *parent) :
+SynchronicityChartView::SynchronicityChartView(QWidget *parent) :
     QChartView(new QChart(), parent)
 {
-
-    tValues = new QScatterSeries();
-    tValues->setName("TValues");
-    tValues->setColor(Qt::red);
-    tValues->setMarkerSize(10.0);
 
     SNHT_T95Values = new QLineSeries();
     SNHT_T95Values->setName("SNHT_T95");
@@ -32,17 +27,18 @@ HomogeneityChartView::HomogeneityChartView(QWidget *parent) :
     m_tooltip->hide();
 }
 
-void HomogeneityChartView::setYmax(float value)
+void SynchronicityChartView::setYmax(float value)
 {
     axisY->setMax(value);
 }
 
-void HomogeneityChartView::setYmin(float value)
+void SynchronicityChartView::setYmin(float value)
 {
     axisY->setMin(value);
 }
 
-void HomogeneityChartView::drawSNHT(std::vector<int> years, std::vector<float> outputValues, QList<QPointF> t95Points)
+/*
+void SynchronicityChartView::drawSNHT(std::vector<int> years, std::vector<float> outputValues, QList<QPointF> t95Points)
 {
     if (chart()->series().size() > 0)
     {
@@ -129,12 +125,12 @@ void HomogeneityChartView::drawSNHT(std::vector<int> years, std::vector<float> o
     SNHT_T95Values->attachAxis(axisY);
     tValues->attachAxis(axisX);
     tValues->attachAxis(axisY);
-    connect(tValues, &QScatterSeries::hovered, this, &HomogeneityChartView::tooltipSNHTSeries);
-    connect(SNHT_T95Values, &QScatterSeries::hovered, this, &HomogeneityChartView::tooltipSNHTSeries);
+    connect(tValues, &QScatterSeries::hovered, this, &SynchronicityChartView::tooltipSNHTSeries);
+    connect(SNHT_T95Values, &QScatterSeries::hovered, this, &SynchronicityChartView::tooltipSNHTSeries);
 
 }
 
-void HomogeneityChartView::drawCraddock(int myFirstYear, int myLastYear, std::vector<std::vector<float>> outputValues, std::vector<QString> refNames, meteoVariable myVar, double averageValue)
+void SynchronicityChartView::drawCraddock(int myFirstYear, int myLastYear, std::vector<std::vector<float>> outputValues, std::vector<QString> refNames, meteoVariable myVar, double averageValue)
 {
 
     clearCraddockSeries();
@@ -199,12 +195,12 @@ void HomogeneityChartView::drawCraddock(int myFirstYear, int myLastYear, std::ve
         chart()->addSeries(craddockSeries[i]);
         craddockSeries[i]->attachAxis(axisX);
         craddockSeries[i]->attachAxis(axisY);
-        connect(craddockSeries[i], &QScatterSeries::hovered, this, &HomogeneityChartView::tooltipCraddockSeries);
+        connect(craddockSeries[i], &QScatterSeries::hovered, this, &SynchronicityChartView::tooltipCraddockSeries);
     }
 
 }
 
-void HomogeneityChartView::clearSNHTSeries()
+void SynchronicityChartView::clearSNHTSeries()
 {
     if (chart()->series().contains(tValues))
     {
@@ -218,7 +214,7 @@ void HomogeneityChartView::clearSNHTSeries()
     }
 }
 
-void HomogeneityChartView::clearCraddockSeries()
+void SynchronicityChartView::clearCraddockSeries()
 {
     if (chart()->series().size() > 0)
     {
@@ -234,7 +230,7 @@ void HomogeneityChartView::clearCraddockSeries()
     craddockSeries.clear();
 }
 
-void HomogeneityChartView::tooltipSNHTSeries(QPointF point, bool state)
+void SynchronicityChartView::tooltipSNHTSeries(QPointF point, bool state)
 {
 
     auto serie = qobject_cast<QScatterSeries *>(sender());
@@ -256,7 +252,7 @@ void HomogeneityChartView::tooltipSNHTSeries(QPointF point, bool state)
     }
 }
 
-void HomogeneityChartView::tooltipCraddockSeries(QPointF point, bool state)
+void SynchronicityChartView::tooltipCraddockSeries(QPointF point, bool state)
 {
 
     auto serie = qobject_cast<QLineSeries *>(sender());
@@ -278,12 +274,12 @@ void HomogeneityChartView::tooltipCraddockSeries(QPointF point, bool state)
     }
 }
 
-QList<QPointF> HomogeneityChartView::exportSNHTValues()
+QList<QPointF> SynchronicityChartView::exportSNHTValues()
 {
     return tValues->points();
 }
 
-QList<QList<QPointF>> HomogeneityChartView::exportCraddockValues(QList<QString> &refNames)
+QList<QList<QPointF>> SynchronicityChartView::exportCraddockValues(QList<QString> &refNames)
 {
     QList<QList<QPointF>> pointsAllSeries;
     for (int i = 0; i<craddockSeries.size(); i++)
@@ -294,3 +290,4 @@ QList<QList<QPointF>> HomogeneityChartView::exportCraddockValues(QList<QString> 
     }
     return pointsAllSeries;
 }
+*/
