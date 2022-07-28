@@ -94,13 +94,30 @@ void HomogeneityChartView::drawSNHT(std::vector<int> years, std::vector<float> o
         axisY->setMin(minValue-3);
     }
     axisX->setRange(years[0], years[years.size()-1]);
-    if (years.size() <= 15)
+    int nYears = years.size();
+    if ( nYears <= 15)
     {
-        axisX->setTickCount(years.size());
+        axisX->setTickCount(nYears);
     }
     else
     {
-        axisX->setTickCount(15);
+        int div = 0;
+        for (int i = 2; i<=4; i++)
+        {
+            if ( (nYears-1) % i == 0 && (nYears-1)/i <= 15)
+            {
+                div = i;
+                break;
+            }
+        }
+        if (div == 0)
+        {
+            axisX->setTickCount(2);
+        }
+        else
+        {
+            axisX->setTickCount( (nYears-1)/div + 1);
+        }
     }
     axisX->setLabelFormat("%d");
     axisY->setLabelFormat("%.1f");
@@ -119,18 +136,8 @@ void HomogeneityChartView::drawSNHT(std::vector<int> years, std::vector<float> o
 
 void HomogeneityChartView::drawCraddock(int myFirstYear, int myLastYear, std::vector<std::vector<float>> outputValues, std::vector<QString> refNames, meteoVariable myVar, double averageValue)
 {
-    if (chart()->series().size() > 0)
-    {
-        for(int i = 0; i<craddockSeries.size(); i++)
-        {
-            if (chart()->series().contains(craddockSeries[i]))
-            {
-                chart()->removeSeries(craddockSeries[i]);
-                craddockSeries[i]->clear();
-            }
-        }
-    }
-    craddockSeries.clear();
+
+    clearCraddockSeries();
     float myMinValue = NODATA;
     float myMaxValue = NODATA;
     for (int refIndex = 0; refIndex<refNames.size(); refIndex++)
@@ -209,6 +216,22 @@ void HomogeneityChartView::clearSNHTSeries()
         chart()->removeSeries(SNHT_T95Values);
         SNHT_T95Values->clear();
     }
+}
+
+void HomogeneityChartView::clearCraddockSeries()
+{
+    if (chart()->series().size() > 0)
+    {
+        for(int i = 0; i<craddockSeries.size(); i++)
+        {
+            if (chart()->series().contains(craddockSeries[i]))
+            {
+                chart()->removeSeries(craddockSeries[i]);
+                craddockSeries[i]->clear();
+            }
+        }
+    }
+    craddockSeries.clear();
 }
 
 void HomogeneityChartView::tooltipSNHTSeries(QPointF point, bool state)

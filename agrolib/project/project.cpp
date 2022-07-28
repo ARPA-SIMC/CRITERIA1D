@@ -254,7 +254,8 @@ bool Project::loadParameters(QString parametersFileName)
 
     if (! QFile(parametersFileName).exists() || ! QFileInfo(parametersFileName).isFile())
     {
-        logError("Missing parameters file: " + parametersFileName);
+        errorString = "Missing parameters file: " + parametersFileName;
+        errorString += "\nCheck project.path in " + projectSettings->fileName();
         return false;
     }
 
@@ -2352,15 +2353,24 @@ void Project::setCurrentFrequency(const frequencyType &value)
     }
 }
 
-void Project::saveProjectSettings()
+
+void Project::saveProjectLocation()
 {
     projectSettings->beginGroup("location");
     projectSettings->setValue("lat", gisSettings.startLocation.latitude);
     projectSettings->setValue("lon", gisSettings.startLocation.longitude);
-        projectSettings->setValue("utm_zone", gisSettings.utmZone);
-        projectSettings->setValue("time_zone", gisSettings.timeZone);
-        projectSettings->setValue("is_utc", gisSettings.isUTC);
+    projectSettings->setValue("utm_zone", gisSettings.utmZone);
+    projectSettings->setValue("time_zone", gisSettings.timeZone);
+    projectSettings->setValue("is_utc", gisSettings.isUTC);
     projectSettings->endGroup();
+
+    projectSettings->sync();
+}
+
+
+void Project::saveProjectSettings()
+{
+    saveProjectLocation();
 
     projectSettings->beginGroup("project");
         projectSettings->setValue("name", projectName);
@@ -2580,7 +2590,7 @@ bool Project::loadProject()
     if (! loadParameters(parametersFileName))
     {
         errorType = ERROR_SETTINGS;
-        errorString = "load parameters failed";
+        errorString = "load parameters failed:\n" + errorString;
         logError();
         return false;
     }
@@ -2769,6 +2779,7 @@ void Project::showMeteoWidgetPoint(std::string idMeteoPoint, std::string namePoi
         meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
 
         meteoWidgetPoint->setDateInterval(firstDate, lastDate);
+        meteoWidgetPoint->setCurrentDate(this->currentDate);
         meteoWidgetPoint->draw(mp, isAppend);
     }
 
@@ -2837,7 +2848,9 @@ void Project::showMeteoWidgetGrid(std::string idCell, bool isAppend)
             meteoWidgetId = 0;
         }
         meteoWidgetGrid->setMeteoWidgetID(meteoWidgetId);
+        meteoWidgetGrid->setCurrentDate(this->currentDate);
         meteoWidgetGridList.append(meteoWidgetGrid);
+
         QObject::connect(meteoWidgetGrid, SIGNAL(closeWidgetGrid(int)), this, SLOT(deleteMeteoWidgetGrid(int)));
         logInfoGUI("Loading data...");
         if (meteoGridDbHandler->gridStructure().isEnsemble())
@@ -3410,6 +3423,25 @@ bool Project::exportMeteoGridToESRI(QString fileName, double cellSize)
 }
 
 
+int Project::computeCellSizeFromMeteoGrid()
+{
+    if (meteoGridDbHandler->gridStructure().isUTM())
+    {
+        return meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->cellSize;
+    }
+
+    // lat lon grid
+    gis::Crit3DGridHeader latlonHeader = meteoGridDbHandler->gridStructure().header();
+    int cellSize = gis::getGeoCellSizeFromLatLonHeader(gisSettings, &latlonHeader);
+
+    cellSize /= 10;
+    // round cellSize
+    int nTimes = int(floor(log10(cellSize)));
+    int roundValue = int(round(cellSize / pow(10, nTimes)));
+    cellSize = roundValue * int(pow(10, nTimes));
+
+    return cellSize;
+}
 
 
 /* ---------------------------------------------

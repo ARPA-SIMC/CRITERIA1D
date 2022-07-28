@@ -323,7 +323,6 @@ void Crit3DHomogeneityWidget::plotAnnualSeries()
     if (idPointsJointed.size() == 1)
     {
         // meteoPointTemp should be init
-        meteoPointTemp.nrObsDataDaysH = 0;
         meteoPointTemp.nrObsDataDaysD = 0;
         dataAlreadyLoaded = false;
     }
@@ -332,9 +331,7 @@ void Crit3DHomogeneityWidget::plotAnnualSeries()
         QDate endDate(QDate(lastYear, 12, 31));
         int numberOfDays = meteoPointsNearDistanceList[0].obsDataD[0].date.daysTo(getCrit3DDate(endDate))+1;
         meteoPointTemp.initializeObsDataD(numberOfDays, meteoPointsNearDistanceList[0].obsDataD[0].date);
-        meteoPointTemp.initializeObsDataH(1, numberOfDays, meteoPointsNearDistanceList[0].getMeteoPointHourlyValuesDate(0));
         meteoPointTemp.initializeObsDataDFromMp(meteoPointsNearDistanceList[0].nrObsDataDaysD, meteoPointsNearDistanceList[0].obsDataD[0].date, meteoPointsNearDistanceList[0]);
-        meteoPointTemp.initializeObsDataHFromMp(1,meteoPointsNearDistanceList[0].nrObsDataDaysH, meteoPointsNearDistanceList[0].getMeteoPointHourlyValuesDate(0), meteoPointsNearDistanceList[0]);
         QDate lastDateCopyed = meteoPointsDbHandler->getLastDate(daily, meteoPointsNearDistanceList[0].id).date();
         for (int i = 1; i<idPointsJointed.size(); i++)
         {
@@ -369,6 +366,35 @@ void Crit3DHomogeneityWidget::plotAnnualSeries()
         double sum = 0;
         int count = 0;
         int validData = 0;
+        int yearsLength = lastYear - firstYear;
+        int nYearsToAdd;
+        std::vector<float> seriesToView = myAnnualSeries;
+        if (yearsLength > 15)
+        {
+            for (int inc = 0; inc<=3; inc++)
+            {
+                if ( (yearsLength+inc) % 2 == 0 &&  (yearsLength+inc)/2 <= 15)
+                {
+                    nYearsToAdd = inc;
+                    break;
+                }
+                if ( (yearsLength+inc) % 3 == 0 &&  (yearsLength+inc)/3 <= 15)
+                {
+                    nYearsToAdd = inc;
+                    break;
+                }
+                if ( (yearsLength+inc) % 4 == 0 &&  (yearsLength+inc)/4 <= 15)
+                {
+                    nYearsToAdd = inc;
+                    break;
+                }
+            }
+            for (int i = nYearsToAdd; i> 0; i--)
+            {
+                years.push_back(firstYear-i);
+                seriesToView.insert(seriesToView.begin(),NODATA);
+            }
+        }
         for (int i = firstYear; i<=lastYear; i++)
         {
             years.push_back(i);
@@ -381,7 +407,7 @@ void Crit3DHomogeneityWidget::plotAnnualSeries()
         }
         averageValue = sum / validYears;
         // draw
-        annualSeriesChartView->draw(years, myAnnualSeries);
+        annualSeriesChartView->draw(years, seriesToView);
     }
     else
     {
@@ -399,7 +425,8 @@ void Crit3DHomogeneityWidget::setMpValues(Crit3DMeteoPoint meteoPointGet, Crit3D
 
     switch(myVar)
     {
-
+        /*
+         * // LC queste var non possono esserci
         case dailyLeafWetness:
         {
             QDateTime myDateTime(myDate,QTime(1,0,0));
@@ -459,6 +486,7 @@ void Crit3DHomogeneityWidget::setMpValues(Crit3DMeteoPoint meteoPointGet, Crit3D
             meteoPointSet->setMeteoPointValueD(getCrit3DDate(myDate), dailyPrecipitation, value);
             break;
         }
+        */
 
     case dailyAirTemperatureRange:
         {
@@ -540,6 +568,7 @@ void Crit3DHomogeneityWidget::changeVar(const QString varName)
     annualSeriesChartView->setYTitle(QString::fromStdString(getUnitFromVariable(myVar)));
     execute.setEnabled(false);
     homogeneityChartView->clearSNHTSeries();
+    homogeneityChartView->clearCraddockSeries();
     plotAnnualSeries();
 }
 
@@ -551,12 +580,14 @@ void Crit3DHomogeneityWidget::changeYears()
     resultLabel.clear();
     execute.setEnabled(false);
     homogeneityChartView->clearSNHTSeries();
+    homogeneityChartView->clearCraddockSeries();
     plotAnnualSeries();
 }
 
 void Crit3DHomogeneityWidget::changeMethod(const QString methodName)
 {
     homogeneityChartView->clearSNHTSeries();
+    homogeneityChartView->clearCraddockSeries();
     resultLabel.clear();
     if (execute.isEnabled())
     {
@@ -1217,6 +1248,36 @@ void Crit3DHomogeneityWidget::executeClicked()
         else
         {
             QMessageBox::critical(nullptr, "Info", "T95 value available only for number of years < 100");
+        }
+
+        int nYearsToAdd;
+        if (years.size()-1 > 15)
+        {
+            for (int inc = 0; inc<=3; inc++)
+            {
+                if ( (years.size()-1+inc) % 2 == 0 &&  (years.size()-1+inc)/2 <= 15)
+                {
+                    nYearsToAdd = inc;
+                    break;
+                }
+                if ( (years.size()-1+inc) % 3 == 0 &&  (years.size()-1+inc)/3 <= 15)
+                {
+                    nYearsToAdd = inc;
+                    break;
+                }
+                if ( (years.size()-1+inc) % 4 == 0 &&  (years.size()-1+inc)/4 <= 15)
+                {
+                    nYearsToAdd = inc;
+                    break;
+                }
+            }
+            int pos = 0;
+            for (int i = nYearsToAdd; i> 0; i--)
+            {
+                years.insert(years.begin()+pos,myFirstYear-i);
+                outputValues.insert(outputValues.begin(),NODATA);
+                pos = pos + 1;
+            }
         }
         homogeneityChartView->drawSNHT(years,outputValues,t95Points);
         if (myTmax >= myT95 && myYearTmax != NODATA)

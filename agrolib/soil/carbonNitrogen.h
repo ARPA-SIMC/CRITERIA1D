@@ -14,6 +14,63 @@
 
 #include "crit3dDate.h"
 
+class Crit3DCarbonNitrogen
+{
+    private:
+    // correction factors
+    float temperatureCorrectionFactor;   // [] correction factor for soil temperature
+    float waterCorrecctionFactor;        //[] correction factor for soil water content
+    float waterCorrecctionFactorDenitrification;     //[] correction factor for soil water content (denitrification)
+
+    // nitrogen
+        // contents
+    public:
+    float N_NO3;            //[g m-2] Nitrogen in form of Nitrates
+    float N_NH4;            //[g m-2] Nitrogen in form of Ammonium
+    float N_NH4_Adsorbed;   //[g m-2] Nitrogen in form of adsorbed Ammonium
+    float N_NH4_Sol;        //[g m-2] Nitrogen in form of dissolved Ammonium
+    float N_urea;           //[g m-2] Nitrogen in form of Urea
+    float N_humus;//[g m-2] Nitrogen in humus
+    float N_litter;//[g m-2] Nitrogen litter
+        // fluxes
+    private:
+
+    float N_NO3_uptake;//[g m-2] NO3 crop uptake
+    float N_NH4_uptake;//[g m-2] NH4 crop uptake
+    float N_min_litter;//[g m-2] mineralized Nitrogen in litter
+    float N_imm_l_NH4;//[g m-2] NH4 immobilized in litter
+    float N_imm_l_NO3;//[g m-2] NO3 immobilized in litter
+    float N_min_humus;//[g m-2] mineralized Nitrogen in humus
+    float N_litter_humus;//[g m-2] N from litter to humus
+    float N_vol;//[g m-2] volatilized NH4
+    float N_denitr;//[g m-2] denitrified N
+    float N_nitrif;//[g m-2] N from NH4 to NO3
+    float N_Urea_Hydr;//[g m-2] hydrolyzed urea to NH4
+    float N_NO3_runoff;//[g m-2] NO3 lost through surface & subsurface run off
+    float N_NH4_runoff;//[g m-2] NH4 lost through surface & subsurface run off
+            //ratios
+    public:
+    float ratio_CN_litter; //[-] ratio C/N in litter
+
+    // carbon
+        //contents
+    public:
+    float C_humus; //[g m-2] C in humus
+    float C_litter; //[g m-2] C in litter
+            // fluxes
+    private:
+    float C_litter_humus; //[g m-2] C for litter to humus
+    float C_litter_litter; //[g m-2] recycled Nitrogen within litter
+    float C_min_humus; //[g m-2] C lost as CO2 by humus mineralization
+    float C_min_litter; //[g m-2] C lost as CO2 by litter mineralization
+    float C_denitr_humus; //[g m-2] C in humus lost as CO2 by means of denitrification
+    float C_denitr_litter; //[g m-2] C in litter lost as CO2 by means of denitrification
+
+
+
+    Crit3DCarbonNitrogen();
+};
+
 class Crit3DCarbonNitrogenWholeProfile
 {
 
@@ -141,7 +198,7 @@ class Crit3DCarbonNitrogenWholeProfile
     float C_min_litterGG;           //[g m-2] C lost as CO2 by litter mineralization
 
 
-
+    Crit3DCarbonNitrogen *arrayCarbonNitrogen;
 
 
 
@@ -149,67 +206,74 @@ class Crit3DCarbonNitrogenWholeProfile
     Crit3DCarbonNitrogenWholeProfile();
 };
 
-class Crit3DCarbonNitrogen
-{
-    private:
-    // correction factors
-    float temperatureCorrectionFactor;   // [] correction factor for soil temperature
-    float waterCorrecctionFactor;        //[] correction factor for soil water content
-    float waterCorrecctionFactorDenitrification;     //[] correction factor for soil water content (denitrification)
 
-    // nitrogen
-        // contents
-    public:
-    float N_NO3;            //[g m-2] Nitrogen in form of Nitrates
-    float N_NH4;            //[g m-2] Nitrogen in form of Ammonium
-    float N_NH4_Adsorbed;   //[g m-2] Nitrogen in form of adsorbed Ammonium
-    float N_NH4_Sol;        //[g m-2] Nitrogen in form of dissolved Ammonium
-    float N_urea;           //[g m-2] Nitrogen in form of Urea
-    float N_humus;//[g m-2] Nitrogen in humus
-    float N_litter;//[g m-2] Nitrogen litter
-        // fluxes
-    private:
-
-    float N_NO3_uptake;//[g m-2] NO3 crop uptake
-    float N_NH4_uptake;//[g m-2] NH4 crop uptake
-    float N_min_litter;//[g m-2] mineralized Nitrogen in litter
-    float N_imm_l_NH4;//[g m-2] NH4 immobilized in litter
-    float N_imm_l_NO3;//[g m-2] NO3 immobilized in litter
-    float N_min_humus;//[g m-2] mineralized Nitrogen in humus
-    float N_litter_humus;//[g m-2] N from litter to humus
-    float N_vol;//[g m-2] volatilized NH4
-    float N_denitr;//[g m-2] denitrified N
-    float N_nitrif;//[g m-2] N from NH4 to NO3
-    float N_Urea_Hydr;//[g m-2] hydrolyzed urea to NH4
-    float N_NO3_runoff;//[g m-2] NO3 lost through surface & subsurface run off
-    float N_NH4_runoff;//[g m-2] NH4 lost through surface & subsurface run off
-            //ratios
-    public:
-    float ratio_CN_litter; //[-] ratio C/N in litter
-
-    // carbon
-        //contents
-    public:
-    float C_humus; //[g m-2] C in humus
-    float C_litter; //[g m-2] C in litter
-            // fluxes
-    private:
-    float C_litter_humus; //[g m-2] C for litter to humus
-    float C_litter_litter; //[g m-2] recycled Nitrogen within litter
-    float C_min_humus; //[g m-2] C lost as CO2 by humus mineralization
-    float C_min_litter; //[g m-2] C lost as CO2 by litter mineralization
-    float C_denitr_humus; //[g m-2] C in humus lost as CO2 by means of denitrification
-    float C_denitr_litter; //[g m-2] C in litter lost as CO2 by means of denitrification
-
-
-
-    Crit3DCarbonNitrogen();
-};
 
 
 #endif // CARBON_H
 /*
  *
+void NO3_Balance()
+{
+    // 02.11.26.MVS
+
+    float profileNO3PreviousDay;
+
+    profileNO3PreviousDay = profileNO3;
+    profileNO3 = ProfileSum(N_NO3());
+    BilFinaleNO3 = profileNO3 - ProfiloNO3Ieri - N_NO3_fertGG + N_imm_l_NO3GG;
+    BilFinaleNO3 = BilFinaleNO3 + N_denitrGG - N_nitrifGG + N_NO3_uptakeGG;
+    BilFinaleNO3 = BilFinaleNO3 + N_NO3_runoff0GG + N_NO3_runoffGG - PrecN_NO3GG + Flux_NO3GG;
+    return;
+}
+
+void N_initializeCrop(bool noReset)
+{
+    N_cropToHarvest = 0;
+    N_cropToResidues = 0;
+
+    if (!noReset)
+        N_roots = 0;
+    // da leggere da database
+    N_uptakable = tbColture("Nasportabile") / 10;   //      da [kg ha-1] a [g m-2]
+    N_uptakeDeficit = 0;
+    N_uptakeMax = 0;
+    N_potentialDemandCumulated = 0;
+    ReDim N_deficit_daily(Nitrogen.N_deficit_max_days)
+
+    Select Case TipoColtura
+        Case "arborea", "arborea_inerbita", "fruit_tree", "fruit_tree_with_grass"
+        {
+            // 2001 Rufat Dejong Fig. 4 e Tagliavini
+            N_ratioHarvested = 0.4;      // fruits, pruning wood
+            N_ratioResidues = 0.5;       // leaves
+            N_ratioRoots = 0.1;           // roots, trunk, branches
+
+
+        }
+        else if  Case "erbacea_poliennale", "herbaceous_perennial", "prativa", "grass", "incolto", "fallow", "prativa_primoanno", "grass_firstyear"
+        {
+            N_ratioHarvested = 0.9;
+            N_ratioResidues = 0;
+            N_ratioRoots = 0.1;
+        }
+        else
+        {
+            // colture annuali
+            N_ratioHarvested = 0.9;
+            N_ratioResidues = 0;
+            N_ratioRoots = 0.1;
+        }
+
+    //in prima approssimazione calcolato da N massimo asportabile per ciclo
+    //(parte asportabile e non asportabile) e LAIMAX
+    //2013.10 GA
+    //scambio mail con Ass.Agr.:
+    //
+    MaxRate_LAI_Ndemand = (N_uptakable - N_roots) / LAIMAX ;
+
+}
+
+
 void N_harvest() // public function
 {
         // 2013.06 GA translated in C++ by AV 2022.06

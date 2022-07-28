@@ -151,6 +151,7 @@
 
         void createProject(QString path_, QString name_, QString description);
         void saveProject();
+        void saveProjectLocation();
         void saveProjectSettings();
         void saveAllParameters();
         void saveGenericParameters();
@@ -270,6 +271,7 @@
         bool loadOutputPointList(QString fileName);
         bool writeOutputPointList(QString fileName);
         bool exportMeteoGridToESRI(QString fileName, double cellSize);
+        int computeCellSizeFromMeteoGrid();
 
         void setComputeOnlyPoints(bool isOnlyPoints);
         bool getComputeOnlyPoints();

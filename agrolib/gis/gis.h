@@ -188,7 +188,6 @@
         double computeDistancePoint(Crit3DUtmPoint* p0, Crit3DUtmPoint *p1);
         bool updateMinMaxRasterGrid(Crit3DRasterGrid* myGrid);
         bool updateColorScale(Crit3DRasterGrid* myGrid, int row0, int col0, int row1, int col1);
-        void checkRange(float& minimum, float& maximum);
 
         void getRowColFromXY(const Crit3DRasterGrid &myGrid, double myX, double myY, int* row, int* col);
         void getRowColFromXY(const Crit3DRasterHeader& myHeader, double myX, double myY, int *row, int *col);
@@ -246,6 +245,7 @@
         bool getGeoExtentsFromUTMHeader(const Crit3DGisSettings& mySettings,
                                         Crit3DRasterHeader *utmHeader, Crit3DGridHeader *latLonHeader);
         bool getGeoExtentsFromLatLonHeader(const Crit3DGisSettings& mySettings, double cellSize, Crit3DRasterHeader *utmHeader, Crit3DGridHeader *latLonHeader);
+        double getGeoCellSizeFromLatLonHeader(const Crit3DGisSettings& mySettings, Crit3DGridHeader *latLonHeader);
 
         float topographicDistance(float x1, float y1, float z1, float x2, float y2, float z2, float distance,
                                   const gis::Crit3DRasterGrid& myDEM);

@@ -52,8 +52,9 @@ Only for CRITERIA GEO:
 - LINUX: run */deploy/CRITERIA1D_build_Linux.sh*
 - WINDOWS (Visual Studio c++ compiler): run */deploy/CRITERIA1D_build_MSVC_bat*
 - WINDOWS (MinGW c++ compiler): run */deploy/CRITERIA1D_build_MinGW_bat*       
-- MACOS: TODO
-- ALL platforms: please read the information in the first lines of the script.
+- MACOS: run CRITERIA1D_build_MacOS.sh (modify path in the first line of the script)  
+
+WARNING for ALL platforms: please read the information in the first lines of the script.
 
 The distribution will be created in the directory /deploy/CRITERIA1D/
 
