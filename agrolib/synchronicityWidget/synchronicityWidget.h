@@ -19,13 +19,18 @@
 
         public:
             Crit3DSynchronicityWidget(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoPoint mp, gis::Crit3DGisSettings gisSettings, QDate firstDaily, QDate lastDaily, Crit3DMeteoSettings *meteoSettings, QSettings *settings,
-                                    Crit3DClimateParameters *climateParameters, Crit3DQuality* quality);
+                                    Crit3DClimateParameters *climateParameters, Crit3DQuality* quality, Crit3DInterpolationSettings interpolationSettings, Crit3DInterpolationSettings qualityInterpolationSettings, bool checkSpatialQuality, Crit3DMeteoPoint* meteoPoints, int nrMeteoPoints);
             ~Crit3DSynchronicityWidget();
             void closeEvent(QCloseEvent *event);
             void changeVar(const QString varName);
             void changeYears();      
-            void addGraph();
-            void clearGraph();
+            void addStationGraph();
+            void clearStationGraph();
+            void addInterpolationGraph();
+            void clearInterpolationGraph();
+            void changeSmooth();
+            void changeInterpolationDate();
+            void smoothSerie();
             void setReferencePointId(const std::string &value);
             void on_actionChangeLeftSynchAxis();
             void on_actionChangeLeftInterpolationAxis();
@@ -44,23 +49,35 @@
             Crit3DMeteoSettings *meteoSettings;
             QSettings *settings;
             Crit3DClimateParameters *climateParameters;
+            Crit3DInterpolationSettings interpolationSettings;
+            Crit3DInterpolationSettings qualityInterpolationSettings;
+            bool checkSpatialQuality;
+            Crit3DMeteoPoint* meteoPoints;
+            int nrMeteoPoints;
             Crit3DQuality* quality;
             QLabel nameRefLabel;
             QComboBox variable;
             QComboBox stationYearFrom;
             QComboBox stationYearTo;
-            QComboBox interpolationYearFrom;
-            QComboBox interpolationYearTo;
+            QDateEdit interpolationDateFrom;
+            QDateEdit interpolationDateTo;
             meteoVariable myVar;
             QSpinBox stationLag;
             QPushButton stationAddGraph;
             QPushButton stationClearGraph;
             QPushButton interpolationAddGraph;
-            QPushButton interpolationReloadGraph;
+            QComboBox interpolationElab;
             QPushButton interpolationClearGraph;
             QSpinBox interpolationLag;
+            QSpinBox smooth;
             SynchronicityChartView *synchronicityChartView;
             InterpolationChartView *interpolationChartView;
+            std::vector<float> interpolationDailySeries;
+            std::vector<float> smoothInterpDailySeries;
+            QDate interpolationStartDate;
+            bool stationClearAndReload;
+            bool interpolationClearAndReload;
+            bool interpolationChangeSmooth;
 
     signals:
             void closeSynchWidget();
