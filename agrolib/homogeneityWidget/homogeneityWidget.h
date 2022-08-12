@@ -36,7 +36,6 @@
             void deleteJointStationClicked();
             void saveToDbClicked();
             void updateYears();
-            void setMpValues(Crit3DMeteoPoint meteoPointGet, Crit3DMeteoPoint *meteoPointSet, QDate myDate);
             void findReferenceStations();
             void addFoundStationClicked();
             void deleteFoundStationClicked();
@@ -76,6 +75,7 @@
             QLineEdit minNumStations;
             QListWidget listFoundStations;
             QListWidget listSelectedStations;
+            QList<QString> listAllFound;
             QPushButton addStationFoundButton;
             QPushButton deleteStationFoundButton;
             QTableWidget stationsTable;
