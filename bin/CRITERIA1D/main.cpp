@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
 
         #ifdef TEST
             settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
+            //settingsFileName = projectPath + "vaimee/criteria-test.ini";
         #else
             #ifdef TEST_GEO
                 settingsFileName = projectPath + "INCOLTO/incolto.ini";
