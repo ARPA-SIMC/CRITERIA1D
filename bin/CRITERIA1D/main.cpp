@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
         QString projectPath = dataPath + PATH_PROJECT;
 
         #ifdef TEST
-            settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
-            //settingsFileName = projectPath + "vaimee/criteria.ini";
+            //settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
+            settingsFileName = projectPath + "vaimee/criteria.ini";
         #else
             #ifdef TEST_GEO
                 settingsFileName = projectPath + "INCOLTO/incolto.ini";
