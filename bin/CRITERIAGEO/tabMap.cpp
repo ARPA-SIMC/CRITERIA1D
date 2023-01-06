@@ -1,7 +1,7 @@
 #include "tabMap.h"
 #include "commonConstants.h"
 
-TabMap::TabMap(QStringList varList, QDate firstDbDate, QDate lastDbDate)
+TabMap::TabMap(QList<QString> varList, QDate firstDbDate, QDate lastDbDate)
     :varList(varList), firstDbDate(firstDbDate), lastDbDate(lastDbDate)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;

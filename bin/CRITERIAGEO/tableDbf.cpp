@@ -44,7 +44,7 @@ void TableDbf::keyPressEvent(QKeyEvent *event){
 
             for (auto i = 0; i < rowContents.size(); ++i)
             {
-                QStringList columnContents = rowContents.at(i).split("\t");
+                QList<QString> columnContents = rowContents.at(i).split("\t");
                 if (columnContents.size() == 1)
                 {
                     model()->setData(model()->index(initRow + i, initCol), columnContents[0]);
@@ -73,7 +73,7 @@ void TableDbf::copySelection()
 {
     QString text;
     QItemSelectionRange range = selectionModel()->selection().first();
-    QStringList header;
+    QList<QString> header;
     for (auto j = range.left(); j <= range.right(); ++j)
     {
         header << this->horizontalHeaderItem(j)->text();
@@ -82,7 +82,7 @@ void TableDbf::copySelection()
     text += "\n";
     for (auto i = range.top(); i <= range.bottom(); ++i)
     {
-        QStringList rowContents;
+        QList<QString> rowContents;
         for (auto j = range.left(); j <= range.right(); ++j)
             rowContents << model()->index(i,j).data().toString();
         text += rowContents.join("\t");

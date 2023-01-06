@@ -67,7 +67,7 @@ DialogUcmPrevailing::DialogUcmPrevailing(std::vector<Crit3DShapeHandler*> shapeO
     shapeLayout->addWidget(meteoShape);
 
 
-    QStringList shapeLabel;
+    QList<QString> shapeLabel;
 
     for (unsigned int i = 0; i < shapeObjList.size(); i++)
     {
@@ -130,7 +130,7 @@ void DialogUcmPrevailing::shapeCropClicked(QListWidgetItem* item)
     unsigned int pos = cropShape->row(item);
     crop = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
+    QList<QString> fieldLabel;
     for (int i = 0; i < crop->getFieldNumbers(); i++)
     {
         std::string nameField =  crop->getFieldName(i);
@@ -145,7 +145,7 @@ void DialogUcmPrevailing::shapeSoilClicked(QListWidgetItem* item)
     unsigned int pos = soilShape->row(item);
     soil = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
+    QList<QString> fieldLabel;
     for (int i = 0; i < soil->getFieldNumbers(); i++)
     {
         std::string nameField =  soil->getFieldName(i);
@@ -160,7 +160,7 @@ void DialogUcmPrevailing::shapeMeteoClicked(QListWidgetItem* item)
     unsigned int pos = meteoShape->row(item);
     meteo = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
+    QList<QString> fieldLabel;
     for (int i = 0; i < meteo->getFieldNumbers(); i++)
     {
         std::string nameField =  meteo->getFieldName(i);

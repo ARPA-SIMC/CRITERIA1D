@@ -38,7 +38,7 @@ DialogShapeProperties::DialogShapeProperties(Crit3DShapeHandler* shapeHandler, Q
 
     treeWidget = new QTreeWidget();
     treeWidget->setColumnCount(1);
-    QStringList headerLabels;
+    QList<QString> headerLabels;
     headerLabels.push_back("Shape");
     treeWidget->setHeaderLabels(headerLabels);
     dxLayout->addWidget(treeWidget);

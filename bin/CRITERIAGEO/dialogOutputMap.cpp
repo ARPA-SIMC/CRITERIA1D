@@ -1,6 +1,6 @@
 #include "dialogOutputMap.h"
 
-DialogOutputMap::DialogOutputMap(QStringList varList, QDate firstDate, QDate lastDate)
+DialogOutputMap::DialogOutputMap(QList<QString> varList, QDate firstDate, QDate lastDate)
     :varList(varList), firstDbDate(firstDate), lastDbDate(lastDate)
 {
 
