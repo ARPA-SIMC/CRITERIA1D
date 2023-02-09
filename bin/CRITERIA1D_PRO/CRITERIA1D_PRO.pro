@@ -44,11 +44,11 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/commonChartElements/debug -lcommonChartElements
     LIBS += -L../../agrolib/criteriaModel/debug -lcriteriaModel
     LIBS += -L../../agrolib/qcustomplot/debug -lqcustomplot
-    LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../../agrolib/crop/debug -lcrop
-    LIBS += -L../../agrolib/soil/debug -lsoil
+    LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/carbonNitrogen/debug -lcarbonNitrogen
+    LIBS += -L../../agrolib/soil/debug -lsoil
     LIBS += -L../../agrolib/meteo/debug -lmeteo
     LIBS += -L../../agrolib/gis/debug -lgis
     LIBS += -L../../agrolib/soilFluxes3D/debug -lsoilFluxes3D
@@ -63,11 +63,11 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/commonChartElements/release -lcommonChartElements
     LIBS += -L../../agrolib/criteriaModel/release -lcriteriaModel
     LIBS += -L../../agrolib/qcustomplot/release -lqcustomplot
-    LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../../agrolib/crop/release -lcrop
-    LIBS += -L../../agrolib/soil/release -lsoil
+    LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/carbonNitrogen/release -lcarbonNitrogen
+    LIBS += -L../../agrolib/soil/release -lsoil
     LIBS += -L../../agrolib/meteo/release -lmeteo
     LIBS += -L../../agrolib/gis/release -lgis
     LIBS += -L../../agrolib/soilFluxes3D/release -lsoilFluxes3D
