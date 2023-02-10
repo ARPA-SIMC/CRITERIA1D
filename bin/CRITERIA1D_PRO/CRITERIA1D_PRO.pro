@@ -34,10 +34,10 @@ INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrol
                 ../../agrolib/soil ../../agrolib/crop ../../agrolib/carbonNitrogen ../../agrolib/criteriaModel \
                 ../../agrolib/qcustomplot ../../agrolib/commonDialogs \
                 ../../agrolib/commonChartElements ../../agrolib/meteoWidget \
-                ../../agrolib/soilWidget ../../agrolib/cropWidget
+                ../../agrolib/soilWidget ../../agrolib/criteria1DWidget
 
 CONFIG(debug, debug|release) {
-    LIBS += -L../../agrolib/cropWidget/debug -lcropWidget
+    LIBS += -L../../agrolib/criteria1DWidget/debug -lcriteria1DWidget
     LIBS += -L../../agrolib/soilWidget/debug -lsoilWidget
     LIBS += -L../../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
@@ -56,7 +56,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
 } else {
 
-    LIBS += -L../../agrolib/cropWidget/release -lcropWidget
+    LIBS += -L../../agrolib/criteria1DWidget/release -lcriteria1DWidget
     LIBS += -L../../agrolib/soilWidget/release -lsoilWidget
     LIBS += -L../../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
