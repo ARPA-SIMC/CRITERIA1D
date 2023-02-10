@@ -444,6 +444,7 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         }
         else
         {
+            *myError = "no results to save";
             return false;
         }
 
@@ -498,6 +499,7 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         }
         else
         {
+            *myError = "no results to save";
             return false;
         }
     }
@@ -550,6 +552,7 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         }
         else
         {
+            *myError = "no results to save";
             return false;
         }
     }
@@ -618,6 +621,7 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         }
         else
         {
+            *myError = "no results to save";
             return false;
         }
 
@@ -654,6 +658,7 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         }
         else
         {
+            *myError = "no results to save";
             return false;
         }
     }
@@ -688,12 +693,16 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         }
         else
         {
+            *myError = "no results to save";
             return false;
         }
     }
 
     default:
+    {
+        *myError = "period not valid";
         return false;
+    }
 
     }
 }
@@ -780,6 +789,7 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
         {
             case trend:
                 result = statisticalElab(elab2, clima->yearStart(), cumulatedValuesPerDay, cumulatedValuesPerDay.size(), meteoSettings->getRainfallThreshold());
+                break;
             default:
                 result = statisticalElab(elab2, param2, cumulatedValuesPerDay, cumulatedValuesPerDay.size(), meteoSettings->getRainfallThreshold());
         }
@@ -807,6 +817,7 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
     }
     else
     {
+        *myError = "no results to save";
         return false;
     }
 }
@@ -2599,6 +2610,7 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
 
     std::vector<float> values;
     std::vector<float> valuesSecondElab;
+    std::vector<int> valuesYearsPrimaryElab;
     Crit3DDate presentDate;
     int numberOfDays;
     int nValidValues = 0;
@@ -2839,6 +2851,7 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
             if (primary != NODATA)
             {
                 valuesSecondElab.push_back(primary);
+                valuesYearsPrimaryElab.push_back(presentYear);
                 nValidYears = nValidYears + 1;
             }
 
@@ -2858,6 +2871,16 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
         {
             switch(elab2)
             {
+                case yearMax: case yearMin:
+                {
+                    int index = statisticalElab(elab2, firstYear, valuesSecondElab, nValidYears, meteoSettings->getRainfallThreshold());
+                    if (index != NODATA && index < valuesYearsPrimaryElab.size())
+                    {
+                        return valuesYearsPrimaryElab[index];
+                    }
+                    else
+                        return NODATA;
+                }
                 case trend:
                     return statisticalElab(elab2, firstYear, valuesSecondElab, nValidYears, meteoSettings->getRainfallThreshold());
                 default:
@@ -2986,6 +3009,10 @@ int nParameters(meteoComputation elab)
         return 1;
     case lastDayBelowThreshold:
         return 1;
+    case yearMax:
+        return 0;
+    case yearMin:
+        return 0;
     default:
         return 0;
     }
@@ -3064,6 +3091,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
     bool errorAnomaly = false;
     bool errorDrought = false;
     bool errorPhenology = false;
+    bool periodPresent = false;
 
     while(!ancestor.isNull())
     {
@@ -3163,6 +3191,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                 }
                 if (myTag == "PERIOD")
                 {
+                    periodPresent = true;
                     if (parseXMLPeriodTag(child, listXMLElab, listXMLAnomaly, false, false, period, firstYear, myError) == false)
                     {
                         listXMLElab->eraseElement(nElab);
@@ -3288,6 +3317,12 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                 {
                     child = child.nextSibling();
                 }
+            }
+            if (periodPresent == false)
+            {
+                listXMLElab->insertDateStart(QDate(firstYear.toInt(), 1, 1));
+                listXMLElab->insertDateEnd(QDate(lastYear.toInt(), 12, 31));
+                listXMLElab->insertNYears(0);
             }
             nElab = nElab + 1;
             qDebug() << "nElab " << nElab;
