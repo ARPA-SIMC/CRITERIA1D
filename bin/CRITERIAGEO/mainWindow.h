@@ -56,6 +56,8 @@
         void on_actionClose_Project_triggered();
         void closeGeoProject();
 
+        void on_actionLoad_NetCDF_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -87,6 +89,7 @@
         void setTileSource(WebTileSource::WebTileType tileType);
 
         void addRasterObject(GisObject* myObject);
+        void addNetcdfObject(GisObject* myObject);
         bool addShapeObject(GisObject* myObject);
         void itemClicked(QListWidgetItem* item);
         void itemMenuRequested(const QPoint point);
@@ -105,6 +108,9 @@
 
         QPoint getMapPos(const QPoint& pos);
         bool isInsideMap(const QPoint& pos);
+
+        int getRasterIndex(GisObject *myObject);
+        void zoomOnLastRaster();
     };
 
 
