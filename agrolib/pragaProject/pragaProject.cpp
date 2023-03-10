@@ -41,6 +41,7 @@ void PragaProject::initializePragaProject()
     pragaDefaultSettings = nullptr;
     pragaDailyMaps = nullptr;
     users.clear();
+    lastElabTargetisGrid = false;
 }
 
 void PragaProject::clearPragaProject()
@@ -3466,4 +3467,31 @@ bool PragaProject::computeClimaFromXMLSaveOnDB(QString xmlName)
          delete meteoPointTemp;
          return true;
      }
+}
+
+bool PragaProject::saveLogProceduresGrid(QString nameProc, QDate date)
+{
+
+    // check meteo grid
+    if (! meteoGridLoaded)
+    {
+        logError("No meteo grid");
+        return false;
+    }
+
+    // check dates
+    if (date.isNull() || !date.isValid())
+    {
+        logError("Wrong date");
+        return false;
+    }
+
+    QString myError;
+    logInfoGUI("Saving procedure last date");
+    if (! meteoGridDbHandler->saveLogProcedures(&myError, nameProc, date))
+    {
+        logError(myError);
+        return false;
+    }
+    return true;
 }
