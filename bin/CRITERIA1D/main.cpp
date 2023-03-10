@@ -16,15 +16,15 @@
 
 void usage()
 {
-    std::cout << "CRITERIA-1D agro-hydrological model" << std::endl
+    std::cout << "\nCRITERIA-1D agro-hydrological model" << std::endl
               << "\nUsage:" << std::endl
               << "CRITERIA1D <project.ini> [lastDate]" << std::endl
-              << "CRITERIA1D <project.ini> [firstDate lastDate]" << std::endl
+              << "CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl
               << "\nNotes:" << std::endl
-              << "- dates must be in YYYY-MM-DD format;" << std::endl
-              << "- firstDate and lastDate can be defined in the project.ini;" << std::endl
-              << "- default dates are the first and last date of the data tables in the db_meteo (SQLite);" << std::endl
-              << "- in the projects with MySQL meteoGrid data, default lastDate is yesterday." << std::endl;
+              << "- dates must be in YYYY-MM-DD format" << std::endl
+              << "- default dates are the first and last date of the weather data tables in the db_meteo (SQLite)" << std::endl
+              << "- in the projects with gridded weather data (MySQL), default lastDate is yesterday" << std::endl
+              << "- firstDate and lastDate can be also defined in the project.ini" << std::endl;
 
     std::cout << std::flush;
 }
@@ -52,10 +52,12 @@ int main(int argc, char *argv[])
         QString projectPath = dataPath + PATH_PROJECT;
 
         #ifdef TEST
-            settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
+            //settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
+            settingsFileName = projectPath + "vaimee/criteria.ini";
         #else
             #ifdef TEST_GEO
                 settingsFileName = projectPath + "INCOLTO/incolto.ini";
+                //settingsFileName = "//moses-arpae/CRITERIA1D/PROJECTS/Highlander_Puglia/Highlander_Puglia_seasonal.ini";
             #else
                 usage();
                 return 1;
@@ -122,8 +124,6 @@ int main(int argc, char *argv[])
         myProject.logger.writeError(myProject.projectError);
         return myResult;
     }
-
-    myProject.logger.writeInfo("COMPUTE...");
 
     myResult = myProject.computeAllUnits();
 

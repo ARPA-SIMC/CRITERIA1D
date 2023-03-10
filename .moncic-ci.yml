@@ -1,5 +1,4 @@
 version: 1
 images:
  - name: centos:8
- - name: fedora:34
  - name: fedora:36

@@ -31,6 +31,7 @@
 #include "unitCropMap.h"
 #include "shapeFromCsv.h"
 #include "formInfo.h"
+#include "netcdfHandler.h"
 
 #ifdef GDAL
     #include "gdalRasterFunctions.h"
@@ -48,10 +49,18 @@ CriteriaGeoProject::CriteriaGeoProject()
 {}
 
 
-void CriteriaGeoProject::addRaster(gis::Crit3DRasterGrid *myRaster, QString fileName, int utmZone)
+void CriteriaGeoProject::addRaster(gis::Crit3DRasterGrid *myRaster, QString fileNameWithPath, int utmZone)
 {
     GisObject* newObject = new(GisObject);
-    newObject->setRaster(fileName, myRaster, utmZone);
+    newObject->setRaster(fileNameWithPath, myRaster, utmZone);
+    this->objectList.push_back(newObject);
+}
+
+
+void CriteriaGeoProject::addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone)
+{
+    GisObject* newObject = new(GisObject);
+    newObject->setNetcdf(fileNameWithPath, myNetcdf, utmZone);
     this->objectList.push_back(newObject);
 }
 
@@ -93,6 +102,23 @@ bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
 
     setDefaultDEMScale(myRaster->colorScale);
     addRaster(myRaster, fileNameWithPath, utmZone);
+    return true;
+}
+
+
+bool CriteriaGeoProject::loadNetcdf(QString fileNameWithPath)
+{
+    NetCDFHandler* netCDF = new NetCDFHandler();
+
+    netCDF->initialize(gisSettings.utmZone);
+
+    if (! netCDF->readProperties(fileNameWithPath.toStdString()))
+    {
+        logError("Wrong netcdf file: " + QString::fromStdString(netCDF->getMetadata()));
+        return false;
+    }
+
+    addNetcdf(netCDF, fileNameWithPath, gisSettings.utmZone);
     return true;
 }
 

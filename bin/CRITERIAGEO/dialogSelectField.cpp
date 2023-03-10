@@ -29,7 +29,7 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
     }
 
     DBFFieldType typeField;
-    QStringList fields;
+    QList<QString> fields;
 
     if (dialogType == RASTERIZE) fields << "Shape ID";
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)

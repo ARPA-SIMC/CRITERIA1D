@@ -317,6 +317,34 @@ void MainWindow::addRasterObject(GisObject* myObject)
 }
 
 
+void MainWindow::addNetcdfObject(GisObject* myObject)
+{
+    QListWidgetItem* item = new QListWidgetItem("[NETCDF] " + myObject->fileName);
+    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+    item->setCheckState(Qt::Checked);
+    ui->checkList->addItem(item);
+
+    RasterObject* netcdfObj = new RasterObject(this->mapView);
+    netcdfObj->setOpacity(0.66);
+
+    NetCDFHandler* netcdfPtr = myObject->getNetcdfHandler();
+
+    if (netcdfPtr->isLatLon || netcdfPtr->isRotatedLatLon)
+    {
+        netcdfObj->initializeLatLon(netcdfPtr->getRaster(), myObject->gisSettings, netcdfPtr->latLonHeader, true);
+    }
+    else
+    {
+        netcdfObj->initializeUTM(netcdfPtr->getRaster(), myObject->gisSettings, true);
+    }
+
+    this->rasterObjList.push_back(netcdfObj);
+
+    this->mapView->scene()->addObject(netcdfObj);
+    this->updateMaps();
+}
+
+
 bool MainWindow::addShapeObject(GisObject* myObject)
 {
     // check zoneNumber
@@ -357,6 +385,21 @@ bool MainWindow::addShapeObject(GisObject* myObject)
 }
 
 
+// resize and center map on last raster size
+void MainWindow::zoomOnLastRaster()
+{
+    RasterObject* myRaster = this->rasterObjList.back();
+
+    gis::Crit3DGeoPoint* center = myRaster->getRasterCenter();
+    float size = myRaster->getRasterMaxSize();
+
+    this->mapView->setZoomLevel(quint8(log2(float(ui->widgetMap->width()) / size)));
+    this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
+
+    this->updateMaps();
+}
+
+
 void MainWindow::on_actionLoadRaster_triggered()
 {
     #ifdef GDAL
@@ -377,13 +420,22 @@ void MainWindow::on_actionLoadRaster_triggered()
         return;
 
     this->addRasterObject(myProject.objectList.back());
+    this->zoomOnLastRaster();
+}
 
-    // resize and center map
-    gis::Crit3DGeoPoint* center = this->rasterObjList.back()->getRasterCenter();
-    float size = this->rasterObjList.back()->getRasterMaxSize();
-    this->mapView->setZoomLevel(quint8(log2(float(ui->widgetMap->width()) / size)));
-    this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
-    this->updateMaps();
+
+void MainWindow::on_actionLoad_NetCDF_triggered()
+{
+    QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open NetCDF file"), "", tr("NetCDF files (*.nc)"));
+
+    if (fileNameWithPath == "") return;
+
+    if (! myProject.loadNetcdf(fileNameWithPath))
+       return;
+
+    GisObject* myObject = myProject.objectList.back();
+    this->addNetcdfObject(myObject);
+    this->zoomOnLastRaster();
 }
 
 
@@ -401,25 +453,39 @@ void MainWindow::on_actionLoadShapefile_triggered()
 }
 
 
+int MainWindow::getRasterIndex(GisObject* myObject)
+{
+    for (unsigned int i = 0; i < rasterObjList.size(); i++)
+    {
+        if (myObject->type == gisObjectRaster)
+        {
+            if (rasterObjList.at(i)->getRaster() == myObject->getRaster())
+                return i;
+        }
+        else if (myObject->type == gisObjectNetcdf)
+        {
+            if (rasterObjList.at(i)->getRaster() == myObject->getNetcdfHandler()->getRaster())
+                return i;
+        }
+    }
+
+    return NODATA;
+}
+
+
 void MainWindow::itemClicked(QListWidgetItem* item)
 {
-
     int pos = ui->checkList->row(item);
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
-    if (myObject->type == gisObjectRaster)
+    if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
     {
-        unsigned int i;
-        for (i = 0; i < rasterObjList.size(); i++)
+        int i = getRasterIndex(myObject);
+        if (i != NODATA)
         {
-            if (rasterObjList.at(i)->getRaster() == myObject->getRaster())
-            {
-                break;
-            }
+            myObject->isSelected = item->checkState();
+            rasterObjList.at(i)->setVisible(myObject->isSelected);
         }
-
-        myObject->isSelected = item->checkState();
-        rasterObjList.at(i)->setVisible(myObject->isSelected);
     }
     else if (myObject->type == gisObjectShape)
     {
@@ -427,13 +493,14 @@ void MainWindow::itemClicked(QListWidgetItem* item)
         for (i = 0; i < shapeObjList.size(); i++)
         {
             if (shapeObjList.at(i)->getShapePointer() == myObject->getShapeHandler())
-            {
                 break;
-            }
         }
 
-        myObject->isSelected = item->checkState();
-        shapeObjList.at(i)->setVisible(myObject->isSelected);
+        if (i < shapeObjList.size())
+        {
+            myObject->isSelected = item->checkState();
+            shapeObjList.at(i)->setVisible(myObject->isSelected);
+        }
     }
 }
 
@@ -462,13 +529,9 @@ void MainWindow::saveShape(GisObject* myObject)
 
 void MainWindow::removeRaster(GisObject* myObject)
 {
-    unsigned int i;
-    for (i = 0; i < this->rasterObjList.size(); i++)
-    {
-        if (this->rasterObjList.at(i)->getRaster() == myObject->getRaster()) break;
-    }
+    int i = getRasterIndex(myObject);
 
-    if (i < this->rasterObjList.size())
+    if (i != NODATA)
     {
         // remove from scene
         this->mapView->scene()->removeObject(this->rasterObjList.at(i));
@@ -480,13 +543,12 @@ void MainWindow::removeRaster(GisObject* myObject)
 
 RasterObject* MainWindow::getRasterObject(GisObject* myObject)
 {
-    for (unsigned int i = 0; i < rasterObjList.size(); i++)
-    {
-        if (rasterObjList.at(i)->getRaster() == myObject->getRaster())
-            return rasterObjList.at(i);
-    }
+    int i = getRasterIndex(myObject);
 
-    return nullptr;
+    if (i != NODATA)
+        return rasterObjList.at(i);
+    else
+        return nullptr;
 }
 
 
@@ -662,13 +724,13 @@ void MainWindow::itemMenuRequested(const QPoint point)
         submenu.addAction("Export to raster");
         submenu.addAction("Export to NetCDF");
     }
-    else if (myObject->type == gisObjectRaster)
+    if (myObject->type == gisObjectRaster)
     {
-        submenu.addAction("Remove");
-        submenu.addSeparator();
         myRasterObject = getRasterObject(myObject);
         if (myRasterObject != nullptr)
         {
+            submenu.addAction("Remove");
+            submenu.addSeparator();
             submenu.addAction("Save as");
             submenu.addSeparator();
             submenu.addAction("Set grayscale");
@@ -680,13 +742,19 @@ void MainWindow::itemMenuRequested(const QPoint point)
                 submenu.addAction("Set transparent");
         }
     }
+    if (myObject->type == gisObjectNetcdf)
+    {
+        submenu.addAction("Remove");
+        submenu.addSeparator();
+    }
+
     QAction* rightClickItem = submenu.exec(itemPoint);
 
     if (rightClickItem)
     {
         if (rightClickItem->text() == "Remove" )
         {
-            if (myObject->type == gisObjectRaster)
+            if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
             {
                 this->removeRaster(myObject);
             }
@@ -1167,5 +1235,4 @@ void MainWindow::on_actionOutput_Map_triggered()
         setShapeStyle(myObject, fieldName.toStdString());
     }
 }
-
 

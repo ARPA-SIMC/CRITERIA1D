@@ -1,10 +1,10 @@
 TEMPLATE = subdirs
 
-SUBDIRS =   ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis \
-            ../../agrolib/utilities ../../agrolib/soil ../../agrolib/meteo ../../agrolib/dbMeteoGrid \
-            ../../agrolib/crop ../../agrolib/soilFluxes3D ../../agrolib/criteriaModel \
-            ../../agrolib/qcustomplot ../../agrolib/commonDialogs ../../agrolib/commonChartElements \
-            ../../agrolib/cropWidget ../../agrolib/meteoWidget ../../agrolib/soilWidget \
+SUBDIRS =   ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/soilFluxes3D \
+            ../../agrolib/gis ../../agrolib/meteo ../../agrolib/soil ../../agrolib/carbonNitrogen  \
+            ../../agrolib/utilities ../../agrolib/crop ../../agrolib/dbMeteoGrid ../../agrolib/criteriaModel \
+            ../../agrolib/commonChartElements ../../agrolib/qcustomplot ../../agrolib/commonDialogs  \
+            ../../agrolib/meteoWidget ../../agrolib/soilWidget ../../agrolib/criteria1DWidget \
             ../CRITERIA1D_PRO
 
 CONFIG += ordered

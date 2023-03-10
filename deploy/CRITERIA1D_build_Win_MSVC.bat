@@ -3,7 +3,8 @@
 :: move into the deploy directory (cd [local path]\CRITERIA1D\deploy)
 
 :: before the execution call vcvarsall.bat (32 or 64 bit) to complete environment setup
-:: example: run C:\"Program Files (x86)"\"Microsoft Visual Studio"\2017\Community\VC\Auxiliary\Build\vcvars64.bat
+:: example:
+:: C:\"Program Files (x86)"\"Microsoft Visual Studio"\2017\Community\VC\Auxiliary\Build\vcvars64.bat
 
 
 :: clean all

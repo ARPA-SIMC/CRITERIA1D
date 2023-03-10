@@ -60,7 +60,7 @@ DialogUcmIntersection::DialogUcmIntersection(std::vector<Crit3DShapeHandler*> sh
     boxSoilLayout->addLayout(soilShapeLayout);
     boxMeteoLayout->addLayout(meteoShapeLayout);
 
-    QStringList shapeLabel;
+    QList<QString> shapeLabel;
 
     for (unsigned int i = 0; i < shapeObjList.size(); i++)
     {
@@ -144,7 +144,7 @@ void DialogUcmIntersection::shapeCropClicked(QListWidgetItem* item)
     unsigned int pos = cropShape->row(item);
     crop = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
+    QList<QString> fieldLabel;
     for (int i = 0; i < crop->getFieldNumbers(); i++)
     {
         std::string nameField =  crop->getFieldName(i);
@@ -162,7 +162,7 @@ void DialogUcmIntersection::shapeSoilClicked(QListWidgetItem* item)
     unsigned int pos = soilShape->row(item);
     soil = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
+    QList<QString> fieldLabel;
     for (int i = 0; i < soil->getFieldNumbers(); i++)
     {
         std::string nameField =  soil->getFieldName(i);
@@ -180,7 +180,7 @@ void DialogUcmIntersection::shapeMeteoClicked(QListWidgetItem* item)
     unsigned int pos = meteoShape->row(item);
     meteo = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
+    QList<QString> fieldLabel;
     for (int i = 0; i < meteo->getFieldNumbers(); i++)
     {
         std::string nameField =  meteo->getFieldName(i);

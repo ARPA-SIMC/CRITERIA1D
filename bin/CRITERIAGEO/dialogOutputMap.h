@@ -11,14 +11,14 @@ class DialogOutputMap : public QDialog
 private:
     QTabWidget *tabWidget;
     QDialogButtonBox *buttonBox;
-    QStringList varList;
+    QList<QString> varList;
     QDate firstDbDate;
     QDate lastDbDate;
     TabMap *tabMap;
     TabSymbology *tabSymbology;
 
 public:
-    DialogOutputMap(QStringList varList, QDate firstDate, QDate lastDate);
+    DialogOutputMap(QList<QString> varList, QDate firstDate, QDate lastDate);
     ~DialogOutputMap();
     void done(bool res);
     QDate getTabMapStartDate() const;
