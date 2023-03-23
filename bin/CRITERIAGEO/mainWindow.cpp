@@ -411,7 +411,8 @@ void MainWindow::on_actionLoadRaster_triggered()
 
         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "", rasterFormats.join(";;"));
     #else
-         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "", tr("ESRI grid files (*.flt)"));
+         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "",
+                                                            tr("ESRI FLT (*.flt);;ENVI IMG (*.img)"));
     #endif
 
     if (fileNameWithPath == "") return;
@@ -510,11 +511,11 @@ void MainWindow::saveRaster(GisObject* myObject)
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save raster Grid"), "", tr("ESRI grid files (*.flt)"));
     if (fileName == "") return;
 
-    std::string error;
+    std::string errorStr;
     fileName = fileName.left(fileName.length() - 4);
-    if (! gis::writeEsriGrid(fileName.toStdString(), myObject->getRaster(), &error))
+    if (! gis::writeEsriGrid(fileName.toStdString(), myObject->getRaster(), errorStr))
     {
-        QMessageBox::information(nullptr, "Error", QString::fromStdString(error));
+        QMessageBox::information(nullptr, "ERROR!", QString::fromStdString(errorStr));
     }
 }
 

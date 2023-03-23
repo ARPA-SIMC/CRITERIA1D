@@ -86,14 +86,8 @@ bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
         return false;
     }
 #else
-     std::string errorStr, fileName;
-     if (fileNameWithPath.right(4).left(1) == ".")
-     {
-         fileNameWithPath = fileNameWithPath.left(fileNameWithPath.length()-4);
-     }
-     fileName = fileNameWithPath.toStdString();
-
-     if (!gis::readEsriGrid(fileName, myRaster, &errorStr))
+     std::string errorStr;
+     if (!gis::openRaster(fileNameWithPath.toStdString(), myRaster, errorStr))
      {
          logError("Wrong raster file: " + QString::fromStdString(errorStr));
          return false;
