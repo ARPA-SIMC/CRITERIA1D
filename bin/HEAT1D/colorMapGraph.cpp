@@ -68,7 +68,7 @@ void ColorMapGraph::draw(Crit3DOut* out, outputGroup graphType)
     colorMap->data()->setRange(QCPRange(0, nx), QCPRange(maxDepth,0));
     graphic->xAxis->setRange(0, nx);
 
-    for (unsigned int z = 1; z <= ny; z++)
+    for (int z = 1; z <= ny; z++)
     {
         mySeries.clear();
         mySeries = getProfileSeries(myOut, graphType, z, &minSeries, &maxSeries);

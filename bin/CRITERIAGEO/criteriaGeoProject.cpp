@@ -87,7 +87,7 @@ bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
     }
 #else
      std::string errorStr;
-     if (!gis::openRaster(fileNameWithPath.toStdString(), myRaster, errorStr))
+     if (!gis::openRaster(fileNameWithPath.toStdString(), myRaster, gisSettings.utmZone, errorStr))
      {
          logError("Wrong raster file: " + QString::fromStdString(errorStr));
          return false;
