@@ -29,9 +29,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>320</y>
+      <y>330</y>
       <width>431</width>
-      <height>171</height>
+      <height>161</height>
      </rect>
     </property>
     <property name="sizeAdjustPolicy">
@@ -44,7 +44,7 @@
       <x>10</x>
       <y>20</y>
       <width>431</width>
-      <height>301</height>
+      <height>311</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -146,7 +146,7 @@
        <rect>
         <x>20</x>
         <y>120</y>
-        <width>391</width>
+        <width>381</width>
         <height>111</height>
        </rect>
       </property>
@@ -357,6 +357,7 @@
        </property>
        <property name="font">
         <font>
+         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -611,8 +612,8 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>220</y>
-        <width>401</width>
+        <y>230</y>
+        <width>381</width>
         <height>51</height>
        </rect>
       </property>
@@ -661,7 +662,7 @@
       <widget class="QLineEdit" name="lineEditBottomZ">
        <property name="geometry">
         <rect>
-         <x>220</x>
+         <x>210</x>
          <y>20</y>
          <width>31</width>
          <height>20</height>
@@ -1045,6 +1046,7 @@
       <property name="font">
        <font>
         <pointsize>10</pointsize>
+        <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
@@ -1077,6 +1079,7 @@
       <property name="font">
        <font>
         <pointsize>10</pointsize>
+        <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
@@ -1100,7 +1103,7 @@
        <bool>false</bool>
       </property>
       <property name="text">
-       <string>copy output 
+       <string>copy output
 to clipboard</string>
       </property>
       <property name="autoDefault">
@@ -1174,7 +1177,7 @@ to clipboard</string>
      <x>0</x>
      <y>0</y>
      <width>1159</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
