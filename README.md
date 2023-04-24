@@ -5,7 +5,9 @@
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
 
 # CRITERIA1D / GEO
-CRITERIA-1D is an agro-hydrological model that simulates one-dimensional water flow in variable saturation soils, crop development, root water extraction and irrigation water needs. Soil water flow can be simulated with two different approaches depending on the user's choice: a physically based numerical model or a layer-based conceptual model. Soil and crop parameters can be defined at different levels of detail. It requires daily agro-meteorological data as input: minimum and maximum air temperature, total precipitation and, if available, water table depth data to estimate capillary rise.
+CRITERIA-1D is an agro-hydrological model that simulates one-dimensional water flow in variable saturation soils, crop development, root water extraction and irrigation water needs. 
+
+Soil water flow can be simulated with two different approaches depending on the user's choice: a physically based numerical model or a layer-based conceptual model. Soil and crop parameters can be defined at different levels of detail. It requires daily agro-meteorological data as input: minimum and maximum air temperature, total precipitation and, if available, water table depth data to estimate capillary rise.
 
 CRITERIA-GEO is a GIS interface for managing geo-referenced model projects, it requires a crop map, a soil map and a meteorological grid.
 Each computation unit is defined as a different combination of crop, soil and meteo. The output is stored in a SQLite database and can be exported to csv, shapefile or raster data using the [CriteriaOutput](https://github.com/ARPA-SIMC/agrotools) tool. 
