@@ -13,7 +13,8 @@ Software is written in C++ using Qt libraries, so cross-platform building is pos
 
 See [technical manual](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/CRITERIA1D_technical_manual.pdf) for documentation and [last release](https://github.com/ARPA-SIMC/CRITERIA1D/releases) to download precompiled binaries.
 
-CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and in the [Climate Service for Irrigation Forecasting](https://servizigis.arpae.it/moses/home/index.html). It has been used in several international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander, ADA) and it is reported in the [International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria).
+CRITERIA is operational at [Arpae Emilia-Romagna](https://www.arpae.it/it/temi-ambientali/meteo/scopri-di-piu/strumenti-di-modellistica/criteria/criteria-modello-di-bilancio-idrico) and in the [Climate Service for Irrigation Forecasting](https://servizi-gis.arpae.it/moses/home/index.html). 
+It has been used in several international projects (Demeter, Ensembles, Vintage, Moses, Clara, Highlander, ADA) and it is reported in the [International Soil Modeling Consortium](https://soil-modeling.org/resources-links/model-portal/criteria).
 
 [Criteria-1D API](https://criteria.vaimee.it/) is a project of [VAIMEE](https://vaimee.com/) to integrate the model into the most diverse applications, such as in [ZENTRA cloud](https://ieeexplore.ieee.org/document/9628475).
 
