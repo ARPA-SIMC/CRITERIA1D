@@ -1,10 +1,10 @@
 :: build CRITERIA-1D/GEO
 :: run on Qt shell (MSVC version) 
-:: move into the deploy directory (cd [local path]\CRITERIA1D\deploy)
 
 :: before the execution call vcvarsall.bat (32 or 64 bit) to complete environment setup
-:: example:
-:: C:\"Program Files (x86)"\"Microsoft Visual Studio"\2017\Community\VC\Auxiliary\Build\vcvars64.bat
+:: i.e. C:\"Program Files (x86)"\"Microsoft Visual Studio"\2017\Community\VC\Auxiliary\Build\vcvars64.bat
+
+:: run the batch in the deploy directory (i.e. cd [local path]\CRITERIA1D\deploy)
 
 
 :: clean all
