@@ -55,3 +55,9 @@ SOURCES += \
         main.cpp
 
 
+RESOURCES += soil.ico
+
+win32:
+{
+    RC_ICONS = soil.ico
+}
