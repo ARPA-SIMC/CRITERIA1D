@@ -75,9 +75,14 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
 }
 
-
 SOURCES += \
         main.cpp
 
 
+RESOURCES += criteria1D.ico
+
+win32:
+{
+    RC_ICONS = criteria1D.ico
+}
 
