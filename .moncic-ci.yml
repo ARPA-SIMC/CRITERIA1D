@@ -1,4 +1,6 @@
 version: 1
 images:
- - name: centos:8
+ - name: rocky:8
+ - name: rocky:9
  - name: fedora:36
+ - name: fedora:38
