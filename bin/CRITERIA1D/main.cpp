@@ -8,7 +8,7 @@
 #include "utilities.h"
 
 // uncomment to execute test
-#define TEST
+//#define TEST
 //#define TEST_GEO
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
@@ -52,21 +52,12 @@ int main(int argc, char *argv[])
         QString projectPath = dataPath + PATH_PROJECT;
 
         #ifdef TEST
-<<<<<<< HEAD
             //settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
-            settingsFileName = projectPath + "montue/montue.ini";
+            //settingsFileName = projectPath + "montue/montue.ini";
         #else
             #ifdef TEST_GEO
-                //settingsFileName = projectPath + "INCOLTO/incolto.ini";
-                //settingsFileName = "//moses-arpae/CRITERIA1D/PROJECTS/Highlander_Puglia/Highlander_Puglia_seasonal.ini";
-=======
-            //projectFileName = projectPath + "kiwifruit/kiwifruit.ini";
-            //projectFileName = projectPath + "montue/montue.ini";
-        #else
-            #ifdef TEST_GEO
-                projectFileName = projectPath + "INCOLTO/incolto.ini";
+                //projectFileName = projectPath + "INCOLTO/incolto.ini";
                 //projectFileName = "//moses-arpae/CRITERIA1D/PROJECTS/Highlander_Puglia/Highlander_Puglia_seasonal.ini";
->>>>>>> d252f737e939542128a3129634b956d7a2d88979
             #else
                 usage();
                 return 1;
