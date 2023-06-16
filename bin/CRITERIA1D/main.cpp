@@ -8,7 +8,7 @@
 #include "utilities.h"
 
 // uncomment to execute test
-//#define TEST
+#define TEST
 //#define TEST_GEO
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
@@ -53,10 +53,10 @@ int main(int argc, char *argv[])
 
         #ifdef TEST
             //settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
-            //settingsFileName = projectPath + "montue/montue.ini";
+            settingsFileName = projectPath + "montue/montue.ini";
         #else
             #ifdef TEST_GEO
-                settingsFileName = projectPath + "INCOLTO/incolto.ini";
+                //settingsFileName = projectPath + "INCOLTO/incolto.ini";
                 //settingsFileName = "//moses-arpae/CRITERIA1D/PROJECTS/Highlander_Puglia/Highlander_Puglia_seasonal.ini";
             #else
                 usage();
