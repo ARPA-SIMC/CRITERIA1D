@@ -16,8 +16,7 @@
 
 void usage()
 {
-    std::cout << "\nCRITERIA-1D agro-hydrological model" << std::endl
-              << "\nUsage:" << std::endl
+    std::cout << "Usage:" << std::endl
               << "CRITERIA1D <project.ini> [lastDate]" << std::endl
               << "CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl
               << "\nNotes:" << std::endl
@@ -33,16 +32,17 @@ void usage()
 int main(int argc, char *argv[])
 {
     QCoreApplication myApp(argc, argv);
+    std::cout << "CRITERIA-1D agro-hydrological model\n" << std::endl;
 
     Crit1DProject myProject;
 
     QString appPath = myApp.applicationDirPath() + "/";
-    QString settingsFileName;
+    QString projectFileName;
 
     if (argc > 1)
     {
         // settings file
-        settingsFileName = argv[1];
+        projectFileName = argv[1];
     }
     else
     {
@@ -52,12 +52,21 @@ int main(int argc, char *argv[])
         QString projectPath = dataPath + PATH_PROJECT;
 
         #ifdef TEST
+<<<<<<< HEAD
             //settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
             settingsFileName = projectPath + "montue/montue.ini";
         #else
             #ifdef TEST_GEO
                 //settingsFileName = projectPath + "INCOLTO/incolto.ini";
                 //settingsFileName = "//moses-arpae/CRITERIA1D/PROJECTS/Highlander_Puglia/Highlander_Puglia_seasonal.ini";
+=======
+            //projectFileName = projectPath + "kiwifruit/kiwifruit.ini";
+            //projectFileName = projectPath + "montue/montue.ini";
+        #else
+            #ifdef TEST_GEO
+                projectFileName = projectPath + "INCOLTO/incolto.ini";
+                //projectFileName = "//moses-arpae/CRITERIA1D/PROJECTS/Highlander_Puglia/Highlander_Puglia_seasonal.ini";
+>>>>>>> d252f737e939542128a3129634b956d7a2d88979
             #else
                 usage();
                 return 1;
@@ -115,10 +124,17 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (settingsFileName.at(0) == '.')
-        settingsFileName = appPath + settingsFileName;
+    if (projectFileName == "")
+    {
+        std::cout << "*** WARNING: the project filename is missing\n" << std::endl;
+        usage();
+        return 1;
+    }
 
-    int myResult = myProject.initializeProject(settingsFileName);
+    if (projectFileName.at(0) == '.')
+        projectFileName = appPath + projectFileName;
+
+    int myResult = myProject.initializeProject(projectFileName);
     if (myResult != CRIT1D_OK)
     {
         myProject.logger.writeError(myProject.projectError);
