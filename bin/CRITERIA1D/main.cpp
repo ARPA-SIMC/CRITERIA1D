@@ -32,7 +32,7 @@ void usage()
 int main(int argc, char *argv[])
 {
     QCoreApplication myApp(argc, argv);
-    std::cout << "CRITERIA-1D agro-hydrological model\n" << std::endl;
+    std::cout << "CRITERIA-1D agro-hydrological model v1.6.4\n" << std::endl;
 
     Crit1DProject myProject;
 
@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
         QString projectPath = dataPath + PATH_PROJECT;
 
         #ifdef TEST
-            //settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
-            //settingsFileName = projectPath + "montue/montue.ini";
+            //projectFileName = projectPath + "kiwifruit/kiwifruit.ini";
+            //projectFileName = projectPath + "montue/montue.ini";
         #else
             #ifdef TEST_GEO
                 //projectFileName = projectPath + "INCOLTO/incolto.ini";
