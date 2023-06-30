@@ -121,7 +121,6 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
     myPIniHour = ui->lineEditPrecStart->text().toInt();
     myPHours = ui->lineEditPrecHours->text().toInt();
-    myNR = NODATA;
 
     int outTimeStep = ui->lineEditTimeStep->text().toInt();
 
@@ -276,7 +275,6 @@ void MainWindow::on_pushLoadFileMeteo_clicked()
     QFile myFile(myFilename);
     QTextStream myStream(&myFile);
     QStringList myWords;
-    QString myWord;
 
     if (myFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
