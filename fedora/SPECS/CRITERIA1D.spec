@@ -2,7 +2,7 @@
 %{!?srcarchivename: %global srcarchivename CRITERIA1D-%{version}}
 
 Name:           CRITERIA1D
-Version:        1.7.1
+Version:        1.7.1-1
 Release:        1%{?dist}
 Summary:        One-dimensional agro-hydrological model
 
