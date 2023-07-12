@@ -276,24 +276,24 @@ int cmdSetLogFile(Project* myProject, QList<QString> argumentList)
 
 int cmdExportDailyDataCsv(Project* myProject, QList<QString> argumentList)
 {
+    QString outputPath = myProject->getProjectPath() + PATH_OUTPUT;
+
     if (argumentList.size() < 2)
     {
         QString usage = "Usage:\n"
-                        "ExportDailyDataCsv [TPREC] -d1:firstDate [-d2:lastDate] [-t:GRID|POINTS] [-l:pointList] [-p:outputPath]\n"
-                        "date format: YYYY-MM-DD \n"
-                        "lastDate default: yesterday \n"
+                        "ExportDailyDataCsv [TPREC] -d1:firstDate [-d2:lastDate] [-t:type] [-l:idList] [-p:outputPath]\n"
                         "TPREC: save only Tmin, Tmax, Tavg, Prec \n"
-                        "type default: GRID \n"
-                        "point list default: ALL \n"
-                        "output path default: ProjectPath/OUTPUT/ \n";
-
+                        "date format: YYYY-MM-DD \n"
+                        "default lastDate: yesterday \n"
+                        "type: GRID|POINTS (default GRID) \n"
+                        "idList: points or cells file list (default ALL) \n"
+                        "default output path: " + outputPath + "\n";
         myProject->logInfo(usage);
         return PRAGA_OK;
     }
 
     QString typeStr = "GRID";
-    QString pointListStr = "";
-    QString outputPath = myProject->getProjectPath() + PATH_OUTPUT;
+    QString idListFileName = "";
     QDate firstDate, lastDate;
     bool isTPrec = false;
 
@@ -339,27 +339,18 @@ int cmdExportDailyDataCsv(Project* myProject, QList<QString> argumentList)
 
         if (argumentList.at(i).left(3) == "-l:")
         {
-            pointListStr = argumentList[i].right(argumentList[i].length()-3);
-            if (! QFile::exists(pointListStr))
-            {
-                myProject->logError("Wrong point list, the file does not exist: " + pointListStr);
-                return PRAGA_OK;
-            }
+            idListFileName = argumentList[i].right(argumentList[i].length()-3);
+            idListFileName = myProject->getCompleteFileName(idListFileName, PATH_OUTPUT);
         }
 
         if (argumentList.at(i).left(3) == "-p:")
         {
             outputPath = argumentList[i].right(argumentList[i].length()-3);
-            QDir dir(outputPath);
-            if (! dir.exists())
+            if (outputPath.left(1) == ".")
             {
-                if (! dir.mkpath(outputPath))
-                {
-                    myProject->logError("Wrong outputPath, the directory could not be created: " + outputPath);
-                    return PRAGA_OK;
-                }
+                QString completeOutputPath = myProject->getProjectPath() + outputPath;
+                outputPath = QDir().cleanPath(completeOutputPath);
             }
-            outputPath = dir.absolutePath();
         }
     }
 
@@ -379,16 +370,16 @@ int cmdExportDailyDataCsv(Project* myProject, QList<QString> argumentList)
     myProject->logInfo("... last date is: " + lastDate.toString());
     if (isTPrec)
     {
-        myProject->logInfo("... output format is: Tmin, Tmax, Tavg, Prec");
+        myProject->logInfo("... output format is: Date, Tmin (C), Tmax (C), Tavg (C), Prec (mm)");
     }
-    if (pointListStr != "")
+    if (idListFileName != "")
     {
-        myProject->logInfo("... point list file is: " + pointListStr);
+        myProject->logInfo("... ID list file is: " + idListFileName);
     }
     else
     {
         if (typeStr == "GRID")
-            myProject->logInfo("... export ALL the cells of the meteoGrid");
+            myProject->logInfo("... export ALL meteoGrid cells");
         else
             myProject->logInfo("... export ALL meteo points");
     }
@@ -402,7 +393,12 @@ int cmdExportDailyDataCsv(Project* myProject, QList<QString> argumentList)
             return PRAGA_ERROR;
         }
 
-        //return ExportDailyDataCsv(isTPrec, pointListStr, firstDate, lastDate, outputPath);
+        if (! myProject->meteoGridDbHandler->ExportDailyDataCsv(myProject->errorString, isTPrec,
+                                             firstDate, lastDate, idListFileName, outputPath))
+        {
+            myProject->logError();
+            return PRAGA_ERROR;
+        }
     }
     else if (typeStr == "POINTS")
     {
@@ -412,7 +408,7 @@ int cmdExportDailyDataCsv(Project* myProject, QList<QString> argumentList)
             return PRAGA_ERROR;
         }
 
-        //return ExportDailyDataCsv(isTPrec, pointListStr, firstDate, lastDate, outputPath);
+        //return ExportDailyDataCsv(isTPrec, firstDate, lastDate, idListStr, outputPath);
     }
 
     return PRAGA_OK;
