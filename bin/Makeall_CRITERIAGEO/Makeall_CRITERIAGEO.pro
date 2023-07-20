@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 
 # comment to compile without GDAL library
-CONFIG += GDAL
+#CONFIG += GDAL
 
 GDAL {
     SUBDIRS =  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
