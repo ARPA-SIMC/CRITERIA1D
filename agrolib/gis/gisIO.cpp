@@ -380,7 +380,7 @@ namespace gis
      * \param error       string pointer
      * \return true on success, false otherwise
      */
-    bool writeEsriGridFlt(string myFileName, gis::Crit3DRasterGrid *myGrid, string &error)
+    bool writeEsriGridFlt(string myFileName, gis::Crit3DRasterGrid* myGrid, string &error)
     {
         myFileName += ".flt";
 
@@ -405,7 +405,7 @@ namespace gis
      * \brief Write a ESRI float raster (.hdr and .flt)
      * \return true on success, false otherwise
      */
-    bool writeEsriGrid(string fileName, Crit3DRasterGrid *rasterGrid, string &error)
+    bool writeEsriGrid(string fileName, Crit3DRasterGrid* rasterGrid, string &error)
     {
         if (gis::writeEsriGridHeader(fileName, rasterGrid->header, error))
             if (gis::writeEsriGridFlt(fileName, rasterGrid, error))
@@ -549,13 +549,13 @@ namespace gis
 
         // compute vertexes
         Crit3DUtmPoint myVertex = utmHeader->llCorner;
-        gis::getLatLonFromUtm(mySettings, myVertex, &(v[0]));
+        gis::getLatLonFromUtm(mySettings, myVertex, v[0]);
         myVertex.x += utmHeader->nrCols * utmHeader->cellSize;
-        gis::getLatLonFromUtm(mySettings, myVertex, &(v[1]));
+        gis::getLatLonFromUtm(mySettings, myVertex, v[1]);
         myVertex.y += utmHeader->nrRows * utmHeader->cellSize;
-        gis::getLatLonFromUtm(mySettings, myVertex, &(v[2]));
+        gis::getLatLonFromUtm(mySettings, myVertex, v[2]);
         myVertex.x = utmHeader->llCorner.x;
-        gis::getLatLonFromUtm(mySettings, myVertex, &(v[3]));
+        gis::getLatLonFromUtm(mySettings, myVertex, v[3]);
 
         // compute LLcorner and URcorner
         Crit3DGeoPoint LLcorner, URcorner;

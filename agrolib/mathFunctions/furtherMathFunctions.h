@@ -44,7 +44,7 @@
     double parabolicFunction(double x, double* par);
     float gaussianFunction(TfunctionInput fInput);
     float gaussianFunction(float x, float mean, float devStd);
-
+    float lapseRateSigmoidalFunction(float x, float par1, float par2, float par3, float par4, float par5);
 
 
 
@@ -63,6 +63,7 @@
 
     namespace interpolation
     {
+        double secant_method(float (*func) (float),  double x0, double x1);
         double linearInterpolation (double x, double *xColumn , double *yColumn, int dimTable);
         float linearInterpolation (float x, float *xColumn , float *yColumn, int dimTable );
         float linearExtrapolation(double x3,double x1,double y1,double x2 , double y2);
@@ -105,6 +106,7 @@
         void minorMatrix(double** b,double** a,int i,int n);
         int eigenSystemMatrix2x2(double** a, double* eigenvalueA, double** eigenvectorA, int n);
         bool inverseGaussJordan(double** a,double** d,int n);
+        bool linearSystemResolutionByCramerMethod(double* constantTerm, double** coefficientMatrix, int matrixSize, double* roots);
     }
 
     namespace distribution

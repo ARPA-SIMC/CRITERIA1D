@@ -118,11 +118,11 @@
         int maxTdMultiplier;
         bool useLapseRateCode;
         bool useBestDetrending;
+        bool useMultipleDetrending;
         bool useDewPoint;
         bool useInterpolatedTForRH;
-        float refHeightWind;
-        float surfaceRoughness;
 
+        bool meteoGridUpscaleFromDem;
         aggregationMethod meteoGridAggrMethod;
 
         bool isKrigingReady;
@@ -140,6 +140,8 @@
         Crit3DProxyCombination selectedCombination;
         Crit3DProxyCombination currentCombination;
         unsigned indexHeight;
+
+        std::vector <float> multiRegressionSlopes;
 
     public:
         Crit3DInterpolationSettings();
@@ -205,10 +207,6 @@
         void setCurrentCombination(Crit3DProxyCombination value);
         std::vector<Crit3DProxy> getCurrentProxy() const;
         void setCurrentProxy(const std::vector<Crit3DProxy> &value);
-        float getRefHeightWind() const;
-        void setRefHeightWind(float value);
-        float getSurfaceRoughness() const;
-        void setSurfaceRoughness(float value);
         bool getUseInterpolatedTForRH() const;
         void setUseInterpolatedTForRH(bool value);
         bool getProxyLoaded() const;
@@ -219,6 +217,12 @@
         void setKh_error_series(const std::vector<float> &newKh_error_series);
         void addToKhSeries(float kh, float error);
         void initializeKhSeries();
+        bool getMeteoGridUpscaleFromDem() const;
+        void setMeteoGridUpscaleFromDem(bool newMeteoGridUpscaleFromDem);
+        bool getUseMultipleDetrending() const;
+        void setUseMultipleDetrending(bool newUseMultipleDetrending);
+        std::vector<float> getMultiRegressionSlopes() const;
+        void setMultiRegressionSlopes(const std::vector<float> &newMultiRegressionSlopes);
     };
 
 #endif // INTERPOLATIONSETTINGS_H

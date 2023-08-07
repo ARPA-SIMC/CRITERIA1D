@@ -145,7 +145,7 @@ bool interpolateProxyGridSeries(const Crit3DProxyGridSeries& mySeries, QDate myD
     if (nrGrids == 1)
     {
         if (! gis::readEsriGrid(gridNames[0].toStdString(), &tmpGrid, myError)) return false;
-        gis::resampleGrid(tmpGrid, gridOut, *gridBase.header, aggrAverage, 0);
+        gis::resampleGrid(tmpGrid, gridOut, gridBase.header, aggrAverage, 0);
         return true;
     }
 
@@ -180,7 +180,7 @@ bool interpolateProxyGridSeries(const Crit3DProxyGridSeries& mySeries, QDate myD
     {
         tmpGrid = secondGrid;
         secondGrid.clear();
-        gis::resampleGrid(tmpGrid, &secondGrid, *firstGrid.header, aggrAverage, 0);
+        gis::resampleGrid(tmpGrid, &secondGrid, firstGrid.header, aggrAverage, 0);
         tmpGrid.initializeGrid();
     }
 
@@ -189,7 +189,7 @@ bool interpolateProxyGridSeries(const Crit3DProxyGridSeries& mySeries, QDate myD
 
     if (! gis::temporalYearlyInterpolation(firstGrid, secondGrid, myDate.year(), myMin, myMax, &tmpGrid)) return false;
 
-    gis::resampleGrid(tmpGrid, gridOut, *gridBase.header, aggrAverage, 0);
+    gis::resampleGrid(tmpGrid, gridOut, gridBase.header, aggrAverage, 0);
 
     gridOut->setMapTime(tmpGrid.getMapTime());
 
@@ -261,3 +261,4 @@ bool interpolationRaster(std::vector <Crit3DInterpolationDataPoint> &myPoints, C
 
     return true;
 }
+

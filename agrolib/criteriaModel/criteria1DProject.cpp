@@ -830,8 +830,8 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
     }
     if (isYearlyStatistics || isSeasonalForecast)
     {
-        float irriRatio = getIrriRatioFromClass(&dbCrop, "crop_class", "id_class",
-                                                myCase.unit.idCropClass, &projectError);
+        float irriRatio = getIrriRatioFromCropClass(dbCrop, "crop_class", "id_class",
+                                                myCase.unit.idCropClass, projectError);
         if (irriRatio < 0.001f)
         {
             // No irrigation: nothing to do
@@ -964,8 +964,8 @@ int Crit1DProject::computeAllUnits()
             }
 
             // CROP
-            compUnitList[i].idCrop = getCropFromClass(&dbCrop, "crop_class", "id_class",
-                                                         compUnitList[i].idCropClass, &projectError);
+            compUnitList[i].idCrop = getIdCropFromClass(dbCrop, "crop_class", "id_class",
+                                                         compUnitList[i].idCropClass, projectError);
             if (compUnitList[i].idCrop == "")
             {
                 logger.writeInfo("Unit " + compUnitList[i].idCase + " " + compUnitList[i].idCropClass + " ***** missing CROP *****");
@@ -974,8 +974,8 @@ int Crit1DProject::computeAllUnits()
             }
 
             // IRRI_RATIO
-            float irriRatio = getIrriRatioFromClass(&dbCrop, "crop_class", "id_class",
-                                                    compUnitList[i].idCropClass, &projectError);
+            float irriRatio = getIrriRatioFromCropClass(dbCrop, "crop_class", "id_class",
+                                                    compUnitList[i].idCropClass, projectError);
             if ((isYearlyStatistics || isSeasonalForecast || isMonthlyForecast || isShortTermForecast)
                 && (int(irriRatio) == int(NODATA)))
             {
@@ -984,7 +984,9 @@ int Crit1DProject::computeAllUnits()
             }
 
             // SOIL
-            compUnitList[i].idSoil = getIdSoilString(dbSoil, compUnitList[i].idSoilNumber, projectError);
+            if (compUnitList[i].idSoilNumber != NODATA)
+                compUnitList[i].idSoil = getIdSoilString(dbSoil, compUnitList[i].idSoilNumber, projectError);
+
             if (compUnitList[i].idSoil == "")
             {
                 logger.writeInfo("Unit " + compUnitList[i].idCase + " Soil nr." + QString::number(compUnitList[i].idSoilNumber) + " ***** missing SOIL *****");
@@ -1176,27 +1178,27 @@ bool Crit1DProject::computeMonthlyForecast(unsigned int unitIndex, float irriRat
     outputCsvFile << "," << compUnitList[unitIndex].idCropClass.toStdString();
 
     // percentiles irrigation
-    float percentile = sorting::percentile(irriSeries, &(nrYears), 5, true);
+    float percentile = sorting::percentile(irriSeries, nrYears, 5, true);
     outputCsvFile << "," << QString::number(double(percentile * irriRatio), 'f', 1).toStdString();
-    percentile = sorting::percentile(irriSeries, &(nrYears), 25, false);
+    percentile = sorting::percentile(irriSeries, nrYears, 25, false);
     outputCsvFile << "," << QString::number(double(percentile * irriRatio), 'f', 1).toStdString();
-    percentile = sorting::percentile(irriSeries, &(nrYears), 50, false);
+    percentile = sorting::percentile(irriSeries, nrYears, 50, false);
     outputCsvFile << "," << QString::number(double(percentile * irriRatio), 'f', 1).toStdString();
-    percentile = sorting::percentile(irriSeries, &(nrYears), 75, false);
+    percentile = sorting::percentile(irriSeries, nrYears, 75, false);
     outputCsvFile << "," << QString::number(double(percentile * irriRatio), 'f', 1).toStdString();
-    percentile = sorting::percentile(irriSeries, &(nrYears), 95, false);
+    percentile = sorting::percentile(irriSeries, nrYears, 95, false);
     outputCsvFile << "," << QString::number(double(percentile * irriRatio), 'f', 1).toStdString();
 
     // percentiles prec
-    percentile = sorting::percentile(precSeries, &(nrYears), 5, true);
+    percentile = sorting::percentile(precSeries, nrYears, 5, true);
     outputCsvFile << "," << QString::number(double(percentile), 'f', 1).toStdString();
-    percentile = sorting::percentile(precSeries, &(nrYears), 25, false);
+    percentile = sorting::percentile(precSeries, nrYears, 25, false);
     outputCsvFile << "," << QString::number(double(percentile), 'f', 1).toStdString();
-    percentile = sorting::percentile(precSeries, &(nrYears), 50, false);
+    percentile = sorting::percentile(precSeries, nrYears, 50, false);
     outputCsvFile << "," << QString::number(double(percentile), 'f', 1).toStdString();
-    percentile = sorting::percentile(precSeries, &(nrYears), 75, false);
+    percentile = sorting::percentile(precSeries, nrYears, 75, false);
     outputCsvFile << "," << QString::number(double(percentile), 'f', 1).toStdString();
-    percentile = sorting::percentile(precSeries, &(nrYears), 95, false);
+    percentile = sorting::percentile(precSeries, nrYears, 95, false);
     outputCsvFile << "," << QString::number(double(percentile), 'f', 1).toStdString() << "\n";
 
     outputCsvFile.flush();
@@ -1225,15 +1227,15 @@ bool Crit1DProject::computeIrrigationStatistics(unsigned int index, float irriRa
     else
     {
         // irrigation percentiles
-        float percentile = sorting::percentile(irriSeries, &(nrYears), 5, true);
+        float percentile = sorting::percentile(irriSeries, nrYears, 5, true);
         outputCsvFile << "," << percentile * irriRatio;
-        percentile = sorting::percentile(irriSeries, &(nrYears), 25, false);
+        percentile = sorting::percentile(irriSeries, nrYears, 25, false);
         outputCsvFile << "," << percentile * irriRatio;
-        percentile = sorting::percentile(irriSeries, &(nrYears), 50, false);
+        percentile = sorting::percentile(irriSeries, nrYears, 50, false);
         outputCsvFile << "," << percentile * irriRatio;
-        percentile = sorting::percentile(irriSeries, &(nrYears), 75, false);
+        percentile = sorting::percentile(irriSeries, nrYears, 75, false);
         outputCsvFile << "," << percentile * irriRatio;
-        percentile = sorting::percentile(irriSeries, &(nrYears), 95, false);
+        percentile = sorting::percentile(irriSeries, nrYears, 95, false);
         outputCsvFile << "," << percentile * irriRatio << "\n";
     }
 

@@ -18,10 +18,17 @@ DialogInterpolation::DialogInterpolation(Project *myProject)
     QVBoxLayout *layoutMain = new QVBoxLayout;
     QVBoxLayout *layoutDetrending = new QVBoxLayout();
 
+    // use dem for interolation meteo grid
+    upscaleFromDemEdit = new QCheckBox(tr("grid upscale from Dem"));
+    upscaleFromDemEdit->setChecked(_interpolationSettings->getMeteoGridUpscaleFromDem());
+    layoutMain->addWidget(upscaleFromDemEdit);
+
     // grid aggregation
     QHBoxLayout *layoutAggregation = new QHBoxLayout;
     QLabel *labelAggregation = new QLabel(tr("aggregation method"));
     layoutAggregation->addWidget(labelAggregation);
+
+    connect(upscaleFromDemEdit, SIGNAL(stateChanged(int)), this, SLOT(upscaleFromDemChanged(int)));
 
     std::map<std::string, aggregationMethod>::const_iterator itAggr;
     for (itAggr = aggregationMethodToString.begin(); itAggr != aggregationMethodToString.end(); ++itAggr)
@@ -84,10 +91,17 @@ DialogInterpolation::DialogInterpolation(Project *myProject)
     thermalInversionEdit->setChecked(_interpolationSettings->getUseThermalInversion());
     layoutDetrending->addWidget(thermalInversionEdit);
 
-    // thermal inversion
+    // optimal detrending
     optimalDetrendingEdit = new QCheckBox(tr("optimal detrending"));
     optimalDetrendingEdit->setChecked(_interpolationSettings->getUseBestDetrending());
     layoutDetrending->addWidget(optimalDetrendingEdit);
+
+    // multiple detrending
+    multipleDetrendingEdit = new QCheckBox(tr("multiple detrending"));
+    multipleDetrendingEdit->setChecked(_interpolationSettings->getUseMultipleDetrending());
+    layoutDetrending->addWidget(multipleDetrendingEdit);
+
+    connect(multipleDetrendingEdit, SIGNAL(stateChanged(int)), this, SLOT(multipleDetrendingChanged(int)));
 
     //algorithm
     QHBoxLayout *layoutAlgorithm = new QHBoxLayout;
@@ -134,6 +148,16 @@ DialogInterpolation::DialogInterpolation(Project *myProject)
     setLayout(layoutMain);
 
     exec();
+}
+
+void DialogInterpolation::upscaleFromDemChanged(int active)
+{
+    gridAggregationMethodEdit.setEnabled(active == Qt::Checked);
+}
+
+void DialogInterpolation::multipleDetrendingChanged(int active)
+{
+    optimalDetrendingEdit->setEnabled(active == Qt::Unchecked);
 }
 
 void DialogInterpolation::redrawProxies()
@@ -195,10 +219,12 @@ void DialogInterpolation::accept()
     QString aggrString = gridAggregationMethodEdit.itemData(gridAggregationMethodEdit.currentIndex()).toString();
     _interpolationSettings->setMeteoGridAggrMethod(aggregationMethodToString.at(aggrString.toStdString()));
 
+    _interpolationSettings->setMeteoGridUpscaleFromDem(upscaleFromDemEdit->isChecked());
     _interpolationSettings->setUseTD(topographicDistanceEdit->isChecked());
     _interpolationSettings->setUseDynamicLapserate(dynamicLapserateEdit->isChecked());
     _interpolationSettings->setUseLapseRateCode(lapseRateCodeEdit->isChecked());
     _interpolationSettings->setUseBestDetrending(optimalDetrendingEdit->isChecked());
+    _interpolationSettings->setUseMultipleDetrending(multipleDetrendingEdit->isChecked());
     _interpolationSettings->setUseThermalInversion(thermalInversionEdit->isChecked());
     _interpolationSettings->setUseDewPoint(useDewPointEdit->isChecked());
     _interpolationSettings->setUseInterpolatedTForRH((useInterpolTForRH->isChecked()));

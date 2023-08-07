@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         #else
             #ifdef TEST_GEO
                 //projectFileName = projectPath + "INCOLTO/incolto.ini";
-                //projectFileName = "//moses-arpae/CRITERIA1D/PROJECTS/Highlander_Puglia/Highlander_Puglia_seasonal.ini";
+                //projectFileName = "//moses-arpae/CRITERIA1D/PROJECTS/CLARA/iCOLT_2023/seasonalIrriClimate_RO.ini";
             #else
                 usage();
                 return 1;

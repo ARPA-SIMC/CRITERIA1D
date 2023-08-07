@@ -242,6 +242,9 @@
         void passInterpolatedTemperatureToHumidityPoints(Crit3DTime myTime, Crit3DMeteoSettings *meteoSettings);
 
         bool checkInterpolationMain(meteoVariable myVar);
+        bool checkInterpolationMainSimple(meteoVariable myVar);
+        bool interpolationGridMain(meteoVariable myVar, const Crit3DTime& myTime);
+        bool interpolationGrid(meteoVariable myVar, const Crit3DTime& myTime);
         bool interpolationDemMain(meteoVariable myVar, const Crit3DTime& myTime, gis::Crit3DRasterGrid *myRaster);
         bool interpolationDem(meteoVariable myVar, const Crit3DTime& myTime, gis::Crit3DRasterGrid *myRaster);
         bool interpolationDemDynamicLapserate(meteoVariable myVar, const Crit3DTime& myTime, gis::Crit3DRasterGrid *myRaster);
@@ -250,6 +253,7 @@
                                        gis::Crit3DRasterGrid *outputGrid, meteoVariable myVar);
         bool interpolationCv(meteoVariable myVar, const Crit3DTime& myTime, crossValidationStatistics* myStats);
         bool computeStatisticsCrossValidation(Crit3DTime myTime, meteoVariable myVar, crossValidationStatistics *myStats);
+        bool meteoGridAggregateProxy(std::vector<gis::Crit3DRasterGrid> &myGrids);
 
         frequencyType getCurrentFrequency() const;
         void setCurrentFrequency(const frequencyType &value);
@@ -275,9 +279,9 @@
         bool deleteMeteoPointsData(const QList<QString>& pointList);
         bool loadOutputPointList(QString fileName);
         bool writeOutputPointList(QString fileName);
-        bool exportMeteoGridToESRI(QString fileName, double cellSize);
         bool exportMeteoGridToCsv(QString fileName);
-        int computeCellSizeFromMeteoGrid();
+        bool exportMeteoGridToRasterFlt(QString fileName, double cellSize);
+        int computeDefaultCellSizeFromMeteoGrid(float resolutionRatio);
 
         void setComputeOnlyPoints(bool isOnlyPoints);
         bool getComputeOnlyPoints();
