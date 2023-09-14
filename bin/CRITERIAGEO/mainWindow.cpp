@@ -675,7 +675,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
         }
 
         QString errorStr;
-        if (!myProject.createRaster(QString::fromStdString(shapeFilePath), fieldName, res, outputName, errorStr))
+        if (!myProject.createRaster(QString::fromStdString(shapeFilePath), QString::fromStdString(fieldName), res, outputName, errorStr))
         {
             QMessageBox::critical(nullptr, "ERROR!", "GDAL Error: " + errorStr);
             return false;
@@ -1084,21 +1084,10 @@ void MainWindow::on_actionLoadProject_triggered()
 
     QDir().mkdir(myProject.output.path + "tmp");
 
-    // enable Output map action
-    QMenu *menu = nullptr;
-    menu = this->menuBar()->findChild<QMenu *>("menuTools");
-    if (menu != nullptr)
-    {
-        QList<QAction*> list = menu->actions();
-        foreach (QAction *action, list)
-        {
-            if (action->text() == "Output map")
-            {
-                action->setEnabled(true);
-            }
-        }
-    }
+    // enable output map action
+    ui->actionOutput_Map->setEnabled(true);
 }
+
 
 void MainWindow::closeGeoProject()
 {
@@ -1141,7 +1130,10 @@ void MainWindow::on_actionClose_Project_triggered()
         return;
     }
     closeGeoProject();
-    // disable Output map action
+    // disable output map action
+    ui->actionOutput_Map->setEnabled(false);
+
+    /*
     QMenu *menu = nullptr;
     menu = this->menuBar()->findChild<QMenu *>("menuTools");
     if (menu != nullptr)
@@ -1154,7 +1146,8 @@ void MainWindow::on_actionClose_Project_triggered()
                 action->setEnabled(false);
             }
         }
-    }
+    }*/
+
     return;
 }
 

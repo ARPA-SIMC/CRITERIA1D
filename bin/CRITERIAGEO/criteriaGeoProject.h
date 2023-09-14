@@ -46,7 +46,7 @@
                             std::string idCrop, std::string idSoil, std::string idMeteo,
                             double cellSize, double threshold, QString ucmFileName, bool isPrevailing, bool showInfo);
 
-        bool createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error);
+        bool createRaster(QString shapeFileName, QString shapeField, QString resolution, QString outputName, QString &error);
 
         void logError(QString errorString);
 
