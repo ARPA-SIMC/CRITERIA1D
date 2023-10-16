@@ -33,6 +33,8 @@ struct Heat1DSimulation {
 
     //bottom boundary
     double bottomTemperature, bottomTemperatureDepth;
+    bool isWaterTable;
+    double waterTableDepth;
 
     //meteo
     double airRelativeHumidity, airTemperature, windSpeed, globalRad;
@@ -86,7 +88,8 @@ void setTotalDepth(double myValue);
 void setThickness(double myValue);
 void setInitialSaturation(double myValueTop, double myValueBottom);
 void setInitialTemperature(double myValueTop, double myValueBottom);
-void setBottomTemperature(double myValue, double myDepth);
+void setBottomTemperature(double myValue, double depth);
+void setWaterTable(bool isWaterTable, double depth);
 void setHeatProcesses(bool computeHeatAdvection, bool computeHeatLatent, bool computeHeatSensible);
 void setProcesses(bool computeWaterProcess, bool computeHeatProcess, bool computeSolutesProcess);
 void setProcessesHeat(bool computeLatent_, bool computeAdvection_);

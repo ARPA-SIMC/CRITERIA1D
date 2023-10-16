@@ -91,6 +91,8 @@ bool MainWindow::initializeModel()
 
     // bottom boundary
     setBottomTemperature(ui->lineEditBottomT->text().toDouble(), ui->lineEditBottomZ->text().toDouble());
+    bool isWaterTable = ui->radioButtonWaterTable->isChecked();
+    setWaterTable(isWaterTable, ui->lineEditWaterTableDepth->text().toDouble());
 
     // set soil
     if (! soilDataLoaded)
