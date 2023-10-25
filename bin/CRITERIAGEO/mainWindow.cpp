@@ -60,6 +60,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     isDoubleClick = false;
 
+    // initialize info dialog for shape
+    shapeInfoDialog.setWindowTitle("Shape info");
+    shapeInfoBrowser.setFixedSize(300,500);
+    QVBoxLayout shapeLayout;
+    shapeLayout.addWidget(&shapeInfoBrowser);
+    shapeInfoDialog.setLayout(&shapeLayout);
+
     // Set the MapGraphics Scene and View
     this->mapScene = new MapGraphicsScene(this);
     this->mapView = new MapGraphicsView(mapScene, this->ui->widgetMap);
@@ -593,8 +600,7 @@ void MainWindow::setShapeStyle(GisObject* myObject, std::string fieldName)
         shapeObject->setNumericValues(fieldName);
     }
 
-    //setZeroCenteredScale(shapeObject->colorScale);
-    setTemperatureScale(shapeObject->colorScale);
+    setDefaultScale(shapeObject->colorScale);
     shapeObject->setFill(true);
 }
 
@@ -724,7 +730,10 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addAction("Attribute table");
             submenu.addSeparator();
             submenu.addAction("Set style");
-            submenu.addAction("Invert color scale");
+            submenu.addAction("Set grayscale");
+            submenu.addAction("Set default scale");
+            submenu.addAction("Set dtm scale");
+            submenu.addAction("Reverse color scale");
             submenu.addSeparator();
             submenu.addAction("Export to raster");
             submenu.addAction("Export to NetCDF");
@@ -740,7 +749,8 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addSeparator();
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
-            submenu.addAction("Invert color scale");
+            submenu.addAction("Set dtm scale");
+            submenu.addAction("Reverse color scale");
             submenu.addSeparator();
 
             if (myRasterObject->opacity() < 1)
@@ -823,16 +833,39 @@ void MainWindow::itemMenuRequested(const QPoint point)
                 setGrayScale(myObject->getRaster()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
+            if (myObject->type == gisObjectShape)
+            {
+                setGrayScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
         }
         else if (rightClickItem->text().contains("Set default scale"))
         {
             if (myObject->type == gisObjectRaster)
             {
-                setDefaultDEMScale(myObject->getRaster()->colorScale);
+                setDefaultScale(myObject->getRaster()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
+            if (myObject->type == gisObjectShape)
+            {
+                setDefaultScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
         }
-        else if (rightClickItem->text().contains("Invert color scale"))
+        else if (rightClickItem->text().contains("Set dtm scale"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                setDTMScale(myObject->getRaster()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            if (myObject->type == gisObjectShape)
+            {
+                setDTMScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Reverse color scale"))
         {
             if (myObject->type == gisObjectRaster)
             {
@@ -909,6 +942,14 @@ bool MainWindow::selectShape(QPoint screenPos)
     {
         myShapeObject->setSelected(index);
         emit myShapeObject->redrawRequested();
+
+        // update shape info dialog
+        std::string shapeInfoStr = shapeHandler->getAttributesList(index);
+        shapeInfoBrowser.setText(QString::fromStdString(shapeInfoStr));
+        if (shapeInfoDialog.isHidden())
+        {
+            shapeInfoDialog.show();
+        }
     }
 
     return true;

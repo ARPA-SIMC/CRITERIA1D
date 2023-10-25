@@ -94,7 +94,7 @@ bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
      }
 #endif
 
-    setDefaultDEMScale(myRaster->colorScale);
+    setDTMScale(myRaster->colorScale);
     addRaster(myRaster, fileNameWithPath, utmZone);
     return true;
 }
@@ -144,7 +144,7 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
     if (rasterizeShape(shape, *newRaster, field.toStdString(), cellSize))
     {
         gis::updateMinMaxRasterGrid(newRaster);
-        setTemperatureScale(newRaster->colorScale);
+        setDefaultScale(newRaster->colorScale);
 
         if (showInfo) formInfo.setText("Add raster to map...");
 

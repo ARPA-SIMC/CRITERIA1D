@@ -78,6 +78,10 @@
     private:
         Ui::MainWindow* ui;
 
+        // shape info
+        QDialog shapeInfoDialog;
+        QTextBrowser shapeInfoBrowser;
+
         bool isDoubleClick;
 
         Position* startCenter;
