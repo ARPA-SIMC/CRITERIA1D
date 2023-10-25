@@ -99,14 +99,14 @@
         void removeShape(GisObject* myObject);
         void setShapeStyle(GisObject* myObject, std::string fieldName);
         void setShapeStyle_GUI(GisObject* myObject);
-        void selectShape(QPoint position);
+        bool selectShape(QPoint screenPos);
         bool exportToRaster(GisObject* myObject);
         bool exportToNetCDF(GisObject* myObject);
 
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
         RasterObject* getRasterObject(GisObject* myObject);
 
-        QPoint getMapPos(const QPoint& pos);
+        QPoint getMapPos(const QPoint& screenPos);
         bool isInsideMap(const QPoint& pos);
 
         int getRasterIndex(GisObject *myObject);

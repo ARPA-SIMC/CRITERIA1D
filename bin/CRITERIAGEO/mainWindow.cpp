@@ -150,6 +150,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
             selectShape(event->pos());
         }
     }
+
     this->isDoubleClick = false;
 }
 
@@ -275,13 +276,13 @@ void MainWindow::setTileSource(WebTileSource::WebTileType tileType)
 }
 
 
-QPoint MainWindow::getMapPos(const QPoint& pos)
+QPoint MainWindow::getMapPos(const QPoint& screenPos)
 {
     QPoint mapPos;
     int dx = ui->widgetMap->x();
     int dy = ui->widgetMap->y() + ui->menuBar->height();
-    mapPos.setX(pos.x() - dx - MAPBORDER);
-    mapPos.setY(pos.y() - dy - MAPBORDER);
+    mapPos.setX(screenPos.x() - dx - MAPBORDER);
+    mapPos.setY(screenPos.y() - dy - MAPBORDER);
     return mapPos;
 }
 
@@ -865,27 +866,52 @@ void MainWindow::itemMenuRequested(const QPoint point)
 }
 
 
-void MainWindow::selectShape(QPoint position)
+bool MainWindow::selectShape(QPoint screenPos)
 {
+    // check if there is an item selected
     QListWidgetItem* itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr)
-        return;
+    {
+        return false;
+    }
 
-    // check selected object (is shape)
+    // check if the selected element is a shape
     int row = ui->checkList->row(itemSelected);
-    GisObject* myObject = myProject.objectList.at(unsigned(row));
-    if (myObject->type != gisObjectShape)
-        return;
+    GisObject* myGisObject = myProject.objectList.at(unsigned(row));
+    if (myGisObject->type != gisObjectShape)
+    {
+        return false;
+    }
+
+    // check shape object
+    MapGraphicsShapeObject *myShapeObject = getShapeObject(myGisObject);
+    if (myShapeObject == nullptr)
+    {
+        return false;
+    }
 
     // check position
-    QPoint mapPos = getMapPos(position);
+    QPoint mapPos = getMapPos(screenPos);
     if (! isInsideMap(mapPos))
-        return;
+    {
+        return false;
+    }
 
-    Position latLon = mapView->mapToScene(mapPos);
-    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+    Crit3DShapeHandler* shapeHandler = myGisObject->getShapeHandler();
+    Position geoPos = mapView->mapToScene(mapPos);
 
-    //this->ui->statusBar->showMessage(QString::number(latLon.latitude()) + " " + QString::number(latLon.longitude()));
+    double x, y;
+    gis::latLonToUtmForceZone(myProject.gisSettings.utmZone, geoPos.latitude(), geoPos.longitude(), &x, &y);
+    int index = shapeHandler->getShapeIndexfromPoint(x, y);
+
+    // update only if the index is changed
+    if (index != myShapeObject->getSelected())
+    {
+        myShapeObject->setSelected(index);
+        emit myShapeObject->redrawRequested();
+    }
+
+    return true;
 }
 
 
