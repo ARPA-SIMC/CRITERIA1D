@@ -160,21 +160,21 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
 }
 
 
-bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHandler *soil, Crit3DShapeHandler *meteo,
+bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                                 std::string idCrop, std::string idSoil, std::string idMeteo,
                                 double cellSize, double threshold,
                                 QString ucmFileName, bool isPrevailing, bool showInfo)
 {
     std::string errorStr;
 
-    Crit3DShapeHandler *ucm = new(Crit3DShapeHandler);
+    Crit3DShapeHandler *shapeUCM = new(Crit3DShapeHandler);
 
     if (isPrevailing)
     {
-        if (computeUcmPrevailing(*ucm, *crop, *soil, *meteo, idCrop, idSoil, idMeteo,
+        if (computeUcmPrevailing(*shapeUCM, *shapeCrop, *shapeSoil, *shapeMeteo, idCrop, idSoil, idMeteo,
                                  cellSize, threshold, ucmFileName, errorStr, showInfo))
         {
-            addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), "", ucm->getUtmZone());
+            addShapeFile(ucm, QString::fromStdString(shapeUCM->getFilepath()), "", shapeUCM->getUtmZone());
             return true;
         }
         else
@@ -187,9 +187,9 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
     {
         #ifdef GDAL
         /*
-        if (computeUcmIntersection(ucm, crop, soil, meteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr))
+        if (computeUcmIntersection(shapeUCM, shapeCrop, shapeSoil, shapeMeteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr))
         {
-            addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), "", ucm->getUtmZone());
+            addShapeFile(shapeUCM, QString::fromStdString(shapeUCM->getFilepath()), "", shapeUCM->getUtmZone());
             return true;
         }
         else

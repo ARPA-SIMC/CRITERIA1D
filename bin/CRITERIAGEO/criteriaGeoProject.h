@@ -42,7 +42,7 @@
 
         bool extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bool showInfo);
 
-        bool addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHandler *soil, Crit3DShapeHandler *meteo,
+        bool addUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                             std::string idCrop, std::string idSoil, std::string idMeteo,
                             double cellSize, double threshold, QString ucmFileName, bool isPrevailing, bool showInfo);
 

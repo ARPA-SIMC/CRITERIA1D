@@ -151,8 +151,6 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         }
     }
     this->isDoubleClick = false;
-
-    this->updateMaps();
 }
 
 
@@ -349,7 +347,7 @@ bool MainWindow::addShapeObject(GisObject* myObject)
 {
     // check zoneNumber
     int zoneNumber = myObject->getShapeHandler()->getUtmZone();
-    if (zoneNumber < 1 || zoneNumber > 60)
+    if ((zoneNumber < 1) || (zoneNumber > 60))
     {
         QMessageBox::critical(nullptr, "ERROR!", "Wrong UTM zone.");
         return false;
@@ -701,33 +699,38 @@ void MainWindow::itemMenuRequested(const QPoint point)
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
     QMenu submenu;
-    RasterObject* myRasterObject = nullptr;
+    RasterObject* myRasterObject = getRasterObject(myObject);
+    MapGraphicsShapeObject* myShapeObject = getShapeObject(myObject);
 
     if (myObject->type == gisObjectShape)
     {
-        if (myObject->projectName.isEmpty())
+        if (myShapeObject != nullptr)
         {
-            submenu.addAction("Remove");
+            if (! myObject->projectName.isEmpty())
+            {
+                submenu.addAction("Close Project");
+                submenu.addSeparator();
+            }
+            else
+            {
+                submenu.addAction("Remove");
+                submenu.addSeparator();
+                submenu.addAction("Save as");
+                submenu.addSeparator();
+            }
+
+            submenu.addAction("Show data");
+            submenu.addAction("Attribute table");
             submenu.addSeparator();
-            submenu.addAction("Save as");
+            submenu.addAction("Set style");
+            submenu.addAction("Invert color scale");
             submenu.addSeparator();
+            submenu.addAction("Export to raster");
+            submenu.addAction("Export to NetCDF");
         }
-        else
-        {
-            submenu.addAction("Close Project");
-            submenu.addSeparator();
-        }
-        submenu.addAction("Show data");
-        submenu.addAction("Attribute table");
-        submenu.addSeparator();
-        submenu.addAction("Set style");
-        submenu.addSeparator();
-        submenu.addAction("Export to raster");
-        submenu.addAction("Export to NetCDF");
     }
     if (myObject->type == gisObjectRaster)
     {
-        myRasterObject = getRasterObject(myObject);
         if (myRasterObject != nullptr)
         {
             submenu.addAction("Remove");
@@ -736,7 +739,9 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addSeparator();
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
+            submenu.addAction("Invert color scale");
             submenu.addSeparator();
+
             if (myRasterObject->opacity() < 1)
                 submenu.addAction("Set opaque");
             else
@@ -815,7 +820,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectRaster)
             {
                 setGrayScale(myObject->getRaster()->colorScale);
-                myRasterObject->redrawRequested();
+                emit myRasterObject->redrawRequested();
             }
         }
         else if (rightClickItem->text().contains("Set default scale"))
@@ -823,7 +828,20 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectRaster)
             {
                 setDefaultDEMScale(myObject->getRaster()->colorScale);
-                myRasterObject->redrawRequested();
+                emit myRasterObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Invert color scale"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                reverseColorScale(myObject->getRaster()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                reverseColorScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
             }
         }
         else if (rightClickItem->text().contains("Set opaque"))
@@ -831,15 +849,16 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectRaster)
             {
                 myRasterObject->setOpacity(1.0);
-                update();
+                emit myRasterObject->redrawRequested();
             }
         }
         else if (rightClickItem->text().contains("Set transparent"))
         {
             if (myObject->type == gisObjectRaster)
             {
+                // TODO choose value
                 myRasterObject->setOpacity(0.66);
-                update();
+                emit myRasterObject->redrawRequested();
             }
         }
     }
@@ -852,18 +871,21 @@ void MainWindow::selectShape(QPoint position)
     if (itemSelected == nullptr)
         return;
 
+    // check selected object (is shape)
     int row = ui->checkList->row(itemSelected);
     GisObject* myObject = myProject.objectList.at(unsigned(row));
     if (myObject->type != gisObjectShape)
         return;
 
+    // check position
     QPoint mapPos = getMapPos(position);
     if (! isInsideMap(mapPos))
         return;
 
     Position latLon = mapView->mapToScene(mapPos);
-    //Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
-    this->ui->statusBar->showMessage(QString::number(latLon.latitude()) + " " + QString::number(latLon.longitude()));
+    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+
+    //this->ui->statusBar->showMessage(QString::number(latLon.latitude()) + " " + QString::number(latLon.longitude()));
 }
 
 
