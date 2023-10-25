@@ -174,7 +174,7 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DSha
         if (computeUcmPrevailing(*shapeUCM, *shapeCrop, *shapeSoil, *shapeMeteo, idCrop, idSoil, idMeteo,
                                  cellSize, threshold, ucmFileName, errorStr, showInfo))
         {
-            addShapeFile(ucm, QString::fromStdString(shapeUCM->getFilepath()), "", shapeUCM->getUtmZone());
+            addShapeFile(shapeUCM, QString::fromStdString(shapeUCM->getFilepath()), "", shapeUCM->getUtmZone());
             return true;
         }
         else
