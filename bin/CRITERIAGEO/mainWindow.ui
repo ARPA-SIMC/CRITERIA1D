@@ -302,7 +302,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="palette">
@@ -543,7 +543,6 @@
     <addaction name="separator"/>
     <addaction name="actionLoadShapefile"/>
     <addaction name="actionLoadRaster"/>
-    <addaction name="actionLoad_NetCDF"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuGIS_settings">

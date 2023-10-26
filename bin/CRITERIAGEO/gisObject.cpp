@@ -64,18 +64,6 @@ void GisObject::setRaster(QString fileNameWithPath, gis::Crit3DRasterGrid* _rast
 }
 
 
-void GisObject::setNetcdf(QString fileNameWithPath, NetCDFHandler* _netcdfPtr, int utmZone)
-{
-    this->type = gisObjectNetcdf;
-    this->fileNameWithPath = fileNameWithPath;
-    this->fileName = getFileName(fileNameWithPath);
-    this->isSelected = true;
-
-    this->netcdfPtr = _netcdfPtr;
-    this->gisSettings.utmZone = utmZone;
-}
-
-
 void GisObject::setShapeFile(QString fileNameWithPath, QString projectName, Crit3DShapeHandler* _shapePtr, int utmZone)
 {
     this->type = gisObjectShape;
@@ -89,22 +77,18 @@ void GisObject::setShapeFile(QString fileNameWithPath, QString projectName, Crit
 }
 
 
-gis::Crit3DRasterGrid* GisObject::getRaster()
+/*
+void GisObject::setNetcdf(QString fileNameWithPath, NetCDFHandler* _netcdfPtr, int utmZone)
 {
-    return this->rasterPtr;
+    this->type = gisObjectNetcdf;
+    this->fileNameWithPath = fileNameWithPath;
+    this->fileName = getFileName(fileNameWithPath);
+    this->isSelected = true;
+
+    this->netcdfPtr = _netcdfPtr;
+    this->gisSettings.utmZone = utmZone;
 }
-
-
-Crit3DShapeHandler* GisObject::getShapeHandler()
-{
-    return this->shapePtr;
-}
-
-
-NetCDFHandler* GisObject::getNetcdfHandler()
-{
-    return this->netcdfPtr;
-}
+*/
 
 
 void GisObject::close()
@@ -120,10 +104,11 @@ void GisObject::close()
         shapePtr->close();
     }
 
+    /*
     if (this->type == gisObjectNetcdf)
     {
         netcdfPtr->close();
-    }
+    }*/
 
     this->initialize();
 }

@@ -35,6 +35,7 @@
 #include "shapeUtilities.h"
 #include "utilities.h"
 #include "formInfo.h"
+#include "mapGraphicsRasterObject.h"
 
 #ifdef GDAL
     #include "gdalExtensions.h"
@@ -313,9 +314,9 @@ void MainWindow::addRasterObject(GisObject* myObject)
     item->setCheckState(Qt::Checked);
     ui->checkList->addItem(item);
 
-    RasterObject* newRasterObj = new RasterObject(this->mapView);
+    RasterUtmObject* newRasterObj = new RasterUtmObject(this->mapView);
     newRasterObj->setOpacity(0.66);
-    newRasterObj->initializeUTM(myObject->getRaster(), myObject->gisSettings, false);
+    newRasterObj->initialize(myObject->getRaster(), myObject->gisSettings);
     this->rasterObjList.push_back(newRasterObj);
 
     this->mapView->scene()->addObject(newRasterObj);
@@ -323,6 +324,7 @@ void MainWindow::addRasterObject(GisObject* myObject)
 }
 
 
+/*
 void MainWindow::addNetcdfObject(GisObject* myObject)
 {
     QListWidgetItem* item = new QListWidgetItem("[NETCDF] " + myObject->fileName);
@@ -349,6 +351,7 @@ void MainWindow::addNetcdfObject(GisObject* myObject)
     this->mapView->scene()->addObject(netcdfObj);
     this->updateMaps();
 }
+*/
 
 
 bool MainWindow::addShapeObject(GisObject* myObject)
@@ -394,13 +397,13 @@ bool MainWindow::addShapeObject(GisObject* myObject)
 // resize and center map on last raster size
 void MainWindow::zoomOnLastRaster()
 {
-    RasterObject* myRaster = this->rasterObjList.back();
+    RasterUtmObject* myRaster = this->rasterObjList.back();
 
-    gis::Crit3DGeoPoint* center = myRaster->getRasterCenter();
+    Position center = myRaster->getRasterCenter();
     float size = myRaster->getRasterMaxSize();
 
     this->mapView->setZoomLevel(quint8(log2(float(ui->widgetMap->width()) / size)));
-    this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
+    this->mapView->centerOn(center.longitude(), center.latitude());
 
     this->updateMaps();
 }
@@ -431,6 +434,7 @@ void MainWindow::on_actionLoadRaster_triggered()
 }
 
 
+/*
 void MainWindow::on_actionLoad_NetCDF_triggered()
 {
     QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open NetCDF file"), "", tr("NetCDF files (*.nc)"));
@@ -444,6 +448,7 @@ void MainWindow::on_actionLoad_NetCDF_triggered()
     this->addNetcdfObject(myObject);
     this->zoomOnLastRaster();
 }
+*/
 
 
 void MainWindow::on_actionLoadShapefile_triggered()
@@ -469,11 +474,13 @@ int MainWindow::getRasterIndex(GisObject* myObject)
             if (rasterObjList.at(i)->getRaster() == myObject->getRaster())
                 return i;
         }
+        /*
         else if (myObject->type == gisObjectNetcdf)
         {
             if (rasterObjList.at(i)->getRaster() == myObject->getNetcdfHandler()->getRaster())
                 return i;
         }
+        */
     }
 
     return NODATA;
@@ -548,7 +555,7 @@ void MainWindow::removeRaster(GisObject* myObject)
 }
 
 
-RasterObject* MainWindow::getRasterObject(GisObject* myObject)
+RasterUtmObject* MainWindow::getRasterObject(GisObject* myObject)
 {
     int i = getRasterIndex(myObject);
 
@@ -706,7 +713,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
     QMenu submenu;
-    RasterObject* myRasterObject = getRasterObject(myObject);
+    RasterUtmObject* myRasterObject = getRasterObject(myObject);
     MapGraphicsShapeObject* myShapeObject = getShapeObject(myObject);
 
     if (myObject->type == gisObjectShape)

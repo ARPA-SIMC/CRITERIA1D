@@ -7,7 +7,7 @@
     #include "tileSources/WebTileSource.h"
     #include "Position.h"
 
-    #include "mapGraphicsRasterObject.h"
+    #include "mapGraphicsRasterUtm.h"
     #include "mapGraphicsShapeObject.h"
     #include "colorLegend.h"
     #include "criteriaGeoProject.h"
@@ -56,8 +56,6 @@
         void on_actionClose_Project_triggered();
         void closeGeoProject();
 
-        void on_actionLoad_NetCDF_triggered();
-
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -87,7 +85,7 @@
         Position* startCenter;
         MapGraphicsScene* mapScene;
         MapGraphicsView* mapView;
-        std::vector<RasterObject *> rasterObjList;
+        std::vector<RasterUtmObject *> rasterObjList;
         std::vector<MapGraphicsShapeObject *> shapeObjList;
 
         void setTileSource(WebTileSource::WebTileType tileType);
@@ -108,7 +106,7 @@
         bool exportToNetCDF(GisObject* myObject);
 
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
-        RasterObject* getRasterObject(GisObject* myObject);
+        RasterUtmObject* getRasterObject(GisObject* myObject);
 
         QPoint getMapPos(const QPoint& screenPos);
         bool isInsideMap(const QPoint& pos);

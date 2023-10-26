@@ -30,11 +30,11 @@
 
         bool loadRaster(QString fileNameWithPath);
         bool loadShapefile(QString fileNameWithPath, QString projectName);
-        bool loadNetcdf(QString fileNameWithPath);
+        //bool loadNetcdf(QString fileNameWithPath);
 
         void addRaster(gis::Crit3DRasterGrid *myRaster, QString fileNameWithPath, int utmZone);
-        void addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone);
         void addShapeFile(Crit3DShapeHandler *myShape, QString fileNameWithPath, QString projectName, int utmZone);
+        //void addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone);
 
         void getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo);
 
