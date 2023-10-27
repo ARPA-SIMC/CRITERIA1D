@@ -142,12 +142,12 @@ void DialogUcmIntersection::shapeCropClicked(QListWidgetItem* item)
     idCrop.clear();
     showChildren(cropFieldLayout, true);
     unsigned int pos = cropShape->row(item);
-    crop = shapeObjList.at(pos);
+    shapeCrop = shapeObjList.at(pos);
 
     QList<QString> fieldLabel;
-    for (int i = 0; i < crop->getFieldNumbers(); i++)
+    for (int i = 0; i < shapeCrop->getFieldNumbers(); i++)
     {
-        std::string nameField =  crop->getFieldName(i);
+        std::string nameField =  shapeCrop->getFieldName(i);
         fieldLabel << QString::fromStdString(nameField);
     }
     cropField->addItems(fieldLabel);
@@ -160,12 +160,12 @@ void DialogUcmIntersection::shapeSoilClicked(QListWidgetItem* item)
     idSoil.clear();
     showChildren(soilFieldLayout, true);
     unsigned int pos = soilShape->row(item);
-    soil = shapeObjList.at(pos);
+    shapeSoil = shapeObjList.at(pos);
 
     QList<QString> fieldLabel;
-    for (int i = 0; i < soil->getFieldNumbers(); i++)
+    for (int i = 0; i < shapeSoil->getFieldNumbers(); i++)
     {
-        std::string nameField =  soil->getFieldName(i);
+        std::string nameField =  shapeSoil->getFieldName(i);
         fieldLabel << QString::fromStdString(nameField);
     }
     soilField->addItems(fieldLabel);
@@ -178,12 +178,12 @@ void DialogUcmIntersection::shapeMeteoClicked(QListWidgetItem* item)
     idMeteo.clear();
     showChildren(meteoFieldLayout, true);
     unsigned int pos = meteoShape->row(item);
-    meteo = shapeObjList.at(pos);
+    shapeMeteo = shapeObjList.at(pos);
 
     QList<QString> fieldLabel;
-    for (int i = 0; i < meteo->getFieldNumbers(); i++)
+    for (int i = 0; i < shapeMeteo->getFieldNumbers(); i++)
     {
-        std::string nameField =  meteo->getFieldName(i);
+        std::string nameField =  shapeMeteo->getFieldName(i);
         fieldLabel << QString::fromStdString(nameField);
     }
     meteoField->addItems(fieldLabel);
@@ -259,11 +259,11 @@ void DialogUcmIntersection::ucm()
     if (itemSelected != nullptr)
     {
         pos = cropShape->row(itemSelected);
-        crop = shapeObjList.at(pos);
+        shapeCrop = shapeObjList.at(pos);
     }
     else
     {
-        crop = nullptr;
+        shapeCrop = nullptr;
     }
 
     itemSelected = soilShape->currentItem();
@@ -275,11 +275,11 @@ void DialogUcmIntersection::ucm()
     if (itemSelected != nullptr)
     {
         pos = soilShape->row(itemSelected);
-        soil = shapeObjList.at(pos);
+        shapeSoil = shapeObjList.at(pos);
     }
     else
     {
-        soil = nullptr;
+        shapeSoil = nullptr;
     }
 
     itemSelected = meteoShape->currentItem();
@@ -291,11 +291,11 @@ void DialogUcmIntersection::ucm()
     if (itemSelected != nullptr)
     {
         pos = meteoShape->row(itemSelected);
-        meteo = shapeObjList.at(pos);
+        shapeMeteo = shapeObjList.at(pos);
     }
     else
     {
-        meteo = nullptr;
+        shapeMeteo = nullptr;
     }
 
     unsigned int nShapeSelected = 0;
@@ -379,16 +379,16 @@ QString DialogUcmIntersection::getIdMeteo() const
 
 Crit3DShapeHandler *DialogUcmIntersection::getCrop() const
 {
-    return crop;
+    return shapeCrop;
 }
 
 Crit3DShapeHandler *DialogUcmIntersection::getSoil() const
 {
-    return soil;
+    return shapeSoil;
 }
 
 Crit3DShapeHandler *DialogUcmIntersection::getMeteo() const
 {
-    return meteo;
+    return shapeMeteo;
 }
 

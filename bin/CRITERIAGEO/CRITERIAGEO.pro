@@ -36,7 +36,7 @@ win32:{
 }
 
 INCLUDEPATH +=  ../../mapGraphics \
-                ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/crop   \
+                ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo   \
                 ../../agrolib/utilities ../../agrolib/shapeUtilities  \
                 ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib  ../../agrolib/netcdfHandler \
                 ../../agrolib/criteriaOutput ../../agrolib/graphics ../../agrolib/commonDialogs
@@ -62,6 +62,7 @@ CONFIG(debug, debug|release) {
 
     LIBS += -L../../mapGraphics/debug -lMapGraphics
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
+    LIBS += -L../../agrolib/graphics/debug -lgraphics
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/debug -lnetcdfHandler
     win32:{
@@ -76,6 +77,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/utilities/debug -lutilities
+    LIBS += -L../../agrolib/meteo/debug -lmeteo
     LIBS += -L../../agrolib/gis/debug -lgis
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
@@ -84,6 +86,7 @@ CONFIG(debug, debug|release) {
 
     LIBS += -L../../mapGraphics/release -lMapGraphics
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
+   LIBS += -L../../agrolib/graphics/release -lgraphics
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/release -lnetcdfHandler
     win32:{
@@ -98,15 +101,13 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/utilities/release -lutilities
+    LIBS += -L../../agrolib/meteo/release -lmeteo
     LIBS += -L../../agrolib/gis/release -lgis
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
 }
 
 HEADERS += \
-    ../../agrolib/graphics/mapGraphicsRasterObject.h \
-    ../../agrolib/graphics/mapGraphicsShapeObject.h \
-    ../../agrolib/graphics/colorLegend.h \
     criteriaGeoProject.h \
     dialogDbfNewCol.h \
     dialogDbfTable.h \
@@ -122,9 +123,6 @@ HEADERS += \
     tableDbf.h
 
 SOURCES += \
-    ../../agrolib/graphics/mapGraphicsRasterObject.cpp \
-    ../../agrolib/graphics/mapGraphicsShapeObject.cpp \
-    ../../agrolib/graphics/colorLegend.cpp \
     criteriaGeoProject.cpp \
     dialogDbfNewCol.cpp \
     dialogDbfTable.cpp \

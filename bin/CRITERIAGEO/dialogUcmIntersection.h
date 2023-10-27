@@ -22,9 +22,9 @@
             QLineEdit* idCropEdit;
             QLineEdit* idSoilEdit;
             QLineEdit* idMeteoEdit;
-            Crit3DShapeHandler *crop;
-            Crit3DShapeHandler *soil;
-            Crit3DShapeHandler *meteo;
+            Crit3DShapeHandler *shapeCrop;
+            Crit3DShapeHandler *shapeSoil;
+            Crit3DShapeHandler *shapeMeteo;
             QString idCrop;
             QString idSoil;
             QString idMeteo;

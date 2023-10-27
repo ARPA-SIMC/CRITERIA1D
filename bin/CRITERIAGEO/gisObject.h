@@ -8,9 +8,11 @@
     #ifndef SHAPEHANDLER_H
         #include "shapeHandler.h"
     #endif
+/*
     #ifndef NETCDFHANDLER_H
         #include "netcdfHandler.h"
     #endif
+*/
 
     #include <QString>
 
@@ -23,7 +25,7 @@
 
         gis::Crit3DRasterGrid* rasterPtr;
         Crit3DShapeHandler* shapePtr;
-        NetCDFHandler* netcdfPtr;
+        //NetCDFHandler* netcdfPtr;
 
         void initialize();
 
@@ -36,13 +38,13 @@
 
         GisObject();
 
-        gis::Crit3DRasterGrid* getRaster();
-        Crit3DShapeHandler* getShapeHandler();
-        NetCDFHandler* getNetcdfHandler();
+        gis::Crit3DRasterGrid* getRaster() { return rasterPtr; }
+        Crit3DShapeHandler* getShapeHandler() { return shapePtr; }
+        //NetCDFHandler* getNetcdfHandler() { return netcdfPtr; }
 
         void setRaster(QString filename, gis::Crit3DRasterGrid* rasterPtr, int utmZone);
-        void setNetcdf(QString fileNameWithPath, NetCDFHandler* _netcdfPtr, int utmZone);
         void setShapeFile(QString filename, QString projectName, Crit3DShapeHandler* shapePtr, int utmZone);
+        //void setNetcdf(QString fileNameWithPath, NetCDFHandler* _netcdfPtr, int utmZone);
 
         void close();
 
