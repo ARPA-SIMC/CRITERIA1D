@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1118</width>
-    <height>535</height>
+    <height>552</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       <x>450</x>
       <y>20</y>
       <width>651</width>
-      <height>471</height>
+      <height>501</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="layoutPlot"/>
@@ -32,9 +32,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>340</y>
+      <y>360</y>
       <width>431</width>
-      <height>151</height>
+      <height>161</height>
      </rect>
     </property>
     <property name="sizeAdjustPolicy">
@@ -47,11 +47,11 @@
       <x>10</x>
       <y>10</y>
       <width>431</width>
-      <height>321</height>
+      <height>341</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -154,7 +154,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>initial status</string>
+       <string>Initial status</string>
       </property>
       <widget class="QLineEdit" name="lineEditIniWaterContentTop">
        <property name="geometry">
@@ -270,9 +270,9 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>5</y>
         <width>401</width>
-        <height>221</height>
+        <height>211</height>
        </rect>
       </property>
       <property name="title">
@@ -282,9 +282,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>140</y>
+         <y>135</y>
          <width>221</width>
-         <height>71</height>
+         <height>65</height>
         </rect>
        </property>
        <property name="title">
@@ -294,7 +294,7 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>20</y>
+          <y>21</y>
           <width>151</width>
           <height>16</height>
          </rect>
@@ -310,7 +310,7 @@
         <property name="geometry">
          <rect>
           <x>180</x>
-          <y>40</y>
+          <y>42</y>
           <width>31</width>
           <height>20</height>
          </rect>
@@ -323,7 +323,7 @@
         <property name="geometry">
          <rect>
           <x>180</x>
-          <y>20</y>
+          <y>21</y>
           <width>31</width>
           <height>20</height>
          </rect>
@@ -336,7 +336,7 @@
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>40</y>
+          <y>42</y>
           <width>131</width>
           <height>16</height>
          </rect>
@@ -593,7 +593,7 @@
        <property name="geometry">
         <rect>
          <x>250</x>
-         <y>160</y>
+         <y>150</y>
          <width>121</width>
          <height>17</height>
         </rect>
@@ -609,7 +609,7 @@
        <property name="geometry">
         <rect>
          <x>250</x>
-         <y>180</y>
+         <y>170</y>
          <width>101</width>
          <height>23</height>
         </rect>
@@ -623,9 +623,9 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>230</y>
+        <y>220</y>
         <width>401</width>
-        <height>51</height>
+        <height>81</height>
        </rect>
       </property>
       <property name="title">
@@ -635,7 +635,7 @@
        <property name="geometry">
         <rect>
          <x>130</x>
-         <y>20</y>
+         <y>25</y>
          <width>31</width>
          <height>20</height>
         </rect>
@@ -648,7 +648,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>20</y>
+         <y>25</y>
          <width>121</width>
          <height>16</height>
         </rect>
@@ -661,7 +661,7 @@
        <property name="geometry">
         <rect>
          <x>200</x>
-         <y>20</y>
+         <y>25</y>
          <width>71</width>
          <height>21</height>
         </rect>
@@ -674,13 +674,68 @@
        <property name="geometry">
         <rect>
          <x>270</x>
-         <y>20</y>
+         <y>25</y>
          <width>31</width>
          <height>20</height>
         </rect>
        </property>
        <property name="text">
-        <string>10</string>
+        <string>3.0</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radioButtonFreeDrainage">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>50</y>
+         <width>101</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>free drainage</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radioButtonWaterTable">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>50</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>water table</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_33">
+       <property name="geometry">
+        <rect>
+         <x>310</x>
+         <y>50</y>
+         <width>31</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>(m)</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEditWaterTableDepth">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>50</y>
+         <width>31</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>3.0</string>
        </property>
       </widget>
      </widget>
@@ -1186,7 +1241,7 @@ to clipboard</string>
      <x>0</x>
      <y>0</y>
      <width>1118</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

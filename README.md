@@ -44,13 +44,15 @@ HEAT1D is a graphical interface for testing the soilFluxex3D library in a 1D dom
 ![](https://github.com/ARPA-SIMC/CRITERIA1D/blob/master/DOC/img/heat1D.png)
 
 ## How to compile the CRITERIA-1D/GEO distribution
-Dependencies:
+Requirements:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following (download also *QtCharts*).
 - Only for Qt 6.x : download also *Qt5 Compatibility Module*
 
 Only for CRITERIA GEO:
 - [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/)
-- How to install NetCDF on Windows: download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set Netcdf installation path (e.g C:\Program Files\netCDF 4.7.1) in the *NC4_INSTALL_DIR* system variable.
+> Windows installation: download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set *NC4_INSTALL_DIR* system variable = NetCDF installation path (e.g C:\Program Files\netCDF 4.7.1)
+- [GDAL library](https://trac.osgeo.org/osgeo4w/)  
+> See [gdalHandler](https://github.com/ARPA-SIMC/CRITERIA1D/tree/master/agrolib/gdalHandler) for GDAL installation.
 
 ### Build
 - LINUX: run */deploy/CRITERIA1D_build_Linux.sh*
@@ -58,7 +60,7 @@ Only for CRITERIA GEO:
 - WINDOWS (MinGW c++ compiler): run */deploy/CRITERIA1D_build_MinGW_bat*       
 - MACOS: run CRITERIA1D_build_MacOS.sh (modify path in the first line of the script)  
 
-WARNING for ALL platforms: please read the information in the first lines of the script.
+**WARNING** for ALL platforms: please read the information in the first lines of the script.
 
 The distribution will be created in the directory /deploy/CRITERIA1D/
 

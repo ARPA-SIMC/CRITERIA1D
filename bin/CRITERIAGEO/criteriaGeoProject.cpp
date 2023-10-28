@@ -57,20 +57,22 @@ void CriteriaGeoProject::addRaster(gis::Crit3DRasterGrid *myRaster, QString file
 }
 
 
-void CriteriaGeoProject::addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone)
-{
-    GisObject* newObject = new(GisObject);
-    newObject->setNetcdf(fileNameWithPath, myNetcdf, utmZone);
-    this->objectList.push_back(newObject);
-}
-
-
 void CriteriaGeoProject::addShapeFile(Crit3DShapeHandler *myShape, QString fileNameWithPath, QString projectName, int utmZone)
 {
     GisObject* newObject = new(GisObject);
     newObject->setShapeFile(fileNameWithPath, projectName, myShape, utmZone);
     this->objectList.push_back(newObject);
 }
+
+
+/*
+void CriteriaGeoProject::addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone)
+{
+    GisObject* newObject = new(GisObject);
+    newObject->setNetcdf(fileNameWithPath, myNetcdf, utmZone);
+    this->objectList.push_back(newObject);
+}
+*/
 
 
 bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
@@ -94,12 +96,13 @@ bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
      }
 #endif
 
-    setDefaultDEMScale(myRaster->colorScale);
+    setDTMScale(myRaster->colorScale);
     addRaster(myRaster, fileNameWithPath, utmZone);
     return true;
 }
 
 
+/*
 bool CriteriaGeoProject::loadNetcdf(QString fileNameWithPath)
 {
     NetCDFHandler* netCDF = new NetCDFHandler();
@@ -115,6 +118,7 @@ bool CriteriaGeoProject::loadNetcdf(QString fileNameWithPath)
     addNetcdf(netCDF, fileNameWithPath, gisSettings.utmZone);
     return true;
 }
+*/
 
 
 bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath, QString projectName)
@@ -144,7 +148,7 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
     if (rasterizeShape(shape, *newRaster, field.toStdString(), cellSize))
     {
         gis::updateMinMaxRasterGrid(newRaster);
-        setTemperatureScale(newRaster->colorScale);
+        setDefaultScale(newRaster->colorScale);
 
         if (showInfo) formInfo.setText("Add raster to map...");
 
@@ -156,25 +160,24 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
     }
 
     if (showInfo) formInfo.close();
-
 }
 
 
-bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHandler *soil, Crit3DShapeHandler *meteo,
+bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                                 std::string idCrop, std::string idSoil, std::string idMeteo,
                                 double cellSize, double threshold,
                                 QString ucmFileName, bool isPrevailing, bool showInfo)
 {
     std::string errorStr;
 
-    Crit3DShapeHandler *ucm = new(Crit3DShapeHandler);
-
     if (isPrevailing)
     {
-        if (computeUcmPrevailing(*ucm, *crop, *soil, *meteo, idCrop, idSoil, idMeteo,
+        Crit3DShapeHandler *shapeUCM = new Crit3DShapeHandler();
+
+        if (computeUcmPrevailing(*shapeUCM, *shapeCrop, *shapeSoil, *shapeMeteo, idCrop, idSoil, idMeteo,
                                  cellSize, threshold, ucmFileName, errorStr, showInfo))
         {
-            addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), "", ucm->getUtmZone());
+            addShapeFile(shapeUCM, QString::fromStdString(shapeUCM->getFilepath()), "", shapeUCM->getUtmZone());
             return true;
         }
         else
@@ -186,26 +189,27 @@ bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHan
     else
     {
         #ifdef GDAL
-        /*
-        if (computeUcmIntersection(ucm, crop, soil, meteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr))
-        {
-            addShapeFile(ucm, QString::fromStdString(ucm->getFilepath()), "", ucm->getUtmZone());
-            return true;
-        }
-        else
-        {
-            logError(QString::fromStdString(errorStr));
+            /*
+            Crit3DShapeHandler *shapeUCM = new Crit3DShapeHandler();
+
+            if (computeUcmIntersection(shapeUCM, shapeCrop, shapeSoil, shapeMeteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr))
+            {
+                addShapeFile(shapeUCM, QString::fromStdString(shapeUCM->getFilepath()), "", shapeUCM->getUtmZone());
+                return true;
+            }
+            else
+            {
+                logError(QString::fromStdString(errorStr));
+                return false;
+            }
+            */
+            logError("TO DO function");
             return false;
-        }
-        */
-        logError("TO DO function");
-        return false;
         #else
             logError("Function is not available (needs GDAL library)");
             return false;
         #endif
     }
-
 }
 
 
@@ -289,10 +293,11 @@ bool CriteriaGeoProject::createShapeFromCsv(int shapeIndex, QString fileCsv, QSt
 
 
 #ifdef GDAL
-bool CriteriaGeoProject::createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error)
+bool CriteriaGeoProject::createRaster(QString shapeFileName, QString shapeField, QString resolution, QString outputName, QString &error)
 {
-    QString proj = ""; //keep input proj
-    if (shapeToRaster(shapeFileName, shapeField, resolution, proj, outputName, error))
+    QString proj = "";              // keep input proj
+    QString paletteFileName = "";   // no palette
+    if (shapeToRaster(shapeFileName, shapeField, resolution, proj, outputName, paletteFileName, error))
     {
         return loadRaster(outputName);
     }

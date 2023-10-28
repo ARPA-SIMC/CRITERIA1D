@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
         #ifdef TEST
             //projectFileName = projectPath + "kiwifruit/kiwifruit.ini";
             projectFileName = projectPath + "montue/montue.ini";
+            //projectFileName = "//moses-arpae/CRITERIA1D/PROJECTS/CLARA/monthlyClimate/C4_June_climate.ini";
         #else
             #ifdef TEST_GEO
                 //projectFileName = projectPath + "INCOLTO/incolto.ini";
