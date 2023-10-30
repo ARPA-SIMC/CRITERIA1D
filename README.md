@@ -48,7 +48,7 @@ Requirements:
 - [Qt libraries](https://www.qt.io/download-qt-installer): Qt 5.x or following (download also *QtCharts*).
 - Only for Qt 6.x : download also *Qt5 Compatibility Module*
 
-Only for CRITERIA GEO:
+Only for **CRITERIA GEO**:
 - [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/)
 > Windows installation: download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set *NC4_INSTALL_DIR* system variable = NetCDF installation path (e.g C:\Program Files\netCDF 4.7.1)
 - [GDAL library](https://trac.osgeo.org/osgeo4w/)  
