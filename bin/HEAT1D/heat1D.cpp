@@ -7,9 +7,6 @@
 
 #include "heat1D.h"
 #include "soilFluxes3D.h"
-#include "types.h"
-#include "boundary.h"
-#include "soilPhysics.h"
 #include "commonConstants.h"
 
 Crit3DOut output;
@@ -261,6 +258,7 @@ bool initializeHeat1D(bool useInputSoils)
 
             result = soilFluxes3D::setWaterContent(indexNode, ((indexNode-1)*(myHeat1D.initialSaturationBottom - myHeat1D.initialSaturationTop)
                                                                    / (myHeat1D.NodesNumber-2)+myHeat1D.initialSaturationTop) * (myThetaS - myThetaR) + myThetaR);
+
             if (result != CRIT3D_OK) printf("\n error in SetWaterContent!");
 
             if (myHeat1D.computeHeat)
@@ -336,11 +334,13 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output)
     profileStatus myProfile;
     landSurfaceStatus mySurfaceOutput;
     heatErrors myErrors;
+    bottomFlux myBottomFluxes;
 
     output->nrValues++;
     output->profileOutput.push_back(myProfile);
     output->landSurfaceOutput.push_back(mySurfaceOutput);
     output->errorOutput.push_back(myErrors);
+    output->bottomFluxes.push_back(myBottomFluxes);
 
     for (myIndex = firstIndex ; myIndex <= lastIndex ; myIndex++ )
     {
@@ -460,6 +460,11 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output)
     myValue = soilFluxes3D::getWaterMBR();
     if (isValid(myValue)) myPoint.setY(myValue);
     output->errorOutput[output->nrValues-1].waterMBR = myPoint;
+
+    //bottom fluxes
+    myValue = soilFluxes3D::getBoundaryWaterFlow(lastIndex);
+    if (isValid(myValue)) myPoint.setY(myValue);
+    output->bottomFluxes[output->nrValues-1].drainage = myPoint;
 }
 
 QString Crit3DOut::getTextOutput(outputGroup outGroup)

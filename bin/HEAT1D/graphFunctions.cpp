@@ -18,7 +18,8 @@ outputType getOutputType(outputGroup myOut)
 
         return outputType::profile;
     else if (myOut == energyBalance ||
-             myOut == errorBalance)
+             myOut == errorBalance ||
+             myOut == bottom)
         return outputType::single;
     else
         return outputType::single;
@@ -50,6 +51,8 @@ void setColorScale(Crit3DColorScale* myColorScale, outputGroup outGroup, Crit3DO
             myColorScale->setMaximum(3);
         else if (outGroup == outputGroup::surfaceResistances)
             myColorScale->setMaximum(2);
+        else if (outGroup == outputGroup::bottom)
+            myColorScale->setMaximum(1);
 
         *graphLinear = true;
     }
@@ -100,6 +103,9 @@ QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVA
             case outputVar::MBR_water :
                 myVal = myOut->errorOutput[i].waterMBR.y();
                 break;
+
+            case outputVar::bottomDrainage :
+                myVal = myOut->bottomFluxes[i].drainage.y();
         }
 
         myPoint.setY(myVal);

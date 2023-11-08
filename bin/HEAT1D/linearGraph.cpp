@@ -143,6 +143,14 @@ void LinearGraph::setProperties(outputGroup graphType)
         startIndex = 5;
 
     }
+    else if (graphType == outputGroup::bottom)
+    {
+        axisY->setTitleText(QString("water flow [%1]").arg(QString("m3")));
+
+        myCurveNames.append("water flow");
+        startIndex = 7;
+
+    }
 }
 
 void LinearGraph::tooltipLineSeries(QPointF point, bool state)

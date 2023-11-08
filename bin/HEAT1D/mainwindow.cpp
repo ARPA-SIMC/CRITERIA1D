@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->listWidget->addItem("surface energy balance (W m-2)");
     ui->listWidget->addItem("surface resistances (s m-1)");
     ui->listWidget->addItem("heat conductivity (W m-1 K-1)");
+    ui->listWidget->addItem("bottom fluxes (m3)");
     ui->listWidget->addItem("error balance ()");
 }
 
