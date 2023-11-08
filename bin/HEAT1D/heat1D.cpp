@@ -571,6 +571,11 @@ QString Crit3DOut::getTextOutput(outputGroup outGroup)
         myString.append(QString("WaterMBR"));
     }
 
+    if (outGroup == outputGroup::bottom)
+    {
+        myString.append(QString("drainage"));
+    }
+
     myString.append(QString("\n"));
 
     for (int i=0; i<nrValues; i++)
@@ -603,6 +608,13 @@ QString Crit3DOut::getTextOutput(outputGroup outGroup)
 
             myValue = landSurfaceOutput[i].latentHeat.y();
             myString.append(QString::number(myValue,'f',2));
+            myString.append(QString(","));
+        }
+
+        if (outGroup == outputGroup::bottom)
+        {
+            myValue = bottomFluxes[i].drainage.y();
+            myString.append(QString::number(myValue,'f',8));
             myString.append(QString(","));
         }
 
