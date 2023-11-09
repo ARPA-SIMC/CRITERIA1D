@@ -71,9 +71,7 @@ QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVA
     *MAXVALUE = NODATA;
 
     for (int i=0; i<myOut->nrValues; i++)
-    {
-        myPoint.setX(i+1);
-
+    {        
         switch (myVar)
         {
             case outputVar::surfaceNetIrradiance :
@@ -108,6 +106,7 @@ QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVA
                 myVal = myOut->bottomFluxes[i].drainage.y();
         }
 
+        myPoint.setX(myOut->landSurfaceOutput[i].netRadiation.x());
         myPoint.setY(myVal);
         mySeries.push_back(myPoint);
         *MINVALUE = (*MINVALUE == NODATA) ? myVal : ((myVal < *MINVALUE) ? myVal : *MINVALUE);
@@ -121,62 +120,72 @@ QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layer
 {
     QVector<QPointF> mySeries;
     QPointF myPoint;
-    qreal myVal;
+    qreal myVal, myX;
 
     *MINVALUE = NODATA;
     *MAXVALUE = NODATA;
 
     for (int i=0; i<myOut->nrValues; i++)
     {
-        myPoint.setX(i);
-
         switch (myVar)
         {
             case outputGroup::soilTemperature :
+                myX = myOut->profileOutput[i].temperature[layerIndex].x();
                 myVal = myOut->profileOutput[i].temperature[layerIndex].y();
                 break;
 
             case outputGroup::soilWater :
+                myX = myOut->profileOutput[i].waterContent[layerIndex].x();
                 myVal = myOut->profileOutput[i].waterContent[layerIndex].y();
                 break;
 
             case outputGroup::soilHeatConductivity :
+                myX = myOut->profileOutput[i].heatConductivity[layerIndex].x();
                 myVal = myOut->profileOutput[i].heatConductivity[layerIndex].y();
                 break;
 
             case outputGroup::totalHeatFlux :
+                myX = myOut->profileOutput[i].totalHeatFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].totalHeatFlux[layerIndex].y();
                 break;
 
             case outputGroup::latentHeatFluxIso :
+                myX = myOut->profileOutput[i].isothermalLatentHeatFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].isothermalLatentHeatFlux[layerIndex].y();
                 break;
 
             case outputGroup::latentHeatFluxTherm :
+                myX = myOut->profileOutput[i].thermalLatentHeatFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].thermalLatentHeatFlux[layerIndex].y();
                 break;
 
             case outputGroup::diffusiveHeatFlux :
+                myX = myOut->profileOutput[i].diffusiveHeatFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].diffusiveHeatFlux[layerIndex].y();
                 break;
 
             case outputGroup::waterIsothLiquidFlux :
+                myX = myOut->profileOutput[i].waterIsothermalLiquidFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].waterIsothermalLiquidFlux[layerIndex].y();
                 break;
 
             case outputGroup::waterThermLiquidFlux :
+                myX = myOut->profileOutput[i].waterThermalLiquidFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].waterThermalLiquidFlux[layerIndex].y();
                 break;
 
             case outputGroup::waterIsothVaporFlux :
+                myX = myOut->profileOutput[i].waterIsothermalVaporFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].waterIsothermalVaporFlux[layerIndex].y();
                 break;
 
             case outputGroup::waterThermVaporFlux :
+                myX = myOut->profileOutput[i].waterThermalVaporFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].waterThermalVaporFlux[layerIndex].y();
                 break;
         }
 
+        myPoint.setX(myX);
         myPoint.setY(myVal);
         mySeries.push_back(myPoint);
         *MINVALUE = (*MINVALUE == NODATA) ? myVal : ((myVal < *MINVALUE) ? myVal : *MINVALUE);

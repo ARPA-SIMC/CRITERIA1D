@@ -323,7 +323,7 @@ bool isValid(double myValue)
     return (myValue != MEMORY_ERROR && myValue != MISSING_DATA_ERROR && myValue != INDEX_ERROR);
 }
 
-void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output)
+void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, double timeH)
 {
     long myIndex;
     double myValue;
@@ -344,7 +344,7 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output)
 
     for (myIndex = firstIndex ; myIndex <= lastIndex ; myIndex++ )
     {
-        myPoint.setX(myIndex);
+        myPoint.setX(timeH);
 
         myValue = soilFluxes3D::getTemperature(myIndex);
         if (isValid(myValue)) myValue -= 273.16;
@@ -425,7 +425,7 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output)
         output->profileOutput[output->nrValues-1].waterThermalVaporFlux.push_back(myPoint);
     }
 
-    myPoint.setX(output->landSurfaceOutput.size() + 1);
+    myPoint.setX(timeH);
 
     // net radiation (positive downward)
     myValue = soilFluxes3D::getBoundaryRadiativeFlux(1);

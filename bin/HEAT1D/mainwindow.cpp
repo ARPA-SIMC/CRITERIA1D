@@ -125,7 +125,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
     myPIniHour = ui->lineEditPrecStart->text().toInt();
     myPHours = ui->lineEditPrecHours->text().toInt();
 
-    int outTimeStep = ui->lineEditTimeStep->text().toInt();
+    double outTimeStep = ui->lineEditTimeStep->text().toDouble();
 
     int hourFin;
     if (!useInputMeteoData)
@@ -143,6 +143,8 @@ void MainWindow::on_pushRunAllPeriod_clicked()
     int indexHour = 0;
 
     ui->prgBar->setMaximum(hourFin);
+
+    double totalHours = 0;
 
     do
     {
@@ -169,7 +171,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
             myWS = ui->lineEditAtmWS->text().toDouble();
             myNR = ui->lineEditAtmFlux->text().toDouble();
 
-            if ((indexHour >= myPIniHour) && (indexHour < myPIniHour + myPHours))
+            if ((indexHour >= myPIniHour) && (indexHour <= myPIniHour + myPHours))
                 myP = ui->lineEditPrecHourlyAmount->text().toDouble();
             else
                 myP = 0.;
@@ -177,7 +179,8 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
         runHeat1D(myT, myRH, myWS, myNR, myP, outTimeStep);
 
-        getOutputAllPeriod(0, getNodesNumber(), &myHeatOutput);
+        totalHours += outTimeStep / 3600;
+        getOutputAllPeriod(0, getNodesNumber(), &myHeatOutput, totalHours);
 
         ui->prgBar->setValue(indexHour);
         qApp->processEvents();

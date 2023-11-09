@@ -93,7 +93,7 @@ void setWaterTable(bool isWaterTable, double depth);
 void setHeatProcesses(bool computeHeatAdvection, bool computeHeatLatent, bool computeHeatSensible);
 void setProcesses(bool computeWaterProcess, bool computeHeatProcess, bool computeSolutesProcess);
 void setProcessesHeat(bool computeLatent_, bool computeAdvection_);
-void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output);
+void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, double timeH);
 long getNodesNumber();
 void setSoilHorizonNumber(int myHorizonNumber);
 
