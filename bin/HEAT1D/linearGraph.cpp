@@ -163,7 +163,7 @@ void LinearGraph::tooltipLineSeries(QPointF point, bool state)
         double xValue = point.x();
         double yValue = point.y();
 
-        m_tooltip->setText(QString("%1 \n%2 %3 ").arg(myCurveNames[index]).arg(xValue, 0, 'f', 1).arg(yValue, 0, 'f', 1));
+        m_tooltip->setText(QString("%1 \n%2 %3 ").arg(myCurveNames[index]).arg(xValue, 0, 'f', 1).arg(yValue, 0, 'f', 5));
         m_tooltip->setSeries(serie);
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);
