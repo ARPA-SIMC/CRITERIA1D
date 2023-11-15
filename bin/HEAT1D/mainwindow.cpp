@@ -125,7 +125,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
     myPIniHour = ui->lineEditPrecStart->text().toInt();
     myPHours = ui->lineEditPrecHours->text().toInt();
 
-    double outTimeStep = ui->lineEditTimeStep->text().toDouble();
+    double outputTimeStep = ui->lineEditTimeStep->text().toDouble();
 
     int hourFin;
     if (!useInputMeteoData)
@@ -148,7 +148,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
     do
     {
-        myTime = myTime.addSecs(outTimeStep);
+        myTime = myTime.addSecs(outputTimeStep);
 
         if (myTime.secsTo(myRefHour) < 0)
         {
@@ -177,9 +177,9 @@ void MainWindow::on_pushRunAllPeriod_clicked()
                 myP = 0.;
         }
 
-        runHeat1D(myT, myRH, myWS, myNR, myP, outTimeStep);
+        runHeat1D(myT, myRH, myWS, myNR, myP, outputTimeStep);
 
-        totalHours += outTimeStep / 3600;
+        totalHours += outputTimeStep / 3600;
         getOutputAllPeriod(0, getNodesNumber(), &myHeatOutput, totalHours);
 
         ui->prgBar->setValue(indexHour);

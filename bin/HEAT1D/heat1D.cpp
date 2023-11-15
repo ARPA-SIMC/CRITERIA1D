@@ -284,7 +284,7 @@ bool initializeHeat1D(bool useInputSoils)
 }
 
 
-void setSinkSources(double myHourlyPrec, int timeStepSeconds)
+void setSinkSources(double myHourlyPrec)
 {
     for (long i=0; i < myHeat1D.NodesNumber; i++)
     {
@@ -293,7 +293,7 @@ void setSinkSources(double myHourlyPrec, int timeStepSeconds)
         if (myHeat1D.computeWater)
         {
             if (i == 0)
-                soilFluxes3D::setWaterSinkSource(i, (double)myHourlyPrec * myHeat1D.surfaceArea / timeStepSeconds / 1000);
+                soilFluxes3D::setWaterSinkSource(i, myHourlyPrec * myHeat1D.surfaceArea / (3600. * 1000.));
             else
                 soilFluxes3D::setWaterSinkSource(i, 0);
         }
@@ -713,13 +713,13 @@ QString Crit3DOut::getTextOutput(outputGroup outGroup)
 
 bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
                  double myHourlyWindSpeed, double myHourlyNetIrradiance,
-                 double myHourlyPrec, int timeStepSeconds)
+                 double myHourlyPrec, int maxTimeStepSeconds)
 {
     //double currentRoughness;
     //double surfaceWaterHeight;
     //double roughnessWater = 0.005;
 
-    setSinkSources(myHourlyPrec, timeStepSeconds);
+    setSinkSources(myHourlyPrec);
 
     if (myHeat1D.computeHeat)
     {
@@ -743,9 +743,9 @@ bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
         soilFluxes3D::setHeatBoundaryRoughness(1, myHeat1D.RoughnessHeat);
     }
 
-    soilFluxes3D::computePeriod(timeStepSeconds);
+    soilFluxes3D::computePeriod(maxTimeStepSeconds);
 
-	return (true);
+    return true;
 }
 
 

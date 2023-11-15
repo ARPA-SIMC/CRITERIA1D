@@ -96,10 +96,11 @@ void setProcessesHeat(bool computeLatent_, bool computeAdvection_);
 void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, double timeH);
 long getNodesNumber();
 void setSoilHorizonNumber(int myHorizonNumber);
+void setSinkSources(double myHourlyPrec);
 
 bool initializeHeat1D(bool useInputSoils);
 bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
                  double myHourlyWindSpeed, double myHourlyNetIrradiance,
-                 double myHourlyPrec, int timeStepSeconds);
+                 double myHourlyPrec, int maxTimeStepSeconds);
 
 
