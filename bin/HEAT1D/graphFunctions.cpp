@@ -19,7 +19,8 @@ outputType getOutputType(outputGroup myOut)
         return outputType::profile;
     else if (myOut == energyBalance ||
              myOut == errorBalance ||
-             myOut == bottom)
+             myOut == bottom ||
+             myOut == waterStorage)
         return outputType::single;
     else
         return outputType::single;
@@ -52,6 +53,8 @@ void setColorScale(Crit3DColorScale* myColorScale, outputGroup outGroup, Crit3DO
         else if (outGroup == outputGroup::surfaceResistances)
             myColorScale->setMaximum(2);
         else if (outGroup == outputGroup::bottom)
+            myColorScale->setMaximum(1);
+        else if (outGroup == outputGroup::waterStorage)
             myColorScale->setMaximum(1);
 
         *graphLinear = true;
@@ -104,6 +107,11 @@ QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVA
 
             case outputVar::bottomDrainage :
                 myVal = myOut->bottomFluxes[i].drainage.y();
+                break;
+
+            case outputVar::storedWater :
+                myVal = myOut->waterStorageOutput[i].waterStord.y();
+                break;
         }
 
         myPoint.setX(myOut->landSurfaceOutput[i].netRadiation.x());

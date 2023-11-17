@@ -335,12 +335,14 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
     landSurfaceStatus mySurfaceOutput;
     heatErrors myErrors;
     bottomFlux myBottomFluxes;
+    waterStored myWaterStored;
 
     output->nrValues++;
     output->profileOutput.push_back(myProfile);
     output->landSurfaceOutput.push_back(mySurfaceOutput);
     output->errorOutput.push_back(myErrors);
     output->bottomFluxes.push_back(myBottomFluxes);
+    output->waterStorageOutput.push_back(myWaterStored);
 
     for (myIndex = firstIndex ; myIndex <= lastIndex ; myIndex++ )
     {
@@ -465,6 +467,13 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
     myValue = soilFluxes3D::getBoundaryWaterFlow(lastIndex);
     if (isValid(myValue)) myPoint.setY(myValue);
     output->bottomFluxes[output->nrValues-1].drainage = myPoint;
+
+    //water storage
+    myValue = soilFluxes3D::getWaterStorage();
+    if (isValid(myValue)) myPoint.setY(myValue);
+    output->waterStorageOutput[output->nrValues-1].waterStord = myPoint;
+
+
 }
 
 QString Crit3DOut::getTextOutput(outputGroup outGroup)
@@ -637,6 +646,13 @@ QString Crit3DOut::getTextOutput(outputGroup outGroup)
 
             myValue = errorOutput[i].waterMBR.y();
             myString.append(QString::number(myValue,'f',12));
+        }
+
+        if (outGroup == outputGroup::waterStorage)
+        {
+            myValue = waterStorageOutput[i].waterStord.y();
+            myString.append(QString::number(myValue,'f',8));
+            myString.append(QString(","));
         }
 
         if (outGroup == outputGroup::totalHeatFlux)
