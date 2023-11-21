@@ -739,7 +739,6 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addAction("Set style");
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
-            submenu.addAction("Set dtm scale");
             submenu.addAction("Reverse color scale");
             submenu.addSeparator();
             submenu.addAction("Export to raster");
@@ -1000,7 +999,6 @@ void MainWindow::on_actionRasterize_shape_triggered()
 
 void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
 {
-
     if (shapeObjList.empty())
     {
         QMessageBox::information(nullptr, "No shape loaded", "Load crop, soil and meteo shape before.");
@@ -1023,7 +1021,7 @@ void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
     bool isPrevailing = true;
     double threshold = 0.5;         // TODO aggiungere a ucmDialog
 
-    if (myProject.addUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
+    if (myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
                                  ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
                                  ucmDialog.getIdMeteo().toStdString(), ucmDialog.getCellSize(), threshold,
                                  ucmFileName, isPrevailing, true))
@@ -1031,6 +1029,7 @@ void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
         addShapeObject(myProject.objectList.back());
     }
 }
+
 
 void MainWindow::on_actionCompute_Ucm_intersection_triggered()
 {
@@ -1056,7 +1055,7 @@ void MainWindow::on_actionCompute_Ucm_intersection_triggered()
     bool isPrevailing = false;
     double threshold = 0.5;
 
-    if (myProject.addUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
+    if (myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
                                  ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
                                  ucmDialog.getIdMeteo().toStdString(), NODATA, threshold,
                                  ucmFileName, isPrevailing, true))

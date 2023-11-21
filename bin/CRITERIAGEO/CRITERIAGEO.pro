@@ -44,7 +44,7 @@ INCLUDEPATH +=  ../../mapGraphics \
 CONFIG += debug_and_release
 
 # comment to compile without GDAL library
-#CONFIG += GDAL
+CONFIG += GDAL
 
 GDAL {
     DEFINES += GDAL
@@ -141,3 +141,11 @@ SOURCES += \
 
 FORMS += \
     mainWindow.ui
+
+
+RESOURCES += CRITERIAGEO.ico
+
+win32:
+{
+    RC_ICONS = CRITERIAGEO.ico
+}

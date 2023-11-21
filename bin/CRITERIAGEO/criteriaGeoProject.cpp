@@ -163,7 +163,7 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
 }
 
 
-bool CriteriaGeoProject::addUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
+bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                                 std::string idCrop, std::string idSoil, std::string idMeteo,
                                 double cellSize, double threshold,
                                 QString ucmFileName, bool isPrevailing, bool showInfo)
