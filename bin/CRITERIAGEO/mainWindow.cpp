@@ -67,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QVBoxLayout shapeLayout;
     shapeLayout.addWidget(&shapeInfoBrowser);
     shapeInfoDialog.setLayout(&shapeLayout);
+    shapeInfoDialog.setWindowFlag(Qt::WindowStaysOnTopHint);
 
     // Set the MapGraphics Scene and View
     this->mapScene = new MapGraphicsScene(this);
@@ -93,6 +94,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    shapeInfoDialog.close();
+    shapeInfoDialog.deleteLater();
+
     if (! this->rasterObjList.empty())
     {
         for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
@@ -950,12 +954,8 @@ bool MainWindow::selectShape(QPoint screenPos)
         emit myShapeObject->redrawRequested();
 
         // update shape info dialog
-        std::string shapeInfoStr = shapeHandler->getAttributesList(index);
-        shapeInfoBrowser.setText(QString::fromStdString(shapeInfoStr));
-        if (shapeInfoDialog.isHidden())
-        {
-            shapeInfoDialog.show();
-        }
+        shapeInfoBrowser.setText(QString::fromStdString(shapeHandler->getAttributesList(index)));
+        shapeInfoDialog.show();
     }
 
     return true;
@@ -1146,11 +1146,9 @@ void MainWindow::on_actionLoadProject_triggered()
         {
             closeGeoProject();
         }
-        else
-        {
-            return;
-        }
+        else return;
     }
+
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open GEO project"), "", tr("Settings files (*.ini)"));
 
     if (projFileName == "") return;
@@ -1159,20 +1157,24 @@ void MainWindow::on_actionLoadProject_triggered()
     int myResult = myProject.output.initializeProject(projFileName, "", QDateTime::currentDateTime().date(), false);
     if (myResult != CRIT1D_OK)
     {
-        QMessageBox::information(nullptr, "Project setting error", myProject.output.projectError);
+        myProject.logError(myProject.output.projectError);
         return;
     }
 
     if (myProject.output.ucmFileName == "")
     {
-        QMessageBox::information(nullptr, "Project setting error", "Missing Unit Crop Map (shapefile)");
+        myProject.logError("Missing Unit Crop Map (shapefile)");
+        myProject.output.isProjectLoaded = false;
         return;
     }
 
     QString projectName = getFileName(projFileName);
     projectName = projectName.left(projectName.length() -4);
     if (! myProject.loadShapefile(myProject.output.ucmFileName, projectName))
+    {
+        myProject.output.isProjectLoaded = false;
         return;
+    }
 
     GisObject* myObject = myProject.objectList.back();
     this->addShapeObject(myObject);
@@ -1217,31 +1219,21 @@ void MainWindow::closeGeoProject()
 
 void MainWindow::on_actionClose_Project_triggered()
 {
+    if ( !myProject.output.isProjectLoaded )
+        return;
+
     QMessageBox::StandardButton confirm;
-    QString msg = "This operation close all the project "+myProject.output.projectName+". Are you sure?";
+    QString msg = "This operation will close the project: " + myProject.output.projectName + "\nAre you sure?";
     confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
     if (confirm == QMessageBox::No)
     {
         return;
     }
+
     closeGeoProject();
+
     // disable output map action
     ui->actionOutput_Map->setEnabled(false);
-
-    /*
-    QMenu *menu = nullptr;
-    menu = this->menuBar()->findChild<QMenu *>("menuTools");
-    if (menu != nullptr)
-    {
-        QList<QAction*> list = menu->actions();
-        foreach (QAction *action, list)
-        {
-            if (action->text() == "Output map")
-            {
-                action->setEnabled(false);
-            }
-        }
-    }*/
 
     return;
 }
