@@ -42,11 +42,16 @@ void PragaProject::initializePragaProject()
     pragaDailyMaps = nullptr;
     users.clear();
     lastElabTargetisGrid = false;
+
+    outputMeteoPointsDbHandler = nullptr;
+    outputMeteoPointsLoaded = false;
 }
 
 void PragaProject::clearPragaProject()
 {
     if (isProjectLoaded) clearProject();
+
+    closeOutputMeteoPointsDB();
 
     users.clear();
 
@@ -1297,10 +1302,10 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
         else
         {
             arkIdVar.append(myDownload->getDbArkimet()->getId(variables[i]));
-            if (myDownload->getDbArkimet()->error != "")
+            if (myDownload->getDbArkimet()->getErrorString() != "")
             {
-                logError(myDownload->getDbArkimet()->error);
-                myDownload->getDbArkimet()->error.clear();
+                logError(myDownload->getDbArkimet()->getErrorString());
+                myDownload->getDbArkimet()->setErrorString("");
             }
         }
     }
@@ -1694,13 +1699,17 @@ QString getMapFileOutName(meteoVariable myVar, QDate myDate, int myHour)
     return name;
 }
 
+
 gis::Crit3DRasterGrid* PragaProject::getPragaMapFromVar(meteoVariable myVar)
 {
     gis::Crit3DRasterGrid* myGrid = nullptr;
 
+    // search in project maps (hourlyMeteoMaps and radiationMaps)
     myGrid = getHourlyMeteoRaster(myVar);
-    if (myGrid == nullptr) myGrid = pragaHourlyMaps->getMapFromVar(myVar);
+    // search in pragaDailyMaps
     if (myGrid == nullptr) myGrid = pragaDailyMaps->getMapFromVar(myVar);
+    // saerch in pragaHourlyMaps
+    if (myGrid == nullptr) myGrid = pragaHourlyMaps->getMapFromVar(myVar);
 
     return myGrid;
 }
@@ -1881,7 +1890,210 @@ bool PragaProject::hourlyDerivedVariablesGrid(QDate first, QDate last, bool load
     return true;
 }
 
-bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList <meteoVariable> aggrVariables, bool saveRasters, int nrDaysLoading, int nrDaysSaving)
+
+bool PragaProject::interpolationOutputPointsPeriod(QDate firstDate, QDate lastDate, QList <meteoVariable> variables)
+{
+    // check
+    if (variables.size() == 0)
+    {
+        errorString = "No variables";
+        return false;
+    }
+
+    if (! meteoPointsLoaded || nrMeteoPoints == 0)
+    {
+        errorString = "No meteo points";
+        return false;
+    }
+
+    if (! outputMeteoPointsLoaded || outputPoints.empty())
+    {
+        errorString = "No output points";
+        return false;
+    }
+
+    if (! DEM.isLoaded)
+    {
+        errorString = "Load a Digital Elevation Model before.";
+        return false;
+    }
+
+    // check dates
+    if (firstDate.isNull() || lastDate.isNull() || firstDate > lastDate)
+    {
+        errorString = "Wrong dates";
+        return false;
+    }
+
+    // check variables
+    bool isDaily = false;
+    bool isHourly = false;
+    QList<meteoVariable> varToSave;
+    meteoVariable myVar;
+
+    foreach (myVar, variables)
+    {
+        frequencyType freq = getVarFrequency(myVar);
+
+        if (freq == noFrequency)
+        {
+            errorString = "Unknown variable: " + QString::fromStdString(getMeteoVarName(myVar));
+            return false;
+        }
+        else if (freq == hourly)
+            isHourly = true;
+        else if (freq == daily)
+            isDaily = true;
+
+        varToSave.push_back(myVar);
+
+        // save two variables for vector wind
+        if (myVar == windVectorIntensity)
+            varToSave.push_back(windVectorDirection);
+        else if (myVar == windVectorDirection)
+            varToSave.push_back(windVectorIntensity);
+    }
+
+    // initialize maps
+    if (pragaDailyMaps == nullptr) pragaDailyMaps = new Crit3DDailyMeteoMaps(DEM);
+    if (pragaHourlyMaps == nullptr) pragaHourlyMaps = new PragaHourlyMeteoMaps(DEM);
+
+    // check if topographic distance is needed
+    bool useTd = false;
+    if (interpolationSettings.getUseTD())
+    {
+        foreach (myVar, variables)
+        {
+            if (getUseTdVar(myVar))
+            {
+                useTd = true;
+                break;
+            }
+        }
+    }
+
+    // load topographic distance
+    if (useTd)
+    {
+        logInfoGUI("Loading topographic distance maps...");
+        if (! loadTopographicDistanceMaps(true, false))
+            return false;
+    }
+
+    int nrDays = firstDate.daysTo(lastDate) + 1;
+    int nrDaysLoading = std::min(nrDays, 30);
+    int countDaysSaving = 0;
+
+    QDate myDate = firstDate;
+    QDate lastLoadingDate = firstDate.addDays(nrDaysLoading - 1);
+    while (myDate <= lastDate)
+    {
+        countDaysSaving++;
+
+        // check if load needed
+        if (myDate == firstDate || myDate > lastLoadingDate)
+        {
+            lastLoadingDate = myDate.addDays(nrDaysLoading - 1);
+            if (lastLoadingDate > lastDate)
+                lastLoadingDate = lastDate;
+
+            // load one day before (for transmissivity)
+            logInfoGUI("Loading meteo points data from " + myDate.addDays(-1).toString("yyyy-MM-dd") + " to " + lastLoadingDate.toString("yyyy-MM-dd"));
+            if (! loadMeteoPointsData(myDate.addDays(-1), lastLoadingDate, isHourly, isDaily, false))
+                return false;
+        }
+
+        if (isHourly)
+        {
+            // initialize
+            hourlyMeteoMaps->initialize();
+            radiationMaps->initialize();
+            pragaHourlyMaps->initialize();
+
+            for (int hour = 1; hour <= 24; hour++)
+            {
+                logInfoGUI("Interpolating hourly variables for " + myDate.toString("yyyy-MM-dd") + " " + QString::number(hour) + ":00");
+                foreach (myVar, variables)
+                {
+                    if (getVarFrequency(myVar) == hourly)
+                    {
+                        setComputeOnlyPoints(true);
+
+                        // TODO other special variables
+
+                        bool isOk;
+                        if (myVar == airRelHumidity && interpolationSettings.getUseDewPoint())
+                        {
+                            if (interpolationSettings.getUseInterpolatedTForRH())
+                            {
+                                passInterpolatedTemperatureToHumidityPoints(getCrit3DTime(myDate, hour), meteoSettings);
+                            }
+
+                            isOk = interpolationDemMain(airDewTemperature, getCrit3DTime(myDate, hour), hourlyMeteoMaps->mapHourlyTdew);
+
+                            if (isOk)
+                            {
+                                hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
+                            }
+                        }
+                        else
+                        {
+                            isOk = interpolationDemMain(myVar, getCrit3DTime(myDate, hour), getPragaMapFromVar(myVar));
+                        }
+
+                        setComputeOnlyPoints(false);
+
+                        if (! isOk)
+                            return false;
+                    }
+                }
+            }
+        }
+
+        if (isDaily)
+        {
+            logInfoGUI("Interpolating daily variables for " + myDate.toString("yyyy-MM-dd"));
+
+            // initialize
+            pragaDailyMaps->initialize();
+
+            foreach (myVar, variables)
+            {
+                if (getVarFrequency(myVar) == daily)
+                {
+                    setComputeOnlyPoints(true);
+
+                    // TODO special variables
+
+                    bool isOk = interpolationDemMain(myVar, getCrit3DTime(myDate, 0), getPragaMapFromVar(myVar));
+
+                    setComputeOnlyPoints(false);
+
+                    if (! isOk)
+                        return false;
+
+                    // fix daily temperatures consistency
+                    if (myVar == dailyAirTemperatureMax || myVar == dailyAirTemperatureMin)
+                    {
+                        if (! pragaDailyMaps->fixDailyThermalConsistency())
+                            return false;
+                    }
+                }
+            }
+        }
+
+        myDate = myDate.addDays(1);
+    }
+
+    closeLogInfo();
+    errorString = "TODO save data";
+    return false;
+}
+
+
+bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables,
+                                                QList <meteoVariable> aggrVariables, bool saveRasters,
+                                                int nrDaysLoading, int nrDaysSaving)
 {
     // check variables
     if (variables.size() == 0)
@@ -1911,9 +2123,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         return false;
     }
 
-    //order variables for derived computation
-
-    std::string id;
+    // order variables for derived computation
     std::string errString;
     QString myError, rasterName, varName;
     int myHour;
@@ -2121,7 +2331,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                     }
 
                     meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), 0, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
-
                 }
             }
         }
@@ -2153,8 +2362,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         return false;
 
     return true;
-
 }
+
 
 bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime)
 {
@@ -2170,7 +2379,7 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
         }
         else
         {
-            if (! interpolationGridMain(myVar, myTime))
+            if (! interpolationGrid(myVar, myTime))
                 return false;
         }
 
@@ -3540,5 +3749,126 @@ bool PragaProject::saveLogProceduresGrid(QString nameProc, QDate date)
         logError(myError);
         return false;
     }
+    return true;
+}
+
+
+// --------------------------- OUTPUT METEO POINTS ----------------------------------
+
+void PragaProject::closeOutputMeteoPointsDB()
+{
+    if (outputMeteoPointsDbHandler != nullptr)
+    {
+        delete outputMeteoPointsDbHandler;
+        outputMeteoPointsDbHandler = nullptr;
+    }
+
+    outputMeteoPointsLoaded = false;
+    outputPoints.clear();
+}
+
+
+bool PragaProject::loadOutputMeteoPointsDB(const QString &fileName)
+{
+    if (fileName.isEmpty())
+        return false;
+
+    closeOutputMeteoPointsDB();
+    errorString = "";
+    logInfo("Load output meteo points = " + fileName);
+
+    QString outputDbName = getCompleteFileName(fileName, PATH_METEOPOINT);
+    if (! QFile(outputDbName).exists())
+    {
+        errorString = "Output meteo points DB does not exists:\n" + outputDbName;
+        return false;
+    }
+
+    outputMeteoPointsDbHandler = new Crit3DMeteoPointsDbHandler(outputDbName);
+    if (! outputMeteoPointsDbHandler->getErrorString().isEmpty())
+    {
+        errorString = "Error in opening:\n" + outputDbName
+                      + "\n" + outputMeteoPointsDbHandler->getErrorString();
+        return false;
+    }
+
+    QList<Crit3DMeteoPoint> listMeteoPoints;
+    if (! outputMeteoPointsDbHandler->getPropertiesFromDb(listMeteoPoints, gisSettings, errorString))
+    {
+        errorString = "Error in reading table 'point_properties'\n" + errorString;
+        return false;
+    }
+
+    if (listMeteoPoints.empty())
+    {
+        errorString = "Missing data in the table 'point_properties'";
+        return false;
+    }
+    // set output points
+    outputPoints.resize(listMeteoPoints.size());
+    for (int i=0; i < listMeteoPoints.size(); i++)
+    {
+        outputPoints[i].id = listMeteoPoints[i].id;
+        outputPoints[i].latitude = listMeteoPoints[i].latitude;
+        outputPoints[i].longitude = listMeteoPoints[i].longitude;
+        outputPoints[i].utm = listMeteoPoints[i].point.utm;
+        outputPoints[i].z = listMeteoPoints[i].point.z;
+        outputPoints[i].active = listMeteoPoints[i].active;
+    }
+    listMeteoPoints.clear();
+
+    outputMeteoPointsLoaded = true;
+    logInfo("Output meteo points DB = " + outputDbName);
+
+    return true;
+}
+
+
+bool PragaProject::writeMeteoPointsProperties(const QList<QString> &joinedPropertiesList, const QList<QString> &csvFields,
+                                              const QList<QList<QString>> &csvData, bool isOutputPoints)
+{
+    QList<QString> propertiesList;
+    QList<int> posValues;
+
+    for (int i = 0; i < joinedPropertiesList.size(); i++)
+    {
+        QList<QString> couple = joinedPropertiesList[i].split("-->");
+        QString pragaProperty = couple[0];
+        QString csvProperty = couple[1];
+        int pos = csvFields.indexOf(csvProperty);
+        if (pos != -1)
+        {
+            propertiesList << pragaProperty;
+            posValues << pos;
+        }
+    }
+
+    for (int row = 0; row < csvData.size(); row++)
+    {
+        QList<QString> csvDataList;
+
+        for (int j = 0; j < posValues.size(); j++)
+        {
+            csvDataList << csvData[row][posValues[j]];
+        }
+
+        if (isOutputPoints)
+        {
+            if (! outputMeteoPointsDbHandler->updatePointProperties(propertiesList, csvDataList))
+            {
+                errorString = outputMeteoPointsDbHandler->getErrorString();
+                return false;
+            }
+        }
+        else
+        {
+            if (! meteoPointsDbHandler->updatePointProperties(propertiesList, csvDataList))
+            {
+                errorString = meteoPointsDbHandler->getErrorString();
+                return false;
+            }
+        }
+    }
+
     return true;
 }
