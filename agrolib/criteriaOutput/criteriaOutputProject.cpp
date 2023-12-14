@@ -440,7 +440,7 @@ int CriteriaOutputProject::precomputeDtx()
     logger.writeInfo("Compute dtx...");
 
     QString idCase;
-    int step = compUnitList.size() * 0.01;
+    int step = MAXVALUE(compUnitList.size() * 0.01, 1);
 
     for (unsigned int i=0; i < compUnitList.size(); i++)
     {
@@ -668,7 +668,13 @@ int CriteriaOutputProject::createMaps()
     for (int i=0; i < inputField.size(); i++)
     {
         QString mapName = outputShapeFilePath + "/" + outputName[i]+ "." + mapFormat;
-        QString paletteName = mapPalettePath + "/" + paletteFileName[i];
+
+        QString paletteName = "";
+        if (! mapPalettePath.isEmpty())
+        {
+            paletteName = mapPalettePath + "/" + paletteFileName[i];
+        }
+
         logger.writeInfo("Write map: " + mapName);
         if (shapeToRaster(outputShapeFileName, inputField[i], mapCellSize, mapProjection, mapName, paletteName, projectError))
         {
