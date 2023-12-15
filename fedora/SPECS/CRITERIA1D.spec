@@ -3,7 +3,7 @@
 
 Name:           CRITERIA1D
 Version:        1.8.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        One-dimensional agro-hydrological model
 
 URL:            https://github.com/ARPA-SIMC/CRITERIA1D
@@ -79,6 +79,9 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
+* Fri Dec 15 2023 Fausto Tomei <ftomei@arpae.it> - 1.8.0-2
+- Release 1.8.0
+
 * Wed Nov 22 2023 Fausto Tomei <ftomei@arpae.it> - 1.8.0-1
 - Release 1.8.0
 
