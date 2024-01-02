@@ -21,9 +21,9 @@ void usage()
               << "CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl
               << "\nNotes:" << std::endl
               << "- dates must be in YYYY-MM-DD format" << std::endl
-              << "- default dates are the first and last date of the weather data tables in the db_meteo (SQLite)" << std::endl
-              << "- in the projects with gridded weather data (MySQL), default lastDate is yesterday" << std::endl
-              << "- firstDate and lastDate can be also defined in the project.ini" << std::endl;
+              << "- the default dates are the first and last of the weather data tables in the db_meteo file" << std::endl
+              << "- in projects with gridded weather data (MySQL), the default lastDate is yesterday" << std::endl
+              << "- firstDate and lastDate can also be defined in the project.ini file" << std::endl;
 
     std::cout << std::flush;
 }
