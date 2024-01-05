@@ -1835,12 +1835,11 @@ bool elaborateDailyAggrVarFromDailyFromStartDate(meteoVariable myVar, Crit3DMete
         return true;
     else
         return false;
-
 }
+
 
 bool aggregatedHourlyToDaily(meteoVariable myVar, Crit3DMeteoPoint* meteoPoint, Crit3DDate dateIni, Crit3DDate dateFin, Crit3DMeteoSettings *meteoSettings)
 {
-
     Crit3DDate date;
     std::vector <float> values;
     float value, dailyValue;
@@ -4947,21 +4946,20 @@ bool appendXMLAnomaly(Crit3DAnomalyList *listXMLAnomaly, QString xmlFileName, QS
     output << xmlDoc.toString();
     outputFile.close();
     return true;
-
 }
+
 
 bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDate firstDate, QDate lastDate,
                               std::vector<meteoVariable> dailyMeteoVar,
-                              Crit3DMeteoSettings* meteoSettings, Crit3DQuality* qualityCheck, Crit3DClimateParameters* climateParam)
+                              Crit3DMeteoSettings* meteoSettings, Crit3DQuality* qualityCheck,
+                              Crit3DClimateParameters* climateParam, QString &myError)
 {
     int nrMonths = (lastDate.year()-firstDate.year())*12+lastDate.month()-(firstDate.month()-1);
-    QString myError;
     bool isMeteoGrid = true;
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
     float percValue;
     std::vector<float> outputValues;
     QList<meteoVariable> meteoVariableList;
-    bool dataSaved = false;
 
     for (unsigned row = 0; row < unsigned(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows); row++)
     {
@@ -4993,29 +4991,30 @@ bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDat
                         }
                     }
                 }
-                // copy meteoPoint Temp valus
+                // copy meteoPoint Temp values
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->obsDataM = meteoPointTemp->obsDataM ;
-                if (!meteoVariableList.isEmpty())
+                if (! meteoVariableList.isEmpty())
                 {
-                    if (meteoGridDbHandler->saveCellGridMonthlyData(&myError, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), row, col, firstDate, lastDate, meteoVariableList))
+                    if (! meteoGridDbHandler->saveCellGridMonthlyData(&myError, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), row, col, firstDate, lastDate, meteoVariableList))
                     {
-                        dataSaved = true;
+                        delete meteoPointTemp;
+                        return false;
                     }
                 }
             }
         }
     }
+
     delete meteoPointTemp;
-    return dataSaved;
+    return true;
 }
+
 
 int computeAnnualSeriesOnPointFromDaily(QString *myError, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler,
                                          Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima, bool isMeteoGrid, bool isAnomaly, Crit3DMeteoSettings* meteoSettings,
                                         std::vector<float> &outputValues, bool dataAlreadyLoaded)
 {
     int validYears = 0;
-    meteoComputation elabMeteoComp = getMeteoCompFromString(MapMeteoComputation, clima->elab1().toStdString());
-
     if (clima->param1IsClimate())
     {
         clima->param1();
@@ -5289,11 +5288,10 @@ void computeClimateOnDailyData(Crit3DMeteoPoint meteoPoint, meteoVariable var, Q
     }
 }
 
+
 void setMpValues(Crit3DMeteoPoint meteoPointGet, Crit3DMeteoPoint* meteoPointSet, QDate myDate, meteoVariable myVar, Crit3DMeteoSettings* meteoSettings)
 {
-
     bool automaticETP = meteoSettings->getAutomaticET0HS();
-    bool automaticTmed = meteoSettings->getAutomaticTavg();
     Crit3DQuality qualityCheck;
 
     switch(myVar)
@@ -5407,8 +5405,8 @@ void setMpValues(Crit3DMeteoPoint meteoPointGet, Crit3DMeteoPoint* meteoPointSet
             break;
         }
     }
-
 }
+
 
 meteoComputation getMeteoCompFromString(std::map<std::string, meteoComputation> map, std::string value)
 {

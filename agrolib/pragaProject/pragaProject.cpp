@@ -2245,6 +2245,9 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     if (nrDaysLoading == NODATA)
         nrDaysLoading = dateIni.daysTo(dateFin)+1;
 
+    if (nrDaysSaving == NODATA || nrDaysSaving > nrDaysLoading)
+        nrDaysSaving = nrDaysLoading;
+
     while (myDate <= dateFin)
     {
         countDaysSaving++;
@@ -2437,6 +2440,7 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
     return true;
 }
 
+
 bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter)
 {
     frequencyType myFreq = getVarFrequency(myVar);
@@ -2496,10 +2500,9 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
 
     if (modality == MODE_GUI) closeProgressBar();
 
-
-
     return true;
 }
+
 
 bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList <QDate> &dateList, QList <QString> &idList)
 {
@@ -2766,6 +2769,7 @@ void PragaProject::deleteSynchWidget()
 {
     synchronicityWidget = nullptr;
 }
+
 
 void PragaProject::showPointStatisticsWidgetGrid(std::string id)
 {
@@ -3235,9 +3239,8 @@ bool PragaProject::loadXMLImportData(QString fileName)
 }
 
 
-bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables)
+bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList<meteoVariable> &variablesList)
 {
-
     // check meteo grid
     if (! meteoGridLoaded)
     {
@@ -3246,23 +3249,29 @@ bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVar
     }
 
     // check dates
-    if (first.isNull() || last.isNull() || first > last)
+    if (firstDate.isNull() || lastDate.isNull() || firstDate > lastDate)
     {
         logError("Wrong period");
         return false;
     }
 
     std::vector <meteoVariable> dailyMeteoVar;
-    for (int i = 0; i < variables.size(); i++)
+    for (int i = 0; i < variablesList.size(); i++)
     {
-        meteoVariable dailyVar = updateMeteoVariable(variables[i], daily);
+        meteoVariable dailyVar = updateMeteoVariable(variablesList[i], daily);
         if (dailyVar != noMeteoVar)
         {
             dailyMeteoVar.push_back(dailyVar);
         }
     }
-    return monthlyAggregateDataGrid(meteoGridDbHandler, first, last, dailyMeteoVar, meteoSettings, quality, &climateParameters);
+
+    if (! monthlyAggregateDataGrid(meteoGridDbHandler, firstDate, lastDate, dailyMeteoVar, meteoSettings,
+                                  quality, &climateParameters, errorString))
+        return false;
+
+    meteoGridDbHandler->updateMeteoGridDate(errorString);
 }
+
 
 bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar)
 {
