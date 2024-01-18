@@ -54,15 +54,15 @@ Only for **CRITERIA GEO**:
 > See [gdalHandler](https://github.com/ARPA-SIMC/CRITERIA1D/tree/master/agrolib/gdalHandler) for GDAL installation.
 
 ### Build
-- LINUX: run */deploy/CRITERIA1D_build_Linux.sh*
-- WINDOWS (Visual Studio c++ compiler): run */deploy/CRITERIA1D_build_MSVC_bat*
-- WINDOWS (MinGW c++ compiler): run */deploy/CRITERIA1D_build_MinGW_bat*       
-- MACOS: run CRITERIA1D_build_MacOS.sh (modify path in the first line of the script)  
+- LINUX:  *deploy/CRITERIA1D_build_Linux.sh*
+- MACOS:  *deploy/CRITERIA1D_build_MacOS.sh* 
+- WINDOWS (Visual Studio c++ compiler): *deploy/CRITERIA1D_build_MSVC_bat*
+- WINDOWS (MinGW c++ compiler): *deploy/CRITERIA1D_build_MinGW_bat*       
+### Warning 
+- For LINUX and MACOS: modify QT_DIR in the first line of the script.
+- For WINDOWS: read the information in the first lines of the script file.
 
-**WARNING** for ALL platforms: please read the information in the first lines of the script.
-
-The distribution will be created in the directory /deploy/CRITERIA1D/
-
+The distribution will be created in the directory /deploy/CRITERIA1D/  
 
 ## License
 CRITERIA-1D has been developed under contract issued by 
