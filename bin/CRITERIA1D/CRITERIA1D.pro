@@ -45,13 +45,15 @@ SOURCES += \
 HEADERS +=
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo \
-                ../../agrolib/soil ../../agrolib/crop ../../agrolib/utilities ../../agrolib/dbMeteoGrid ../../agrolib/criteriaModel
+                ../../agrolib/soil ../../agrolib/carbonNitrogen ../../agrolib/crop ../../agrolib/utilities \
+                ../../agrolib/dbMeteoGrid ../../agrolib/criteriaModel
 
 CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/criteriaModel/debug -lcriteriaModel
     LIBS += -L../../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
-    LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../agrolib/crop/debug -lcrop
+    LIBS += -L../../agrolib/utilities/debug -lutilities
+    LIBS += -L../../agrolib/carbonNitrogen/debug -lcarbonNitrogen
     LIBS += -L../../agrolib/soil/debug -lsoil
     LIBS += -L../../agrolib/meteo/debug -lmeteo
     LIBS += -L../../agrolib/gis/debug -lgis
@@ -63,8 +65,9 @@ CONFIG(debug, debug|release) {
 
     LIBS += -L../../agrolib/criteriaModel/release -lcriteriaModel
     LIBS += -L../../agrolib/dbMeteoGrid/release -ldbMeteoGrid
-    LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../agrolib/crop/release -lcrop
+    LIBS += -L../../agrolib/utilities/release -lutilities
+    LIBS += -L../../agrolib/carbonNitrogen/release -lcarbonNitrogen
     LIBS += -L../../agrolib/soil/release -lsoil
     LIBS += -L../../agrolib/meteo/release -lmeteo
     LIBS += -L../../agrolib/gis/release -lgis

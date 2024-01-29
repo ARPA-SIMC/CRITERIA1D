@@ -65,17 +65,23 @@ void ColorMapGraph::draw(Crit3DOut* out, outputGroup graphType)
 
     float maxDepth = myOut->layerThickness * ((float)(ny-1) + 0.5);
     colorMap->data()->setSize(nx, ny);
-    colorMap->data()->setRange(QCPRange(0, nx), QCPRange(maxDepth,0));
-    graphic->xAxis->setRange(0, nx);
 
-    for (unsigned int z = 1; z <= ny; z++)
+    for (int y = 1; y <= ny; y++)
     {
         mySeries.clear();
-        mySeries = getProfileSeries(myOut, graphType, z, &minSeries, &maxSeries);
+        mySeries = getProfileSeries(myOut, graphType, y, &minSeries, &maxSeries);
+
+        if (y == 1)
+        {
+            graphic->xAxis->setRange(0, mySeries[mySeries.size()-1].x());
+            colorMap->data()->setRange(QCPRange(0, mySeries[mySeries.size()-1].x()), QCPRange(maxDepth,0));
+        }
+
         for (unsigned int j = 0; j < mySeries.size(); j++)
         {
-            colorMap->data()->setCell(mySeries[j].x(), z-1, mySeries[j].y());
+            colorMap->data()->setCell(j, y-1, mySeries[j].y());
         }
+
         minGraph = (minGraph == NODATA) ? minSeries : ((minSeries != NODATA && minSeries < minGraph) ? minSeries : minGraph);
         maxGraph = (maxGraph == NODATA) ? maxSeries : ((maxSeries != NODATA && maxSeries > maxGraph) ? maxSeries : maxGraph);
     }

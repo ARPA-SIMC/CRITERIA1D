@@ -16,15 +16,14 @@
 
 void usage()
 {
-    std::cout << "CRITERIA-1D agro-hydrological model" << std::endl
-              << "\nUsage:" << std::endl
+    std::cout << "Usage:" << std::endl
               << "CRITERIA1D <project.ini> [lastDate]" << std::endl
-              << "CRITERIA1D <project.ini> [firstDate lastDate]" << std::endl
+              << "CRITERIA1D <project.ini> [firstDate] [lastDate]" << std::endl
               << "\nNotes:" << std::endl
-              << "- dates must be in YYYY-MM-DD format;" << std::endl
-              << "- firstDate and lastDate can be defined in the project.ini;" << std::endl
-              << "- default dates are the first and last date of the data tables in the db_meteo (SQLite);" << std::endl
-              << "- in the projects with MySQL meteoGrid data, default lastDate is yesterday." << std::endl;
+              << "- dates must be in YYYY-MM-DD format" << std::endl
+              << "- the default dates are the first and last of the weather data tables in the db_meteo file" << std::endl
+              << "- in projects with gridded weather data (MySQL), the default lastDate is yesterday" << std::endl
+              << "- firstDate and lastDate can also be defined in the project.ini file" << std::endl;
 
     std::cout << std::flush;
 }
@@ -33,16 +32,17 @@ void usage()
 int main(int argc, char *argv[])
 {
     QCoreApplication myApp(argc, argv);
+    std::cout << "CRITERIA-1D agro-hydrological model v1.8.1\n" << std::endl;
 
     Crit1DProject myProject;
 
     QString appPath = myApp.applicationDirPath() + "/";
-    QString settingsFileName;
+    QString projectFileName;
 
     if (argc > 1)
     {
         // settings file
-        settingsFileName = argv[1];
+        projectFileName = argv[1];
     }
     else
     {
@@ -52,10 +52,11 @@ int main(int argc, char *argv[])
         QString projectPath = dataPath + PATH_PROJECT;
 
         #ifdef TEST
-            settingsFileName = projectPath + "kiwifruit/kiwifruit.ini";
+            projectFileName = projectPath + "test/test.ini";
         #else
             #ifdef TEST_GEO
-                settingsFileName = projectPath + "INCOLTO/incolto.ini";
+                //projectFileName = projectPath + "INCOLTO/incolto.ini";
+                //projectFileName = "//moses-arpae/CRITERIA1D/PROJECTS/CLARA/iCOLT_2023/seasonalIrriClimate_RO.ini";
             #else
                 usage();
                 return 1;
@@ -113,17 +114,22 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (settingsFileName.at(0) == '.')
-        settingsFileName = appPath + settingsFileName;
+    if (projectFileName == "")
+    {
+        std::cout << "*** WARNING: the project filename is missing\n" << std::endl;
+        usage();
+        return 1;
+    }
 
-    int myResult = myProject.initializeProject(settingsFileName);
+    if (projectFileName.at(0) == '.')
+        projectFileName = appPath + projectFileName;
+
+    int myResult = myProject.initializeProject(projectFileName);
     if (myResult != CRIT1D_OK)
     {
         myProject.logger.writeError(myProject.projectError);
         return myResult;
     }
-
-    myProject.logger.writeInfo("COMPUTE...");
 
     myResult = myProject.computeAllUnits();
 

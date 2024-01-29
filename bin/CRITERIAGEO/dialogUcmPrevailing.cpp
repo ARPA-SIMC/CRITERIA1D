@@ -17,17 +17,17 @@ QString DialogUcmPrevailing::getIdMeteo() const
 
 Crit3DShapeHandler *DialogUcmPrevailing::getCrop() const
 {
-    return crop;
+    return shapeCrop;
 }
 
 Crit3DShapeHandler *DialogUcmPrevailing::getSoil() const
 {
-    return soil;
+    return shapeSoil;
 }
 
 Crit3DShapeHandler *DialogUcmPrevailing::getMeteo() const
 {
-    return meteo;
+    return shapeMeteo;
 }
 
 
@@ -67,7 +67,7 @@ DialogUcmPrevailing::DialogUcmPrevailing(std::vector<Crit3DShapeHandler*> shapeO
     shapeLayout->addWidget(meteoShape);
 
 
-    QStringList shapeLabel;
+    QList<QString> shapeLabel;
 
     for (unsigned int i = 0; i < shapeObjList.size(); i++)
     {
@@ -128,12 +128,12 @@ void DialogUcmPrevailing::shapeCropClicked(QListWidgetItem* item)
 {
     cropField->clear();
     unsigned int pos = cropShape->row(item);
-    crop = shapeObjList.at(pos);
+    shapeCrop = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
-    for (int i = 0; i < crop->getFieldNumbers(); i++)
+    QList<QString> fieldLabel;
+    for (int i = 0; i < shapeCrop->getFieldNumbers(); i++)
     {
-        std::string nameField =  crop->getFieldName(i);
+        std::string nameField =  shapeCrop->getFieldName(i);
         fieldLabel << QString::fromStdString(nameField);
     }
     cropField->addItems(fieldLabel);
@@ -143,12 +143,12 @@ void DialogUcmPrevailing::shapeSoilClicked(QListWidgetItem* item)
 {
     soilField->clear();
     unsigned int pos = soilShape->row(item);
-    soil = shapeObjList.at(pos);
+    shapeSoil = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
-    for (int i = 0; i < soil->getFieldNumbers(); i++)
+    QList<QString> fieldLabel;
+    for (int i = 0; i < shapeSoil->getFieldNumbers(); i++)
     {
-        std::string nameField =  soil->getFieldName(i);
+        std::string nameField =  shapeSoil->getFieldName(i);
         fieldLabel << QString::fromStdString(nameField);
     }
     soilField->addItems(fieldLabel);
@@ -158,12 +158,12 @@ void DialogUcmPrevailing::shapeMeteoClicked(QListWidgetItem* item)
 {
     meteoField->clear();
     unsigned int pos = meteoShape->row(item);
-    meteo = shapeObjList.at(pos);
+    shapeMeteo = shapeObjList.at(pos);
 
-    QStringList fieldLabel;
-    for (int i = 0; i < meteo->getFieldNumbers(); i++)
+    QList<QString> fieldLabel;
+    for (int i = 0; i < shapeMeteo->getFieldNumbers(); i++)
     {
-        std::string nameField =  meteo->getFieldName(i);
+        std::string nameField =  shapeMeteo->getFieldName(i);
         fieldLabel << QString::fromStdString(nameField);
     }
     meteoField->addItems(fieldLabel);
@@ -182,7 +182,7 @@ void DialogUcmPrevailing::ucm()
         return;
     }
     unsigned int pos = cropShape->row(itemSelected);
-    crop = shapeObjList.at(pos);
+    shapeCrop = shapeObjList.at(pos);
 
     itemSelected = soilShape->currentItem();
     if (itemSelected == nullptr)
@@ -191,7 +191,7 @@ void DialogUcmPrevailing::ucm()
         return;
     }
     pos = soilShape->row(itemSelected);
-    soil = shapeObjList.at(pos);
+    shapeSoil = shapeObjList.at(pos);
 
     itemSelected = meteoShape->currentItem();
     if (itemSelected == nullptr)
@@ -200,7 +200,7 @@ void DialogUcmPrevailing::ucm()
         return;
     }
     pos = meteoShape->row(itemSelected);
-    meteo = shapeObjList.at(pos);
+    shapeMeteo = shapeObjList.at(pos);
 
     // check field selection
 

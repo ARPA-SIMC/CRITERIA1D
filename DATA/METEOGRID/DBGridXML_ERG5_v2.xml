@@ -3,8 +3,8 @@
 	<connection>
 		<provider>mysql</provider>
 		<server>agrosql-smr.metarpa</server>
-		<name>ERG5_v2</name>
 		<user>root</user>
+		<name>ERG5_v2</name>
 		<password>Praga</password>
 	</connection>
 	

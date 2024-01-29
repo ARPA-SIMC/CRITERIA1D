@@ -28,10 +28,12 @@ bool setProxy(QString hostName, unsigned short port)
     myProxy.setHostName(hostName);
     myProxy.setPort(port);
 
-    try {
+    try
+    {
        QNetworkProxy::setApplicationProxy(myProxy);
     }
-    catch (...) {
+    catch (...)
+    {
         QMessageBox::information(nullptr, "Error in proxy configuration!", "");
         return false;
     }

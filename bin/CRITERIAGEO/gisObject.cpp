@@ -52,19 +52,19 @@ void GisObject::initialize()
 }
 
 
-void GisObject::setRaster(QString fileNameWithPath, gis::Crit3DRasterGrid* rasterPtr, int utmZone)
+void GisObject::setRaster(QString fileNameWithPath, gis::Crit3DRasterGrid* _rasterPtr, int utmZone)
 {
     this->type = gisObjectRaster;
     this->fileNameWithPath = fileNameWithPath;
     this->fileName = getFileName(fileNameWithPath);
     this->isSelected = true;
 
-    this->rasterPtr = rasterPtr;
+    this->rasterPtr = _rasterPtr;
     this->gisSettings.utmZone = utmZone;
 }
 
 
-void GisObject::setShapeFile(QString fileNameWithPath, QString projectName, Crit3DShapeHandler* shapePtr, int utmZone)
+void GisObject::setShapeFile(QString fileNameWithPath, QString projectName, Crit3DShapeHandler* _shapePtr, int utmZone)
 {
     this->type = gisObjectShape;
     this->fileNameWithPath = fileNameWithPath;
@@ -72,33 +72,43 @@ void GisObject::setShapeFile(QString fileNameWithPath, QString projectName, Crit
     this->projectName = projectName;
     this->isSelected = true;
 
-    this->shapePtr = shapePtr;
+    this->shapePtr = _shapePtr;
     this->gisSettings.utmZone = utmZone;
 }
 
 
-gis::Crit3DRasterGrid* GisObject::getRaster()
+/*
+void GisObject::setNetcdf(QString fileNameWithPath, NetCDFHandler* _netcdfPtr, int utmZone)
 {
-    return this->rasterPtr;
-}
+    this->type = gisObjectNetcdf;
+    this->fileNameWithPath = fileNameWithPath;
+    this->fileName = getFileName(fileNameWithPath);
+    this->isSelected = true;
 
-
-Crit3DShapeHandler* GisObject::getShapeHandler()
-{
-    return this->shapePtr;
+    this->netcdfPtr = _netcdfPtr;
+    this->gisSettings.utmZone = utmZone;
 }
+*/
 
 
 void GisObject::close()
 {
+
     if (this->type == gisObjectRaster)
     {
         delete rasterPtr;
     }
-    else if (this->type == gisObjectShape)
+
+    if (this->type == gisObjectShape)
     {
         shapePtr->close();
     }
+
+    /*
+    if (this->type == gisObjectNetcdf)
+    {
+        netcdfPtr->close();
+    }*/
 
     this->initialize();
 }

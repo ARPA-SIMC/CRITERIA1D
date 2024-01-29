@@ -35,6 +35,7 @@
 #include "shapeUtilities.h"
 #include "utilities.h"
 #include "formInfo.h"
+#include "mapGraphicsRasterObject.h"
 
 #ifdef GDAL
     #include "gdalExtensions.h"
@@ -59,6 +60,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     isDoubleClick = false;
+
+    // initialize info dialog for shape
+    shapeInfoDialog.setWindowTitle("Shape info");
+    shapeInfoBrowser.setFixedSize(300,500);
+    QVBoxLayout shapeLayout;
+    shapeLayout.addWidget(&shapeInfoBrowser);
+    shapeInfoDialog.setLayout(&shapeLayout);
+    shapeInfoDialog.setWindowFlag(Qt::WindowStaysOnTopHint);
 
     // Set the MapGraphics Scene and View
     this->mapScene = new MapGraphicsScene(this);
@@ -85,6 +94,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    shapeInfoDialog.close();
+    shapeInfoDialog.deleteLater();
+
     if (! this->rasterObjList.empty())
     {
         for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
@@ -150,9 +162,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
             selectShape(event->pos());
         }
     }
-    this->isDoubleClick = false;
 
-    this->updateMaps();
+    this->isDoubleClick = false;
 }
 
 
@@ -277,13 +288,13 @@ void MainWindow::setTileSource(WebTileSource::WebTileType tileType)
 }
 
 
-QPoint MainWindow::getMapPos(const QPoint& pos)
+QPoint MainWindow::getMapPos(const QPoint& screenPos)
 {
     QPoint mapPos;
     int dx = ui->widgetMap->x();
     int dy = ui->widgetMap->y() + ui->menuBar->height();
-    mapPos.setX(pos.x() - dx - MAPBORDER);
-    mapPos.setY(pos.y() - dy - MAPBORDER);
+    mapPos.setX(screenPos.x() - dx - MAPBORDER);
+    mapPos.setY(screenPos.y() - dy - MAPBORDER);
     return mapPos;
 }
 
@@ -307,9 +318,9 @@ void MainWindow::addRasterObject(GisObject* myObject)
     item->setCheckState(Qt::Checked);
     ui->checkList->addItem(item);
 
-    RasterObject* newRasterObj = new RasterObject(this->mapView);
+    RasterUtmObject* newRasterObj = new RasterUtmObject(this->mapView);
     newRasterObj->setOpacity(0.66);
-    newRasterObj->initializeUTM(myObject->getRaster(), myObject->gisSettings, false);
+    newRasterObj->initialize(myObject->getRaster(), myObject->gisSettings);
     this->rasterObjList.push_back(newRasterObj);
 
     this->mapView->scene()->addObject(newRasterObj);
@@ -317,11 +328,41 @@ void MainWindow::addRasterObject(GisObject* myObject)
 }
 
 
+/*
+void MainWindow::addNetcdfObject(GisObject* myObject)
+{
+    QListWidgetItem* item = new QListWidgetItem("[NETCDF] " + myObject->fileName);
+    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+    item->setCheckState(Qt::Checked);
+    ui->checkList->addItem(item);
+
+    RasterObject* netcdfObj = new RasterObject(this->mapView);
+    netcdfObj->setOpacity(0.66);
+
+    NetCDFHandler* netcdfPtr = myObject->getNetcdfHandler();
+
+    if (netcdfPtr->isLatLon || netcdfPtr->isRotatedLatLon)
+    {
+        netcdfObj->initializeLatLon(netcdfPtr->getRaster(), myObject->gisSettings, netcdfPtr->latLonHeader, true);
+    }
+    else
+    {
+        netcdfObj->initializeUTM(netcdfPtr->getRaster(), myObject->gisSettings, true);
+    }
+
+    this->rasterObjList.push_back(netcdfObj);
+
+    this->mapView->scene()->addObject(netcdfObj);
+    this->updateMaps();
+}
+*/
+
+
 bool MainWindow::addShapeObject(GisObject* myObject)
 {
     // check zoneNumber
     int zoneNumber = myObject->getShapeHandler()->getUtmZone();
-    if (zoneNumber < 1 || zoneNumber > 60)
+    if ((zoneNumber < 1) || (zoneNumber > 60))
     {
         QMessageBox::critical(nullptr, "ERROR!", "Wrong UTM zone.");
         return false;
@@ -357,6 +398,21 @@ bool MainWindow::addShapeObject(GisObject* myObject)
 }
 
 
+// resize and center map on last raster size
+void MainWindow::zoomOnLastRaster()
+{
+    RasterUtmObject* myRaster = this->rasterObjList.back();
+
+    Position center = myRaster->getRasterCenter();
+    float size = myRaster->getRasterMaxSize();
+
+    this->mapView->setZoomLevel(quint8(log2(float(ui->widgetMap->width()) / size)));
+    this->mapView->centerOn(center.longitude(), center.latitude());
+
+    this->updateMaps();
+}
+
+
 void MainWindow::on_actionLoadRaster_triggered()
 {
     #ifdef GDAL
@@ -368,7 +424,8 @@ void MainWindow::on_actionLoadRaster_triggered()
 
         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "", rasterFormats.join(";;"));
     #else
-         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "", tr("ESRI grid files (*.flt)"));
+         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "",
+                                                            tr("ESRI FLT (*.flt);;ENVI IMG (*.img)"));
     #endif
 
     if (fileNameWithPath == "") return;
@@ -377,14 +434,25 @@ void MainWindow::on_actionLoadRaster_triggered()
         return;
 
     this->addRasterObject(myProject.objectList.back());
-
-    // resize and center map
-    gis::Crit3DGeoPoint* center = this->rasterObjList.back()->getRasterCenter();
-    float size = this->rasterObjList.back()->getRasterMaxSize();
-    this->mapView->setZoomLevel(quint8(log2(float(ui->widgetMap->width()) / size)));
-    this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
-    this->updateMaps();
+    this->zoomOnLastRaster();
 }
+
+
+/*
+void MainWindow::on_actionLoad_NetCDF_triggered()
+{
+    QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open NetCDF file"), "", tr("NetCDF files (*.nc)"));
+
+    if (fileNameWithPath == "") return;
+
+    if (! myProject.loadNetcdf(fileNameWithPath))
+       return;
+
+    GisObject* myObject = myProject.objectList.back();
+    this->addNetcdfObject(myObject);
+    this->zoomOnLastRaster();
+}
+*/
 
 
 void MainWindow::on_actionLoadShapefile_triggered()
@@ -401,25 +469,41 @@ void MainWindow::on_actionLoadShapefile_triggered()
 }
 
 
+int MainWindow::getRasterIndex(GisObject* myObject)
+{
+    for (unsigned int i = 0; i < rasterObjList.size(); i++)
+    {
+        if (myObject->type == gisObjectRaster)
+        {
+            if (rasterObjList.at(i)->getRaster() == myObject->getRaster())
+                return i;
+        }
+        /*
+        else if (myObject->type == gisObjectNetcdf)
+        {
+            if (rasterObjList.at(i)->getRaster() == myObject->getNetcdfHandler()->getRaster())
+                return i;
+        }
+        */
+    }
+
+    return NODATA;
+}
+
+
 void MainWindow::itemClicked(QListWidgetItem* item)
 {
-
     int pos = ui->checkList->row(item);
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
-    if (myObject->type == gisObjectRaster)
+    if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
     {
-        unsigned int i;
-        for (i = 0; i < rasterObjList.size(); i++)
+        int i = getRasterIndex(myObject);
+        if (i != NODATA)
         {
-            if (rasterObjList.at(i)->getRaster() == myObject->getRaster())
-            {
-                break;
-            }
+            myObject->isSelected = item->checkState();
+            rasterObjList.at(i)->setVisible(myObject->isSelected);
         }
-
-        myObject->isSelected = item->checkState();
-        rasterObjList.at(i)->setVisible(myObject->isSelected);
     }
     else if (myObject->type == gisObjectShape)
     {
@@ -427,13 +511,14 @@ void MainWindow::itemClicked(QListWidgetItem* item)
         for (i = 0; i < shapeObjList.size(); i++)
         {
             if (shapeObjList.at(i)->getShapePointer() == myObject->getShapeHandler())
-            {
                 break;
-            }
         }
 
-        myObject->isSelected = item->checkState();
-        shapeObjList.at(i)->setVisible(myObject->isSelected);
+        if (i < shapeObjList.size())
+        {
+            myObject->isSelected = item->checkState();
+            shapeObjList.at(i)->setVisible(myObject->isSelected);
+        }
     }
 }
 
@@ -443,11 +528,11 @@ void MainWindow::saveRaster(GisObject* myObject)
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save raster Grid"), "", tr("ESRI grid files (*.flt)"));
     if (fileName == "") return;
 
-    std::string error;
+    std::string errorStr;
     fileName = fileName.left(fileName.length() - 4);
-    if (! gis::writeEsriGrid(fileName.toStdString(), myObject->getRaster(), &error))
+    if (! gis::writeEsriGrid(fileName.toStdString(), myObject->getRaster(), errorStr))
     {
-        QMessageBox::information(nullptr, "Error", QString::fromStdString(error));
+        QMessageBox::information(nullptr, "ERROR!", QString::fromStdString(errorStr));
     }
 }
 
@@ -462,13 +547,9 @@ void MainWindow::saveShape(GisObject* myObject)
 
 void MainWindow::removeRaster(GisObject* myObject)
 {
-    unsigned int i;
-    for (i = 0; i < this->rasterObjList.size(); i++)
-    {
-        if (this->rasterObjList.at(i)->getRaster() == myObject->getRaster()) break;
-    }
+    int i = getRasterIndex(myObject);
 
-    if (i < this->rasterObjList.size())
+    if (i != NODATA)
     {
         // remove from scene
         this->mapView->scene()->removeObject(this->rasterObjList.at(i));
@@ -478,15 +559,14 @@ void MainWindow::removeRaster(GisObject* myObject)
 }
 
 
-RasterObject* MainWindow::getRasterObject(GisObject* myObject)
+RasterUtmObject* MainWindow::getRasterObject(GisObject* myObject)
 {
-    for (unsigned int i = 0; i < rasterObjList.size(); i++)
-    {
-        if (rasterObjList.at(i)->getRaster() == myObject->getRaster())
-            return rasterObjList.at(i);
-    }
+    int i = getRasterIndex(myObject);
 
-    return nullptr;
+    if (i != NODATA)
+        return rasterObjList.at(i);
+    else
+        return nullptr;
 }
 
 
@@ -531,8 +611,7 @@ void MainWindow::setShapeStyle(GisObject* myObject, std::string fieldName)
         shapeObject->setNumericValues(fieldName);
     }
 
-    //setZeroCenteredScale(shapeObject->colorScale);
-    setTemperatureScale(shapeObject->colorScale);
+    setDefaultScale(shapeObject->colorScale);
     shapeObject->setFill(true);
 }
 
@@ -612,7 +691,7 @@ bool MainWindow::exportToRaster(GisObject* myObject)
         }
 
         QString errorStr;
-        if (!myProject.createRaster(QString::fromStdString(shapeFilePath), fieldName, res, outputName, errorStr))
+        if (!myProject.createRaster(QString::fromStdString(shapeFilePath), QString::fromStdString(fieldName), res, outputName, errorStr))
         {
             QMessageBox::critical(nullptr, "ERROR!", "GDAL Error: " + errorStr);
             return false;
@@ -638,55 +717,71 @@ void MainWindow::itemMenuRequested(const QPoint point)
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
     QMenu submenu;
-    RasterObject* myRasterObject = nullptr;
+    RasterUtmObject* myRasterObject = getRasterObject(myObject);
+    MapGraphicsShapeObject* myShapeObject = getShapeObject(myObject);
 
     if (myObject->type == gisObjectShape)
     {
-        if (myObject->projectName.isEmpty())
+        if (myShapeObject != nullptr)
+        {
+            if (! myObject->projectName.isEmpty())
+            {
+                submenu.addAction("Close Project");
+                submenu.addSeparator();
+            }
+            else
+            {
+                submenu.addAction("Remove");
+                submenu.addSeparator();
+                submenu.addAction("Save as");
+                submenu.addSeparator();
+            }
+
+            submenu.addAction("Show data");
+            submenu.addAction("Attribute table");
+            submenu.addSeparator();
+            submenu.addAction("Set style");
+            submenu.addAction("Set grayscale");
+            submenu.addAction("Set default scale");
+            submenu.addAction("Reverse color scale");
+            submenu.addSeparator();
+            submenu.addAction("Export to raster");
+            submenu.addAction("Export to NetCDF");
+        }
+    }
+    if (myObject->type == gisObjectRaster)
+    {
+        if (myRasterObject != nullptr)
         {
             submenu.addAction("Remove");
             submenu.addSeparator();
             submenu.addAction("Save as");
             submenu.addSeparator();
-        }
-        else
-        {
-            submenu.addAction("Close Project");
-            submenu.addSeparator();
-        }
-        submenu.addAction("Show data");
-        submenu.addAction("Attribute table");
-        submenu.addSeparator();
-        submenu.addAction("Set style");
-        submenu.addSeparator();
-        submenu.addAction("Export to raster");
-        submenu.addAction("Export to NetCDF");
-    }
-    else if (myObject->type == gisObjectRaster)
-    {
-        submenu.addAction("Remove");
-        submenu.addSeparator();
-        myRasterObject = getRasterObject(myObject);
-        if (myRasterObject != nullptr)
-        {
-            submenu.addAction("Save as");
-            submenu.addSeparator();
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
+            submenu.addAction("Set dtm scale");
+            submenu.addAction("Reverse color scale");
             submenu.addSeparator();
+
             if (myRasterObject->opacity() < 1)
                 submenu.addAction("Set opaque");
             else
                 submenu.addAction("Set transparent");
         }
     }
+    if (myObject->type == gisObjectNetcdf)
+    {
+        submenu.addAction("Remove");
+        submenu.addSeparator();
+    }
+
     QAction* rightClickItem = submenu.exec(itemPoint);
 
     if (rightClickItem)
     {
         if (rightClickItem->text() == "Remove" )
         {
-            if (myObject->type == gisObjectRaster)
+            if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
             {
                 this->removeRaster(myObject);
             }
@@ -746,15 +841,51 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectRaster)
             {
                 setGrayScale(myObject->getRaster()->colorScale);
-                myRasterObject->redrawRequested();
+                emit myRasterObject->redrawRequested();
+            }
+            if (myObject->type == gisObjectShape)
+            {
+                setGrayScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
             }
         }
         else if (rightClickItem->text().contains("Set default scale"))
         {
             if (myObject->type == gisObjectRaster)
             {
-                setDefaultDEMScale(myObject->getRaster()->colorScale);
-                myRasterObject->redrawRequested();
+                setDefaultScale(myObject->getRaster()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            if (myObject->type == gisObjectShape)
+            {
+                setDefaultScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Set dtm scale"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                setDTMScale(myObject->getRaster()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            if (myObject->type == gisObjectShape)
+            {
+                setDTMScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Reverse color scale"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                reverseColorScale(myObject->getRaster()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                reverseColorScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
             }
         }
         else if (rightClickItem->text().contains("Set opaque"))
@@ -762,39 +893,72 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectRaster)
             {
                 myRasterObject->setOpacity(1.0);
-                update();
+                emit myRasterObject->redrawRequested();
             }
         }
         else if (rightClickItem->text().contains("Set transparent"))
         {
             if (myObject->type == gisObjectRaster)
             {
+                // TODO choose value
                 myRasterObject->setOpacity(0.66);
-                update();
+                emit myRasterObject->redrawRequested();
             }
         }
     }
 }
 
 
-void MainWindow::selectShape(QPoint position)
+bool MainWindow::selectShape(QPoint screenPos)
 {
+    // check if there is an item selected
     QListWidgetItem* itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr)
-        return;
+    {
+        return false;
+    }
 
+    // check if the selected element is a shape
     int row = ui->checkList->row(itemSelected);
-    GisObject* myObject = myProject.objectList.at(unsigned(row));
-    if (myObject->type != gisObjectShape)
-        return;
+    GisObject* myGisObject = myProject.objectList.at(unsigned(row));
+    if (myGisObject->type != gisObjectShape)
+    {
+        return false;
+    }
 
-    QPoint mapPos = getMapPos(position);
+    // check shape object
+    MapGraphicsShapeObject *myShapeObject = getShapeObject(myGisObject);
+    if (myShapeObject == nullptr)
+    {
+        return false;
+    }
+
+    // check position
+    QPoint mapPos = getMapPos(screenPos);
     if (! isInsideMap(mapPos))
-        return;
+    {
+        return false;
+    }
 
-    Position latLon = mapView->mapToScene(mapPos);
-    //Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
-    this->ui->statusBar->showMessage(QString::number(latLon.latitude()) + " " + QString::number(latLon.longitude()));
+    Crit3DShapeHandler* shapeHandler = myGisObject->getShapeHandler();
+    Position geoPos = mapView->mapToScene(mapPos);
+
+    double x, y;
+    gis::latLonToUtmForceZone(myProject.gisSettings.utmZone, geoPos.latitude(), geoPos.longitude(), &x, &y);
+    int index = shapeHandler->getShapeIndexfromPoint(x, y);
+
+    // update only if the index is changed
+    if (index != myShapeObject->getSelected())
+    {
+        myShapeObject->setSelected(index);
+        emit myShapeObject->redrawRequested();
+
+        // update shape info dialog
+        shapeInfoBrowser.setText(QString::fromStdString(shapeHandler->getAttributesList(index)));
+        shapeInfoDialog.show();
+    }
+
+    return true;
 }
 
 
@@ -835,10 +999,9 @@ void MainWindow::on_actionRasterize_shape_triggered()
 
 void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
 {
-
     if (shapeObjList.empty())
     {
-        QMessageBox::information(nullptr, "No shape loaded", "Load a shape");
+        QMessageBox::information(nullptr, "No shape loaded", "Load crop, soil and meteo shape before.");
         return;
     }
 
@@ -858,7 +1021,7 @@ void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
     bool isPrevailing = true;
     double threshold = 0.5;         // TODO aggiungere a ucmDialog
 
-    if (myProject.addUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
+    if (myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
                                  ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
                                  ucmDialog.getIdMeteo().toStdString(), ucmDialog.getCellSize(), threshold,
                                  ucmFileName, isPrevailing, true))
@@ -867,11 +1030,12 @@ void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
     }
 }
 
+
 void MainWindow::on_actionCompute_Ucm_intersection_triggered()
 {
     if (shapeObjList.empty())
     {
-        QMessageBox::information(nullptr, "No shape loaded", "Load a shape");
+        QMessageBox::information(nullptr, "No shape loaded", "Load crop, soil and meteo shape before.");
         return;
     }
 
@@ -891,7 +1055,7 @@ void MainWindow::on_actionCompute_Ucm_intersection_triggered()
     bool isPrevailing = false;
     double threshold = 0.5;
 
-    if (myProject.addUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
+    if (myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
                                  ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
                                  ucmDialog.getIdMeteo().toStdString(), NODATA, threshold,
                                  ucmFileName, isPrevailing, true))
@@ -907,7 +1071,7 @@ void MainWindow::on_actionExtract_Unit_Crop_Map_list_triggered()
     QListWidgetItem * itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
     {
-        QMessageBox::information(nullptr, "No shape selected", "Select a shape");
+        QMessageBox::information(nullptr, "No shape selected", "Select a Computational Units Map.");
         return;
     }
     else
@@ -923,45 +1087,49 @@ void MainWindow::on_actionExtract_Unit_Crop_Map_list_triggered()
 
 void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
 {
-
-    QListWidgetItem * itemSelected = ui->checkList->currentItem();
     if (shapeObjList.empty())
     {
-        QMessageBox::information(nullptr, "No shape loaded", "Load a shape");
+        QMessageBox::information(nullptr, "No shape loaded", "Load a Computational Units Map.");
         return;
     }
-    else if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
+
+    QListWidgetItem * itemSelected = ui->checkList->currentItem();
+
+    if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
     {
         QMessageBox::information(nullptr, "No shape selected", "Select a shape");
         return;
     }
-    else
+    int shapeIndex = ui->checkList->row(itemSelected);
+
+    QString fileCsv = QFileDialog::getOpenFileName(this, tr("Open CSV data file"), "", tr("CSV files (*.csv)"));
+
+    if (fileCsv == "")
     {
-        int pos = ui->checkList->row(itemSelected);
-        QString fileCsv = QFileDialog::getOpenFileName(this, tr("Open CSV data file"), "", tr("CSV files (*.csv)"));
+        QMessageBox::information(nullptr, "missing CSV data", "Select CSV data to read.");
+        return;
+    }
 
-        if (fileCsv == "")
-        {
-            QMessageBox::information(nullptr, "Select CSV data to read", "missing CSV data");
-            return;
-        }
+    QString fileCsvFormat = QFileDialog::getOpenFileName(this, tr("Open output format"), "", tr("CSV files (*.csv)"));
 
-        QString fileCsvRef = QFileDialog::getOpenFileName(this, tr("Open output format"), "", tr("CSV files (*.csv)"));
+    if (fileCsvFormat == "")
+    {
+        QMessageBox::information(nullptr, "missing CSV file", "Select CSV output format.");
+        return;
+    }
 
-        if (fileCsvRef == "")
-        {
-            QMessageBox::information(nullptr, "Select output format", "missing CSV file");
-            return;
-        }
+    QString outputFileName = QFileDialog::getSaveFileName(this, tr("Save Shapefile as"), "", tr("shp files (*.shp)"));
 
-        QString outputName = QFileDialog::getSaveFileName(this, tr("Save Shapefile as"), "", tr("shp files (*.shp)"));
-        if (outputName == "")
-        {
-            QMessageBox::information(nullptr, "Insert output name", "missing shapefile name");
-            return;
-        }
+    if (outputFileName == "")
+    {
+        QMessageBox::information(nullptr, "Insert output name", "missing shapefile name");
+        return;
+    }
 
-        myProject.createShapeFromCsv(pos, fileCsv, fileCsvRef, outputName);
+    QString errorStr;
+    if (! myProject.createShapeFromCsv(shapeIndex, fileCsv, fileCsvFormat, outputFileName, errorStr))
+    {
+        myProject.logError(errorStr);
     }
 }
 
@@ -978,11 +1146,9 @@ void MainWindow::on_actionLoadProject_triggered()
         {
             closeGeoProject();
         }
-        else
-        {
-            return;
-        }
+        else return;
     }
+
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open GEO project"), "", tr("Settings files (*.ini)"));
 
     if (projFileName == "") return;
@@ -991,41 +1157,34 @@ void MainWindow::on_actionLoadProject_triggered()
     int myResult = myProject.output.initializeProject(projFileName, "", QDateTime::currentDateTime().date(), false);
     if (myResult != CRIT1D_OK)
     {
-        QMessageBox::information(nullptr, "Project setting error", myProject.output.projectError);
+        myProject.logError(myProject.output.projectError);
         return;
     }
 
     if (myProject.output.ucmFileName == "")
     {
-        QMessageBox::information(nullptr, "Project setting error", "Missing Unit Crop Map (shapefile)");
+        myProject.logError("Missing Unit Crop Map (shapefile)");
+        myProject.output.isProjectLoaded = false;
         return;
     }
 
     QString projectName = getFileName(projFileName);
     projectName = projectName.left(projectName.length() -4);
     if (! myProject.loadShapefile(myProject.output.ucmFileName, projectName))
+    {
+        myProject.output.isProjectLoaded = false;
         return;
+    }
 
     GisObject* myObject = myProject.objectList.back();
     this->addShapeObject(myObject);
 
     QDir().mkdir(myProject.output.path + "tmp");
 
-    // enable Output map action
-    QMenu *menu = nullptr;
-    menu = this->menuBar()->findChild<QMenu *>("menuTools");
-    if (menu != nullptr)
-    {
-        QList<QAction*> list = menu->actions();
-        foreach (QAction *action, list)
-        {
-            if (action->text() == "Output map")
-            {
-                action->setEnabled(true);
-            }
-        }
-    }
+    // enable output map action
+    ui->actionOutput_Map->setEnabled(true);
 }
+
 
 void MainWindow::closeGeoProject()
 {
@@ -1060,28 +1219,22 @@ void MainWindow::closeGeoProject()
 
 void MainWindow::on_actionClose_Project_triggered()
 {
+    if ( !myProject.output.isProjectLoaded )
+        return;
+
     QMessageBox::StandardButton confirm;
-    QString msg = "This operation close all the project "+myProject.output.projectName+". Are you sure?";
+    QString msg = "This operation will close the project: " + myProject.output.projectName + "\nAre you sure?";
     confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
     if (confirm == QMessageBox::No)
     {
         return;
     }
+
     closeGeoProject();
-    // disable Output map action
-    QMenu *menu = nullptr;
-    menu = this->menuBar()->findChild<QMenu *>("menuTools");
-    if (menu != nullptr)
-    {
-        QList<QAction*> list = menu->actions();
-        foreach (QAction *action, list)
-        {
-            if (action->text() == "Output map")
-            {
-                action->setEnabled(false);
-            }
-        }
-    }
+
+    // disable output map action
+    ui->actionOutput_Map->setEnabled(false);
+
     return;
 }
 
@@ -1163,5 +1316,4 @@ void MainWindow::on_actionOutput_Map_triggered()
         setShapeStyle(myObject, fieldName.toStdString());
     }
 }
-
 

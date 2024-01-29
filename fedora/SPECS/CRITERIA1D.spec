@@ -2,9 +2,9 @@
 %{!?srcarchivename: %global srcarchivename CRITERIA1D-%{version}}
 
 Name:           CRITERIA1D
-Version:        1.5.2
+Version:        1.8.1
 Release:        1%{?dist}
-Summary:        One-dimensional soil water balance
+Summary:        One-dimensional agro-hydrological model
 
 URL:            https://github.com/ARPA-SIMC/CRITERIA1D
 Source0:        https://github.com/ARPA-SIMC/CRITERIA1D/archive/v%{version}.tar.gz#/%{srcarchivename}.tar.gz
@@ -79,6 +79,45 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
+* Fri Jan 05 2024 Fausto Tomei <ftomei@arpae.it> - 1.8.1-1
+- Release 1.8.1
+
+* Fri Dec 15 2023 Fausto Tomei <ftomei@arpae.it> - 1.8.0-2
+- Release 1.8.0
+
+* Wed Nov 22 2023 Fausto Tomei <ftomei@arpae.it> - 1.8.0-1
+- Release 1.8.0
+
+* Tue Jul 04 2023 Fausto Tomei <ftomei@arpae.it> - 1.7.2-1
+- Release 1.7.2
+
+* Mon Jul 03 2023 Fausto Tomei <ftomei@arpae.it> - 1.7.1-3
+- Release 1.7.1
+
+* Mon Jun 19 2023 Fausto Tomei <ftomei@arpae.it> - 1.6.4-1
+- Release 1.6.4
+
+* Mon May 08 2023 Fausto Tomei <ftomei@arpae.it> - 1.6.3-1
+- Release 1.6.3
+
+* Mon Apr 24 2023 Fausto Tomei <ftomei@arpae.it> - 1.6.2-1
+- Release 1.6.2
+
+* Thu Feb 09 2023 Fausto Tomei <ftomei@arpae.it> - 1.6.0-1
+- Release 1.6.0
+
+* Thu Jan 05 2023 Fausto Tomei <ftomei@arpae.it> - 1.5.7-1
+- Release 1.5.7
+
+* Wed Nov 04 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.6-1
+- Release 1.5.6
+
+* Mon Jul 25 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.5-1
+- Release 1.5.5
+
+* Mon Jun 06 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.4-1
+- Release 1.5.4
+
 * Tue May 17 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.2-1
 - Release 1.5.2
 

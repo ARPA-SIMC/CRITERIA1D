@@ -28,22 +28,25 @@
 
         CriteriaGeoProject();
 
-        bool loadRaster(QString fileName);
+        bool loadRaster(QString fileNameWithPath);
         bool loadShapefile(QString fileNameWithPath, QString projectName);
-        void addRaster(gis::Crit3DRasterGrid *myRaster, QString fileName, int utmZone);
+        //bool loadNetcdf(QString fileNameWithPath);
+
+        void addRaster(gis::Crit3DRasterGrid *myRaster, QString fileNameWithPath, int utmZone);
         void addShapeFile(Crit3DShapeHandler *myShape, QString fileNameWithPath, QString projectName, int utmZone);
+        //void addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone);
 
         void getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo);
 
-        bool createShapeFromCsv(int pos, QString fileCsv, QString fileCsvRef, QString outputFileName);
+        bool createShapeFromCsv(int shapeIndex, QString fileCsv, QString fileCsvFormat, QString outputFileName, QString &errorStr);
 
         bool extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bool showInfo);
 
-        bool addUnitCropMap(Crit3DShapeHandler *crop, Crit3DShapeHandler *soil, Crit3DShapeHandler *meteo,
+        bool computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                             std::string idCrop, std::string idSoil, std::string idMeteo,
                             double cellSize, double threshold, QString ucmFileName, bool isPrevailing, bool showInfo);
 
-        bool createRaster(QString shapeFileName, std::string shapeField, QString resolution, QString outputName, QString &error);
+        bool createRaster(QString shapeFileName, QString shapeField, QString resolution, QString outputName, QString &error);
 
         void logError(QString errorString);
 

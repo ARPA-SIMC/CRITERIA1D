@@ -70,3 +70,9 @@ FORMS    += \
     mainwindow.ui
 
 
+RESOURCES += heat1D.ico
+
+win32:
+{
+    RC_ICONS = heat1D.ico
+}

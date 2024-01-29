@@ -1,9 +1,12 @@
 #include "CircleObject.h"
 
-#include <QtDebug>
 #include <QStaticText>
 #include <QKeyEvent>
+#include <QBrush>
+
 #define NODATA -9999
+#define RADIUS_WIDTH 3
+
 
 CircleObject::CircleObject(qreal radius, bool sizeIsZoomInvariant, QColor fillColor, MapGraphicsObject *parent) :
     MapGraphicsObject(sizeIsZoomInvariant, parent), _fillColor(fillColor)
@@ -25,10 +28,10 @@ CircleObject::~CircleObject()
 
 QRectF CircleObject::boundingRect() const
 {
-    return QRectF(-4*_radius,
-                  -2*_radius,
-                  8*_radius,
-                  4*_radius);
+    return QRectF(-RADIUS_WIDTH *_radius,
+                  -2 * _radius,
+                  RADIUS_WIDTH * 2 * _radius,
+                  4 * _radius);
 }
 
 void CircleObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -42,16 +45,37 @@ void CircleObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         if (_currentValue != NODATA)
         {
             QString valueStr = QString::number(_currentValue, 'f', 1);
-            QStaticText myText = QStaticText(valueStr);
-            myText.setTextWidth(_radius * 8);
-            painter->scale(1,-1);
+            QStaticText staticText = QStaticText(valueStr);
+            staticText.setTextWidth(_radius * RADIUS_WIDTH * 2);
+
+            QTextOption myOption;
+            myOption.setAlignment(Qt::AlignCenter);
+            staticText.setTextOption(myOption);
+
             if (_isMultiColorText)
             {
                 QPen myPen;
                 myPen.setColor(_fillColor);
                 painter->setPen(myPen);
+                if (! painter->font().bold())
+                {
+                    QFont currentFont = painter->font();
+                    currentFont.setBold(true);
+                    painter->setFont(currentFont);
+                }
             }
-            painter->drawStaticText(-int(myText.textWidth() / 2), -int(_radius*2), myText);
+            else
+            {
+                if (painter->font().bold())
+                {
+                    QFont currentFont = painter->font();
+                    currentFont.setBold(false);
+                    painter->setFont(currentFont);
+                }
+            }
+
+            painter->scale(1,-1);
+            painter->drawStaticText(-_radius * RADIUS_WIDTH, -_radius * 2, staticText);
         }
     }
     else
@@ -62,18 +86,16 @@ void CircleObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     if (_isMarked)
     {
+        painter->setPen(QPen(QBrush(QColor(Qt::black)),2));
         painter->setBrush(Qt::transparent);
         painter->drawEllipse(QPointF(0,0), _radius*2, _radius*2);
     }
 }
 
-qreal CircleObject::radius() const
-{
-    return _radius;
-}
-
 void CircleObject::setRadius(qreal radius)
 {
+    if (_radius == radius) return;
+
     _radius = radius;
     emit this->redrawRequested();
 }
@@ -81,32 +103,25 @@ void CircleObject::setRadius(qreal radius)
 
 void CircleObject::setMarked(bool isMarked)
 {
-    if (_isMarked == isMarked)
-        return;
+    if (_isMarked == isMarked) return;
 
     _isMarked = isMarked;
     emit this->redrawRequested();
 }
 
 
-qreal CircleObject::currentValue() const
-{
-    return _currentValue;
-}
-
 void CircleObject::setCurrentValue(qreal currentValue)
 {
-    if (_currentValue == currentValue)
-        return;
+    if (_currentValue == currentValue) return;
 
     _currentValue = currentValue;
     emit this->redrawRequested();
 }
 
+
 void CircleObject::setShowText(bool isShowText)
 {
-    if (_isText == isShowText)
-        return;
+    if (_isText == isShowText) return;
 
     _isText = isShowText;
     emit this->redrawRequested();
@@ -115,23 +130,15 @@ void CircleObject::setShowText(bool isShowText)
 
 void CircleObject::setMultiColorText(bool isMultiColorText)
 {
-    if (_isMultiColorText == isMultiColorText)
-        return;
+    if (_isMultiColorText == isMultiColorText) return;
 
     _isMultiColorText = isMultiColorText;
     emit this->redrawRequested();
 }
 
-
-QColor CircleObject::color() const
-{
-    return _fillColor;
-}
-
 void CircleObject::setFillColor(const QColor &color)
 {
-    if (_fillColor == color)
-        return;
+    if (_fillColor == color) return;
 
     _fillColor = color;
     emit this->redrawRequested();
@@ -150,5 +157,4 @@ void CircleObject::keyReleaseEvent(QKeyEvent *event)
     else
         event->ignore();
 }
-
 

@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->listWidget->addItem("surface energy balance (W m-2)");
     ui->listWidget->addItem("surface resistances (s m-1)");
     ui->listWidget->addItem("heat conductivity (W m-1 K-1)");
+    ui->listWidget->addItem("bottom fluxes (m3)");
+    ui->listWidget->addItem("water storage (m3)");
     ui->listWidget->addItem("error balance ()");
 }
 
@@ -91,6 +93,8 @@ bool MainWindow::initializeModel()
 
     // bottom boundary
     setBottomTemperature(ui->lineEditBottomT->text().toDouble(), ui->lineEditBottomZ->text().toDouble());
+    bool isWaterTable = ui->radioButtonWaterTable->isChecked();
+    setWaterTable(isWaterTable, ui->lineEditWaterTableDepth->text().toDouble());
 
     // set soil
     if (! soilDataLoaded)
@@ -121,9 +125,8 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
     myPIniHour = ui->lineEditPrecStart->text().toInt();
     myPHours = ui->lineEditPrecHours->text().toInt();
-    myNR = NODATA;
 
-    int outTimeStep = ui->lineEditTimeStep->text().toInt();
+    double outputTimeStep = ui->lineEditTimeStep->text().toDouble();
 
     int hourFin;
     if (!useInputMeteoData)
@@ -142,9 +145,11 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
     ui->prgBar->setMaximum(hourFin);
 
+    double totalHours = 0;
+
     do
     {
-        myTime = myTime.addSecs(outTimeStep);
+        myTime = myTime.addSecs(outputTimeStep);
 
         if (myTime.secsTo(myRefHour) < 0)
         {
@@ -167,15 +172,16 @@ void MainWindow::on_pushRunAllPeriod_clicked()
             myWS = ui->lineEditAtmWS->text().toDouble();
             myNR = ui->lineEditAtmFlux->text().toDouble();
 
-            if ((indexHour >= myPIniHour) && (indexHour < myPIniHour + myPHours))
+            if ((indexHour >= myPIniHour) && (indexHour <= myPIniHour + myPHours))
                 myP = ui->lineEditPrecHourlyAmount->text().toDouble();
             else
                 myP = 0.;
         }
 
-        runHeat1D(myT, myRH, myWS, myNR, myP, outTimeStep);
+        runHeat1D(myT, myRH, myWS, myNR, myP, outputTimeStep);
 
-        getOutputAllPeriod(0, getNodesNumber(), &myHeatOutput);
+        totalHours += outputTimeStep / 3600;
+        getOutputAllPeriod(0, getNodesNumber(), &myHeatOutput, totalHours);
 
         ui->prgBar->setValue(indexHour);
         qApp->processEvents();
@@ -276,7 +282,6 @@ void MainWindow::on_pushLoadFileMeteo_clicked()
     QFile myFile(myFilename);
     QTextStream myStream(&myFile);
     QStringList myWords;
-    QString myWord;
 
     if (myFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {

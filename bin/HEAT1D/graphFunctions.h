@@ -23,7 +23,10 @@ enum outputGroup
     energyBalance = 10,
     surfaceResistances = 11,
     soilHeatConductivity = 12,
-    errorBalance = 13
+    bottom = 13,
+    waterStorage = 14,
+    errorBalance = 15
+
 };
 
 enum outputVar
@@ -34,7 +37,9 @@ enum outputVar
     aerodynamicResistence = 3,
     soilSurfaceResistence = 4,
     MBR_heat = 5,
-    MBR_water = 6
+    MBR_water = 6,
+    bottomDrainage = 7,
+    storedWater = 8
 };
 
 static const char * outputVarString[] =
@@ -84,6 +89,14 @@ struct heatErrors{
     QPointF waterMBR;
 };
 
+struct bottomFlux{
+    QPointF drainage;
+};
+
+struct waterStored{
+    QPointF waterStord;
+};
+
 class Crit3DOut
 {
 public:
@@ -100,6 +113,8 @@ public:
     QVector<landSurfaceStatus> landSurfaceOutput;
     QVector<profileStatus> profileOutput;
     QVector<heatErrors> errorOutput;
+    QVector<bottomFlux> bottomFluxes;
+    QVector<waterStored> waterStorageOutput;
 
     QString getTextOutput(outputGroup myOutGroup);
 };

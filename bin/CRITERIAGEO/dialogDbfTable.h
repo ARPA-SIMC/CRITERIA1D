@@ -28,8 +28,8 @@ class DialogDbfTable : public QDialog
     QAction *deleteCol;
     QAction *copyAll;
     QAction *save;
-    QStringList labels;
-    QStringList m_DBFTableHeader;
+    QList<QString> labels;
+    QList<QString> m_DBFTableHeader;
 
     public:
         DialogDbfTable(Crit3DShapeHandler *shapeHandler, QString fileName);

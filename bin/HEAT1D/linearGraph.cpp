@@ -89,7 +89,7 @@ void LinearGraph::draw(Crit3DColorScale colorScale, Crit3DOut* out, outputGroup 
         curve->setColor(color);
         curve->setName(myCurveNames[i]);
         mySeries = getSingleSeries(myOut, outputVar(i+startIndex), &minSeries, &maxSeries);
-        axisX->setRange(1, mySeries.size());
+        axisX->setRange(0, mySeries[mySeries.size()-1].x());
         for (unsigned int j = 0; j < mySeries.size(); j++)
         {
             curve->append(mySeries[j]);
@@ -143,6 +143,21 @@ void LinearGraph::setProperties(outputGroup graphType)
         startIndex = 5;
 
     }
+    else if (graphType == outputGroup::bottom)
+    {
+        axisY->setTitleText(QString("water flow [%1]").arg(QString("m3")));
+
+        myCurveNames.append("water flow");
+        startIndex = 7;
+
+    }
+    else if (graphType == outputGroup::waterStorage)
+    {
+        axisY->setTitleText(QString("water storage [%1]").arg(QString("m3")));
+
+        myCurveNames.append("water storage");
+        startIndex = 8;
+    }
 }
 
 void LinearGraph::tooltipLineSeries(QPointF point, bool state)
@@ -155,7 +170,7 @@ void LinearGraph::tooltipLineSeries(QPointF point, bool state)
         double xValue = point.x();
         double yValue = point.y();
 
-        m_tooltip->setText(QString("%1 \n%2 %3 ").arg(myCurveNames[index]).arg(xValue, 0, 'f', 1).arg(yValue, 0, 'f', 1));
+        m_tooltip->setText(QString("%1 \n%2 %3 ").arg(myCurveNames[index]).arg(xValue, 0, 'f', 1).arg(yValue, 0, 'f', 5));
         m_tooltip->setSeries(serie);
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);
