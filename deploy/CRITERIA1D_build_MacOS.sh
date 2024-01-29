@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# specify your Qt directory
-QT_DIR=/Users/gabrieleantolini/Qt/5.15.2/clang_64/bin
+# specify your Qt directory (replace "yourname")
+QT_DIR=/Users/yourname/Qt/5.15.2/clang_64/bin
 QMAKE=$QT_DIR/qmake
 QDEPLOY=$QT_DIR/macdeployqt
 
@@ -63,19 +63,21 @@ cd -
 mkdir CRITERIA1D
 mkdir CRITERIA1D/bin
 
-cp -r ../bin/CRITERIA1D/release/CRITERIA1D CRITERIA1D/bin/CRITERIA1D
-cp -r ../bin/SOIL_EDITOR/release/SOIL_EDITOR CRITERIA1D/bin/SOIL_EDITOR
-cp -r ../bin/CRITERIA1D_PRO/release/CRITERIA1D_PRO CRITERIA1D/bin/CRITERIA1D_PRO
-cp -r ../bin/CRITERIAGEO/release/CRITERIA_GEO CRITERIA1D/bin/CRITERIA_GEO
-cp -r ../bin/HEAT1D/release/HEAT1D CRITERIA1D/bin/HEAT1D
+cp -r ../bin/CRITERIA1D/release/CRITERIA1D.app CRITERIA1D/bin/CRITERIA1D.app
+cp -r ../bin/SOIL_EDITOR/release/SOIL_EDITOR.app CRITERIA1D/bin/SOIL_EDITOR.app
+cp -r ../bin/CRITERIA1D_PRO/release/CRITERIA1D_PRO.app CRITERIA1D/bin/CRITERIA1D_PRO.app
+cp -r ../bin/CRITERIAGEO/release/CRITERIA_GEO.app CRITERIA1D/bin/CRITERIA_GEO.app
+cp -r ../bin/HEAT1D/release/HEAT1D.app CRITERIA1D/bin/HEAT1D.app
 
 # deploy apps
 cd CRITERIA1D/bin
-$DEPLOY CRITERIA1D.app
-$DEPLOY SOIL_EDITOR.app
-$DEPLOY CRITERIA1D_PRO.app
-$DEPLOY CRITERIA_GEO.app
-$DEPLOY HEAT1D.app
+$QDEPLOY CRITERIA1D.app
+$QDEPLOY SOIL_EDITOR.app
+$QDEPLOY CRITERIA1D_PRO.app
+$QDEPLOY CRITERIA_GEO.app
+$QDEPLOY HEAT1D.app
+
+cd -
 
 # copy png
 mkdir CRITERIA1D/DOC
