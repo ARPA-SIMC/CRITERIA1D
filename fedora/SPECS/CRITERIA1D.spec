@@ -79,7 +79,7 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
-* Mon Jan 29 2024 Fausto Tomei <ftomei@arpae.it> - 1.8.2-1
+* Tue Jan 30 2024 Fausto Tomei <ftomei@arpae.it> - 1.8.2-1
 - Release 1.8.2
 
 * Fri Jan 05 2024 Fausto Tomei <ftomei@arpae.it> - 1.8.1-1
