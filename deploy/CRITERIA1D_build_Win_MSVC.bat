@@ -103,6 +103,12 @@ mkdir PROJECT\test
 cd PROJECT\test
 xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\test\*.* 
 
+:: copy Montue project
+cd ..\
+mkdir montue
+cd montue
+xcopy /s /Y ..\..\..\..\..\DATA\PROJECT\montue\*.*
+
 
 :: return to deploy directory
 cd ..\..\..\..\
