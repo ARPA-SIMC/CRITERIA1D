@@ -49,7 +49,7 @@ Requirements:
 
 Only for **CRITERIA GEO**:
 - [NetCDF library](https://www.unidata.ucar.edu/downloads/netcdf/)
-> Windows installation: download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set *NC4_INSTALL_DIR* system variable = NetCDF installation path (e.g C:\Program Files\netCDF 4.7.1)
+> Windows installation: download and install NetCDF 4.x (32 or 64 bit version, depending on your compiler), then set the system variable *NC4_INSTALL_DIR* = NetCDF installation path (e.g C:\Program Files\netCDF 4.7.1)
 - [GDAL library](https://trac.osgeo.org/osgeo4w/)  
 > See [gdalHandler](https://github.com/ARPA-SIMC/CRITERIA1D/tree/master/agrolib/gdalHandler) for GDAL installation.
 
@@ -57,12 +57,11 @@ Only for **CRITERIA GEO**:
 - LINUX:  *deploy/CRITERIA1D_build_Linux.sh*
 - MACOS:  *deploy/CRITERIA1D_build_MacOS.sh* 
 - WINDOWS (Visual Studio c++ compiler): *deploy/CRITERIA1D_build_MSVC_bat*
-- WINDOWS (MinGW c++ compiler): *deploy/CRITERIA1D_build_MinGW_bat*       
-### Warning 
+- WINDOWS (MinGW c++ compiler): *deploy/CRITERIA1D_build_MinGW_bat*
+>The distribution will be created in the directory */deploy/CRITERIA1D/*  
+### Warnings 
 - For LINUX and MACOS: modify QT_DIR in the first line of the script.
-- For WINDOWS: read the information in the first lines of the script file.
-
-The distribution will be created in the directory /deploy/CRITERIA1D/  
+- For WINDOWS: read the information in the first lines of the script file.  
 
 ## License
 CRITERIA-1D has been developed under contract issued by 
