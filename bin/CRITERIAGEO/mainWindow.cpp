@@ -39,6 +39,7 @@
 
 #ifdef GDAL
     #include "gdalExtensions.h"
+    #include "gdalShapeFunctions.h"
 #endif
 
 #include "mainWindow.h"
@@ -97,24 +98,24 @@ MainWindow::~MainWindow()
     shapeInfoDialog.close();
     shapeInfoDialog.deleteLater();
 
-    if (! this->rasterObjList.empty())
+    if (! rasterObjList.empty())
     {
-        for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
+        for (unsigned int i = 0; i < rasterObjList.size(); i++)
         {
-            delete this->rasterObjList[i];
+            delete rasterObjList[i];
         }
     }
-    this->rasterObjList.clear();
+    rasterObjList.clear();
 
-    if (! this->shapeObjList.empty())
+    if (! shapeObjList.empty())
     {
-        for (unsigned int i = 0; i < this->shapeObjList.size(); i++)
+        for (unsigned int i = 0; i < shapeObjList.size(); i++)
         {
-            this->shapeObjList[i]->getShapePointer()->close();
-            delete this->shapeObjList[i];
+            shapeObjList[i]->getShapePointer()->close();
+            delete shapeObjList[i];
         }
     }
-    this->shapeObjList.clear();
+    shapeObjList.clear();
     myProject.objectList.clear();
 
     if (myProject.output.isProjectLoaded)
@@ -144,12 +145,13 @@ void MainWindow::resizeEvent(QResizeEvent * event)
 
 void MainWindow::updateMaps()
 {
-    if (! this->rasterObjList.empty())
-        for (unsigned int i = 0; i < this->rasterObjList.size(); i++)
-            this->rasterObjList[i]->updateCenter();
-    if (! this->shapeObjList.empty())
-        for (unsigned int i = 0; i < this->shapeObjList.size(); i++)
-            this->shapeObjList[i]->updateCenter();
+    if (! rasterObjList.empty())
+        for (unsigned int i = 0; i < rasterObjList.size(); i++)
+            rasterObjList[i]->updateCenter();
+
+    if (! shapeObjList.empty())
+        for (unsigned int i = 0; i < shapeObjList.size(); i++)
+            shapeObjList[i]->updateCenter();
 }
 
 
@@ -318,7 +320,7 @@ void MainWindow::addRasterObject(GisObject* myObject)
     item->setCheckState(Qt::Checked);
     ui->checkList->addItem(item);
 
-    RasterUtmObject* newRasterObj = new RasterUtmObject(this->mapView);
+    RasterUtmObject* newRasterObj = new RasterUtmObject(mapView);
     newRasterObj->setOpacity(0.66);
     newRasterObj->initialize(myObject->getRaster(), myObject->gisSettings);
     this->rasterObjList.push_back(newRasterObj);
@@ -430,8 +432,12 @@ void MainWindow::on_actionLoadRaster_triggered()
 
     if (fileNameWithPath == "") return;
 
-    if (! myProject.loadRaster(fileNameWithPath))
+    QString errorStr;
+    if (! myProject.loadRaster(fileNameWithPath, errorStr))
+    {
+        myProject.logError(errorStr);
         return;
+    }
 
     this->addRasterObject(myProject.objectList.back());
     this->zoomOnLastRaster();
@@ -664,42 +670,59 @@ bool MainWindow::exportToNetCDF(GisObject* myObject)
 }
 
 
-bool MainWindow::exportToRaster(GisObject* myObject)
+bool MainWindow::exportToRasterGdal(GisObject* myObject)
 {
 #ifdef GDAL
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GDALRASTER);
-    if (shapeFieldDialog.result() == QDialog::Accepted)
+
+    if (shapeFieldDialog.result() != QDialog::Accepted)
+        return false;
+
+    QString fieldName = shapeFieldDialog.getFieldSelected();
+    std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
+    QString shapeFileName = QString::fromStdString(shapeFilePath);
+
+    QString resolutionStr;
+    if (shapeFieldDialog.getCellSize() == 0)
     {
-        std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
-        std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
-        QString res;
-        if (shapeFieldDialog.getCellSize() == 0)
-        {
-            res = "200";  // default resolution value
-        }
-        else
-        {
-            res = QString::number(shapeFieldDialog.getCellSize());
-        }
-
-        QStringList gdalExt = getGdalRasterWriteExtension();
-        QString outputName = QFileDialog::getSaveFileName(this, tr("Save raster as"), "", gdalExt.join(";\n"));
-        if (outputName == "")
-        {
-            QMessageBox::information(nullptr, "Insert output name", "missing raster name");
-            return false;
-        }
-
-        QString errorStr;
-        if (!myProject.createRaster(QString::fromStdString(shapeFilePath), QString::fromStdString(fieldName), res, outputName, errorStr))
-        {
-            QMessageBox::critical(nullptr, "ERROR!", "GDAL Error: " + errorStr);
-            return false;
-        }
-        addRasterObject(myProject.objectList.back());
-        this->updateMaps();
-        return true;
+        resolutionStr = "200";      // default resolution [m]
     }
+    else
+    {
+        resolutionStr = QString::number(shapeFieldDialog.getCellSize());
+    }
+
+    QStringList gdalExt = getGdalRasterWriteExtension();
+    QString outputName = QFileDialog::getSaveFileName(this, tr("Save raster as"), "", gdalExt.join(";\n"));
+    if (outputName == "")
+    {
+        QMessageBox::information(nullptr, "Insert output name", "missing raster name");
+        return false;
+    }
+
+    QString errorStr;
+    QString newProj = "";               // keep input shape proj
+    QString paletteFileName = "";       // no palette
+    bool isPngCopy = false;             // no PNG copy
+    QString pngFileName = "";
+    QString pngProj = "";
+
+    if (! gdalShapeToRaster(shapeFileName, fieldName, resolutionStr, newProj, outputName,
+                           paletteFileName, isPngCopy, pngFileName, pngProj, errorStr))
+    {
+        myProject.logError("GDAL Error: " + errorStr);
+        return false;
+    }
+
+    if (! myProject.loadRaster(outputName, errorStr))
+    {
+        myProject.logError("Error in load raster " + errorStr);
+        return false;
+    }
+
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
+
     return true;
 #else
     Q_UNUSED(myObject)
@@ -745,7 +768,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addAction("Set default scale");
             submenu.addAction("Reverse color scale");
             submenu.addSeparator();
-            submenu.addAction("Export to raster");
+            submenu.addAction("Export to raster (gdal)");
             submenu.addAction("Export to NetCDF");
         }
     }
@@ -810,9 +833,9 @@ void MainWindow::itemMenuRequested(const QPoint point)
         {
             setShapeStyle_GUI(myObject);
         }
-        else if (rightClickItem->text().contains("Export to raster"))
+        else if (rightClickItem->text().contains("Export to raster (gdal)"))
         {
-            exportToRaster(myObject);
+            exportToRasterGdal(myObject);
         }
         else if (rightClickItem->text().contains("Save as"))
         {

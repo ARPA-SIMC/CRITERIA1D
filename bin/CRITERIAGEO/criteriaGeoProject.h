@@ -28,7 +28,7 @@
 
         CriteriaGeoProject();
 
-        bool loadRaster(QString fileNameWithPath);
+        bool loadRaster(const QString &fileNameWithPath, QString &errorStr);
         bool loadShapefile(QString fileNameWithPath, QString projectName);
         //bool loadNetcdf(QString fileNameWithPath);
 
@@ -45,8 +45,6 @@
         bool computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                             std::string idCrop, std::string idSoil, std::string idMeteo,
                             double cellSize, double threshold, QString ucmFileName, bool isPrevailing, bool showInfo);
-
-        bool createRaster(QString shapeFileName, QString shapeField, QString resolution, QString outputName, QString &error);
 
         void logError(QString errorString);
 

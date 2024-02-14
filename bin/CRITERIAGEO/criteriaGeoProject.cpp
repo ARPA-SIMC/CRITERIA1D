@@ -75,29 +75,28 @@ void CriteriaGeoProject::addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWith
 */
 
 
-bool CriteriaGeoProject::loadRaster(QString fileNameWithPath)
+bool CriteriaGeoProject::loadRaster(const QString &fileNameWithPath, QString &errorStr)
 {
     gis::Crit3DRasterGrid* myRaster = new(gis::Crit3DRasterGrid);
     int utmZone = this->gisSettings.utmZone;
 
 #ifdef GDAL
-    QString errorStr;
     if (! readGdalRaster(fileNameWithPath, myRaster, utmZone, errorStr))
     {
-        logError(errorStr);
         return false;
     }
 #else
-     std::string errorStr;
-     if (!gis::openRaster(fileNameWithPath.toStdString(), myRaster, gisSettings.utmZone, errorStr))
+     std::string errorStdStr;
+     if (! gis::openRaster(fileNameWithPath.toStdString(), myRaster, gisSettings.utmZone, errorStdStr))
      {
-         logError("Wrong raster file: " + QString::fromStdString(errorStr));
+         errorStr = "Wrong raster file: " + QString::fromStdString(errorStdStr);
          return false;
      }
 #endif
 
     setDTMScale(myRaster->colorScale);
     addRaster(myRaster, fileNameWithPath, utmZone);
+
     return true;
 }
 
@@ -290,20 +289,6 @@ bool CriteriaGeoProject::createShapeFromCsv(int shapeIndex, QString fileCsv, QSt
 
     return isOk;
 }
-
-
-#ifdef GDAL
-bool CriteriaGeoProject::createRaster(QString shapeFileName, QString shapeField, QString resolution, QString outputName, QString &error)
-{
-    QString proj = "";              // keep input proj
-    QString paletteFileName = "";   // no palette
-    if (shapeToRaster(shapeFileName, shapeField, resolution, proj, outputName, paletteFileName, error))
-    {
-        return loadRaster(outputName);
-    }
-    return false;
-}
-#endif
 
 
 int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputName)

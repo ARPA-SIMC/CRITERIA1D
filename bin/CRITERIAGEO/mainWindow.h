@@ -102,7 +102,7 @@
         void setShapeStyle(GisObject* myObject, std::string fieldName);
         void setShapeStyle_GUI(GisObject* myObject);
         bool selectShape(QPoint screenPos);
-        bool exportToRaster(GisObject* myObject);
+        bool exportToRasterGdal(GisObject* myObject);
         bool exportToNetCDF(GisObject* myObject);
 
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
