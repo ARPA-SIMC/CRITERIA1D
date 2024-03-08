@@ -620,7 +620,14 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
     climate.push_back(climateSelected);
 
     climateList.setListClimateElab(climate);
-    climateList.parserElaboration();
+
+    errorString = "";
+    climateList.parserElaboration(errorString);
+    if (! errorString.isEmpty())
+    {
+        logError();
+        errorString = "";
+    }
 
     // copy elaboration to clima
     clima->setYearStart(climateList.listYearStart().at(0));
@@ -666,7 +673,7 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
                     Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col);
                     if (climateIndex != NODATA)
                     {
-                        result = readElab(db, table.toLower(), climateIndex, QString::fromStdString(meteoPoint->id), climateSelected, &errorString);
+                        result = readClimateElab(db, table.toLower(), climateIndex, QString::fromStdString(meteoPoint->id), climateSelected, &errorString);
                         meteoPoint->climate = result;
                     }
                     else
@@ -702,7 +709,7 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
                 }
                 else
                 {
-                    result = readElab(db, table.toLower(), climateIndex, id, climateSelected, &errorString);
+                    result = readClimateElab(db, table.toLower(), climateIndex, id, climateSelected, &errorString);
                     meteoPoints[i].climate = result;
                 }
             }
@@ -1045,7 +1052,14 @@ bool PragaProject::climatePointsCycle(bool showInfo)
     }
     // parser all the list
     Crit3DClimateList* climateList = clima->getListElab();
-    climateList->parserElaboration();
+
+    errorString = "";
+    climateList->parserElaboration(errorString);
+    if (! errorString.isEmpty())
+    {
+        logError();
+        errorString = "";
+    }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
     for (int i = 0; i < nrMeteoPoints; i++)
@@ -1166,7 +1180,14 @@ bool PragaProject::climatePointsCycleGrid(bool showInfo)
 
     // parser all the list
     Crit3DClimateList* climateList = clima->getListElab();
-    climateList->parserElaboration();
+
+    errorString = "";
+    climateList->parserElaboration(errorString);
+    if (! errorString.isEmpty())
+    {
+        logError();
+        errorString = "";
+    }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
     for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
@@ -1962,11 +1983,11 @@ bool PragaProject::interpolationOutputPointsPeriod(QDate firstDate, QDate lastDa
     QVector<QList<QString>> hourlyDataList;
     if (isDaily)
     {
-        dailyDataList.resize(outputPoints.size());
+        dailyDataList.resize(int(outputPoints.size()));
     }
     if (isHourly)
     {
-        hourlyDataList.resize(outputPoints.size());
+        hourlyDataList.resize(int(outputPoints.size()));
     }
 
     int nrDays = firstDate.daysTo(lastDate) + 1;
@@ -2165,6 +2186,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     int countDaysSaving = 0;
     QDate loadDateFin;
     QDate saveDateIni;
+    QString error;
 
     if (pragaDailyMaps == nullptr) pragaDailyMaps = new Crit3DDailyMeteoMaps(DEM);
     if (pragaHourlyMaps == nullptr) pragaHourlyMaps = new PragaHourlyMeteoMaps(DEM);
@@ -2257,10 +2279,15 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         if (useProxies && currentYear != myDate.year())
         {
             logInfoGUI("Interpolating proxy grid series...");
-            if (checkProxyGridSeries(&interpolationSettings, DEM, proxyGridSeries, myDate))
+            if (checkProxyGridSeries(&interpolationSettings, DEM, proxyGridSeries, myDate, &error))
             {
                 if (! readProxyValues()) return false;
                 currentYear = myDate.year();
+            }
+            else
+            {
+                errorString = error;
+                return false;
             }
         }
 
@@ -3188,7 +3215,7 @@ bool PragaProject::loadForecastToGrid(QString fileName, bool overWrite, bool che
 }
 */
 
-bool PragaProject::parserXMLImportData(QString xmlName, bool isGrid)
+bool PragaProject::parserXMLImportExportData(QString xmlName, bool isGrid)
 {
     if (! QFile(xmlName).exists() || ! QFileInfo(xmlName).isFile())
     {
@@ -3197,18 +3224,17 @@ bool PragaProject::parserXMLImportData(QString xmlName, bool isGrid)
     }
     if (isGrid)
     {
-        importData = new ImportDataXML(isGrid, nullptr, meteoGridDbHandler, xmlName);
+        inOutData = new InOutDataXML(isGrid, nullptr, meteoGridDbHandler, xmlName);
     }
     else
     {
-        importData = new ImportDataXML(isGrid, meteoPointsDbHandler, nullptr, xmlName);
+        inOutData = new InOutDataXML(isGrid, meteoPointsDbHandler, nullptr, xmlName);
     }
-
     errorString = "";
-    if (!importData->parserXML(&errorString))
+    if (!inOutData->parserXML(&errorString))
     {
         logError(errorString);
-        delete importData;
+        delete inOutData;
         return false;
     }
     return true;
@@ -3224,15 +3250,380 @@ bool PragaProject::loadXMLImportData(QString fileName)
     }
 
     errorString = "";
-    if (!importData->importDataMain(fileName, errorString))
+    if (!inOutData->importDataMain(fileName, errorString))
     {
-        logError(errorString);
         return false;
     }
 
     return true;
 }
 
+bool PragaProject::loadXMLExportData(QString code)
+{
+    errorString = "";
+    QString filename = inOutData->parseXMLFilename(code);
+    if (filename.isEmpty())
+    {
+        errorString = "Invalid filename" ;
+        return false;
+    }
+    QString variable = inOutData->getVariableExport();
+    meteoVariable meteoVar = getMeteoVar(variable.toStdString());
+    if (meteoVar == noMeteoVar)
+    {
+        errorString = "Unknown meteo variable: " + variable;
+        return false;
+    }
+    QString fixedString = "";
+    int pointCodeFirstChar = inOutData->getPointCodeFirstChar();
+    if (pointCodeFirstChar != NODATA)
+    {
+        fixedString = code;
+        for (int i = 0; i<pointCodeFirstChar-1; i++)
+        {
+                fixedString.insert(0, " ");
+        }
+    }
+    int variableCodeFirstChar = inOutData->getVariableCodeFirstChar();
+    int whiteSpaces = variableCodeFirstChar - (fixedString.length()+1);
+    for (int i = 0; i<whiteSpaces; i++)
+    {
+        fixedString.append(" ");
+    }
+    QString attribute = inOutData->getVariableCodeAttribute();
+    if (!attribute.isEmpty())
+    {
+        fixedString = fixedString + attribute;
+    }
+    int timeFirstChar = inOutData->getTimeFirstChar();
+    whiteSpaces = timeFirstChar - (fixedString.length()+1);
+    for (int i = 0; i<whiteSpaces; i++)
+    {
+        fixedString.append(" ");
+    }
+    QString variableAlign = inOutData->getVariableAlign();
+    int variableFirstChar = inOutData->getVariableFirstChar();
+    int variableNrChar = inOutData->getVariableNrChar();
+    QString variableFormat = inOutData->getVariableFormat();
+    QChar charFormat = variableFormat[variableFormat.length()-1];
+    int nDecimals = variableFormat.mid(variableFormat.length()-2,1).toInt();
+    if (variableAlign.isEmpty())
+    {
+        variableAlign = "right"; //default
+    }
+    else if (variableAlign != "right" && variableAlign != "left")
+    {
+        errorString = "Invalid alignment: " + variableAlign;
+        return false;
+    }
+    QString flagAccepted = inOutData->getVariableFlagAccepted();
+    int flagFirstChar;
+    if (!flagAccepted.isEmpty())
+    {
+        flagFirstChar = inOutData->getVariableFlagFirstChar();
+    }
+    QString missingValueStr = QString::number(inOutData->getFormatMissingValue());
+    QString timeType = inOutData->getTimeType();
+    frequencyType freq;
+    if (timeType == "daily" || timeType == "DAILY" || timeType == "D")
+    {
+        freq = daily;
+    } else if (timeType == "hourly" || timeType == "HOURLY" || timeType == "H")
+    {
+        freq = hourly;
+    }
+    else
+    {
+        errorString = "Invalid time type: " + timeType;
+        return false;
+    }
+
+
+    std::vector<QString> dateStr;
+    std::vector<float> values = meteoPointsDbHandler->exportAllDataVar(&errorString, freq, meteoVar, code, dateStr);
+    if (values.size() == 0)
+    {
+        errorString = code + " has no data for variable: " + variable;
+        return false;
+    }
+    QFile file(filename);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream out(&file);
+    QDate myDate;
+    QTime myTime;
+    QDateTime myDateTime;
+    QString myDateStr;
+    for (int i = 0; i<values.size(); i++)
+    {
+        if (freq == daily)
+        {
+            myDate = QDate::fromString(dateStr[i], "yyyy-MM-dd");
+            myDateStr = myDate.toString(inOutData->getTimeFormat());
+        }
+        else if (freq == hourly)
+        {
+            myDate = QDate::fromString(dateStr[i].mid(0,10), "yyyy-MM-dd");
+            myTime = QTime::fromString(dateStr[i].mid(11,8), "hh:mm");
+            myDateTime = QDateTime(myDate, myTime, Qt::UTC);
+            myDateStr = myDateTime.toString(inOutData->getTimeFormat());
+        }
+
+        if (!dateStr[i].isEmpty() && myDateStr.isEmpty())
+        {
+            errorString = "Invalid date format: " + inOutData->getTimeFormat();
+            file.close();
+            return false;
+        }
+        QString fixedStringAddDate = fixedString+myDateStr;
+        out << fixedStringAddDate;
+        whiteSpaces = variableFirstChar - (fixedStringAddDate.length()+1);
+        for (int i = 0; i<whiteSpaces; i++)
+        {
+            out << " " ;
+        }
+
+        QString myValue;
+        if (values[i] == NODATA)
+        {
+            myValue = missingValueStr;
+        }
+        else
+        {
+            if (charFormat == 'f')
+            {
+                myValue = QString::number(values[i],'f',nDecimals);
+            }
+            else if (charFormat == 'd')
+            {
+                myValue = QString::number(values[i],'d',nDecimals);
+            }
+            else if (charFormat == 'd'|| charFormat == 'i')
+            {
+                myValue = QString::number(values[i],'f',nDecimals);
+            }
+            else if (charFormat == 'e')
+            {
+                myValue = QString::number(values[i],'e',nDecimals);
+            }
+            else if (charFormat == 'g')
+            {
+                myValue = QString::number(values[i],'g',nDecimals);
+            }
+            else
+            {
+                myValue = QString::number(values[i],'f',nDecimals);  // default
+            }
+        }
+
+        if (variableAlign == "left")
+        {
+            myValue = myValue.leftJustified(variableNrChar, ' ');
+            out << myValue;
+        }
+        else
+        {
+            myValue = myValue.rightJustified(variableNrChar, ' ');
+            out << myValue;
+        }
+        if (values[i] != NODATA && !flagAccepted.isEmpty())
+        {
+            whiteSpaces = flagFirstChar - (variableFirstChar + variableNrChar);
+            for (int i = 0; i<whiteSpaces; i++)
+            {
+                    out << " " ;
+            }
+            out << flagAccepted;
+        }
+        out <<"\n";
+    }
+    file.close();
+
+    return true;
+}
+
+// LC 2 funzioni separate per gliglie e punti per eventualmente diversificare anche i dati da esportare (es. le griglie hanno anche i mensili)
+bool PragaProject::loadXMLExportDataGrid(QString code)
+{
+    errorString = "";
+    QString filename = inOutData->parseXMLFilename(code);
+    if (filename.isEmpty())
+    {
+        errorString = "Invalid filename" ;
+        return false;
+    }
+    QString variable = inOutData->getVariableExport();
+    meteoVariable meteoVar = getMeteoVar(variable.toStdString());
+    if (meteoVar == noMeteoVar)
+    {
+        errorString = "Unknown meteo variable: " + variable;
+        return false;
+    }
+    QString fixedString = "";
+    int pointCodeFirstChar = inOutData->getPointCodeFirstChar();
+    if (pointCodeFirstChar != NODATA)
+    {
+        fixedString = code;
+        for (int i = 0; i<pointCodeFirstChar-1; i++)
+        {
+            fixedString.insert(0, " ");
+        }
+    }
+    int variableCodeFirstChar = inOutData->getVariableCodeFirstChar();
+    int whiteSpaces = variableCodeFirstChar - (fixedString.length()+1);
+    for (int i = 0; i<whiteSpaces; i++)
+    {
+        fixedString.append(" ");
+    }
+    QString attribute = inOutData->getVariableCodeAttribute();
+    if (!attribute.isEmpty())
+    {
+        fixedString = fixedString + attribute;
+    }
+    int timeFirstChar = inOutData->getTimeFirstChar();
+    whiteSpaces = timeFirstChar - (fixedString.length()+1);
+    for (int i = 0; i<whiteSpaces; i++)
+    {
+        fixedString.append(" ");
+    }
+    QString variableAlign = inOutData->getVariableAlign();
+    int variableFirstChar = inOutData->getVariableFirstChar();
+    int variableNrChar = inOutData->getVariableNrChar();
+    QString variableFormat = inOutData->getVariableFormat();
+    QChar charFormat = variableFormat[variableFormat.length()-1];
+    int nDecimals = variableFormat.mid(variableFormat.length()-2,1).toInt();
+    if (variableAlign.isEmpty())
+    {
+        variableAlign = "right"; //default
+    }
+    else if (variableAlign != "right" && variableAlign != "left")
+    {
+        errorString = "Invalid alignment: " + variableAlign;
+        return false;
+    }
+    QString flagAccepted = inOutData->getVariableFlagAccepted();
+    int flagFirstChar;
+    if (!flagAccepted.isEmpty())
+    {
+        flagFirstChar = inOutData->getVariableFlagFirstChar();
+    }
+    QString missingValueStr = QString::number(inOutData->getFormatMissingValue());
+    QString timeType = inOutData->getTimeType();
+    frequencyType freq;
+    if (timeType == "daily" || timeType == "DAILY" || timeType == "D")
+    {
+        freq = daily;
+    } else if (timeType == "hourly" || timeType == "HOURLY" || timeType == "H")
+    {
+        freq = hourly;
+    }
+    else
+    {
+        errorString = "Invalid time type: " + timeType;
+        return false;
+    }
+
+
+    std::vector<QString> dateStr;
+    std::vector<float> values = meteoGridDbHandler->exportAllDataVar(&errorString, freq, meteoVar, code, dateStr);
+    if (values.size() == 0)
+    {
+        errorString = code + " has no data for variable: " + variable;
+        return false;
+    }
+    QFile file(filename);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream out(&file);
+    QDate myDate;
+    QTime myTime;
+    QDateTime myDateTime;
+    QString myDateStr;
+    for (int i = 0; i<values.size(); i++)
+    {
+        if (freq == daily)
+        {
+            myDate = QDate::fromString(dateStr[i], "yyyy-MM-dd");
+            myDateStr = myDate.toString(inOutData->getTimeFormat());
+        }
+        else if (freq == hourly)
+        {
+            myDate = QDate::fromString(dateStr[i].mid(0,10), "yyyy-MM-dd");
+            myTime = QTime::fromString(dateStr[i].mid(11,8), "hh:mm");
+            myDateTime = QDateTime(myDate, myTime, Qt::UTC);
+            myDateStr = myDateTime.toString(inOutData->getTimeFormat());
+        }
+
+        if (!dateStr[i].isEmpty() && myDateStr.isEmpty())
+        {
+            errorString = "Invalid date format: " + inOutData->getTimeFormat();
+            file.close();
+            return false;
+        }
+        QString fixedStringAddDate = fixedString+myDateStr;
+        out << fixedStringAddDate;
+        whiteSpaces = variableFirstChar - (fixedStringAddDate.length()+1);
+        for (int i = 0; i<whiteSpaces; i++)
+        {
+            out << " " ;
+        }
+
+        QString myValue;
+        if (values[i] == NODATA)
+        {
+            myValue = missingValueStr;
+        }
+        else
+        {
+            if (charFormat == 'f')
+            {
+                    myValue = QString::number(values[i],'f',nDecimals);
+            }
+            else if (charFormat == 'd')
+            {
+                    myValue = QString::number(values[i],'d',nDecimals);
+            }
+            else if (charFormat == 'd'|| charFormat == 'i')
+            {
+                    myValue = QString::number(values[i],'f',nDecimals);
+            }
+            else if (charFormat == 'e')
+            {
+                    myValue = QString::number(values[i],'e',nDecimals);
+            }
+            else if (charFormat == 'g')
+            {
+                    myValue = QString::number(values[i],'g',nDecimals);
+            }
+            else
+            {
+                    myValue = QString::number(values[i],'f',nDecimals);  // default
+            }
+        }
+
+        if (variableAlign == "left")
+        {
+            myValue = myValue.leftJustified(variableNrChar, ' ');
+            out << myValue;
+        }
+        else
+        {
+            myValue = myValue.rightJustified(variableNrChar, ' ');
+            out << myValue;
+        }
+        if (values[i] != NODATA && !flagAccepted.isEmpty())
+        {
+            whiteSpaces = flagFirstChar - (variableFirstChar + variableNrChar);
+            for (int i = 0; i<whiteSpaces; i++)
+            {
+                    out << " " ;
+            }
+            out << flagAccepted;
+        }
+        out <<"\n";
+    }
+    file.close();
+
+    return true;
+}
 
 bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList<meteoVariable> &variablesList)
 {
@@ -3754,18 +4145,16 @@ bool PragaProject::cleanClimatePoint()
     QList<QString> climateTables;
     QList<QString> climateFields;
 
-    unsigned i,j;
-
     if (getClimateTables(db, &errorString, &climateTables) )
     {
-        for (i=0; i < climateTables.size(); i++)
+        for (int i = 0; i < climateTables.size(); i++)
         {
             climateFields.clear();
             getClimateFieldsFromTable(db, &errorString, climateTables[i], &climateFields);
 
             if (! climateFields.isEmpty())
             {
-                for (j=0; j < climateFields.size(); j++)
+                for (int j = 0; j < climateFields.size(); j++)
                     if (! deleteElab(db, &errorString, climateTables[i].toLower(), climateFields[j]))
                         return false;
             }

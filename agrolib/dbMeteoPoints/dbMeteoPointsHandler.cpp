@@ -686,6 +686,74 @@ std::vector<float> Crit3DMeteoPointsDbHandler::loadDailyVar(QString *myError, me
     return dailyVarList;
 }
 
+std::vector<float> Crit3DMeteoPointsDbHandler::exportAllDataVar(QString *myError, frequencyType freq, meteoVariable variable, QString id, std::vector<QString> &dateStr)
+{
+    QString myDateStr;
+    QDateTime dateTime;
+    QDate date;
+    float value;
+    std::vector<float> allDataVarList;
+
+    int idVar = getIdfromMeteoVar(variable);
+
+
+    QSqlQuery myQuery(_db);
+    QString tableName;
+
+    if (freq == daily)
+    {
+        tableName = id + "_D";
+    }
+    else if (freq == hourly)
+    {
+        tableName = id + "_H";
+    }
+    else
+    {
+        *myError = "Frequency should be daily or hourly";
+        return allDataVarList;
+    }
+
+    QString statement = QString( "SELECT * FROM `%1` WHERE `%2` = %3")
+                            .arg(tableName).arg(FIELD_METEO_VARIABLE).arg(idVar);
+
+    if( !myQuery.exec(statement) )
+    {
+        *myError = myQuery.lastError().text();
+        return allDataVarList;
+    }
+    else
+    {
+        while (myQuery.next())
+        {
+            if (freq == daily)
+            {
+                if (! getValue(myQuery.value(0), &date))
+                {
+                    *myError = "Missing fieldTime";
+                    return allDataVarList;
+                }
+                myDateStr = date.toString("yyyy-MM-dd");
+            }
+            else if (freq == hourly)
+            {
+                if (! getValue(myQuery.value(0), &dateTime))
+                {
+                    *myError = "Missing fieldTime";
+                    return allDataVarList;
+                }
+                // LC dateTime.toString direttamente ritorna una stringa vuota nelle ore di passaggio all'ora legale
+                myDateStr = dateTime.date().toString("yyyy-MM-dd") + " " + dateTime.time().toString("hh:mm");
+            }
+            dateStr.push_back(myDateStr);
+            value = myQuery.value(2).toFloat();
+            allDataVarList.push_back(value);
+        }
+    }
+
+    return allDataVarList;
+}
+
 std::vector<float> Crit3DMeteoPointsDbHandler::loadHourlyVar(QString *myError, meteoVariable variable, Crit3DDate dateStart, Crit3DDate dateEnd, QDateTime* firstDateDB, Crit3DMeteoPoint *meteoPoint)
 {
     QString dateStr;

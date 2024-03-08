@@ -14,7 +14,7 @@
         Q_OBJECT
 
         public:
-            Crit3DMeteoWidget(bool isGrid, QString projectPath, Crit3DMeteoSettings* meteoSettings_);
+            Crit3DMeteoWidget(bool isGrid_, QString projectPath, Crit3DMeteoSettings* meteoSettings_);
             ~Crit3DMeteoWidget() override;
 
             int getMeteoWidgetID() const;
@@ -26,7 +26,8 @@
 
             void addMeteoPointsEnsemble(Crit3DMeteoPoint mp);
 
-            void draw(Crit3DMeteoPoint mp, bool isAppend);
+            void updateTimeRange();
+            void drawMeteoPoint(Crit3DMeteoPoint mp, bool isAppend);
             void drawEnsemble();
 
             void resetValues();
@@ -54,6 +55,8 @@
             void on_actionChangeRightAxis();
             void on_actionExportGraph();
             void on_actionRemoveStation();
+            void on_actionInfoPoint();
+            void on_actionDataAvailability();
 
     private:
             int meteoWidgetID;
