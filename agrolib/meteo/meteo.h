@@ -105,6 +105,12 @@
                     noMeteoVar};
 
 
+    enum criteria3DVariable {volumetricWaterContent, waterTotalPotential, waterMatricPotential,
+                              availableWaterContent, degreeOfSaturation, soilTemperature,
+                              soilSurfaceMoisture, bottomDrainage, waterDeficit, waterInflow, waterOutflow,
+                              factorOfSafety};
+
+
     const std::map<std::string, meteoVariable> MapDailyMeteoVar = {
       { "DAILY_TMIN", dailyAirTemperatureMin },
       { "DAILY_TMAX", dailyAirTemperatureMax },
@@ -172,7 +178,8 @@
       { dailyCoolingDegreeDays, "DAILY_DEGREEDAYS_COOLING" },
       { dailyWaterTableDepth, "DAILY_WATER_TABLE_DEPTH" },
       { elaboration, "ELABORATION" },
-      { anomaly, "ANOMALY" }
+      { anomaly, "ANOMALY" },
+      { noMeteoVar, "NO_VARIABLE" }
     };
 
     const std::map<std::string, meteoVariable> MapHourlyMeteoVar = {
@@ -226,7 +233,8 @@
         { snowSurfaceEnergy, "SNOW_SURF_ENERGY"},
         { snowInternalEnergy, "SNOW_INT_ENERGY"},
         { sensibleHeat, "SENSIBLE_HEAT"},
-        { latentHeat, "LATENT_HEAT"}
+        { latentHeat, "LATENT_HEAT"},
+        { noMeteoVar, "NO_VARIABLE" }
     };
 
     const std::map<std::string, meteoVariable> MapMonthlyMeteoVar = {

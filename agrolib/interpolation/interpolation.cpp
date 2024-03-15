@@ -28,11 +28,6 @@
 #include <vector>
 #include <algorithm>
 
-/*#include <fstream>
-#include <chrono>
-#include <iostream>
-*/
-
 #include "commonConstants.h"
 #include "basicMath.h"
 #include "furtherMathFunctions.h"
@@ -1436,17 +1431,18 @@ bool multipleDetrending(std::vector <Crit3DInterpolationDataPoint> &myPoints, Cr
 
     // exclude points with incomplete proxies
     unsigned i;
-    std::vector <Crit3DInterpolationDataPoint> finalPoints;
+    //std::vector <Crit3DInterpolationDataPoint> finalPoints;
     bool isValid;
     float proxyValue;
+    vector<Crit3DInterpolationDataPoint>::iterator it = myPoints.begin();
 
-    for (i=0; i < myPoints.size(); i++)
+    while (it != myPoints.end())
     {
         isValid = true;
         for (pos=0; pos < mySettings->getProxyNr(); pos++)
             if (mySettings->getProxy(pos)->getIsSignificant())
             {
-                proxyValue = myPoints[i].getProxyValue(pos);
+                proxyValue = it->getProxyValue(pos);
                 if (proxyValue == NODATA)
                 {
                     isValid = false;
@@ -1454,7 +1450,13 @@ bool multipleDetrending(std::vector <Crit3DInterpolationDataPoint> &myPoints, Cr
                 }
             }
 
-        if (isValid) finalPoints.push_back(myPoints[i]);
+        if (! isValid)
+        {
+            it = myPoints.erase(it);
+        }
+        else {
+            it++;
+        }
     }
 
     // proxy spatial variability (2nd step)
@@ -1464,7 +1466,7 @@ bool multipleDetrending(std::vector <Crit3DInterpolationDataPoint> &myPoints, Cr
     validNr = 0;
     for (pos=0; pos < int(mySettings->getProxyNr()); pos++)
     {
-        if (myCombination.getValue(pos) && proxyValidity(finalPoints, pos, mySettings->getProxy(pos)->getStdDevThreshold(), &avg, &stdDev))
+        if (myCombination.getValue(pos) && proxyValidity(myPoints, pos, mySettings->getProxy(pos)->getStdDevThreshold(), &avg, &stdDev))
         {
             avgs.push_back(avg);
             stdDevs.push_back(stdDev);
@@ -1484,24 +1486,24 @@ bool multipleDetrending(std::vector <Crit3DInterpolationDataPoint> &myPoints, Cr
     std::vector <double> predictands;
     std::vector <double> weights;
 
-    for (i=0; i < finalPoints.size(); i++)
+    for (i=0; i < myPoints.size(); i++)
     {
         rowPredictors.clear();
         for (pos=0; pos < mySettings->getProxyNr(); pos++)
             if ((mySettings->getProxy(pos)->getIsSignificant()))
             {
-                proxyValue = finalPoints[i].getProxyValue(pos);
+                proxyValue = myPoints[i].getProxyValue(pos);
                 //rowPredictors.push_back((proxyValue - avgs[index]) / stdDevs[index]);
                 rowPredictors.push_back(proxyValue);
             }
 
         //predictorsNorm.push_back(rowPredictors);
         predictors.push_back(rowPredictors);
-        predictands.push_back(finalPoints[i].value);
-        weights.push_back(finalPoints[i].regressionWeight);
+        predictands.push_back(myPoints[i].value);
+        weights.push_back(myPoints[i].regressionWeight);
     }
 
-    if (finalPoints.size() < mySettings->getMinPointsLocalDetrending())
+    if (myPoints.size() < mySettings->getMinPointsLocalDetrending())
     {
         for (pos = 0; pos < mySettings->getProxyNr(); pos++)
             mySettings->getProxy(pos)->setIsSignificant(false);
@@ -1517,25 +1519,10 @@ bool multipleDetrending(std::vector <Crit3DInterpolationDataPoint> &myPoints, Cr
     std::vector<std::function<double(double, std::vector<double>&)>> myFunc;
     setFittingParameters(myCombination, mySettings, myFunc, parametersMin, parametersMax, parametersDelta, parameters);
 
-    //auto start2 = std::chrono::high_resolution_clock::now();
-
     // multiple non linear fitting
-    /*interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 4, 3, parametersMin, parametersMax, parameters, parametersDelta,
-                                    20, 0.05, 0.02, predictors, predictands, false, weights);*/
-
     interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 500, 5, parametersMin, parametersMax, parameters, parametersDelta,
                                                    100, 0.005, 0.01, predictors, predictands, false, weights);
 
-    /*auto end2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> tempo2 = end2 - start2;
-    std::ofstream csvfile("C:/Github/tempoBestFit.csv", std::ios::app);
-
-    if (!csvfile.is_open()) {
-        std::cerr << "Errore apertura file\n";
-    }
-    csvfile << tempo2.count() << std::endl;
-    csvfile.close();
-*/
     mySettings->setFittingFunction(myFunc);
     mySettings->setFittingParameters(parameters);
 

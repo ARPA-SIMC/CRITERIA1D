@@ -32,9 +32,6 @@
 #include "commonConstants.h"
 #include "furtherMathFunctions.h"
 
-#include <iostream>
-#include <fstream>
-#include <cmath>
 
 double lapseRateRotatedSigmoid(double x, std::vector <double> par)
 {
@@ -1068,10 +1065,12 @@ namespace interpolation
 
         //int iRandom = 0;
         int counter = 0;
-        srand (unsigned(time(nullptr)));
-        //std::random_device rd;
-        //std::mt19937 gen(rd());
+        //srand (unsigned(time(nullptr)));
+        std::random_device rd;
+        std::mt19937 gen(rd());
         //std::uniform_real_distribution<double> dis(0.0, 1.0);
+        std::normal_distribution<double> normal_dis(0.5, 0.2);
+        double truncNormal;
         double randomNumber;
         do
         {
@@ -1079,8 +1078,12 @@ namespace interpolation
             {
                 for (j=0; j<nrParameters[i]; j++)
                 {
-                    parameters[i][j] = parametersMin[i][j] + ((double) rand() / (RAND_MAX))*(parametersMax[i][j]-parametersMin[i][j]);
+                    //parameters[i][j] = parametersMin[i][j] + ((double) rand() / (RAND_MAX))*(parametersMax[i][j]-parametersMin[i][j]);
                     //parameters[i][j] = parametersMin[i][j] + (dis(gen))*(parametersMax[i][j]-parametersMin[i][j]);
+                    do {
+                        truncNormal = normal_dis(gen);
+                    } while(truncNormal <= 0.0 || truncNormal >= 1.0);
+                    parameters[i][j] = parametersMin[i][j] + (truncNormal)*(parametersMax[i][j]-parametersMin[i][j]);
                 }
             }
             fittingMarquardt_nDimension(func,myFunc,parametersMin, parametersMax,
@@ -1094,7 +1097,7 @@ namespace interpolation
                 R2 = computeR2(y,ySim);
             else
                 R2 = computeWeighted_R2(y,ySim,weights);
-            //printf("%d R2 = %f\n",iRandom,R2);
+
             if (R2 > (bestR2-deltaR2))
             {
                 for (j=0;j<nrMinima-1;j++)
@@ -1121,18 +1124,9 @@ namespace interpolation
                     }
                 }*/
             }
-            //iRandom++;
             counter++;
         } while( (counter < nrTrials) && (R2 < (1 - EPSILON)) && (fabs(R2Previous[0]-R2Previous[nrMinima-1]) > deltaR2) );
 
-/*        std::ofstream csvfile("C:/Github/counterR2.csv", std::ios::app);
-
-        if (!csvfile.is_open()) {
-            std::cerr << "Errore apertura file\n";
-        }
-        csvfile << counter << "," << R2 << std::endl;
-        csvfile.close();
-*/
         for (i=0;i<nrPredictors;i++)
         {
             for (j=0; j<nrParameters[i]; j++)
@@ -1233,7 +1227,7 @@ namespace interpolation
                 }
             }
             iterationNr++;
-        } while (iterationNr <= maxIterationsNr && fabs(diffSSE) > myEpsilon);
+        } while (fabs(diffSSE) > myEpsilon && iterationNr <= maxIterationsNr);
         return (fabs(diffSSE) <= myEpsilon);
     }
 
@@ -1261,6 +1255,7 @@ namespace interpolation
         std::vector<double> firstEst(nrData);
         std::vector<std::vector<double>> a(nrParametersTotal, std::vector<double>(nrParametersTotal));
         std::vector<std::vector<double>> P(nrParametersTotal, std::vector<double>(nrData));
+        // matrix P corresponds to the Jacobian
         // first set of estimates
         for (i = 0; i < nrData; i++)
         {
@@ -1347,13 +1342,9 @@ namespace interpolation
             }
         }
 
+        // linear system resolution in order to get the Delta of each parameter
         parametersChange[nrPredictors - 1][nrParameters[nrPredictors-1]-1] = g[nrParametersTotal - 1] / a[nrParametersTotal - 1][nrParametersTotal - 1];
 
-        /*debugging
-        if (std::isnan(parametersChange[nrPredictors - 1][nrParameters[nrPredictors-1]-1]))
-        {
-            printf("nan trovato\n");
-        }*/
 
         for (i = nrParametersTotal - 2; i >= 0; i--)
         {

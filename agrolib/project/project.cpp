@@ -23,9 +23,6 @@
 #include <QMessageBox>
 #include <string>
 
-/*#include <fstream>
-#include <chrono>
-*/
 
 Project::Project()
 {
@@ -1005,7 +1002,8 @@ bool Project::loadDEM(QString myFileName)
     setColorScale(noMeteoTerrain, DEM.colorScale);
 
     // initialize radiation maps (slope, aspect, lat/lon, transmissivity, etc.)
-    if (radiationMaps != nullptr) radiationMaps->clear();
+    if (radiationMaps != nullptr)
+        radiationMaps->clear();
     radiationMaps = new Crit3DRadiationMaps(DEM, gisSettings);
 
     // initialize hourly meteo maps
@@ -1386,7 +1384,7 @@ bool Project::loadAggregationdDB(QString dbName)
         logError(aggregationDbHandler->error());
         return false;
     }
-    if (!aggregationDbHandler->loadVariableProperties())
+    if (! aggregationDbHandler->loadVariableProperties())
     {
         return false;
     }
@@ -1709,6 +1707,7 @@ QDateTime Project::findDbPointFirstTime()
 
     return firstTime;
 }
+
 
 void Project::checkMeteoPointsDEM()
 {
@@ -2309,7 +2308,6 @@ bool Project::interpolationDemLocalDetrending(meteoVariable myVar, const Crit3DT
                 float z = DEM.value[row][col];
                 if (! isEqual(z, myHeader.flag))
                 {
-                    //auto start1 = std::chrono::high_resolution_clock::now();
                     gis::getUtmXYFromRowCol(myHeader, row, col, &x, &y);
 
                     std::vector <Crit3DInterpolationDataPoint> subsetInterpolationPoints;
@@ -2318,16 +2316,6 @@ bool Project::interpolationDemLocalDetrending(meteoVariable myVar, const Crit3DT
                     getProxyValuesXY(x, y, &interpolationSettings, proxyValues);
                     myRaster->value[row][col] = interpolate(subsetInterpolationPoints, &interpolationSettings, meteoSettings,
                                                             myVar, x, y, z, proxyValues, true);
-
-                    /*auto end1 = std::chrono::high_resolution_clock::now();
-                    std::chrono::duration<double> tempo1 = end1 - start1;
-                    std::ofstream csvfile("C:/Github/rowCol.csv", std::ios::app);
-
-                    if (!csvfile.is_open()) {
-                        std::cerr << "Errore apertura file\n";
-                    }
-                    csvfile << row << "," << col << "," << tempo1.count() << std::endl;
-                    csvfile.close();*/
                 }
             }
         }
@@ -2602,11 +2590,6 @@ bool Project::interpolationGrid(meteoVariable myVar, const Crit3DTime& myTime)
                         localSelection(interpolationPoints, subsetInterpolationPoints, myX, myY, interpolationSettings);
                         preInterpolation(subsetInterpolationPoints, &interpolationSettings, meteoSettings, &climateParameters, meteoPoints, nrMeteoPoints, myVar, myTime);
                         interpolatedValue = interpolate(subsetInterpolationPoints, &interpolationSettings, meteoSettings, myVar, myX, myY, myZ, proxyValues, true);
-                        //debugging
-                        if (interpolatedValue > 9000)
-                        {
-                            std::cout << "valore sballato" << std::endl;
-                        }
                     }
                     else
                     {
@@ -3082,7 +3065,7 @@ bool Project::loadProject()
 
     if (dbAggregationFileName != "")
     {
-        if (! loadAggregationdDB(projectPath+"/"+dbAggregationFileName))
+        if (! loadAggregationdDB(projectPath + "/" + dbAggregationFileName))
         {
             errorString = "load Aggregation DB failed";
             errorType = ERROR_DBPOINT;

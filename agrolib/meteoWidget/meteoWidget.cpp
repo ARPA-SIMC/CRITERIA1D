@@ -625,8 +625,6 @@ void Crit3DMeteoWidget::resetValues()
             {
                 QLineSeries* line = new QLineSeries();
                 line->setName(getFormattedLabel(pointName, nameLines[i]));
-
-                //QColor lineColor = colorLine[i];
                 QColor lineColor = colorLines[i];
                 if (nMeteoPoints == 1)
                 {
@@ -2312,16 +2310,92 @@ void Crit3DMeteoWidget::on_actionDataAvailability()
 
 void Crit3DMeteoWidget::on_actionDataSum()
 {
-    // TO DO;
-    // Apre una finestra con l'elenco delle variabili attualmente visualizzate in modo che siano selezionabili quali vogliamo switchare sulla comulata
     DialogVariableToSum varToSum(currentVariables);
     QList<QString> varToSumList;
     if (varToSum.result() == QDialog::Accepted)
     {
         varToSumList = varToSum.getSelectedVariable();
     }
-    qDebug() << "varToSumList " << varToSumList.join(",");
+    else
+    {
+        return;
+    }
+    if (!varToSumList.isEmpty())
+    {
+        drawSum(varToSumList);
+    }
+}
 
+void Crit3DMeteoWidget::drawSum(QList<QString> varToSumList)
+{
+    int nMeteoPoints = meteoPoints.size();
+    for (int i = 0; i < varToSumList.size(); i++)
+    {
+        if (!lineSeries.isEmpty())
+        {
+            for (int j = 0; j < nameLines.size(); j++)
+            {
+                qreal max = NODATA;
+                if (nameLines[j] == varToSumList[i])
+                {
+                    QVector<QPointF> points;
+                    QVector<QPointF> cumulativePoints;   
+                    for (int mp=0; mp<nMeteoPoints;mp++)
+                    {
+                        for (int n = 0; n<lineSeries[mp][j]->points().size(); n++)
+                        {
+                            points.append(QPointF(lineSeries[mp][j]->points()[n].x(),lineSeries[mp][j]->points()[n].y()));
+                        }
+                        cumulativePoints.append(points[0]);
+                        for (int n = 1; n<points.size(); n++)
+                        {
+                            cumulativePoints.append(QPointF(points[n].rx(), points[n].ry()+cumulativePoints[n-1].ry()));
+                        }
+                        lineSeries[mp][j]->replace(cumulativePoints);
+                        if (max < cumulativePoints.last().ry())
+                        {
+                            max = cumulativePoints.last().ry();
+                        }
+                        points.clear();
+                        cumulativePoints.clear();
+                    }
+                }
+                axisY->setRange(axisY->min(),max);
+            }
+        }
+        if (! barSeries.isEmpty())
+        {
+            for (int j = 0; j < nameBar.size(); j++)
+            {
+                double max = NODATA;
+                if (nameBar[j] == varToSumList[i])
+                {
+                    QVector<double> values;
+                    QVector<double> cumulativeValues;
+                    for (int mp=0; mp<nMeteoPoints;mp++)
+                    {
+                        for (int n = 0; n<setVector[mp][j]->count(); n++)
+                        {
+                            values << setVector[mp][j]->at(n);
+                        }
+                        cumulativeValues.append(values[0]);
+                        for (int n = 1; n<values.size(); n++)
+                        {
+                            cumulativeValues.append(values[n]+cumulativeValues[n-1]);
+                            setVector[mp][j]->replace(n,cumulativeValues[n]);
+                        }
+                        if (max < cumulativeValues.last())
+                        {
+                            max = cumulativeValues.last();
+                        }
+                        values.clear();
+                        cumulativeValues.clear();
+                    }
+                }
+                axisYdx->setRange(axisYdx->min(),max);
+            }
+        }
+    }
 }
 
 

@@ -826,16 +826,116 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
         }
     }
 
-    QDate startDate(climaUsed->yearStart(), climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
-    QDate endDate(climaUsed->yearEnd(), climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+    QDate startDate;
+    QDate endDate;
 
     if (climaUsed->nYears() > 0)
     {
-        endDate.setDate(climaUsed->yearEnd() + climaUsed->nYears(), climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        int myYearStart = climaUsed->yearStart();
+        int myYearEnd = climaUsed->yearEnd() + climaUsed->nYears();
+        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        // check dates - leap case
+        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        {
+            if (!isLeapYear(myYearStart))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    startDate.setDate(myYearStart, 2, 28);
+                }
+                else
+                {
+                    startDate.setDate(myYearStart, 3, 1);
+                }
+            }
+        }
+        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        {
+            if (!isLeapYear(myYearEnd))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    endDate.setDate(myYearEnd, 2, 28);
+                }
+                else
+                {
+                    endDate.setDate(myYearEnd, 3, 1);
+                }
+            }
+        }
     }
     else if (climaUsed->nYears() < 0)
     {
-        startDate.setDate(climaUsed->yearStart() + climaUsed->nYears(), climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
+        int myYearStart = climaUsed->yearStart() + climaUsed->nYears();
+        int myYearEnd = climaUsed->yearEnd();
+        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        // check dates - leap case
+        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        {
+            if (!isLeapYear(myYearStart))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    startDate.setDate(myYearStart, 2, 28);
+                }
+                else
+                {
+                    startDate.setDate(myYearStart, 3, 1);
+                }
+            }
+        }
+        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        {
+            if (!isLeapYear(myYearEnd))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    endDate.setDate(myYearEnd, 2, 28);
+                }
+                else
+                {
+                    endDate.setDate(myYearEnd, 3, 1);
+                }
+            }
+        }
+    }
+    else
+    {
+        int myYearStart = climaUsed->yearStart();
+        int myYearEnd = climaUsed->yearEnd();
+        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        // check dates - leap case
+        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        {
+            if (!isLeapYear(myYearStart))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    startDate.setDate(myYearStart, 2, 28);
+                }
+                else
+                {
+                    startDate.setDate(myYearStart, 3, 1);
+                }
+            }
+        }
+        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        {
+            if (!isLeapYear(myYearEnd))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    endDate.setDate(myYearEnd, 2, 28);
+                }
+                else
+                {
+                    endDate.setDate(myYearEnd, 3, 1);
+                }
+            }
+        }
     }
 
 
@@ -944,29 +1044,127 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
         }
     }
 
-    QDate startDate(climaUsed->yearStart(), climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
-    QDate endDate(climaUsed->yearEnd(), climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+    QDate startDate;
+    QDate endDate;
 
     if (climaUsed->nYears() > 0)
     {
-        endDate.setDate(climaUsed->yearEnd() + climaUsed->nYears(), climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        int myYearStart = climaUsed->yearStart();
+        int myYearEnd = climaUsed->yearEnd() + climaUsed->nYears();
+        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        // check dates - leap case
+        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        {
+            if (!isLeapYear(myYearStart))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    startDate.setDate(myYearStart, 2, 28);
+                }
+                else
+                {
+                    startDate.setDate(myYearStart, 3, 1);
+                }
+            }
+        }
+        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        {
+            if (!isLeapYear(myYearEnd))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    endDate.setDate(myYearEnd, 2, 28);
+                }
+                else
+                {
+                    endDate.setDate(myYearEnd, 3, 1);
+                }
+            }
+        }
     }
     else if (climaUsed->nYears() < 0)
     {
-        startDate.setDate(climaUsed->yearStart() + climaUsed->nYears(), climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
+        int myYearStart = climaUsed->yearStart() + climaUsed->nYears();
+        int myYearEnd = climaUsed->yearEnd();
+        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        // check dates - leap case
+        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        {
+            if (!isLeapYear(myYearStart))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    startDate.setDate(myYearStart, 2, 28);
+                }
+                else
+                {
+                    startDate.setDate(myYearStart, 3, 1);
+                }
+            }
+        }
+        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        {
+            if (!isLeapYear(myYearEnd))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    endDate.setDate(myYearEnd, 2, 28);
+                }
+                else
+                {
+                    endDate.setDate(myYearEnd, 3, 1);
+                }
+            }
+        }
+    }
+    else
+    {
+        int myYearStart = climaUsed->yearStart();
+        int myYearEnd = climaUsed->yearEnd();
+        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        // check dates - leap case
+        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        {
+            if (!isLeapYear(myYearStart))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    startDate.setDate(myYearStart, 2, 28);
+                }
+                else
+                {
+                    startDate.setDate(myYearStart, 3, 1);
+                }
+            }
+        }
+        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        {
+            if (!isLeapYear(myYearEnd))
+            {
+                if (climaUsed->periodType() != dailyPeriod)
+                {
+                    endDate.setDate(myYearEnd, 2, 28);
+                }
+                else
+                {
+                    endDate.setDate(myYearEnd, 3, 1);
+                }
+            }
+        }
     }
 
+    bool dataAlreadyLoaded = false;
 
-     //Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
-     bool dataAlreadyLoaded = false;
+    for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
+    {
+        if (showInfo && (row % infoStep) == 0)
+            updateProgressBar(row);
 
-     for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
-     {
-         if (showInfo && (row % infoStep) == 0)
-             updateProgressBar(row);
-
-         for (int col = 0; col < meteoGridDbHandler->gridStructure().header().nrCols; col++)
-         {
+        for (int col = 0; col < meteoGridDbHandler->gridStructure().header().nrCols; col++)
+        {
 
             if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, &id))
             {
@@ -1017,13 +1215,11 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
         {
             errorString = "no valid cells available";
         }
-        //delete meteoPointTemp;
         delete climaUsed;
         return false;
     }
     else
     {
-        //delete meteoPointTemp;
         delete climaUsed;
         return true;
     }
@@ -1671,7 +1867,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
 
      // save dailyElabAggregation result into DB
      if (showInfo) setProgressBar("Save data...", 0);
-     if (!aggregationDbHandler->saveAggrData(int(zoneGrid->maximum), aggregationString, periodType, startDate, endDate, variable, dailyElabAggregation, lonVector, latVector))
+     if (! aggregationDbHandler->saveAggrData(int(zoneGrid->maximum), aggregationString, periodType, startDate, endDate, variable, dailyElabAggregation, lonVector, latVector))
      {
          errorString = aggregationDbHandler->error();
          if (showInfo) closeProgressBar();
@@ -2438,6 +2634,7 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
         }
         else
         {
+
             if (! interpolationGrid(myVar, myTime))
                 return false;
         }
@@ -3098,8 +3295,8 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
                 netcdfName = xmlPath + listXMLAnomaly->listFileName()[i]+".nc";
             }
 
-            QDate dateEnd = QDate(listXMLElab->listYearEnd()[i] + listXMLElab->listNYears()[i], listXMLElab->listDateEnd()[i].month(), listXMLElab->listDateEnd()[i].day());
-            QDate dateStart = QDate(listXMLElab->listYearStart()[i], listXMLElab->listDateStart()[i].month(), listXMLElab->listDateStart()[i].day());
+            QDate dateEnd = QDate(listXMLAnomaly->listYearEnd()[i] + listXMLAnomaly->listNYears()[i], listXMLAnomaly->listDateEnd()[i].month(), listXMLAnomaly->listDateEnd()[i].day());
+            QDate dateStart = QDate(listXMLAnomaly->listYearStart()[i], listXMLAnomaly->listDateStart()[i].month(), listXMLAnomaly->listDateStart()[i].day());
 
             int nDays = dateStart.daysTo(dateEnd);
             exportMeteoGridToNetCDF(netcdfName, netcdfTitle, QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), getCrit3DDate(dateStart),
@@ -3135,7 +3332,7 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
                         firstMonth = 12 + firstMonth;
                         dateStart.setDate(listXMLDrought->listDate()[i].year()-1, firstMonth, 1);
                 }
-                if (firstMonth < -11)
+                else if (firstMonth < -11)
                 {
                         firstMonth = 24 + firstMonth;
                         dateStart.setDate(listXMLDrought->listDate()[i].year()-2, firstMonth, 1);
@@ -3158,7 +3355,7 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
                         fistMonth = 12 + fistMonth;
                         dateStart.setDate(listXMLDrought->listDate()[i].year()-1, fistMonth, 1);
                 }
-                if (fistMonth < -11)
+                else if (fistMonth < -11)
                 {
                         fistMonth = 24 + fistMonth;
                         dateStart.setDate(listXMLDrought->listDate()[i].year()-2, fistMonth, 1);
@@ -3258,7 +3455,7 @@ bool PragaProject::loadXMLImportData(QString fileName)
     return true;
 }
 
-bool PragaProject::loadXMLExportData(QString code)
+bool PragaProject::loadXMLExportData(QString code, QDateTime myFirstTime, QDateTime myLastTime)
 {
     errorString = "";
     QString filename = inOutData->parseXMLFilename(code);
@@ -3317,7 +3514,7 @@ bool PragaProject::loadXMLExportData(QString code)
         return false;
     }
     QString flagAccepted = inOutData->getVariableFlagAccepted();
-    int flagFirstChar;
+    int flagFirstChar = 0;
     if (!flagAccepted.isEmpty())
     {
         flagFirstChar = inOutData->getVariableFlagFirstChar();
@@ -3340,7 +3537,7 @@ bool PragaProject::loadXMLExportData(QString code)
 
 
     std::vector<QString> dateStr;
-    std::vector<float> values = meteoPointsDbHandler->exportAllDataVar(&errorString, freq, meteoVar, code, dateStr);
+    std::vector<float> values = meteoPointsDbHandler->exportAllDataVar(&errorString, freq, meteoVar, code, myFirstTime, myLastTime, dateStr);
     if (values.size() == 0)
     {
         errorString = code + " has no data for variable: " + variable;
@@ -3442,7 +3639,7 @@ bool PragaProject::loadXMLExportData(QString code)
 }
 
 // LC 2 funzioni separate per gliglie e punti per eventualmente diversificare anche i dati da esportare (es. le griglie hanno anche i mensili)
-bool PragaProject::loadXMLExportDataGrid(QString code)
+bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QDateTime myLastTime)
 {
     errorString = "";
     QString filename = inOutData->parseXMLFilename(code);
@@ -3501,7 +3698,7 @@ bool PragaProject::loadXMLExportDataGrid(QString code)
         return false;
     }
     QString flagAccepted = inOutData->getVariableFlagAccepted();
-    int flagFirstChar;
+    int flagFirstChar = 0;
     if (!flagAccepted.isEmpty())
     {
         flagFirstChar = inOutData->getVariableFlagFirstChar();
@@ -3524,7 +3721,7 @@ bool PragaProject::loadXMLExportDataGrid(QString code)
 
 
     std::vector<QString> dateStr;
-    std::vector<float> values = meteoGridDbHandler->exportAllDataVar(&errorString, freq, meteoVar, code, dateStr);
+    std::vector<float> values = meteoGridDbHandler->exportAllDataVar(&errorString, freq, meteoVar, code, myFirstTime, myLastTime, dateStr);
     if (values.size() == 0)
     {
         errorString = code + " has no data for variable: " + variable;
@@ -3677,8 +3874,6 @@ bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, in
         return false;
     }
 
-    bool res = false;
-
     QDate firstDate(firstYear, 1, 1);
     QDate lastDate;
     int maxYear = std::max(lastYear, date.year());
@@ -3693,9 +3888,20 @@ bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, in
 
     logInfoGUI("Load monthly grid data...");
     qApp->processEvents();
-    meteoGridDbHandler->loadGridAllMonthlyData(errorString, firstDate, lastDate);
+    bool isOk = meteoGridDbHandler->loadGridAllMonthlyData(errorString, firstDate, lastDate);
     closeLogInfo();
 
+    if (! isOk)
+    {
+        if (! errorString.isEmpty())
+            logError();
+        else
+            logError("No monthly data.");
+
+        return false;
+    }
+
+    isOk = false;
     setProgressBar("Drought Index - Meteo Grid", meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows);
     for (unsigned row = 0; row < unsigned(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows); row++)
     {
@@ -3711,6 +3917,7 @@ bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, in
                     mydrought.setTimeScale(timescale);
                 }
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = NODATA;
+
                 if (index == INDEX_DECILES)
                 {
                     if (myVar != noMeteoVar)
@@ -3726,22 +3933,27 @@ bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, in
                 {
                     meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = mydrought.computeDroughtIndex();
                 }
+
                 if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration != NODATA)
                 {
-                    res = true;
+                    isOk = true;
                 }
             }
         }
     }
     closeProgressBar();
 
-    return res;
+    if (! isOk)
+        logError("Missing data.");
+
+    return isOk;
 }
 
+
+// assume che sia stato caricato un progetto con solo aggregationDb
 bool PragaProject::computeDroughtIndexPoint(droughtIndex index, int timescale, int refYearStart, int refYearEnd)
 {
-
-    if (!aggregationDbHandler)
+    if (! aggregationDbHandler)
     {
         logError("No db aggregation");
         return false;
@@ -3789,7 +4001,7 @@ bool PragaProject::computeDroughtIndexPoint(droughtIndex index, int timescale, i
         return false;
     }
 
-    if (!loadMeteoPointsData(firstDate, lastDate, loadHourly, loadDaily, showInfo))
+    if (! loadMeteoPointsData(firstDate, lastDate, loadHourly, loadDaily, showInfo))
     {
         logError("There are no data");
         return false;
@@ -3821,46 +4033,54 @@ bool PragaProject::computeDroughtIndexPoint(droughtIndex index, int timescale, i
         {
             meteoPoints[i].computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate), dailyMeteoVar[j], meteoSettings, quality, &climateParameters);
         }
+
         while(myDate <= lastDate)
         {
-            Drought mydrought(index, refYearStart, refYearEnd, getCrit3DDate(myDate), &(meteoPoints[i]), meteoSettings);
+            Drought myDrought(index, refYearStart, refYearEnd, getCrit3DDate(myDate), &(meteoPoints[i]), meteoSettings);
             if (timescale > 0)
             {
-                mydrought.setTimeScale(timescale);
+                myDrought.setTimeScale(timescale);
             }
             if (index == INDEX_DECILES)
             {
-                if (mydrought.computePercentileValuesCurrentDay())
+                if (myDrought.computePercentileValuesCurrentDay())
                 {
-                    value = mydrought.getCurrentPercentileValue();
+                    value = myDrought.getCurrentPercentileValue();
                 }
             }
             else if (index == INDEX_SPI || index == INDEX_SPEI)
             {
-                value = mydrought.computeDroughtIndex();
+                value = myDrought.computeDroughtIndex();
             }
-            listEntries.push_back(QString("(%1,%2,'%3',%4,%5,'%6',%7,%8)").arg(QString::number(myDate.year())).arg(QString::number(myDate.month()))
-                                  .arg(QString::fromStdString(meteoPoints[i].id)).arg(QString::number(refYearStart)).arg(QString::number(refYearEnd)).arg(indexStr)
-                                  .arg(QString::number(timescale)).arg(QString::number(value)));
+
+            listEntries.push_back(QString("(%1,%2,'%3',%4,%5,'%6',%7,%8)").arg(QString::number(myDate.year()), QString::number(myDate.month()),
+                                                                               QString::fromStdString(meteoPoints[i].id),
+                                                                               QString::number(refYearStart), QString::number(refYearEnd),
+                                                                               indexStr, QString::number(timescale), QString::number(value)));
             myDate = myDate.addMonths(1);
         }
     }
+
     if (listEntries.empty())
     {
         logError("Failed to compute droughtIndex ");
         return false;
     }
-    if (!aggregationDbHandler->writeDroughtDataList(listEntries, &errorString))
+
+    if (! aggregationDbHandler->writeDroughtDataList(listEntries, &errorString))
     {
         logError("Failed to write droughtIndex "+errorString);
         return false;
     }
+
     if (showInfo)
     {
         logInfo("droughtIndex saved");
     }
+
     return true;
 }
+
 
 bool PragaProject::computeDroughtIndexPointGUI(droughtIndex index, int timescale, int refYearStart, int refYearEnd, QDate myDate)
 {
@@ -3890,12 +4110,7 @@ bool PragaProject::computeDroughtIndexPointGUI(droughtIndex index, int timescale
         lastDate.setDate(maxYear,12,1);
     }
 
-    bool loadHourly = false;
-    bool loadDaily = true;
-    bool showInfo = true;
-    float value = NODATA;
     QString indexStr;
-
     if (index == INDEX_SPI)
     {
         indexStr = "SPI";
@@ -3914,9 +4129,12 @@ bool PragaProject::computeDroughtIndexPointGUI(droughtIndex index, int timescale
         return false;
     }
 
-    if (!loadMeteoPointsData(firstDate, lastDate, loadHourly, loadDaily, showInfo))
+    bool loadHourly = false;
+    bool loadDaily = true;
+    bool showInfo = true;
+    if (! loadMeteoPointsData(firstDate, lastDate, loadHourly, loadDaily, showInfo))
     {
-        logError("There are no data");
+        logError("No data.");
         return false;
     }
 
@@ -3930,10 +4148,12 @@ bool PragaProject::computeDroughtIndexPointGUI(droughtIndex index, int timescale
     std::vector<meteoVariable> dailyMeteoVar;
     dailyMeteoVar.push_back(dailyPrecipitation);
     dailyMeteoVar.push_back(dailyReferenceEvapotranspirationHS);
-    bool res = false;
 
-    int nrMonths = (lastDate.year()-firstDate.year())*12+lastDate.month()-(firstDate.month()-1);
-    for (int i=0; i < nrMeteoPoints; i++)
+    bool isOk = false;
+    float value = NODATA;
+
+    int nrMonths = (lastDate.year()-firstDate.year())*12 + lastDate.month() - (firstDate.month()-1);
+    for (int i = 0; i < nrMeteoPoints; i++)
     {
         if (showInfo && (i % step) == 0)
         {
@@ -3946,30 +4166,41 @@ bool PragaProject::computeDroughtIndexPointGUI(droughtIndex index, int timescale
         {
             meteoPoints[i].computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate), dailyMeteoVar[j], meteoSettings, quality, &climateParameters);
         }
-        Drought mydrought(index, refYearStart, refYearEnd, getCrit3DDate(myDate), &(meteoPoints[i]), meteoSettings);
+
+        Drought myDrought(index, refYearStart, refYearEnd, getCrit3DDate(myDate), &(meteoPoints[i]), meteoSettings);
+
         if (timescale > 0)
         {
-            mydrought.setTimeScale(timescale);
+            myDrought.setTimeScale(timescale);
         }
+
         if (index == INDEX_DECILES)
         {
-            if (mydrought.computePercentileValuesCurrentDay())
+            if (myDrought.computePercentileValuesCurrentDay())
             {
-                value = mydrought.getCurrentPercentileValue();
+                value = myDrought.getCurrentPercentileValue();
+            }
+            else
+            {
+                value = NODATA;
             }
         }
         else if (index == INDEX_SPI || index == INDEX_SPEI)
         {
-            value = mydrought.computeDroughtIndex();
+            value = myDrought.computeDroughtIndex();
         }
+
         meteoPoints[i].elaboration = value;
+
         if (value != NODATA)
         {
-            res = true;
+            isOk = true;
         }
     }
-    return res;
+
+    return isOk;
 }
+
 
 bool PragaProject::activeMeteoGridCellsWithDEM()
 {
