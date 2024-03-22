@@ -36,23 +36,7 @@ Crit3DOutputPointsDbHandler::~Crit3DOutputPointsDbHandler()
 }
 
 
-bool Crit3DOutputPointsDbHandler::isOpen()
-{
-    return _db.isOpen();
-}
-
-QString Crit3DOutputPointsDbHandler::getDbName()
-{
-    return _db.databaseName();
-}
-
-QString Crit3DOutputPointsDbHandler::getErrorString()
-{
-    return errorString;
-}
-
-
-bool Crit3DOutputPointsDbHandler::createTable(QString tableName, QString& errorStr)
+bool Crit3DOutputPointsDbHandler::createTable(const QString& tableName, QString& errorStr)
 {
     QString queryString = "CREATE TABLE IF NOT EXISTS '" + tableName + "'";
     queryString += " (DATE_TIME TEXT, PRIMARY KEY(DATE_TIME))";
@@ -69,7 +53,7 @@ bool Crit3DOutputPointsDbHandler::createTable(QString tableName, QString& errorS
 }
 
 
-bool Crit3DOutputPointsDbHandler::addColumn(QString tableName, meteoVariable myVar, QString& errorStr)
+bool Crit3DOutputPointsDbHandler::addColumn(const QString &tableName, meteoVariable myVar, QString& errorStr)
 {
     // column name
     QString newField = QString::fromStdString(getMeteoVarName(myVar));
@@ -104,18 +88,20 @@ bool Crit3DOutputPointsDbHandler::addColumn(QString tableName, meteoVariable myV
 // depth [cm]
 bool Crit3DOutputPointsDbHandler::addCriteria3DColumn(const QString &tableName, criteria3DVariable myVar, int depth, QString& errorStr)
 {
-    // column name
-    /*
-    QString newField = QString::fromStdString(getMeteoVarName(myVar));
-    if (newField == "")
+    // variable name
+    QString variableString = QString::fromStdString(getCriteria3DVarName(myVar));
+    if (variableString == "")
     {
         errorStr = "Missing variable name.";
         return false;
     }
 
+    // column name
+    QString newField = variableString + "_" + QString::number(depth);
+
     // column exists already
     QList<QString> fieldList = getFields(&_db, tableName);
-    if (fieldList.contains(newField))
+    if ( fieldList.contains(newField) )
     {
         return true;
     }
@@ -130,15 +116,15 @@ bool Crit3DOutputPointsDbHandler::addCriteria3DColumn(const QString &tableName, 
         errorStr = "Error in add column: " + newField + "\n" + myQuery.lastError().text();
         return false;
     }
-*/
+
     return true;
 }
 
 
-bool Crit3DOutputPointsDbHandler::saveHourlyMeteoData(QString tableName, const QDateTime& myTime,
-                                                 const std::vector<meteoVariable>& varList,
-                                                 const std::vector<float>& values,
-                                                 QString& errorStr)
+bool Crit3DOutputPointsDbHandler::saveHourlyMeteoData(const QString &tableName, const QDateTime &myTime,
+                                                 const std::vector<meteoVariable> &varList,
+                                                 const std::vector<float> &values,
+                                                 QString &errorStr)
 {
     if (varList.size() != values.size())
     {
@@ -185,6 +171,68 @@ bool Crit3DOutputPointsDbHandler::saveHourlyMeteoData(QString tableName, const Q
     {
         errorStr = QString("Error saving values in table:%1 Time:%2\n%3")
                               .arg(tableName, timeStr, qry.lastError().text());
+        return false;
+    }
+
+    return true;
+}
+
+
+// layerDepth  [m]
+bool Crit3DOutputPointsDbHandler::saveHourlyCriteria3D_Data(const QString &tableName, const QDateTime& myTime,
+                                                        const std::vector<criteria3DVariable>& varList,
+                                                        const std::vector<float>& values,
+                                                        const std::vector <double>& layerDepth,
+                                                        QString &errorStr)
+{
+    int nrSoilLayers = int(layerDepth.size()) - 1;
+    if (nrSoilLayers <= 0)
+    {
+        errorStr = "Error saving values: missing soil layers.";
+        return false;
+    }
+
+    int nrValues = int(varList.size()) * nrSoilLayers;
+    if (nrValues != values.size())
+    {
+        errorStr = "Error saving values: number of values is not as expected.";
+        return false;
+    }
+
+    QString timeStr = myTime.toString("yyyy-MM-dd HH:mm:ss");
+
+    // field list
+    QString setList = "";
+    for (unsigned int i = 0; i < varList.size(); i++)
+    {
+        QString variableString = QString::fromStdString(getCriteria3DVarName(varList[i]));
+        if (variableString == "")
+        {
+            errorStr = "Missing variable name.";
+            return false;
+        }
+
+        for (int layer = 1; layer <= nrSoilLayers; layer++)
+        {
+            int depth = round(layerDepth[layer] * 100);         // [cm]
+
+            QString fieldName = variableString + "_" + QString::number(depth);
+            setList += "'" + fieldName + "'=";
+
+            int index = i * nrSoilLayers + layer - 1;
+            QString valueStr = QString::number(values[index], 'f', 2);
+            setList += valueStr;
+
+            if (index < (nrValues - 1))
+                setList += ",";
+        }
+    }
+
+    QSqlQuery qry(_db);
+    QString queryString = QString("UPDATE '%1' SET %2 WHERE DATE_TIME ='%3'").arg(tableName, setList, timeStr);
+    if (! qry.exec(queryString))
+    {
+        errorStr = QString("Error in query: " + queryString + "\n" + qry.lastError().text());
         return false;
     }
 
