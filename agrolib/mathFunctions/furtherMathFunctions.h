@@ -47,7 +47,8 @@ enum estimatedFunction {FUNCTION_CODE_SPHERICAL, FUNCTION_CODE_LINEAR, FUNCTION_
     float gaussianFunction(float x, float mean, float devStd);
     double functionSum(std::vector<std::function<double (double, std::vector<double> &)> > &functions, std::vector<double>& x, std::vector <std::vector <double>>& par);
     double functionLinear(double x, std::vector <double>& par);
-    double lapseRatePiecewise(double x, std::vector <double>& par);
+    double lapseRatePiecewise_three(double x, std::vector <double>& par);
+    double lapseRatePiecewise_two(double x, std::vector <double>& par);
     double lapseRateFrei(double x, std::vector <double>& par);
     double lapseRateRotatedSigmoid(double x, std::vector <double> par);
 
@@ -99,25 +100,25 @@ enum estimatedFunction {FUNCTION_CODE_SPHERICAL, FUNCTION_CODE_LINEAR, FUNCTION_
                                         std::vector<std::vector<double> > &parametersMin, std::vector<std::vector<double> > &parametersMax,
                                         std::vector<std::vector<double> > &parameters, std::vector<std::vector<double> > &parametersDelta,
                                         int maxIterationsNr, double myEpsilon, double deltaR2,
-                                        std::vector <std::vector <double>>& x , std::vector<double>& y, bool isWeighted, std::vector<double>& weights);
+                                        std::vector <std::vector <double>>& x , std::vector<double>& y, std::vector<double>& weights);
 
         bool fittingMarquardt_nDimension(double (*func)(std::vector<std::function<double (double, std::vector<double> &)> > &, std::vector<double> &, std::vector <std::vector <double>>&),
                                          std::vector<std::function<double (double, std::vector<double> &)> > &myFunc,
                                          std::vector <std::vector <double>>& parametersMin, std::vector <std::vector <double>>& parametersMax,
                                          std::vector <std::vector <double>>& parameters, std::vector <std::vector <double>>& parametersDelta,
                                          std::vector <std::vector <int>>& correspondenceParametersTag, int maxIterationsNr, double myEpsilon,
-                                         std::vector <std::vector <double>>& x, std::vector<double>& y, bool isWeighted, std::vector<double>& weights);
+                                         std::vector <std::vector <double>>& x, std::vector<double>& y, std::vector<double>& weights);
 
         double normGeneric_nDimension(double (*func)(std::vector<std::function<double (double, std::vector<double> &)>> &, std::vector<double> &, std::vector <std::vector <double>>&),
                                       std::vector<std::function<double (double, std::vector<double> &)> > myFunc,
-                                      std::vector <std::vector <double>> &parameters, std::vector <std::vector <double>>& x, std::vector<double>& y);
+                                      std::vector <std::vector <double>> &parameters, std::vector <std::vector <double>>& x, std::vector<double>& y, std::vector<double>& weights);
 
         void leastSquares_nDimension(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
                                     std::vector<std::function<double (double, std::vector<double> &)> > myFunc,
                                     std::vector <std::vector <double>>& parameters, std::vector <std::vector <double>>& parametersDelta,
                                     std::vector <std::vector <int>>& correspondenceParametersTag,
                                     std::vector <std::vector <double>>& x, std::vector<double>& y, std::vector <std::vector <double>>& lambda,
-                                    std::vector <std::vector <double>>& parametersChange,bool isWeighted, std::vector<double>& weights);
+                                    std::vector <std::vector <double>>& parametersChange, std::vector<double>& weights);
     }
 
     namespace matricial
@@ -150,7 +151,7 @@ enum estimatedFunction {FUNCTION_CODE_SPHERICAL, FUNCTION_CODE_LINEAR, FUNCTION_
 
     namespace myrandom
     {
-        //float ran1(long *idum);
+        //float ran1(long *idum) ;
         //float gasdev(long *idum);
         double cauchyRandom(double gamma);
         float normalRandom(int *gasDevIset,float *gasDevGset);
