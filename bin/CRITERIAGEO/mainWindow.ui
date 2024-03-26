@@ -302,7 +302,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="palette">
@@ -692,11 +692,6 @@
   <action name="actionClose_Project">
    <property name="text">
     <string>Close Project...</string>
-   </property>
-  </action>
-  <action name="actionLoad_NetCDF">
-   <property name="text">
-    <string>Load NetCDF...</string>
    </property>
   </action>
  </widget>
