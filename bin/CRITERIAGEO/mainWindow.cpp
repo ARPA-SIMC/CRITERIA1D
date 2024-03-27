@@ -670,7 +670,7 @@ bool MainWindow::exportToNetCDF(GisObject* myObject)
 }
 
 
-bool MainWindow::exportToRasterGdal(GisObject* myObject)
+bool MainWindow::exportShapeToRaster_gdal(GisObject* myObject)
 {
 #ifdef GDAL
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GDALRASTER);
@@ -835,7 +835,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Export to raster (gdal)"))
         {
-            exportToRasterGdal(myObject);
+            exportShapeToRaster_gdal(myObject);
         }
         else if (rightClickItem->text().contains("Save as"))
         {

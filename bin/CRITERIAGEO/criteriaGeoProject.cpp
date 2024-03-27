@@ -66,10 +66,10 @@ void CriteriaGeoProject::addShapeFile(Crit3DShapeHandler *myShape, QString fileN
 
 
 /*
-void CriteriaGeoProject::addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone)
+void CriteriaGeoProject::addNetcdf(NetCDFHandler *myNetcdf, QString fileName, int utmZone)
 {
     GisObject* newObject = new(GisObject);
-    newObject->setNetcdf(fileNameWithPath, myNetcdf, utmZone);
+    newObject->setNetcdf(fileName, myNetcdf, utmZone);
     this->objectList.push_back(newObject);
 }
 */
