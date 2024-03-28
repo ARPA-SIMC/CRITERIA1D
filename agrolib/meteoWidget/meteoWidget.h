@@ -61,7 +61,8 @@
             void on_actionInfoPoint();
             void on_actionDataAvailability();
             void on_actionDataSum();
-            void drawSum(QList<QString> varToSumList);
+            void drawSum();
+            void checkExistingData();
 
     private:
             int meteoWidgetID;
@@ -83,6 +84,7 @@
             QDate lastMonthlyDate;
             QDate currentDate;
 
+            QAction* dataSum;
             QPushButton *addVarButton;
             QPushButton *dailyButton;
             QPushButton *hourlyButton;
@@ -116,6 +118,7 @@
             QVector<QVector<QBarSet*>> setVector;
             QList<QString> categories;
             QList<QString> categoriesVirtual;
+            QList<QString> varToSumList;
 
             bool isLine;
             bool isBar;

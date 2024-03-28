@@ -369,7 +369,8 @@ Crit3DMeteoWidget::Crit3DMeteoWidget(bool isGrid_, QString projectPath, Crit3DMe
 
     QAction* infoPoint = new QAction(tr("&Info meteo point"), this);
     QAction* dataAvailability = new QAction(tr("&Data availability"), this);
-    QAction* dataSum = new QAction(tr("&Sum"), this);
+    dataSum = new QAction(tr("&Sum"), this);
+    dataSum->setCheckable(true);
 
     viewMenu->addAction(infoPoint);
     viewMenu->addAction(dataAvailability);
@@ -493,6 +494,36 @@ void Crit3DMeteoWidget::updateTimeRange()
         {
             lastMonthlyDate = myMonthlyDateLast;
         }
+    }
+    checkExistingData();
+}
+
+void Crit3DMeteoWidget::checkExistingData()
+{
+    // set enable/disable buttons if daily/hourly/monthly data are available
+    if ( (!firstDailyDate.isValid() || firstDailyDate.year() == 1800) && (!lastDailyDate.isValid() || lastDailyDate.year() == 1800) )
+    {
+        dailyButton->setVisible(false);
+    }
+    else
+    {
+        dailyButton->setVisible(true);
+    }
+    if ( (!firstHourlyDate.isValid() || firstHourlyDate.year() == 1800) && (!lastHourlyDate.isValid() || lastHourlyDate.year() == 1800) )
+    {
+        hourlyButton->setVisible(false);
+    }
+    else
+    {
+        hourlyButton->setVisible(true);
+    }
+    if ( (!firstMonthlyDate.isValid() || firstMonthlyDate.year() == 1800) && (!lastMonthlyDate.isValid() || lastMonthlyDate.year() == 1800) )
+    {
+        monthlyButton->setVisible(false);
+    }
+    else
+    {
+        monthlyButton->setVisible(true);
     }
 }
 
@@ -1870,9 +1901,13 @@ void Crit3DMeteoWidget::showMonthlyGraph()
     frequencyType prevFreq = currentFreq;
     currentFreq = monthly;
 
+    // change freq, reset sum data settings
+    varToSumList.clear();
+    dataSum->setChecked(false);
+
+    monthlyButton->setEnabled(false);
     dailyButton->setEnabled(true);
     hourlyButton->setEnabled(true);
-    monthlyButton->setEnabled(false);
 
     if (prevFreq == daily)
     {
@@ -1931,6 +1966,10 @@ void Crit3DMeteoWidget::showDailyGraph()
     if (! isInitialized) return;
     frequencyType prevFreq = currentFreq;
     currentFreq = daily;
+
+    // change freq, reset sum data settings
+    varToSumList.clear();
+    dataSum->setChecked(false);
 
     dailyButton->setEnabled(false);
     hourlyButton->setEnabled(true);
@@ -1993,6 +2032,10 @@ void Crit3DMeteoWidget::showHourlyGraph()
     if (! isInitialized) return;
     frequencyType prevFreq = currentFreq;
     currentFreq = hourly;
+
+    // change freq, reset sum data settings
+    varToSumList.clear();
+    dataSum->setChecked(false);
 
     hourlyButton->setEnabled(false);
     dailyButton->setEnabled(true);
@@ -2116,6 +2159,10 @@ void Crit3DMeteoWidget::redraw()
         if(! isEnsemble)
         {
             drawDailyVar();
+            if (varToSumList.size() != 0)
+            {
+                drawSum();
+            }
         }
     }
     else if (currentFreq == hourly)
@@ -2127,6 +2174,10 @@ void Crit3DMeteoWidget::redraw()
         if(!isEnsemble)
         {
             drawHourlyVar();
+            if (varToSumList.size() != 0)
+            {
+                drawSum();
+            }
         }
     }
     else if (currentFreq == monthly)
@@ -2138,6 +2189,10 @@ void Crit3DMeteoWidget::redraw()
         if(!isEnsemble)
         {
             drawMonthlyVar();
+            if (varToSumList.size() != 0)
+            {
+                drawSum();
+            }
         }
     }
 
@@ -2819,23 +2874,39 @@ void Crit3DMeteoWidget::on_actionDataAvailability()
 
 void Crit3DMeteoWidget::on_actionDataSum()
 {
-    DialogVariableToSum varToSum(currentVariables);
-    QList<QString> varToSumList;
+    DialogVariableToSum varToSum(currentVariables, varToSumList);
+    QList<QString> varToSumListPrev = varToSumList;
     if (varToSum.result() == QDialog::Accepted)
     {
         varToSumList = varToSum.getSelectedVariable();
     }
     else
     {
+        if (varToSumList.isEmpty())
+        {
+            dataSum->setChecked(false);
+        }
+        else
+        {
+            dataSum->setChecked(true);
+        }
         return;
     }
     if (!varToSumList.isEmpty())
     {
-        drawSum(varToSumList);
+        dataSum->setChecked(true);
+    }
+    else
+    {
+        dataSum->setChecked(false);
+    }
+    if (varToSumListPrev != varToSumList) //something is changed
+    {
+        redraw();
     }
 }
 
-void Crit3DMeteoWidget::drawSum(QList<QString> varToSumList)
+void Crit3DMeteoWidget::drawSum()
 {
     int nMeteoPoints = meteoPoints.size();
     for (int i = 0; i < varToSumList.size(); i++)
