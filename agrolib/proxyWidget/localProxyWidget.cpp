@@ -524,4 +524,3 @@ void Crit3DLocalProxyWidget::modelLRClicked(int toggled)
         chartView->drawModelLapseRate(point_vector);
     }
 }
-
