@@ -56,6 +56,8 @@
         void on_actionClose_Project_triggered();
         void closeGeoProject();
 
+        void on_actionCompute_anomaly_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

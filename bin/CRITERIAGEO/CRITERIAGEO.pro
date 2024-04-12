@@ -113,6 +113,7 @@ HEADERS += \
     dialogDbfTable.h \
     dialogOutputMap.h \
     dialogSelectField.h \
+    dialogShapeAnomaly.h \
     dialogShapeProperties.h \
     dialogUcmIntersection.h \
     dialogUcmPrevailing.h \
@@ -128,6 +129,7 @@ SOURCES += \
     dialogDbfTable.cpp \
     dialogOutputMap.cpp \
     dialogSelectField.cpp \
+    dialogShapeAnomaly.cpp \
     dialogShapeProperties.cpp \
     dialogUcmIntersection.cpp \
     dialogUcmPrevailing.cpp \

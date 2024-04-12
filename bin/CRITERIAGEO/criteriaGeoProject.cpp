@@ -30,6 +30,7 @@
 #include "shapeToRaster.h"
 #include "unitCropMap.h"
 #include "shapeFromCsv.h"
+#include "shapeUtilities.h"
 #include "formInfo.h"
 #include "netcdfHandler.h"
 
@@ -162,6 +163,25 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
 }
 
 
+bool CriteriaGeoProject::computeShapeAnomaly(Crit3DShapeHandler *shape1, Crit3DShapeHandler *shape2,
+                             std::string id1, std::string id2, std::string field1, std::string field2, QString fileName)
+{
+    QString errorStr;
+    Crit3DShapeHandler *shapeAnomaly = new Crit3DShapeHandler();
+
+    if (computeAnomaly(shapeAnomaly, shape1, shape2, id1, id2, field1, field2, fileName, errorStr))
+    {
+        addShapeFile(shapeAnomaly, fileName, "", shapeAnomaly->getUtmZone());
+        return true;
+    }
+    else
+    {
+        logError(errorStr);
+        return false;
+    }
+}
+
+
 bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                                 std::string idCrop, std::string idSoil, std::string idMeteo,
                                 double cellSize, double threshold,
@@ -200,9 +220,8 @@ bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3
             {
                 logError(QString::fromStdString(errorStr));
                 return false;
-            }
-            */
-            logError("TO DO function");
+            }*/
+            logError("Function is not available.");
             return false;
         #else
             logError("Function is not available (needs GDAL library)");

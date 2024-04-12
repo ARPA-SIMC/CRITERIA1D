@@ -575,6 +575,7 @@
     <addaction name="actionCompute_Ucm_prevailing"/>
     <addaction name="actionExtract_Unit_Crop_Map_list"/>
     <addaction name="separator"/>
+    <addaction name="actionCompute_anomaly"/>
     <addaction name="actionOutput_Map"/>
    </widget>
    <addaction name="menuFile"/>
@@ -692,6 +693,11 @@
   <action name="actionClose_Project">
    <property name="text">
     <string>Close Project...</string>
+   </property>
+  </action>
+  <action name="actionCompute_anomaly">
+   <property name="text">
+    <string>Compute anomaly...</string>
    </property>
   </action>
  </widget>

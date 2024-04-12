@@ -29,6 +29,7 @@
 #include "dialogSelectField.h"
 #include "dialogUcmPrevailing.h"
 #include "dialogUcmIntersection.h"
+#include "dialogShapeAnomaly.h"
 #include "dialogOutputMap.h"
 #include "dialogDbfTable.h"
 #include "commonConstants.h"
@@ -1340,4 +1341,35 @@ void MainWindow::on_actionOutput_Map_triggered()
     }
 }
 
+
+
+void MainWindow::on_actionCompute_anomaly_triggered()
+{
+    if (shapeObjList.empty() || shapeObjList.size() < 2)
+    {
+        QMessageBox::information(nullptr, "No shape loaded", "Load shapefiles before.");
+        return;
+    }
+
+    // create shapehandler list
+    std::vector<Crit3DShapeHandler*> shapeList;
+    for (unsigned int i = 0; i < shapeObjList.size(); i++)
+    {
+        shapeList.push_back(shapeObjList.at(i)->getShapePointer());
+    }
+
+    DialogShapeAnomaly anomalyDialog(shapeList);
+    if (anomalyDialog.result() == QDialog::Rejected) return;
+
+    QString anomalyFileName = QFileDialog::getSaveFileName(this, tr("Save anomaly Shapefile"), "", tr("shp files (*.shp)"));
+    if (anomalyFileName == "") return;
+
+    if (myProject.computeShapeAnomaly(anomalyDialog.getClimateShape(), anomalyDialog.getForecastShape(),
+                                      anomalyDialog.getIdClimate().toStdString(), anomalyDialog.getIdForecast().toStdString(),
+                                      anomalyDialog.getFieldClimate().toStdString(), anomalyDialog.getFieldForecast().toStdString(),
+                                      anomalyFileName) )
+    {
+        addShapeObject(myProject.objectList.back());
+    }
+}
 
