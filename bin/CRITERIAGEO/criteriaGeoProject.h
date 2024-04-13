@@ -43,7 +43,7 @@
         bool extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bool showInfo);
 
         bool computeShapeAnomaly(Crit3DShapeHandler *shape1, Crit3DShapeHandler *shape2,
-                            std::string id1, std::string id2, std::string field1, std::string field2, QString fileName);
+                            std::string id, std::string field1, std::string field2, QString fileName);
 
         bool computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                             std::string idCrop, std::string idSoil, std::string idMeteo,

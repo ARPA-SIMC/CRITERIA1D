@@ -1365,9 +1365,9 @@ void MainWindow::on_actionCompute_anomaly_triggered()
     if (anomalyFileName == "") return;
 
     if (myProject.computeShapeAnomaly(anomalyDialog.getClimateShape(), anomalyDialog.getForecastShape(),
-                                      anomalyDialog.getIdClimate().toStdString(), anomalyDialog.getIdForecast().toStdString(),
+                                      anomalyDialog.getIdClimate().toStdString(),
                                       anomalyDialog.getFieldClimate().toStdString(), anomalyDialog.getFieldForecast().toStdString(),
-                                      anomalyFileName) )
+                                      anomalyFileName))
     {
         addShapeObject(myProject.objectList.back());
     }

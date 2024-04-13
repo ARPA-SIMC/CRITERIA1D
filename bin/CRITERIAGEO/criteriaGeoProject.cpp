@@ -164,12 +164,12 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
 
 
 bool CriteriaGeoProject::computeShapeAnomaly(Crit3DShapeHandler *shape1, Crit3DShapeHandler *shape2,
-                             std::string id1, std::string id2, std::string field1, std::string field2, QString fileName)
+                             std::string id, std::string field1, std::string field2, QString fileName)
 {
     QString errorStr;
     Crit3DShapeHandler *shapeAnomaly = new Crit3DShapeHandler();
 
-    if (computeAnomaly(shapeAnomaly, shape1, shape2, id1, id2, field1, field2, fileName, errorStr))
+    if (computeAnomaly(shapeAnomaly, shape1, shape2, id, field1, field2, fileName, errorStr))
     {
         addShapeFile(shapeAnomaly, fileName, "", shapeAnomaly->getUtmZone());
         return true;
