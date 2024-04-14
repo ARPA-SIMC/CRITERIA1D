@@ -169,13 +169,18 @@ bool CriteriaGeoProject::computeShapeAnomaly(Crit3DShapeHandler *shape1, Crit3DS
     QString errorStr;
     Crit3DShapeHandler *shapeAnomaly = new Crit3DShapeHandler();
 
+    FormInfo formInfo;
+    formInfo.start("Create shape...", 0);
+
     if (computeAnomaly(shapeAnomaly, shape1, shape2, id, field1, field2, fileName, errorStr))
     {
         addShapeFile(shapeAnomaly, fileName, "", shapeAnomaly->getUtmZone());
+        formInfo.close();
         return true;
     }
     else
     {
+        formInfo.close();
         logError(errorStr);
         return false;
     }
