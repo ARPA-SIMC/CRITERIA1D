@@ -135,7 +135,8 @@ bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath, QString project
 }
 
 
-void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo)
+void CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QString &field, const QString &outputName,
+                                            double cellSize, bool showInfo)
 {
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
 
@@ -160,6 +161,38 @@ void CriteriaGeoProject::getRasterFromShape(Crit3DShapeHandler &shape, QString f
     }
 
     if (showInfo) formInfo.close();
+}
+
+
+void CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, gis::Crit3DRasterGrid &refRaster,
+                                             const QString &field, const QString &outputName, bool showInfo)
+{
+    FormInfo formInfo;
+    if (showInfo)
+    {
+        formInfo.start("Fill raster...", 0);
+    }
+
+    gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
+    newRaster->copyGrid(refRaster);
+
+    // TODO
+    if (rasterizeShape(shapeHandler, *newRaster, field.toStdString(), newRaster->header->cellSize))
+    {
+        gis::updateMinMaxRasterGrid(newRaster);
+        setDefaultScale(newRaster->colorScale);
+
+        if (showInfo) formInfo.setText("Add raster to map...");
+
+        addRaster(newRaster, outputName, shapeHandler.getUtmZone());
+    }
+    else
+    {
+        logError("Error in rasterize shape.");
+    }
+
+    if (showInfo)
+        formInfo.close();
 }
 
 

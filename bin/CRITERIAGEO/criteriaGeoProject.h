@@ -36,7 +36,11 @@
         void addShapeFile(Crit3DShapeHandler *myShape, QString fileNameWithPath, QString projectName, int utmZone);
         //void addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone);
 
-        void getRasterFromShape(Crit3DShapeHandler &shape, QString field, QString outputName, double cellSize, bool showInfo);
+        void newRasterFromShape(Crit3DShapeHandler &shapeHandler, const QString &field,
+                                const QString &outputName, double cellSize, bool showInfo);
+
+        void fillRasterFromShape(Crit3DShapeHandler &shapeHandler, gis::Crit3DRasterGrid &refRaster,
+                                 const QString &field, const QString &outputName, bool showInfo);
 
         bool createShapeFromCsv(int shapeIndex, QString fileCsv, QString fileCsvFormat, QString outputFileName, QString &errorStr);
 

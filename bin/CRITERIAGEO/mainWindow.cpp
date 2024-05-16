@@ -1012,7 +1012,7 @@ void MainWindow::on_actionRasterize_shape_triggered()
         if (resolution <= 0)
             resolution = 100;  // default [m]
 
-        myProject.getRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(),
+        myProject.newRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(),
                                      numericField.getOutputName(), resolution, true);
 
         addRasterObject(myProject.objectList.back());
