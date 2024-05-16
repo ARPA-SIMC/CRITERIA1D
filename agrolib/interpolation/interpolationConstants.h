@@ -37,6 +37,18 @@
       { "water_index", proxyWaterIndex}
     };
 
+    enum TFittingFunction { piecewiseTwo, piecewiseThree, piecewiseThreeFree, piecewiseThreeSlope, frei, freiFree, linear, noFunction };
+
+    const std::map<std::string, TFittingFunction> fittingFunctionNames = {
+        { "Double piecewise", piecewiseTwo },
+        { "Triple piecewise", piecewiseThree },
+        { "Triple piecewise (6 parameters)", piecewiseThreeFree},
+        { "Triple piecewise (5 parameters)", piecewiseThreeSlope},
+        { "Nonlinear Frei function (5 parameters)", frei },
+        { "Nonlinear Frei function (6 parameters)", freiFree},
+        { "linear", linear }
+    };
+
 
     enum TkrigingMode {KRIGING_SPHERICAL = 1,
                        KRIGING_EXPONENTIAL=2,

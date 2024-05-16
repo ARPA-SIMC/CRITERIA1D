@@ -51,7 +51,7 @@ double lapseRateFrei(double x, std::vector <double>& par)
     par[1] = gamma;
     par[2] = a;
     par[3] = h0;
-    par[4] = h1;
+    par[4] = h1-h0;
     */
 
     if (par.size() < 4) return NODATA;
@@ -62,12 +62,38 @@ double lapseRateFrei(double x, std::vector <double>& par)
     {
         return y - par[2];
     }
-    else if (x >= par[4])
+    else if (x >= (par[4]+par[3]))
     {
         return y;
     }
-    return y - 0.5*par[2]*(1 + cos(PI*(x-par[3])/(par[4]-par[3])));
+    return y - 0.5*par[2]*(1 + cos(PI*(x-par[3])/(par[4])));
 }
+
+double lapseRateFreiFree(double x, std::vector <double>& par)
+{
+    /*
+    par[0] = T0;
+    par[1] = gamma1;
+    par[2] = a;
+    par[3] = h0;
+    par[4] = h1-h0;
+    par[5] = gamma2
+    */
+
+    if (par.size() < 6) return NODATA;
+
+    double h1 = par[3]+par[4];
+    if (x <= par[3])
+    {
+        return par[0] - par[1]*x - par[2];
+    }
+    else if (x >= (par[4]+par[3]))
+    {
+        return par[0] - par[5]*x;
+    }
+    return par[0] - ((par[5]*par[3]+par[1]*h1)/(par[3]+h1))*x - 0.5*par[2]*(1 + cos(PI*(x-par[3])/(par[4])));
+}
+
 
 double lapseRatePiecewise_three(double x, std::vector <double>& par)
 {
@@ -100,7 +126,7 @@ double lapseRatePiecewise_three(double x, std::vector <double>& par)
 double lapseRatePiecewiseForInterpolation(double x, std::vector <double>& par)
 {
     // the piecewise line is parameterized as follows
-    // the line passes through A(par[0];par[1])and B(par[0]+par[2];par[3]). par[4] is the slope of the 2 externals pieces
+    // the line passes through A(par[0];par[1])and B(par[0]+par[2];par[1]+par[3]). par[4] is the slope of the 2 externals pieces
     // "y = mx + q" piecewise function;
     double xb;
     par[2] = MAXVALUE(10, par[2]);
@@ -115,14 +141,61 @@ double lapseRatePiecewiseForInterpolation(double x, std::vector <double>& par)
     else if (x>xb)
     {
         //m = par[4];
-        //q = par[3]-m*xb;
-        return par[4]*x + par[3]-par[4]*xb;
+        //q = (par[1]+par[3])-m*xb;
+        return par[4]*x + (par[1]+par[3])-par[4]*xb;
     }
     else
     {
-        //m = (par[3]-par[1])/par[2];
+        //m = ((par[1]+par[3])-par[1])/par[2];
         //q = par[1]-m*par[0];
-        return ((par[3]-par[1])/par[2])*x+ par[1]-(par[3]-par[1])/par[2]*par[0];
+        return (par[3]/par[2])*x + par[1]-(par[3])/par[2]*par[0];
+    }
+}
+
+double lapseRatePiecewiseThree_withSlope(double x, std::vector <double>& par)
+{
+    //xa (par[0],par[1]), xb-xa = par[2], par[3] is the slope of the middle piece,
+    //par[4] the slope of the first and last piece
+    par[2] = MAXVALUE(10, par[2]);
+    double xb = par[2]+par[0];
+
+    if (x < par[0])
+        return par[4]*x - par[0]*par[4] + par[1];
+    else if (x > xb)
+        return par[4]*x - par[4]*par[0]-par[4]*par[2]+par[3]*par[2]+par[1];
+    else
+        return par[3]*x - par[3]*par[0]+par[1];
+}
+
+double lapseRatePiecewiseFree(double x, std::vector <double>& par)
+{
+    // the piecewise line is parameterized as follows
+    // the line passes through A(par[0];par[1])and B(par[0]+par[2];...)
+    //par [3] is the slope of the middle piece
+    //par[4] is the first slope. par[5] is the third slope
+
+    // "y = mx + q" piecewise function;
+    double xb;
+    par[2] = MAXVALUE(10, par[2]);
+    // par[2] means the delta between the two quotes. It must be positive.
+    xb = par[0]+par[2];
+    if (x < par[0])
+    {
+        //m = par[4];;
+        //q = par[1]-m*par[0];
+        return par[4]*x - par[0]*par[4] + par[1];
+    }
+    else if (x>xb)
+    {
+        //m = par[5];
+        //q = m(-par[0]-par[2])+par[3]*par[2]+par[1];
+        return par[5]*x - par[5]*par[0]-par[5]*par[2]+par[3]*par[2]+par[1];
+    }
+    else
+    {
+        //m = par[3];
+        //q = m*(-par[0]) + par[1];
+        return par[3]*x - par[3]*par[0]+par[1];
     }
 }
 
@@ -1126,22 +1199,6 @@ namespace interpolation
             fittingMarquardt_nDimension_noSquares(func,myFunc,parametersMin, parametersMax,
                                         parameters, parametersDelta,correspondenceTag, maxIterationsNr,
                                         myEpsilon, x, y, weights);
-
-            //SOLO PER ALTEZZA
-            if (parameters[0][3] < parameters[0][1])
-            {
-                for (i=0; i<nrPredictors; i++)
-                {
-                    for (j=0; j<nrParameters[i]; j++)
-                    {
-                        do {
-                            truncNormal = normal_dis(gen);
-                        } while(truncNormal <= 0.0 || truncNormal >= 1.0);
-                        parameters[i][j] = parametersMin[i][j] + (truncNormal)*(parametersMax[i][j]-parametersMin[i][j]);
-                    }
-                }
-                continue;
-            }
 
             for (i=0;i<nrData;i++)
             {

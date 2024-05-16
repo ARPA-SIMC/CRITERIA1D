@@ -18,6 +18,7 @@
     #include <deque>
 
     std::string getKeyStringInterpolationMethod(TInterpolationMethod value);
+    std::string getKeyStringElevationFunction(TFittingFunction value);
     TProxyVar getProxyPragaName(std::string name_);
 
     class Crit3DProxy
@@ -34,6 +35,7 @@
         float regressionR2;
         float regressionSlope;
         float regressionIntercept;
+        TFittingFunction fittingFunctionName;
         std::vector <double> fittingParametersRange;
 
         float avg;
@@ -96,6 +98,8 @@
         void setStdDevThreshold(float newStdDevThreshold);
         std::vector<double> getFittingParametersRange() const;
         void setFittingParametersRange(const std::vector<double> &newFittingParametersRange);
+        TFittingFunction getFittingFunctionName();
+        void setFittingFunctionName(TFittingFunction functionName);
     };
 
 
@@ -126,6 +130,7 @@
         gis::Crit3DRasterGrid* currentDEM; //for TD
 
         TInterpolationMethod interpolationMethod;
+        TFittingFunction chosenElevationFunction;
 
         float minRegressionR2;
         bool useThermalInversion;
@@ -161,6 +166,8 @@
 
         std::vector <std::vector<double>> fittingParameters;
         std::vector<std::function<double(double, std::vector<double>&)>> fittingFunction;
+        std::vector<double> tempMinMax;
+
 
     public:
         Crit3DInterpolationSettings();
@@ -244,6 +251,7 @@
         void setLocalRadius(float newLocalRadius);
         int getMinPointsLocalDetrending() const;
         void setMinPointsLocalDetrending(int newMinPointsLocalDetrending);
+
         std::vector<std::vector <double>> getFittingParameters() const;
         void setFittingParameters(const std::vector<std::vector <double>> &newFittingParameters);
         std::vector<std::function<double (double, std::vector<double> &)> > getFittingFunction() const;
@@ -251,6 +259,10 @@
         bool getProxiesComplete() const;
         void setProxiesComplete(bool newProxiesComplete);
         void clearFitting();
+        TFittingFunction getChosenElevationFunction();
+        void setChosenElevationFunction(TFittingFunction chosenFunction);
+        void setMinMaxTemperature(double min, double max);
+        std::vector<double> getMinMaxTemperature();
     };
 
 #endif // INTERPOLATIONSETTINGS_H

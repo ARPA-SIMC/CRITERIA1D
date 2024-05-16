@@ -317,10 +317,11 @@ float weibull (float dailyAvgPrec, float precThreshold)
 
 
 /*!
-  * \brief Computes daily values starting from monthly mean
-  * using cubic spline
+  * \brief Computes daily values starting from monthly averages using cubic spline
+  * \param monthlyAvg: vector of monthly averages (12 values)
+  * outputDailyValues: vector of interpolated daily values (366 values)
 */
-void cubicSplineYearInterpolate(float *meanY, float *dayVal)
+void cubicSplineYearInterpolate(float *monthlyAvg, float *outputDailyValues)
 {
     double monthMid [16] = {-61, - 31, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365, 396};
 
@@ -329,23 +330,25 @@ void cubicSplineYearInterpolate(float *meanY, float *dayVal)
         monthMid[iMonth] += 15;
     }
 
-    double* averageMonthlyAmountPrecLarger = new double[16];
+    double* avgMonthlyAmountLarger = new double[16];
     for (int iMonth = 0; iMonth < 12; iMonth++)
     {
-        averageMonthlyAmountPrecLarger[iMonth+2] = double(meanY[iMonth]);
+        avgMonthlyAmountLarger[iMonth+2] = double(monthlyAvg[iMonth]);
     }
 
-    averageMonthlyAmountPrecLarger[0] = double(meanY[10]);
-    averageMonthlyAmountPrecLarger[1] = double(meanY[11]);
-    averageMonthlyAmountPrecLarger[14] = double(meanY[0]);
-    averageMonthlyAmountPrecLarger[15] = double(meanY[1]);
+    avgMonthlyAmountLarger[0] = double(monthlyAvg[10]);
+    avgMonthlyAmountLarger[1] = double(monthlyAvg[11]);
+    avgMonthlyAmountLarger[14] = double(monthlyAvg[0]);
+    avgMonthlyAmountLarger[15] = double(monthlyAvg[1]);
 
-    for (int jjj=0; jjj<365; jjj++)
+    for (int iDay=0; iDay<365; iDay++)
     {
-        dayVal[jjj] = interpolation::cubicSpline(jjj*1.0, monthMid, averageMonthlyAmountPrecLarger, 16);
+        outputDailyValues[iDay] = interpolation::cubicSpline(iDay, monthMid, avgMonthlyAmountLarger, 16);
     }
+    // leap years
+    outputDailyValues[365] = outputDailyValues[0];
 
-    delete [] averageMonthlyAmountPrecLarger;
+    delete [] avgMonthlyAmountLarger;
 }
 
 
@@ -688,7 +691,7 @@ bool makeSeasonalForecast(QString outputFileName, char separator, XMLSeasonalAno
     // it checks if observed data includes the last 9 months before wgDoy1
     int nrDaysBeforeWgDoy1;
     if (! checkLastYearDate(lastYearDailyObsData->inputFirstDate, lastYearDailyObsData->inputLastDate,
-                            lastYearDailyObsData->dataLenght, myPredictionYear, wgDoy1, nrDaysBeforeWgDoy1))
+                            lastYearDailyObsData->dataLength, myPredictionYear, wgDoy1, nrDaysBeforeWgDoy1))
     {
         qDebug() << "ERROR: observed data should include at least 9 months before wgDoy1";
         return false;
@@ -777,7 +780,7 @@ bool makeSeasonalForecast(QString outputFileName, char separator, XMLSeasonalAno
     }
 
     qDebug() << "Observed OK";
-    int outputDataLenght = nrDaysBeforeWgDoy1;
+    int outputDataLength = nrDaysBeforeWgDoy1;
 
     // store the climate without anomalies
     wGen = wGenClimate;
@@ -805,7 +808,7 @@ bool makeSeasonalForecast(QString outputFileName, char separator, XMLSeasonalAno
         if (!computeSeasonalPredictions(lastYearDailyObsData, wGen,
                                         myPredictionYear, myYear, nrRepetitions,
                                         wgDoy1, wgDoy2, rainfallThreshold, isLastMember,
-                                        dailyPredictions, &outputDataLenght ))
+                                        dailyPredictions, &outputDataLength ))
         {
             qDebug() << "Error in computeSeasonalPredictions";
             return false;
@@ -828,7 +831,7 @@ bool makeSeasonalForecast(QString outputFileName, char separator, XMLSeasonalAno
 /*!
   \name computeSeasonalPredictions
   \brief Generates a time series of daily data (Tmin, Tmax, Prec)
-    The lenght is equals to nrRepetitions years, starting from firstYear
+    The Length is equals to nrRepetitions years, starting from firstYear
     Period between wgDoy1 and wgDoy2 is produced by the WG
     Others data are a copy of the observed data of predictionYear
     Weather generator climate is stored in wgClimate
@@ -838,7 +841,7 @@ bool makeSeasonalForecast(QString outputFileName, char separator, XMLSeasonalAno
 bool computeSeasonalPredictions(TinputObsData *lastYearDailyObsData, TweatherGenClimate &wgClimate,
                                 int predictionYear, int firstYear, int nrRepetitions,
                                 int wgDoy1, int wgDoy2, float rainfallThreshold, bool isLastMember,
-                                std::vector<ToutputDailyMeteo>& outputDailyData, int *outputDataLenght)
+                                std::vector<ToutputDailyMeteo>& outputDailyData, int *outputDataLength)
 
 {
     Crit3DDate myDate, obsDate;
@@ -850,7 +853,7 @@ bool computeSeasonalPredictions(TinputObsData *lastYearDailyObsData, TweatherGen
 
     // TODO etp e falda
 
-    currentIndex = *outputDataLenght;
+    currentIndex = *outputDataLength;
 
     firstDate = outputDailyData[currentIndex-1].date.addDays(1);
 
@@ -931,7 +934,7 @@ bool computeSeasonalPredictions(TinputObsData *lastYearDailyObsData, TweatherGen
 
             obsIndex = difference(lastYearDailyObsData->inputFirstDate, obsDate);
 
-            if ( obsIndex >= 0 && obsIndex <= lastYearDailyObsData->dataLenght )
+            if ( obsIndex >= 0 && obsIndex <= lastYearDailyObsData->dataLength )
             {
                 outputDailyData[currentIndex].maxTemp = lastYearDailyObsData->inputTMax[obsIndex];
                 outputDailyData[currentIndex].minTemp = lastYearDailyObsData->inputTMin[obsIndex];
@@ -947,7 +950,7 @@ bool computeSeasonalPredictions(TinputObsData *lastYearDailyObsData, TweatherGen
         currentIndex++;
      }
 
-     *outputDataLenght = currentIndex;
+     *outputDataLength = currentIndex;
      return true;
 }
 
@@ -955,7 +958,7 @@ bool computeSeasonalPredictions(TinputObsData *lastYearDailyObsData, TweatherGen
 /*!
   \name computeClimate
   \brief Generates a time series of daily data (Tmin, Tmax, Prec)
-    The lenght is equals to nrRepetitions years, starting from firstYear
+    The Length is equals to nrRepetitions years, starting from firstYear
     climate indexes are stored in wgClimate
   \return outputDailyData
 */
