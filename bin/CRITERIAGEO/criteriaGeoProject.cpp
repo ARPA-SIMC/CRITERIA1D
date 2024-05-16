@@ -138,13 +138,13 @@ bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath, QString project
 void CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QString &field, const QString &outputName,
                                             double cellSize, bool showInfo)
 {
-    gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
-
     FormInfo formInfo;
     if (showInfo)
     {
         formInfo.start("Create raster...", 0);
     }
+
+    gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
 
     if (rasterizeShape(shape, *newRaster, field.toStdString(), cellSize))
     {
@@ -160,7 +160,8 @@ void CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QSt
         logError("Error in rasterize shape.");
     }
 
-    if (showInfo) formInfo.close();
+    if (showInfo)
+        formInfo.close();
 }
 
 
@@ -174,10 +175,9 @@ void CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, g
     }
 
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
-    newRaster->copyGrid(refRaster);
 
     // TODO
-    if (rasterizeShape(shapeHandler, *newRaster, field.toStdString(), newRaster->header->cellSize))
+    if ( rasterizeShapeWithRef(refRaster, *newRaster, shapeHandler, field.toStdString()) )
     {
         gis::updateMinMaxRasterGrid(newRaster);
         setDefaultScale(newRaster->colorScale);
