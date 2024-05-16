@@ -986,41 +986,6 @@ bool MainWindow::selectShape(QPoint screenPos)
 }
 
 
-void MainWindow::on_actionRasterize_shape_triggered()
-{
-    QListWidgetItem * itemSelected = ui->checkList->currentItem();
-    if (itemSelected == nullptr)
-    {
-        QMessageBox::information(nullptr, "No items selected", "Select a shape");
-        return;
-    }
-    else if (!itemSelected->text().contains("SHAPE"))
-    {
-        QMessageBox::information(nullptr, "No shape selected", "Select a shape");
-        return;
-    }
-    else
-    {
-        int pos = ui->checkList->row(itemSelected);
-        GisObject* myObject = myProject.objectList.at(unsigned(pos));
-
-        DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, true, RASTERIZE);
-        if (numericField.result() != QDialog::Accepted)
-            return;
-
-        double resolution = numericField.getCellSize();
-        if (resolution <= 0)
-            resolution = 100;  // default [m]
-
-        myProject.newRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(),
-                                     numericField.getOutputName(), resolution, true);
-
-        addRasterObject(myProject.objectList.back());
-        this->updateMaps();
-    }
-}
-
-
 void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
 {
     if (shapeObjList.empty())
@@ -1342,7 +1307,6 @@ void MainWindow::on_actionOutput_Map_triggered()
 }
 
 
-
 void MainWindow::on_actionCompute_anomaly_triggered()
 {
     if (shapeObjList.empty() || shapeObjList.size() < 2)
@@ -1370,6 +1334,49 @@ void MainWindow::on_actionCompute_anomaly_triggered()
                                       anomalyFileName))
     {
         addShapeObject(myProject.objectList.back());
+    }
+}
+
+
+void MainWindow::on_actionRasterize_all_shape_triggered()
+{
+    QListWidgetItem * itemSelected = ui->checkList->currentItem();
+
+    if (itemSelected == nullptr)
+    {
+        QMessageBox::information(nullptr, "No items selected", "Select a shape");
+        return;
+    }
+
+    if (! itemSelected->text().contains("SHAPE"))
+    {
+        QMessageBox::information(nullptr, "No shape selected", "Select a shape");
+        return;
+    }
+
+    int pos = ui->checkList->row(itemSelected);
+    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+
+    DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, true, RASTERIZE);
+    if (numericField.result() != QDialog::Accepted)
+        return;
+
+    double resolution = numericField.getCellSize();
+    if (resolution <= 0)
+    {
+        resolution = 100;  // default [m]
+    }
+
+    bool showInfo = true;
+    if ( myProject.newRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(),
+                                     numericField.getOutputName(), resolution, showInfo) )
+    {
+        addRasterObject(myProject.objectList.back());
+        updateMaps();
+    }
+    else
+    {
+        myProject.logError("Error in rasterize.");
     }
 }
 

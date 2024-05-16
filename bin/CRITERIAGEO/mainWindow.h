@@ -37,7 +37,8 @@
 
         void on_actionLoadRaster_triggered();
         void on_actionLoadShapefile_triggered();
-        void on_actionRasterize_shape_triggered();
+        void on_actionRasterize_all_shape_triggered();
+
         void on_actionCompute_Ucm_prevailing_triggered();
         void on_actionCompute_Ucm_intersection_triggered();
 

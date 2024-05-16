@@ -568,7 +568,14 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionRasterize_shape"/>
+    <widget class="QMenu" name="menuRasterize_shape">
+     <property name="title">
+      <string>Rasterize shape</string>
+     </property>
+     <addaction name="actionRasterize_all_shape"/>
+     <addaction name="actionRasterize_with_base"/>
+    </widget>
+    <addaction name="menuRasterize_shape"/>
     <addaction name="actionCreate_Shape_file_from_Csv"/>
     <addaction name="actionCompute_Ucm_intersection"/>
     <addaction name="separator"/>
@@ -618,11 +625,6 @@
   <action name="actionLoadShapefile">
    <property name="text">
     <string>Load Shapefile...</string>
-   </property>
-  </action>
-  <action name="actionRasterize_shape">
-   <property name="text">
-    <string>Rasterize shape...</string>
    </property>
   </action>
   <action name="actionCompute_Ucm_prevailing">
@@ -698,6 +700,16 @@
   <action name="actionCompute_anomaly">
    <property name="text">
     <string>Compute anomaly...</string>
+   </property>
+  </action>
+  <action name="actionRasterize_all_shape">
+   <property name="text">
+    <string>All shape...</string>
+   </property>
+  </action>
+  <action name="actionRasterize_with_base">
+   <property name="text">
+    <string>With base...</string>
    </property>
   </action>
  </widget>

@@ -135,7 +135,7 @@ bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath, QString project
 }
 
 
-void CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QString &field, const QString &outputName,
+bool CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QString &field, const QString &outputName,
                                             double cellSize, bool showInfo)
 {
     FormInfo formInfo;
@@ -146,7 +146,8 @@ void CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QSt
 
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
 
-    if (rasterizeShape(shape, *newRaster, field.toStdString(), cellSize))
+    bool isOk = rasterizeShape(shape, *newRaster, field.toStdString(), cellSize);
+    if (isOk)
     {
         gis::updateMinMaxRasterGrid(newRaster);
         setDefaultScale(newRaster->colorScale);
@@ -155,17 +156,14 @@ void CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QSt
 
         addRaster(newRaster, outputName, shape.getUtmZone());
     }
-    else
-    {
-        logError("Error in rasterize shape.");
-    }
 
-    if (showInfo)
-        formInfo.close();
+    if (showInfo) formInfo.close();
+
+    return isOk;
 }
 
 
-void CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, gis::Crit3DRasterGrid &refRaster,
+bool CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, gis::Crit3DRasterGrid &refRaster,
                                              const QString &field, const QString &outputName, bool showInfo)
 {
     FormInfo formInfo;
@@ -176,8 +174,8 @@ void CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, g
 
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
 
-    // TODO
-    if ( rasterizeShapeWithRef(refRaster, *newRaster, shapeHandler, field.toStdString()) )
+    bool isOk = rasterizeShapeWithRef(refRaster, *newRaster, shapeHandler, field.toStdString());
+    if (isOk)
     {
         gis::updateMinMaxRasterGrid(newRaster);
         setDefaultScale(newRaster->colorScale);
@@ -186,13 +184,10 @@ void CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, g
 
         addRaster(newRaster, outputName, shapeHandler.getUtmZone());
     }
-    else
-    {
-        logError("Error in rasterize shape.");
-    }
 
-    if (showInfo)
-        formInfo.close();
+    if (showInfo) formInfo.close();
+
+    return isOk;
 }
 
 
