@@ -704,12 +704,12 @@
   </action>
   <action name="actionRasterize_all_shape">
    <property name="text">
-    <string>All shape...</string>
+    <string>Whole shapefile...</string>
    </property>
   </action>
   <action name="actionRasterize_with_base">
    <property name="text">
-    <string>With base...</string>
+    <string>With base (raster)...</string>
    </property>
   </action>
  </widget>

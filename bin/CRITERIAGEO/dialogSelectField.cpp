@@ -1,11 +1,17 @@
 #include "dialogSelectField.h"
 
-DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString fileName, bool onlyNumeric, dialogType dialogType)
-    :shapeHandler(shapeHandler)
+DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString fileName, bool isOnlyNumeric, dialogType dialogType)    :shapeHandler(shapeHandler)
 {
+    if (isOnlyNumeric)
+    {
+        setWindowTitle("Choose a nr. field of " + fileName);
+    }
+    else
+    {
+        setWindowTitle("Choose a field of " + fileName);
+    }
+    setFixedSize(400, 300);
 
-    this->setWindowTitle("Choose a field of " + fileName);
-    this->setFixedSize(400,300);
     QVBoxLayout* mainLayout = new QVBoxLayout;
     listFields = new QListWidget();
     mainLayout->addWidget(listFields);
@@ -27,15 +33,23 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
         cellSize->setValidator(new QDoubleValidator(0, 9999, 2)); //LC accetta double con 2 cifre decimali da 0 a 9999
         mainLayout->addWidget(cellSize);
     }
+    else if (dialogType == RASTERIZE_WITHBASE)
+    {
+        outputName = new QLineEdit();
+        outputName->setPlaceholderText("Output Name");
+        mainLayout->addWidget(outputName);
+    }
 
     DBFFieldType typeField;
     QList<QString> fields;
 
-    if (dialogType == RASTERIZE) fields << "Shape ID";
+    if (dialogType == RASTERIZE || dialogType == RASTERIZE_WITHBASE)
+        fields << "Shape ID";
+
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
     {
         typeField = shapeHandler->getFieldType(i);
-        if (onlyNumeric)
+        if (isOnlyNumeric)
         {
             if (typeField == FTInteger || typeField == FTDouble)
             {
@@ -43,13 +57,12 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
             }
         }
         else fields << QString::fromStdString(shapeHandler->getFieldName(i));
-
     }
     listFields->addItems(fields);
 
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    if (dialogType == RASTERIZE)
+    if (dialogType == RASTERIZE || dialogType == RASTERIZE_WITHBASE)
         connect(buttonBox, &QDialogButtonBox::accepted, [=](){ this->acceptRasterize(); });
     else
         connect(buttonBox, &QDialogButtonBox::accepted, [=](){ this->acceptSelection(); });

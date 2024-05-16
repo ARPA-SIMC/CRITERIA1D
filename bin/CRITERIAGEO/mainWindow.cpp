@@ -1076,20 +1076,9 @@ void MainWindow::on_actionExtract_Unit_Crop_Map_list_triggered()
 
 void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
 {
-    if (shapeObjList.empty())
-    {
-        QMessageBox::information(nullptr, "No shape loaded", "Load a Computational Units Map.");
+    int shapeIndex = getSelectedShapePos();
+    if (shapeIndex == NODATA)
         return;
-    }
-
-    QListWidgetItem * itemSelected = ui->checkList->currentItem();
-
-    if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
-    {
-        QMessageBox::information(nullptr, "No shape selected", "Select a shape");
-        return;
-    }
-    int shapeIndex = ui->checkList->row(itemSelected);
 
     QString fileCsv = QFileDialog::getOpenFileName(this, tr("Open CSV data file"), "", tr("CSV files (*.csv)"));
 
@@ -1338,23 +1327,31 @@ void MainWindow::on_actionCompute_anomaly_triggered()
 }
 
 
-void MainWindow::on_actionRasterize_all_shape_triggered()
+int MainWindow::getSelectedShapePos()
 {
+    if (shapeObjList.empty())
+    {
+        QMessageBox::information(nullptr, "No shape loaded", "Load a shapefile before.");
+        return NODATA;
+    }
+
     QListWidgetItem * itemSelected = ui->checkList->currentItem();
 
-    if (itemSelected == nullptr)
+    if (itemSelected == nullptr || ! itemSelected->text().contains("SHAPE"))
     {
-        QMessageBox::information(nullptr, "No items selected", "Select a shape");
-        return;
+        QMessageBox::information(nullptr, "No shape selected", "Select a shapefile.");
+        return NODATA;
     }
 
-    if (! itemSelected->text().contains("SHAPE"))
-    {
-        QMessageBox::information(nullptr, "No shape selected", "Select a shape");
-        return;
-    }
+    return ui->checkList->row(itemSelected);
+}
 
-    int pos = ui->checkList->row(itemSelected);
+
+void MainWindow::on_actionRasterize_all_shape_triggered()
+{
+    int pos = getSelectedShapePos();
+    if (pos == NODATA) return;
+
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
     DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, true, RASTERIZE);
@@ -1378,5 +1375,21 @@ void MainWindow::on_actionRasterize_all_shape_triggered()
     {
         myProject.logError("Error in rasterize.");
     }
+}
+
+
+void MainWindow::on_actionRasterize_with_base_triggered()
+{
+    int pos = getSelectedShapePos();
+    if (pos == NODATA) return;
+
+    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+
+    bool isOnlyNumeric = true;
+    DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, isOnlyNumeric, RASTERIZE_WITHBASE);
+
+    if (numericField.result() != QDialog::Accepted)
+        return;
+
 }
 

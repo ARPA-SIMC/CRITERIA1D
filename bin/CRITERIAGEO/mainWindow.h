@@ -59,6 +59,8 @@
 
         void on_actionCompute_anomaly_triggered();
 
+        void on_actionRasterize_with_base_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -115,6 +117,7 @@
         bool isInsideMap(const QPoint& pos);
 
         int getRasterIndex(GisObject *myObject);
+        int getSelectedShapePos();
         void zoomOnLastRaster();
     };
 
