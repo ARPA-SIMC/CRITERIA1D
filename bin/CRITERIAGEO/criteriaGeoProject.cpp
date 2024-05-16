@@ -78,25 +78,27 @@ void CriteriaGeoProject::addNetcdf(NetCDFHandler *myNetcdf, QString fileName, in
 
 bool CriteriaGeoProject::loadRaster(const QString &fileNameWithPath, QString &errorStr)
 {
-    gis::Crit3DRasterGrid* myRaster = new(gis::Crit3DRasterGrid);
-    int utmZone = this->gisSettings.utmZone;
+    gis::Crit3DRasterGrid* newRaster = new(gis::Crit3DRasterGrid);
 
+    QString fileExtension = fileNameWithPath.right(4);
+    if (fileExtension == ".flt" || fileExtension == ".img")
+    {
+        std::string errorStdStr;
+        if (! gis::openRaster(fileNameWithPath.toStdString(), newRaster, gisSettings.utmZone, errorStdStr))
+        {
+            errorStr = "Wrong raster file: " + QString::fromStdString(errorStdStr);
+            return false;
+        }
+    }
 #ifdef GDAL
-    if (! readGdalRaster(fileNameWithPath, myRaster, utmZone, errorStr))
+    else if (! readGdalRaster(fileNameWithPath, newRaster, gisSettings.utmZone, errorStr))
     {
         return false;
     }
-#else
-     std::string errorStdStr;
-     if (! gis::openRaster(fileNameWithPath.toStdString(), myRaster, gisSettings.utmZone, errorStdStr))
-     {
-         errorStr = "Wrong raster file: " + QString::fromStdString(errorStdStr);
-         return false;
-     }
 #endif
 
-    setDTMScale(myRaster->colorScale);
-    addRaster(myRaster, fileNameWithPath, utmZone);
+    setDTMScale(newRaster->colorScale);
+    addRaster(newRaster, fileNameWithPath, gisSettings.utmZone);
 
     return true;
 }

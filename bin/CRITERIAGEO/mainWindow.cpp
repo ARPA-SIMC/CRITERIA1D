@@ -26,6 +26,7 @@
 
 #include <cmath>
 
+#include "formSelection.h"
 #include "dialogSelectField.h"
 #include "dialogUcmPrevailing.h"
 #include "dialogUcmIntersection.h"
@@ -1339,7 +1340,7 @@ int MainWindow::getSelectedShapePos()
 
     if (itemSelected == nullptr || ! itemSelected->text().contains("SHAPE"))
     {
-        QMessageBox::information(nullptr, "No shape selected", "Select a shapefile.");
+        QMessageBox::information(nullptr, "No shape selected", "Select a shapefile before.");
         return NODATA;
     }
 
@@ -1380,16 +1381,59 @@ void MainWindow::on_actionRasterize_all_shape_triggered()
 
 void MainWindow::on_actionRasterize_with_base_triggered()
 {
+    // select shapefile
     int pos = getSelectedShapePos();
     if (pos == NODATA) return;
+    GisObject* shapeObject = myProject.objectList.at(unsigned(pos));
+    Crit3DShapeHandler* shapeHandler = shapeObject->getShapeHandler();
 
-    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+    // raster list
+    QList<QString> rasterList;
+    for (int i = 0; i < myProject.objectList.size(); i++)
+    {
+        if (myProject.objectList[i]->type == gisObjectRaster)
+            rasterList.append(myProject.objectList[i]->fileName);
+    }
+    if (rasterList.size() == 0)
+    {
+        QMessageBox::information(nullptr, "No raster loaded", "Load a raster before.");
+        return;
+    }
 
+    // select raster
+    FormSelection rasterSelection(rasterList, "Select reference raster");
+    if (rasterSelection.result() == QDialog::Rejected)
+        return;
+
+    QString rasterFileName = rasterSelection.getSelection();
+    gis::Crit3DRasterGrid *refRaster;
+    for (int i = 0; i < myProject.objectList.size(); i++)
+    {
+        if (myProject.objectList[i]->fileName == rasterFileName)
+        {
+            refRaster = myProject.objectList[i]->getRaster();
+            break;
+        }
+    }
+
+    // select shape field
     bool isOnlyNumeric = true;
-    DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, isOnlyNumeric, RASTERIZE_WITHBASE);
+    DialogSelectField numericField(shapeObject->getShapeHandler(), shapeObject->fileName, isOnlyNumeric, RASTERIZE_WITHBASE);
 
     if (numericField.result() != QDialog::Accepted)
         return;
+
+    bool showInfo = true;
+    if ( myProject.fillRasterFromShape(*shapeHandler, *refRaster, numericField.getFieldSelected(),
+                                     numericField.getOutputName(), showInfo) )
+    {
+        addRasterObject(myProject.objectList.back());
+        updateMaps();
+    }
+    else
+    {
+        myProject.logError("Error in rasterize.");
+    }
 
 }
 
