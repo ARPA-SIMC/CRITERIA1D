@@ -47,7 +47,9 @@ int main(int argc, char *argv[])
     {
         QString dataPath;
         if (! searchDataPath(&dataPath))
+        {
             return -1;
+        }
         QString projectPath = dataPath + PATH_PROJECT;
 
         #ifdef TEST
