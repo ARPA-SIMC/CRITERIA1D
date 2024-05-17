@@ -608,6 +608,12 @@ void MainWindow::removeShape(GisObject* myObject)
 void MainWindow::setShapeStyle(GisObject* myObject, std::string fieldName)
 {
     MapGraphicsShapeObject* shapeObject = getShapeObject(myObject);
+    if (fieldName == "Edges only")
+    {
+        shapeObject->setFill(false);
+        return;
+    }
+
     DBFFieldType fieldType = myObject->getShapeHandler()->getFieldType(fieldName);
 
     if (fieldType == FTString)
@@ -626,7 +632,8 @@ void MainWindow::setShapeStyle(GisObject* myObject, std::string fieldName)
 
 void MainWindow::setShapeStyle_GUI(GisObject* myObject)
 {
-    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, false, SHAPESTYLE);
+    bool isOnlyNumeric = false;
+    DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, isOnlyNumeric, SHAPESTYLE);
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();

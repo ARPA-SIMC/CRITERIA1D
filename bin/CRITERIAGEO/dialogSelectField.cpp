@@ -46,6 +46,9 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
     if (dialogType == RASTERIZE || dialogType == RASTERIZE_WITHBASE)
         fields << "Shape ID";
 
+    if (dialogType == SHAPESTYLE)
+        fields << "Edges only";
+
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
     {
         typeField = shapeHandler->getFieldType(i);
