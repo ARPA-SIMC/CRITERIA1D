@@ -273,16 +273,16 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
     int fieldRequired = 0;
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
     {
-        std::string fieldName = shapeHandler->getFieldName(i);
+        QString fieldName = QString::fromStdString(shapeHandler->getFieldName(i)).toUpper();
         if ( fieldName == "ID_CASE" || fieldName == "ID_SOIL" || fieldName == "ID_CROP" || fieldName == "ID_METEO"
-            || (fieldName == "hectares" || fieldName == "Hectares" || fieldName == "HA") )
+            || (fieldName == "HECTARES" || fieldName == "HA") )
         {
             fieldRequired = fieldRequired + 1;
         }
     }
     if (fieldRequired < 5)
     {
-        errorStr = "Required fields: ID_CASE, ID_SOIL, ID_CROP, ID_METEO, Hectares";
+        errorStr = "Required fields: ID_CASE, ID_SOIL, ID_CROP, ID_METEO, HECTARES";
         logError(errorStr);
         return false;
     }
