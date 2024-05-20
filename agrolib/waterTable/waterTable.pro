@@ -24,13 +24,15 @@ win32:{
     TARGET = waterTable
 }
 
-INCLUDEPATH += ../crit3dDate ../mathFunctions ../meteo ../interpolation ../gis ../weatherGenerator
+INCLUDEPATH += ../crit3dDate ../mathFunctions ../meteo ../interpolation ../gis ../commonChartElements ../weatherGenerator
 
 SOURCES += \
     dialogSelectWell.cpp \
     dialogSummary.cpp \
     importData.cpp \
     waterTable.cpp \
+    waterTableChartView.cpp \
+    waterTableWidge.cpp \
     well.cpp
 
 HEADERS += \
@@ -38,5 +40,7 @@ HEADERS += \
     dialogSummary.h \
     importData.h \
     waterTable.h \
+    waterTableChartView.h \
+    waterTableWidget.h \
     well.h
 
