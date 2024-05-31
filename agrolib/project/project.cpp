@@ -694,7 +694,7 @@ bool Project::loadParameters(QString parametersFileName)
                 if (getProxyPragaName(name_.toStdString()) == proxyHeight)
                     nrParameters = 5;
                 else
-                    nrParameters = 1;
+                    nrParameters = 2;
 
                 myList = parameters->value("fitting_parameters").toStringList();
                 if (myList.size() != nrParameters*2 && myList.size() != (nrParameters-1)*2 && myList.size() != (nrParameters+1)*2) //TODO: change
@@ -705,6 +705,8 @@ bool Project::loadParameters(QString parametersFileName)
 
                 myProxy->setFittingParametersRange(StringListToDouble(myList));
             }
+
+
 
             if (! parameters->contains("active"))
             {
@@ -1048,7 +1050,7 @@ bool Project::loadMeteoPointsDB(QString fileName)
 
     closeMeteoPointsDB();
 
-    logInfoGUI("Load meteo points DB = " + fileName);
+    logInfoGUI("Load meteo points DB: " + fileName);
 
     dbPointsFileName = fileName;
     QString dbName = getCompleteFileName(fileName, PATH_METEOPOINT);
@@ -1077,7 +1079,7 @@ bool Project::loadMeteoPointsDB(QString fileName)
     errorString = "";
     if (! meteoPointsDbHandler->getPropertiesFromDb(listMeteoPoints, gisSettings, errorString))
     {
-        errorString = "Error in reading table 'point_properties'\n" + errorString;
+        errorString = "Error in reading the table point_properties\n" + errorString;
         closeMeteoPointsDB();
         return false;
     }
@@ -1085,7 +1087,7 @@ bool Project::loadMeteoPointsDB(QString fileName)
     nrMeteoPoints = listMeteoPoints.size();
     if (nrMeteoPoints == 0)
     {
-        errorString = "Missing data in the table 'point_properties'\n" + errorString;
+        errorString = "Missing data in the table point_properties\n" + errorString;
         closeMeteoPointsDB();
         return false;
     }
@@ -1669,6 +1671,7 @@ bool Project::loadMeteoGridMonthlyData(QDate firstDate, QDate lastDate, bool sho
         return true;
 }
 
+
 QDateTime Project::findDbPointLastTime()
 {
     QDateTime lastTime;
@@ -1677,7 +1680,10 @@ QDateTime Project::findDbPointLastTime()
     QDateTime lastDateD;
     lastDateD.setTimeSpec(Qt::UTC);
     lastDateD = meteoPointsDbHandler->getLastDate(daily);
-    if (! lastDateD.isNull()) lastTime = lastDateD;
+    if (! lastDateD.isNull())
+    {
+        lastTime = lastDateD;
+    }
 
     QDateTime lastDateH;
     lastDateH.setTimeSpec(Qt::UTC);
@@ -1685,14 +1691,19 @@ QDateTime Project::findDbPointLastTime()
 
     if (! lastDateH.isNull())
     {
-        if (! lastTime.isNull())
+        if (! lastDateD.isNull())
+        {
             lastTime = (lastDateD > lastDateH) ? lastDateD : lastDateH;
+        }
         else
+        {
             lastTime = lastDateH;
+        }
     }
 
     return lastTime;
 }
+
 
 QDateTime Project::findDbPointFirstTime()
 {
@@ -2369,7 +2380,7 @@ bool Project::interpolationDemLocalDetrending(meteoVariable myVar, const Crit3DT
                     std::vector <Crit3DInterpolationDataPoint> subsetInterpolationPoints;
                     localSelection(interpolationPoints, subsetInterpolationPoints, x, y, interpolationSettings);
                     if (interpolationSettings.getUseLocalDetrending())
-                        interpolationSettings.setFittingParameters(myRaster->prepareParameters(row, col));
+                        interpolationSettings.setFittingParameters(myRaster->prepareParameters(row, col, myCombination.getActiveProxySize()));
                     if (! preInterpolation(subsetInterpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
                                           meteoPoints, nrMeteoPoints, myVar, myTime, errorStdStr))
                     {
@@ -2671,7 +2682,7 @@ bool Project::interpolationGrid(meteoVariable myVar, const Crit3DTime& myTime)
                     {
                         std::vector <Crit3DInterpolationDataPoint> subsetInterpolationPoints;
                         localSelection(interpolationPoints, subsetInterpolationPoints, myX, myY, interpolationSettings);
-                        interpolationSettings.setFittingParameters(meteoGridDbHandler->meteoGrid()->dataMeteoGrid.prepareParameters(row, col));
+                        interpolationSettings.setFittingParameters(meteoGridDbHandler->meteoGrid()->dataMeteoGrid.prepareParameters(row, col, myCombination.getActiveProxySize()));
                         if (! preInterpolation(subsetInterpolationPoints, &interpolationSettings, meteoSettings,
                                               &climateParameters, meteoPoints, nrMeteoPoints, myVar, myTime, errorStdStr))
                         {
@@ -4483,71 +4494,64 @@ void Project::closeProgressBar()
     }
 }
 
-bool Project::findTempMinMax(meteoVariable myVar)
-{
-    float min;
-    float max;
-    float value;
-    int i = 0;
 
+bool Project::findTemperatureRange(meteoVariable myVar)
+{
     if (nrMeteoPoints == 0)
         return false;
 
+    // check frequency and variable
     frequencyType myFreq = getVarFrequency(myVar);
-    Crit3DDate myDate = getCrit3DDate(this->getCurrentDate());
-    int myHour = this->getCurrentHour();
-
     if (myFreq == daily)
     {
         if (myVar != dailyAirTemperatureAvg && myVar != dailyAirTemperatureMax && myVar != dailyAirTemperatureMin)
             return false;
-
-        do {
-            min = meteoPoints[i].getMeteoPointValueD(myDate, myVar);
-            max = min;
-            i++;
-        } while (min == NODATA && i < nrMeteoPoints);
-
-        while (i < nrMeteoPoints)
-        {
-            value = meteoPoints[i].getMeteoPointValueD(myDate, myVar);
-            if (value != NODATA)
-            {
-                if (value < min)
-                    min = value;
-                if (value > max)
-                    max = value;
-            }
-            i++;
-        }
     }
     else if (myFreq == hourly)
     {
         if (myVar != airTemperature)
             return false;
+    }
+    else
+    {
+        return false;
+    }
 
-        do {
-            min = meteoPoints[i].getMeteoPointValueH(myDate, myHour, 0, myVar);
-            max = min;
-            i++;
-        } while (min == NODATA);
+    Crit3DDate myDate = getCrit3DDate(this->getCurrentDate());
+    int myHour = this->getCurrentHour();
+    float currentMin = NODATA;
+    float currentMax = NODATA;
+    float value = NODATA;
 
-        for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (myFreq == daily)
+        {
+            value = meteoPoints[i].getMeteoPointValueD(myDate, myVar);
+        }
+        else if (myFreq == hourly)
         {
             value = meteoPoints[i].getMeteoPointValueH(myDate, myHour, 0, myVar);
-            if (value != NODATA)
+        }
+        if (value != NODATA)
+        {
+            if (value < currentMin || currentMin == NODATA)
             {
-                if (value < min)
-                    min = value;
-                if (value > max)
-                    max = value;
+                currentMin = value;
+            }
+            if (value > currentMax || currentMax == NODATA)
+            {
+                currentMax = value;
             }
         }
     }
 
-    if (min != NODATA && max != NODATA)
-        interpolationSettings.setMinMaxTemperature(min, max);
+    if (currentMin == NODATA || currentMax == NODATA)
+    {
+        return false;
+    }
 
+    interpolationSettings.setMinMaxTemperature(currentMin, currentMax);
     return true;
 }
 
@@ -4560,7 +4564,7 @@ bool Project::waterTableImportLocation(QString csvFileName)
     }
 
     int wrongLines = 0;
-    if (! loadCsvRegistry(csvFileName, wellPoints, errorString, wrongLines))
+    if (! loadWaterTableLocationCsv(csvFileName, wellPoints, errorString, wrongLines))
     {
         logError(errorString);
         return false;
@@ -4581,7 +4585,7 @@ bool Project::waterTableImportLocation(QString csvFileName)
 bool Project::waterTableImportDepths(QString csvDepths)
 {
     int wrongLines = 0;
-    if (! loadCsvDepths(csvDepths, wellPoints, quality->getWaterTableMaximumDepth(), errorString, wrongLines))
+    if (! loadWaterTableDepthCsv(csvDepths, wellPoints, quality->getWaterTableMaximumDepth(), errorString, wrongLines))
     {
         logError(errorString);
         return false;
@@ -4609,6 +4613,7 @@ bool Project::computeSingleWell(int indexWell)
     double wellUtmX = wellPoints[indexWell].getUtmX();
     double wellUtmY = wellPoints[indexWell].getUtmY();
     Crit3DMeteoPoint linkedMeteoPoint;
+
     if (this->meteoGridDbHandler != nullptr)
     {
         isMeteoGridLoaded = true;
@@ -4622,6 +4627,7 @@ bool Project::computeSingleWell(int indexWell)
         logError(ERROR_STR_MISSING_POINT_GRID);
         return false;
     }
+
     if (!assignNearestMeteoPoint(isMeteoGridLoaded, wellUtmX, wellUtmY, firstMeteoDate, &linkedMeteoPoint))
     {
         logError("Missing near weather data");
@@ -4632,10 +4638,31 @@ bool Project::computeSingleWell(int indexWell)
         logError("Missing near weather data");
         return false;
     }
+
     int maxNrDays = 730;  // attualmente fisso
-    WaterTable waterTable(&linkedMeteoPoint, *meteoSettings, gisSettings);
-    waterTable.computeWaterTable(wellPoints[indexWell], maxNrDays);
-    waterTable.viewWaterTableSeries();        // prepare series to show
+
+    std::vector<float> inputTMin;
+    std::vector<float> inputTMax;
+    std::vector<float> inputPrec;
+
+    for (int i = 0; i < linkedMeteoPoint.nrObsDataDaysD; i++)
+    {
+        Crit3DDate myDate = linkedMeteoPoint.getFirstDailyData().addDays(i);
+        float Tmin = linkedMeteoPoint.getMeteoPointValueD(myDate, dailyAirTemperatureMin);
+        float Tmax = linkedMeteoPoint.getMeteoPointValueD(myDate, dailyAirTemperatureMax);
+        float prec = linkedMeteoPoint.getMeteoPointValueD(myDate, dailyPrecipitation);
+        inputTMin.push_back(Tmin);
+        inputTMax.push_back(Tmax);
+        inputPrec.push_back(prec);
+    }
+
+    QDate firstDate(linkedMeteoPoint.getFirstDailyData().year, linkedMeteoPoint.getFirstDailyData().month, linkedMeteoPoint.getFirstDailyData().day);
+    QDate lastDate(linkedMeteoPoint.getLastDailyData().year, linkedMeteoPoint.getLastDailyData().month, linkedMeteoPoint.getLastDailyData().day);
+
+    WaterTable waterTable(inputTMin, inputTMax, inputPrec, firstDate, lastDate, *meteoSettings, gisSettings);
+    waterTable.computeWaterTableParameters(wellPoints[indexWell], maxNrDays);
+    waterTable.computeWaterTableSeries();        // prepare series to show
+
     waterTableList.push_back(waterTable);
     return true;
 }

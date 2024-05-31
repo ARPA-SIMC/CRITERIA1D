@@ -123,34 +123,6 @@ double lapseRatePiecewise_three(double x, std::vector <double>& par)
     }
 }
 
-double lapseRatePiecewiseForInterpolation(double x, std::vector <double>& par)
-{
-    // the piecewise line is parameterized as follows
-    // the line passes through A(par[0];par[1])and B(par[0]+par[2];par[1]+par[3]). par[4] is the slope of the 2 externals pieces
-    // "y = mx + q" piecewise function;
-    double xb;
-    par[2] = MAXVALUE(10, par[2]);
-    // par[2] means the delta between the two quotes. It must be positive.
-    xb = par[0]+par[2];
-    if (x < par[0])
-    {
-        //m = par[4];;
-        //q = par[1]-m*par[0];
-        return par[4]*x + par[1]-par[4]*par[0];
-    }
-    else if (x>xb)
-    {
-        //m = par[4];
-        //q = (par[1]+par[3])-m*xb;
-        return par[4]*x + (par[1]+par[3])-par[4]*xb;
-    }
-    else
-    {
-        //m = ((par[1]+par[3])-par[1])/par[2];
-        //q = par[1]-m*par[0];
-        return (par[3]/par[2])*x + par[1]-(par[3])/par[2]*par[0];
-    }
-}
 
 double lapseRatePiecewiseThree_withSlope(double x, std::vector <double>& par)
 {
@@ -233,6 +205,11 @@ double functionSum(std::vector<std::function<double(double, std::vector<double>&
 double functionLinear(double x, std::vector <double>& par)
 {
     return par[0] * x;
+}
+
+double functionLinear_intercept(double x, std::vector <double>& par)
+{
+    return par[0] * x + par[1];
 }
 
 double multilinear(std::vector<double> &x, std::vector<double> &par)
@@ -947,6 +924,112 @@ namespace interpolation
     }
 
 
+    /*!
+    * \brief Computes daily values starting from monthly averages using cubic spline
+    * \param monthlyAvg: vector of monthly averages (12 values)
+    * outputDailyValues: vector of interpolated daily values (366 values)
+    */
+    void cubicSplineYearInterpolate(float *monthlyAvg, float *outputDailyValues)
+    {
+        double monthMid [16] = {-61, - 31, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365, 396};
+
+        for (int iMonth=0; iMonth<16; iMonth++)
+        {
+            monthMid[iMonth] += 15;
+        }
+
+        double* avgMonthlyAmountLarger = new double[16];
+        for (int iMonth = 0; iMonth < 12; iMonth++)
+        {
+            avgMonthlyAmountLarger[iMonth+2] = double(monthlyAvg[iMonth]);
+        }
+
+        avgMonthlyAmountLarger[0] = double(monthlyAvg[10]);
+        avgMonthlyAmountLarger[1] = double(monthlyAvg[11]);
+        avgMonthlyAmountLarger[14] = double(monthlyAvg[0]);
+        avgMonthlyAmountLarger[15] = double(monthlyAvg[1]);
+
+        for (int iDay=0; iDay<365; iDay++)
+        {
+            outputDailyValues[iDay] = float(interpolation::cubicSpline(iDay, monthMid, avgMonthlyAmountLarger, 16));
+        }
+        // leap years
+        outputDailyValues[365] = outputDailyValues[0];
+
+        delete [] avgMonthlyAmountLarger;
+    }
+
+
+    /*!
+    * \brief Computes daily values starting from monthly mean
+    * using quadratic spline
+    * original Campbell function
+    * it has a discontinuity between end and start of the year
+    */
+    void quadrSplineYearInterpolate(float *meanY, float *dayVal)
+    {
+        float a[13] = {0};
+        float b[14] = {0};
+        float c[13] = {0};
+        float aa[13] = {0};
+        float bb[13] = {0};
+        float cc[13] = {0};
+        float d[14] = {0};
+        float h[13] = {0};
+
+        int i,j;
+
+        int monthLastDoy [13] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
+
+        d[1] = meanY[0] - meanY[11];
+        h[0] = 30;
+
+        for (i = 1; i<=12; i++)
+        {
+            if (i == 12)
+                d[i + 1] = meanY[0] - meanY[i-1];
+            else
+                d[i + 1] = meanY[i] - meanY[i-1];
+
+            h[i] = float(monthLastDoy[i] - monthLastDoy[i - 1] - 1);
+            aa[i] = h[i - 1] / 6;
+            bb[i] = (h[i - 1] + h[i]) / 3;
+            cc[i] = h[i] / 6;
+        }
+
+        for (i = 1; i<= 11; i++)
+        {
+            cc[i] = cc[i] / bb[i];
+            d[i] = d[i] / bb[i];
+            bb[i + 1] = bb[i + 1] - aa[i + 1] * cc[i];
+            d[i + 1] = d[i + 1] - aa[i + 1] * d[i];
+        }
+
+        b[12] = d[12] / bb[12];
+        for (i = 11; i>=1; i--)
+            b[i] = d[i] - cc[i] * b[i + 1];
+
+        for (i = 1; i<=12; i++)
+        {
+            a[i] = (b[i + 1] - b[i]) / (2 * h[i]);
+            c[i] = meanY[i-1] - (b[i + 1] + 2 * b[i]) * h[i] / 6;
+        }
+
+        j = 0;
+        for (i = 1; i<=365; i++)
+        {
+            if (monthLastDoy[j] < i)
+                j = j + 1;
+            int t = i - monthLastDoy[j - 1] - 1;
+
+            dayVal[i-1] = c[j] + b[j] * t + a[j] * t * t;
+
+        }
+
+        dayVal[365] = dayVal[0];
+    }
+
+
     double cubicSpline(double x, double *firstColumn, double *secondColumn, int dim)
     {
         double a,b,c,d,y;
@@ -1160,8 +1243,8 @@ namespace interpolation
                                         std::vector<double>& weights)
     {
         int i,j;
-        int nrPredictors = parameters.size();
-        int nrData = y.size();
+        int nrPredictors = int(parameters.size());
+        int nrData = int(y.size());
         std::vector <int> nrParameters(nrPredictors);
         int nrParametersTotal = 0;
         for (i=0; i<nrPredictors;i++)
@@ -1365,8 +1448,8 @@ namespace interpolation
                                      std::vector<double>& weights)
     {
         int i;
-        int nrPredictors = parameters.size();
-        int nrData = y.size();
+        int nrPredictors = int(parameters.size());
+        int nrData = int(y.size());
         double mySSE, diffSSE, newSSE;
         static double VFACTOR = 10;
         std::vector <int> nrParameters(nrPredictors);
@@ -1939,7 +2022,7 @@ namespace interpolation
                 } while(truncNormal <= 0.0 || truncNormal >= 1.0);
                 parameters[j] = parametersMin[j] + (truncNormal)*(parametersMax[j]-parametersMin[j]);
             }
-        } while( (counter < nrTrials) && (R2 < 0.8) && (fabs(R2Previous[0]-R2Previous[nrMinima-1]) > deltaR2) );
+        } while( (counter < nrTrials) && !(R2Previous[0] > 0.8 && R2Previous[nrMinima-1] > 0.8) && (fabs(R2Previous[0]-R2Previous[nrMinima-1]) > deltaR2) );
 
         for (j=0; j<nrParameters; j++)
         {
