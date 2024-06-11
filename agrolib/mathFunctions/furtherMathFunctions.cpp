@@ -701,7 +701,7 @@ namespace interpolation
                       double* parametersDelta, double* parametersChange)
     {
         int i, j, k;
-        double pivot, mult, top;
+        double mult, top;
         if (nrParameters <= 0)
             return;
 
@@ -731,7 +731,7 @@ namespace interpolation
             for (j = 0; j < nrData; j++)
             {
                 double newEst = estimateFunction(idFunction, parameters, nrParameters, x[j]);
-                P[i][j] = (newEst - firstEst[j]) / MAXVALUE(parametersDelta[i], EPSILON) ;
+                P[i][j] = (newEst - firstEst[j]) / std::max(parametersDelta[i], EPSILON);
             }
             parameters[i] -= parametersDelta[i];
         }
@@ -746,7 +746,7 @@ namespace interpolation
                     a[i][j] += P[i][k] * P[j][k];
                 }
             }
-            z[i] = sqrt(a[i][i]) + EPSILON; //?
+            z[i] = sqrt(a[i][i]) + EPSILON;
         }
 
         for (i = 0; i < nrParameters; i++)
@@ -774,7 +774,7 @@ namespace interpolation
 
         for (j = 0; j < (nrParameters - 1); j++)
         {
-            pivot = a[j][j];
+            double pivot = std::max(a[j][j], EPSILON);
             for (i = j + 1 ; i < nrParameters; i++)
             {
                 mult = a[i][j] / pivot;
@@ -795,7 +795,8 @@ namespace interpolation
             {
                 top -= a[i][k] * parametersChange[k];
             }
-            parametersChange[i] = top / a[i][i];
+            double pivot = std::max(a[i][i], EPSILON);
+            parametersChange[i] = top / pivot;
         }
 
         for (i = 0; i < nrParameters; i++)
@@ -1974,14 +1975,28 @@ namespace interpolation
         std::random_device rd;
         std::mt19937 gen(rd());
         std::normal_distribution<double> normal_dis(0.5, 0.5);
+        //std::normal_distribution<double> normal_dis(25, 20);
         double truncNormal;
+
+        std::vector <std::vector <double>> discreteParameters;
+        int nrDiscrete = 50;
+        std::uniform_int_distribution<> distribuzione(0, 49);
+        std::vector <double> tempDiscrete;
+        for (int j = 0; j < parameters.size()-2; j++)
+        {
+            for (int i = 0; i < nrDiscrete; i++)
+                tempDiscrete.push_back(parametersMin[j]+i*((parametersMax[j]-parametersMin[j])/nrDiscrete));
+
+            discreteParameters.push_back(tempDiscrete);
+            tempDiscrete.clear();
+        }
 
         do
         {
             fittingMarquardt_nDimension_noSquares_singleFunction(func,parametersMin,
                                                                  parametersMax,parameters,
                                                                  parametersDelta,maxIterationsNr,
-                                                                 myEpsilon,x,y,weights);
+                                                                      myEpsilon,x,y,weights);
 
             for (i=0;i<nrData;i++)
             {
@@ -2015,14 +2030,23 @@ namespace interpolation
             }
             counter++;
 
-            for (j=0; j<nrParameters; j++)
+            /*for (j=0; j<nrParameters; j++)
             {
                 do {
                     truncNormal = normal_dis(gen);
                 } while(truncNormal <= 0.0 || truncNormal >= 1.0);
                 parameters[j] = parametersMin[j] + (truncNormal)*(parametersMax[j]-parametersMin[j]);
+            }*/
+
+            int indice = 0;
+            for (j=0; j<nrParameters-2;j++)
+            {
+                do {
+                    indice = distribuzione(gen);
+                } while (indice < 0 || indice >= discreteParameters[j].size());
+                parameters[j] = discreteParameters[j][indice];
             }
-        } while( (counter < nrTrials) && !(R2Previous[0] > 0.8 && R2Previous[nrMinima-1] > 0.8) && (fabs(R2Previous[0]-R2Previous[nrMinima-1]) > deltaR2) );
+        } while( (counter < nrTrials) && !(R2Previous[0] > 0.797 && R2Previous[nrMinima-1] > 0.8) && ((R2Previous[0] == NODATA) || fabs(R2Previous[0]-R2Previous[nrMinima-1]) > deltaR2 ));
 
         for (j=0; j<nrParameters; j++)
         {
@@ -2122,7 +2146,7 @@ namespace interpolation
 
             for (j = 0; j < (nrParameters - 1); j++)
             {
-                pivot = a[j][j];
+                pivot = std::max(a[j][j],EPSILON);
                 for (i = j + 1 ; i < nrParameters; i++)
                 {
                     mult = a[i][j] / pivot;
@@ -2134,8 +2158,7 @@ namespace interpolation
                 }
             }
 
-
-            paramChange[nrParameters -1] = g[nrParameters - 1] / a[nrParameters - 1][nrParameters - 1];
+            paramChange[nrParameters -1] = g[nrParameters - 1] / std::max(a[nrParameters - 1][nrParameters - 1], EPSILON);
 
             for (i = nrParameters - 2; i >= 0; i--)
             {
@@ -2144,7 +2167,7 @@ namespace interpolation
                 {
                     top -= a[i][k] * paramChange[k];
                 }
-                paramChange[i] = top / a[i][i];
+                paramChange[i] = top / std::max(a[i][i], EPSILON);
             }
 
             // change parameters
