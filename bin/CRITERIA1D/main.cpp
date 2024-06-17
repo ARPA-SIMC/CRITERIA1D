@@ -31,7 +31,7 @@ void usage()
 int main(int argc, char *argv[])
 {
     QCoreApplication myApp(argc, argv);
-    std::cout << "CRITERIA-1D agro-hydrological model v1.8.4\n" << std::endl;
+    std::cout << "CRITERIA-1D agro-hydrological model v1.8.5\n" << std::endl;
 
     Crit1DProject myProject;
 
@@ -54,25 +54,29 @@ int main(int argc, char *argv[])
 
         #ifdef TEST
             projectFileName = projectPath + "test/test.ini";
-        #else
-            #ifdef TEST_GEO
-                //projectFileName = projectPath + "INCOLTO/incolto.ini";
-                //projectFileName = "//moses-arpae/CRITERIA1D/PROJECTS/CLARA/iCOLT_2023/seasonalIrriClimate_RO.ini";
-            #else
-                usage();
-                return 1;
-            #endif
+        #endif
+
+        #ifdef TEST_GEO
+            projectFileName = projectPath + "INCOLTO/incolto.ini";
         #endif
 
         #ifdef TEST_FIRSTRUN
+            projectFileName = projectPath + "kiwifruit/kiwifruit.ini";
             myProject.firstSimulationDate = QDate::fromString("1995-01-01", "yyyy-MM-dd");
-            myProject.lastSimulationDate = QDate::fromString("2008-05-31", "yyyy-MM-dd");
+            myProject.lastSimulationDate = QDate::fromString("2001-05-31", "yyyy-MM-dd");
         #endif
 
         #ifdef TEST_RESTART
-            myProject.firstSimulationDate = QDate::fromString("2008-06-01", "yyyy-MM-dd");
+            projectFileName = projectPath + "kiwifruit/kiwifruit_restart.ini";
+            myProject.firstSimulationDate = QDate::fromString("2001-06-01", "yyyy-MM-dd");
             myProject.lastSimulationDate = QDate::fromString("2008-12-31", "yyyy-MM-dd");
         #endif
+
+        if (projectFileName.isEmpty())
+        {
+            usage();
+            return 1;
+        }
     }
 
 
