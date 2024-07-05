@@ -575,7 +575,15 @@
      <addaction name="actionRasterize_all_shape"/>
      <addaction name="actionRasterize_with_base"/>
     </widget>
+    <widget class="QMenu" name="menuClip_raster">
+     <property name="title">
+      <string>Clip raster</string>
+     </property>
+     <addaction name="actionClipRaster_with_shape"/>
+     <addaction name="actionClipRaster_with_raster"/>
+    </widget>
     <addaction name="menuRasterize_shape"/>
+    <addaction name="menuClip_raster"/>
     <addaction name="actionCreate_Shape_file_from_Csv"/>
     <addaction name="actionCompute_Ucm_intersection"/>
     <addaction name="separator"/>
@@ -709,7 +717,22 @@
   </action>
   <action name="actionRasterize_with_base">
    <property name="text">
-    <string>With base (raster)...</string>
+    <string>with base (raster)...</string>
+   </property>
+  </action>
+  <action name="actionFrom_other_raster">
+   <property name="text">
+    <string>From other raster</string>
+   </property>
+  </action>
+  <action name="actionClipRaster_with_shape">
+   <property name="text">
+    <string>with shape mask...</string>
+   </property>
+  </action>
+  <action name="actionClipRaster_with_raster">
+   <property name="text">
+    <string>with raster mask...</string>
    </property>
   </action>
  </widget>

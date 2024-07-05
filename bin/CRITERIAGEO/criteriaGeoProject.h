@@ -54,6 +54,7 @@
                             double cellSize, double threshold, QString ucmFileName, bool isPrevailing, bool showInfo);
 
         void logError(QString errorString);
+        void logWarning(QString errorString);
 
         int createShapeOutput(QDate dateComputation, QString outputName);
     };

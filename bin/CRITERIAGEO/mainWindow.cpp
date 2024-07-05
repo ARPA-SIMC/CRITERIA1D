@@ -423,8 +423,9 @@ void MainWindow::on_actionLoadRaster_triggered()
         QStringList rasterFormats = getGdalRasterReadExtension();
 
         rasterFormats.sort();
-        rasterFormats.insert(0, tr("ESRI float (*.flt)"));
-        //rasterFormats.insert(0, tr("all files (*.*)"));
+        rasterFormats.insert(0, tr("all files (*.*)"));
+        rasterFormats.insert(1, tr("ESRI float (*.flt)"));
+        rasterFormats.insert(2, tr("ENVI IMG (*.img)"));
 
         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "", rasterFormats.join(";;"));
     #else
@@ -1386,13 +1387,9 @@ void MainWindow::on_actionRasterize_all_shape_triggered()
 }
 
 
-void MainWindow::on_actionRasterize_with_base_triggered()
+gis::Crit3DRasterGrid* MainWindow::selectRaster(const QString &title, QString &rasterFileName, bool &isOk)
 {
-    // select shapefile
-    int pos = getSelectedShapePos();
-    if (pos == NODATA) return;
-    GisObject* shapeObject = myProject.objectList.at(unsigned(pos));
-    Crit3DShapeHandler* shapeHandler = shapeObject->getShapeHandler();
+    isOk = false;
 
     // raster list
     QList<QString> rasterList;
@@ -1403,25 +1400,43 @@ void MainWindow::on_actionRasterize_with_base_triggered()
     }
     if (rasterList.size() == 0)
     {
-        QMessageBox::information(nullptr, "No raster loaded", "Load a raster before.");
-        return;
+        myProject.logWarning("No raster loaded.");
+        return nullptr;
     }
 
     // select raster
-    FormSelection rasterSelection(rasterList, "Select reference raster");
+    FormSelection rasterSelection(rasterList, title);
     if (rasterSelection.result() == QDialog::Rejected)
-        return;
+        return nullptr;
 
-    QString rasterFileName = rasterSelection.getSelection();
-    gis::Crit3DRasterGrid *refRaster;
+    rasterFileName = rasterSelection.getSelection();
     for (int i = 0; i < myProject.objectList.size(); i++)
     {
         if (myProject.objectList[i]->fileName == rasterFileName)
         {
-            refRaster = myProject.objectList[i]->getRaster();
-            break;
+            isOk = true;
+            return myProject.objectList[i]->getRaster();
         }
     }
+
+    return nullptr;
+}
+
+
+void MainWindow::on_actionRasterize_with_base_triggered()
+{
+    // select shapefile
+    int pos = getSelectedShapePos();
+    if (pos == NODATA) return;
+    GisObject* shapeObject = myProject.objectList.at(unsigned(pos));
+    Crit3DShapeHandler* shapeHandler = shapeObject->getShapeHandler();
+
+    // select raster
+    QString rasterFileName;
+    bool isOk;
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Select reference raster", rasterFileName, isOk);
+    if (! isOk)
+        return;
 
     // select shape field
     bool isOnlyNumeric = true;
@@ -1442,5 +1457,38 @@ void MainWindow::on_actionRasterize_with_base_triggered()
         myProject.logError("Error in rasterize.");
     }
 
+}
+
+
+void MainWindow::on_actionClipRaster_with_shape_triggered()
+{
+    myProject.logWarning("This feature is not yet available.");
+}
+
+
+void MainWindow::on_actionClipRaster_with_raster_triggered()
+{
+    // select raster
+    QString refRasterFileName;
+    bool isOk;
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Select reference raster", refRasterFileName, isOk);
+    if (! isOk) return;
+
+    QString maskRasterFileName;
+    gis::Crit3DRasterGrid *maskRaster = selectRaster("Select mask raster", maskRasterFileName, isOk);
+    if (! isOk) return;
+
+    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
+    if (! gis::clipRasterWithRaster(refRaster, maskRaster, outputRaster))
+    {
+        myProject.logError("Error in clipping.");
+        return;
+    }
+
+    setDefaultScale(outputRaster->colorScale);
+    myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.gisSettings.utmZone);
+
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
 }
 

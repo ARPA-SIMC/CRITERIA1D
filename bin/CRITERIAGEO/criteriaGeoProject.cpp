@@ -386,3 +386,8 @@ void CriteriaGeoProject::logError(QString errorString)
     QMessageBox::critical(nullptr, "ERROR!", errorString);
 }
 
+void CriteriaGeoProject::logWarning(QString errorString)
+{
+    QMessageBox::warning(nullptr, "WARNING", errorString);
+}
+

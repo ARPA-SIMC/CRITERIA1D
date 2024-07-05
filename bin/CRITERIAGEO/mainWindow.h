@@ -61,6 +61,10 @@
 
         void on_actionRasterize_with_base_triggered();
 
+        void on_actionClipRaster_with_shape_triggered();
+
+        void on_actionClipRaster_with_raster_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -119,6 +123,8 @@
         int getRasterIndex(GisObject *myObject);
         int getSelectedShapePos();
         void zoomOnLastRaster();
+
+        gis::Crit3DRasterGrid* selectRaster(const QString &title, QString &rasterFileName, bool &isOk);
     };
 
 
