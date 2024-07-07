@@ -4,7 +4,7 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
 {
     if (isOnlyNumeric)
     {
-        setWindowTitle("Choose a nr. field of " + fileName);
+        setWindowTitle("Choose a numeric field of " + fileName);
     }
     else
     {
