@@ -628,7 +628,7 @@ namespace gis
         myGrid->maximum = maximum;
         myGrid->minimum = minimum;
 
-        if (! myGrid->colorScale->isRangeBlocked())
+        if (! myGrid->colorScale->isFixedRange())
         {
             myGrid->colorScale->setRange(minimum, maximum);
         }
@@ -1355,7 +1355,9 @@ namespace gis
             c = -1;
 
         float valueBoundary = rasterRef.getValueFromRowCol(row + r, col + c);
-        return isEqual(valueBoundary, rasterRef.header->flag);
+        bool isBoundary = isEqual(valueBoundary, rasterRef.header->flag);
+
+        return isBoundary;
     }
 
 
