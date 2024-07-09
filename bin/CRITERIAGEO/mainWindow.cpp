@@ -484,7 +484,7 @@ int MainWindow::getRasterIndex(GisObject* myObject)
     {
         if (myObject->type == gisObjectRaster)
         {
-            if (rasterObjList.at(i)->getRaster() == myObject->getRaster())
+            if (rasterObjList.at(i)->getRasterPointer() == myObject->getRaster())
                 return i;
         }
         /*
