@@ -89,8 +89,11 @@ void setSurface(double myArea, double myRoughness, double minWaterRunoff, double
     myHeat1D.Plough = minWaterRunoff;
     myHeat1D.RoughnessHeat = myRoughnessHeat;
 
-    int result = soilFluxes3D::setSurfaceProperties(0, myHeat1D.Roughness, myHeat1D.Plough);
-    if (result != CRIT3D_OK) printf("\n error in SetSurfaceProperties!");
+    int result = soilFluxes3D::setSurfaceProperties(0, myHeat1D.Roughness);
+    if (result != CRIT3D_OK) printf("\nError in SetSurfaceProperties!");
+
+    result = soilFluxes3D::setNodePond(0, myHeat1D.Plough);
+    if (result != CRIT3D_OK) printf("\nError in setNodePond!");
 }
 
 
