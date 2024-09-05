@@ -1,7 +1,8 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
-    #ifndef QUALITY_H
+#include <deque>
+#ifndef QUALITY_H
         #include "quality.h"
     #endif
     #ifndef GIS_H
@@ -109,7 +110,7 @@
         QString outputPointsFileName;
         QString currentDbOutputFileName;
 
-        QSettings* parameters;
+        QSettings* parametersSettings;
         QSettings* projectSettings;
 
         bool meteoPointsLoaded;
@@ -283,8 +284,7 @@
                                   double altitude, std::string lapseRateCode, bool isAppend);
         void showMeteoWidgetGrid(std::string idCell, bool isAppend);
         void showProxyGraph();
-        void showLocalProxyGraph(gis::Crit3DGeoPoint myPoint, gis::Crit3DRasterGrid *myDataRaster);
-        bool findTemperatureRange(meteoVariable myVar);
+        void showLocalProxyGraph(gis::Crit3DGeoPoint myPoint);
 
         void clearSelectedPoints();
         void clearSelectedOutputPoints();

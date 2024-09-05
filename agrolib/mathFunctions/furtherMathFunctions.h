@@ -59,10 +59,6 @@ enum estimatedFunction {FUNCTION_CODE_SPHERICAL, FUNCTION_CODE_LINEAR, FUNCTION_
     double lapseRatePiecewise_three(double x, std::vector <double>& par);
     double lapseRatePiecewise_three_free(double x, std::vector <double>& par);
 
-    double detrendingLapseRatePiecewise_two(double x, std::vector <double>& par);
-    double detrendingLapseRatePiecewise_three(double x, std::vector <double>& par);
-    double detrendingLapseRatePiecewise_three_free(double x, std::vector <double>& par);
-
 
     namespace integration
     {
@@ -117,6 +113,14 @@ enum estimatedFunction {FUNCTION_CODE_SPHERICAL, FUNCTION_CODE_LINEAR, FUNCTION_
                                         int maxIterationsNr, double myEpsilon, double deltaR2,
                                         std::vector <std::vector <double>>& x , std::vector<double>& y, std::vector<double>& weights, unsigned int elevationPos);
 
+        int bestFittingMarquardt_nDimension_clean(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
+                                                  std::vector<std::function<double(double, std::vector<double>&)>>& myFunc,
+                                                  std::vector <std::vector <double>>& parametersMin, std::vector <std::vector <double>>& parametersMax,
+                                                  std::vector <std::vector <double>>& parameters, std::vector <std::vector <double>>& parametersDelta,
+                                                  int maxIterationsNr, double myEpsilon,
+                                                  std::vector <std::vector <double>>& x ,std::vector<double>& y,
+                                                  std::vector<double>& weights);
+
         bool fittingMarquardt_nDimension(double (*func)(std::vector<std::function<double (double, std::vector<double> &)> > &, std::vector<double> &, std::vector <std::vector <double>>&),
                                          std::vector<std::function<double (double, std::vector<double> &)> > &myFunc,
                                          std::vector <std::vector <double>>& parametersMin, std::vector <std::vector <double>>& parametersMax,
@@ -141,8 +145,9 @@ enum estimatedFunction {FUNCTION_CODE_SPHERICAL, FUNCTION_CODE_LINEAR, FUNCTION_
                                                            int nrTrials, int nrMinima,
                                                            std::vector <double>& parametersMin, std::vector <double>& parametersMax,
                                                            std::vector <double>& parameters, std::vector <double>& parametersDelta,
+                                                           std::vector<double> &stepSize, int numSteps,
                                                            int maxIterationsNr, double myEpsilon, double deltaR2,
-                                                           std::vector <double>& x ,std::vector<double>& y,
+                                                           std::vector <double>& x , std::vector<double>& y,
                                                            std::vector<double>& weights);
 
         double normGeneric_nDimension(double (*func)(std::vector<std::function<double (double, std::vector<double> &)>> &, std::vector<double> &, std::vector <std::vector <double>>&),

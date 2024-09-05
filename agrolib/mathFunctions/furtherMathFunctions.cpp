@@ -32,8 +32,6 @@
 #include "commonConstants.h"
 #include "furtherMathFunctions.h"
 
-#include <fstream>
-#include <iostream>
 
 
 double lapseRateRotatedSigmoid(double x, std::vector <double> par)
@@ -72,9 +70,13 @@ double lapseRateFrei(double x, std::vector <double>& par)
 
 double lapseRatePiecewise_three_noSlope(double x, std::vector <double>& par)
 {
+    //this is the original lapseRatePiecewise_three function, which isn't used because it's not possible to
+    //control the slope of the middle piece
+
     // the piecewise line is parameterized as follows
     // the line passes through A(par[0];par[1])and B(par[0]+par[2];par[3]). par[4] is the slope of the 2 externals pieces
     // "y = mx + q" piecewise function;
+
     double xb;
     // par[2] means the delta between the two quotes. It must be positive.
     xb = par[0]+par[2];
@@ -98,6 +100,34 @@ double lapseRatePiecewise_three_noSlope(double x, std::vector <double>& par)
     }
 }
 
+/*
+ * The following three functions are only used for the height proxy when the multiple detrending check is enabled.
+ * One function among these three (lapseRatePiecewise_two, _three and _three_free) is selected by the user and used to
+ * look for the fitting parameters with the Marquardt algorithm.
+*/
+
+/*
+ *  functions for MARQUARDT use
+ */
+
+double lapseRatePiecewise_two(double x, std::vector <double>& par)
+{
+    // the piecewise line is parameterized as follows
+    // the line passes through A(par[0];par[1]). par[2] is the slope of the first line, par[3] the slope of the second
+    // "y = mx + q" piecewise function;
+    if (x < par[0])
+    {
+        //m = par[2];
+        //q = -par[2]*par[0]+par[1];
+        return par[2]*(x-par[0])+par[1];
+    }
+    else
+    {
+        //m = par[3]:
+        //q = -par[3]*par[0]+par[1];
+        return par[3]*(x-par[0])+par[1];
+    }
+}
 
 double lapseRatePiecewise_three(double x, std::vector <double>& par)
 {
@@ -114,29 +144,14 @@ double lapseRatePiecewise_three(double x, std::vector <double>& par)
         return par[3]*x - par[3]*par[0]+par[1];
 }
 
-double detrendingLapseRatePiecewise_three(double x, std::vector <double>& par)
-{
-    //xa (par[0],par[1]), xb-xa = par[2], par[3] is the slope of the middle piece,
-    //par[4] the slope of the first and last piece
-    par[2] = MAXVALUE(10, par[2]);
-    double xb = par[2]+par[0];
-
-    if (x < par[0])
-        return par[4]*x;
-    else if (x > xb)
-        return par[4]*x;
-    else
-        return par[3]*x;
-}
-
 double lapseRatePiecewise_three_free(double x, std::vector <double>& par)
 {
     // the piecewise line is parameterized as follows
     // the line passes through A(par[0];par[1])and B(par[0]+par[2];...)
     //par [3] is the slope of the middle piece
     //par[4] is the first slope. par[5] is the third slope
-
     // "y = mx + q" piecewise function;
+
     double xb;
     par[2] = MAXVALUE(10, par[2]);
     // par[2] means the delta between the two quotes. It must be positive.
@@ -158,76 +173,6 @@ double lapseRatePiecewise_three_free(double x, std::vector <double>& par)
         //m = par[3];
         //q = m*(-par[0]) + par[1];
         return par[3]*x - par[3]*par[0]+par[1];
-    }
-}
-
-double detrendingLapseRatePiecewise_three_free(double x, std::vector <double>& par)
-{
-    // the piecewise line is parameterized as follows
-    // the line passes through A(par[0];par[1])and B(par[0]+par[2];...)
-    //par [3] is the slope of the middle piece
-    //par[4] is the first slope. par[5] is the third slope
-
-    // "y = mx + q" piecewise function;
-    double xb;
-    par[2] = MAXVALUE(10, par[2]);
-    // par[2] means the delta between the two quotes. It must be positive.
-    xb = par[0]+par[2];
-    if (x < par[0])
-    {
-        //m = par[4];;
-        //q = par[1]-m*par[0];
-        return par[4]*x;
-    }
-    else if (x>xb)
-    {
-        //m = par[5];
-        //q = m(-par[0]-par[2])+par[3]*par[2]+par[1];
-        return (par[4]*par[0]) + (par[3]*par[2]) + par[5]*(x-xb);
-    }
-    else
-    {
-        //m = par[3];
-        //q = m*(-par[0]) + par[1];
-        return (par[4]*par[0]) + par[3]*(x-par[0]);
-    }
-}
-
-double lapseRatePiecewise_two(double x, std::vector <double>& par)
-{
-    // the piecewise line is parameterized as follows
-    // the line passes through A(par[0];par[1]). par[2] is the slope of the first line, par[3] the slope of the second
-    // "y = mx + q" piecewise function;
-    if (x < par[0])
-    {
-        //m = par[2];
-        //q = -par[2]*par[0]+par[1];
-        return par[2]*(x-par[0])+par[1];
-    }
-    else
-    {
-        //m = par[3]:
-        //q = -par[3]*par[0]+par[1];
-        return par[3]*(x-par[0])+par[1];
-    }
-}
-
-double detrendingLapseRatePiecewise_two(double x, std::vector <double>& par)
-{
-    // the piecewise line is parameterized as follows
-    // the line passes through A(par[0];par[1]). par[2] is the slope of the first line, par[3] the slope of the second
-    // "y = mx + q" piecewise function;
-    if (x < par[0])
-    {
-        //m = par[2];
-        //q = -par[2]*par[0]+par[1];
-        return par[2]*x;
-    }
-    else
-    {
-        //m = par[3]:
-        //q = -par[3]*par[0]+par[1];
-        return (par[2]*par[0]) + par[3]*(x-par[0]);
     }
 }
 
@@ -1327,7 +1272,7 @@ namespace interpolation
         std::vector<std::vector<double>> firstGuessParam = parameters;
         bool exitFlag = 0;
 
-        for (int step = 1; step <= numSteps; ++step)
+        for (int step = 1; step <= numSteps; ++step) //CT: da sistemare o saltare
         {
             for (int dir = 0; dir < 2; ++dir)
             {
@@ -1411,6 +1356,55 @@ namespace interpolation
 
 
         return counter;
+
+    }
+
+    int bestFittingMarquardt_nDimension_clean(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
+                                        std::vector<std::function<double(double, std::vector<double>&)>>& myFunc,
+                                        std::vector <std::vector <double>>& parametersMin, std::vector <std::vector <double>>& parametersMax,
+                                        std::vector <std::vector <double>>& parameters, std::vector <std::vector <double>>& parametersDelta,
+                                        int maxIterationsNr, double myEpsilon,
+                                        std::vector <std::vector <double>>& x ,std::vector<double>& y,
+                                        std::vector<double>& weights)
+    {
+        int i,j;
+        int nrData = int(y.size());
+        std::vector <int> nrParameters(parameters.size());
+        int nrParametersTotal = 0;
+        for (i=0; i<parameters.size();i++)
+        {
+            nrParameters[i]= int(parameters[i].size());
+            nrParametersTotal += nrParameters[i];
+        }
+        std::vector <std::vector <double>> bestParameters(parameters.size());
+        std::vector <std::vector <int>> correspondenceTag(2,std::vector<int>(nrParametersTotal));
+        int counterTag = 0;
+        for (i=0; i<parameters.size();i++)
+        {
+            for (j=0; j<nrParameters[i];j++)
+            {
+                correspondenceTag[0][counterTag] = i;
+                correspondenceTag[1][counterTag] = j;
+                counterTag++;
+                parametersDelta[i][j] = MAXVALUE(parametersDelta[i][j], EPSILON);
+            }
+            bestParameters[i].resize(nrParameters[i]) ;
+        }
+
+        double R2;
+        std::vector<double> ySim(nrData);
+
+        fittingMarquardt_nDimension_noSquares(func,myFunc,parametersMin, parametersMax,
+                                              parameters, parametersDelta,correspondenceTag, maxIterationsNr,
+                                              myEpsilon, x, y, weights);
+
+        for (i=0;i<nrData;i++)
+        {
+            ySim[i]= func(myFunc,x[i], parameters);
+        }
+        R2 = computeWeighted_R2(y,ySim,weights);
+
+        return 1;
 
     }
 
@@ -2026,6 +2020,7 @@ namespace interpolation
                                                        int nrTrials, int nrMinima,
                                                        std::vector <double>& parametersMin, std::vector <double>& parametersMax,
                                                        std::vector <double>& parameters, std::vector <double>& parametersDelta,
+                                                       std::vector <double>& stepSize, int numSteps,
                                                        int maxIterationsNr, double myEpsilon, double deltaR2,
                                                        std::vector <double>& x ,std::vector<double>& y,
                                                        std::vector<double>& weights)
@@ -2043,25 +2038,16 @@ namespace interpolation
         int counter = 0;
 
         //grigliato
-        std::vector<double> stepSize;
-        const int numSteps = 30;
-        if (parameters.size() == 4)
-            stepSize = {2*(parametersMax[0]-parametersMin[0])/numSteps, 2*(parametersMax[1]-parametersMin[1])/numSteps, 20*(parametersMax[2]-parametersMin[2])/numSteps, 20*(parametersMax[3]-parametersMin[3])/numSteps};
-        else if (parameters.size() == 6)
-            stepSize = {2*(parametersMax[0]-parametersMin[0])/numSteps, 2*(parametersMax[1]-parametersMin[1])/numSteps, 4*(parametersMax[2]-parametersMin[2])/numSteps, 20*(parametersMax[3]-parametersMin[3])/numSteps,20*(parametersMax[3]-parametersMin[3])/numSteps,20*(parametersMax[3]-parametersMin[3])/numSteps };
-        else return false;
 
         int directions[] = {1, -1};
-        size_t numParamsToVary = parameters.size();
         std::vector<double> firstGuessParam = parameters;
-
-        for (int step = 1; step <= numSteps; ++step)
+        int step,dir,paramIndex;
+        for (step = 1; step <= numSteps*3; step++)
         {
-            for (int dir = 0; dir < 2; ++dir)
+            for (dir = 0; dir < 2; ++dir)
             {
-                for (int paramIndex = 0; paramIndex < int(numParamsToVary); ++paramIndex)
+                for (paramIndex = 0; paramIndex < 3; ++paramIndex)
                 {
-
                     fittingMarquardt_nDimension_noSquares_singleFunction(func,parametersMin,
                                                                          parametersMax,parameters,
                                                                          parametersDelta,maxIterationsNr,
@@ -2096,6 +2082,8 @@ namespace interpolation
                     }
                     counter++;
 
+                    parameters = firstGuessParam;
+
                     if (dir == 0)
                         parameters[paramIndex] = MINVALUE(firstGuessParam[paramIndex] + directions[dir] * step * stepSize[paramIndex], parametersMax[paramIndex]);
                     else
@@ -2103,8 +2091,7 @@ namespace interpolation
 
                 }
             }
-
-            if ((counter > nrTrials) || ((R2Previous[0] != NODATA) && fabs(R2Previous[0]-R2Previous[nrMinima-1]) < deltaR2 ))
+            if ((counter > nrTrials))
                 break;
         }
 
