@@ -38,7 +38,7 @@
 
         GisObject();
 
-        gis::Crit3DRasterGrid* getRaster() { return rasterPtr; }
+        gis::Crit3DRasterGrid* getRasterPointer() { return rasterPtr; }
         Crit3DShapeHandler* getShapeHandler() { return shapePtr; }
         //NetCDFHandler* getNetcdfHandler() { return netcdfPtr; }
 

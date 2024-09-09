@@ -26,6 +26,8 @@
 
 #include <cmath>
 
+#include "basicMath.h"
+
 #include "formSelection.h"
 #include "dialogSelectField.h"
 #include "dialogUcmPrevailing.h"
@@ -195,7 +197,28 @@ void MainWindow::mouseMove(QPoint eventPos)
     if (! isInsideMap(eventPos)) return;
 
     Position pos = this->mapView->mapToScene(eventPos);
+
+    int rasterIndex = getSelectedRasterPos(false);
+    QString rasterValueStr = "";
+    if (rasterIndex != NODATA)
+    {
+        GisObject* myObject = myProject.objectList.at(unsigned(rasterIndex));
+        gis::Crit3DRasterGrid *myRaster = myObject->getRasterPointer();
+
+        double utmX, utmY;
+        gis::getUtmFromLatLon(myProject.gisSettings, pos.latitude(), pos.longitude(), &utmX, &utmY);
+        float value = myRaster->getValueFromXY(utmX, utmY);
+        if (! isEqual(value, myRaster->header->flag))
+        {
+            rasterValueStr = QString::number(value);
+        }
+    }
+
     QString infoStr = "Lat:" + QString::number(pos.latitude()) + "  Lon:" + QString::number(pos.longitude());
+    if (rasterValueStr != "")
+    {
+        infoStr += " Value: " + rasterValueStr;
+    }
 
     this->ui->statusBar->showMessage(infoStr);
 }
@@ -324,7 +347,7 @@ void MainWindow::addRasterObject(GisObject* myObject)
 
     RasterUtmObject* newRasterObj = new RasterUtmObject(mapView);
     newRasterObj->setOpacity(0.66);
-    newRasterObj->initialize(myObject->getRaster(), myObject->gisSettings);
+    newRasterObj->initialize(myObject->getRasterPointer(), myObject->gisSettings);
     this->rasterObjList.push_back(newRasterObj);
 
     this->mapView->scene()->addObject(newRasterObj);
@@ -347,11 +370,11 @@ void MainWindow::addNetcdfObject(GisObject* myObject)
 
     if (netcdfPtr->isLatLon || netcdfPtr->isRotatedLatLon)
     {
-        netcdfObj->initializeLatLon(netcdfPtr->getRaster(), myObject->gisSettings, netcdfPtr->latLonHeader, true);
+        netcdfObj->initializeLatLon(netcdfPtr->getRasterPointer(), myObject->gisSettings, netcdfPtr->latLonHeader, true);
     }
     else
     {
-        netcdfObj->initializeUTM(netcdfPtr->getRaster(), myObject->gisSettings, true);
+        netcdfObj->initializeUTM(netcdfPtr->getRasterPointer(), myObject->gisSettings, true);
     }
 
     this->rasterObjList.push_back(netcdfObj);
@@ -484,13 +507,13 @@ int MainWindow::getRasterIndex(GisObject* myObject)
     {
         if (myObject->type == gisObjectRaster)
         {
-            if (rasterObjList.at(i)->getRasterPointer() == myObject->getRaster())
+            if (rasterObjList.at(i)->getRasterPointer() == myObject->getRasterPointer())
                 return i;
         }
         /*
         else if (myObject->type == gisObjectNetcdf)
         {
-            if (rasterObjList.at(i)->getRaster() == myObject->getNetcdfHandler()->getRaster())
+            if (rasterObjList.at(i)->getRasterPointer() == myObject->getNetcdfHandler()->getRasterPointer())
                 return i;
         }
         */
@@ -539,7 +562,7 @@ void MainWindow::saveRaster(GisObject* myObject)
 
     std::string errorStr;
     fileName = fileName.left(fileName.length() - 4);
-    if (! gis::writeEsriGrid(fileName.toStdString(), myObject->getRaster(), errorStr))
+    if (! gis::writeEsriGrid(fileName.toStdString(), myObject->getRasterPointer(), errorStr))
     {
         QMessageBox::information(nullptr, "ERROR!", QString::fromStdString(errorStr));
     }
@@ -873,7 +896,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         {
             if (myObject->type == gisObjectRaster)
             {
-                setGrayScale(myObject->getRaster()->colorScale);
+                setGrayScale(myObject->getRasterPointer()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
             if (myObject->type == gisObjectShape)
@@ -886,7 +909,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         {
             if (myObject->type == gisObjectRaster)
             {
-                setDefaultScale(myObject->getRaster()->colorScale);
+                setDefaultScale(myObject->getRasterPointer()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
             if (myObject->type == gisObjectShape)
@@ -899,7 +922,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         {
             if (myObject->type == gisObjectRaster)
             {
-                setDTMScale(myObject->getRaster()->colorScale);
+                setDTMScale(myObject->getRasterPointer()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
             if (myObject->type == gisObjectShape)
@@ -912,7 +935,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         {
             if (myObject->type == gisObjectRaster)
             {
-                reverseColorScale(myObject->getRaster()->colorScale);
+                reverseColorScale(myObject->getRasterPointer()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
             else if (myObject->type == gisObjectShape)
@@ -1336,6 +1359,28 @@ void MainWindow::on_actionCompute_anomaly_triggered()
 }
 
 
+int MainWindow::getSelectedRasterPos(bool isInfo)
+{
+    if (rasterObjList.empty())
+    {
+        if (isInfo)
+            QMessageBox::information(nullptr, "No raster loaded", "Load a raster before.");
+        return NODATA;
+    }
+
+    QListWidgetItem * itemSelected = ui->checkList->currentItem();
+
+    if (itemSelected == nullptr || ! itemSelected->text().contains("RASTER"))
+    {
+        if (isInfo)
+            QMessageBox::information(nullptr, "No raster selected", "Select a raster before.");
+        return NODATA;
+    }
+
+    return ui->checkList->row(itemSelected);
+}
+
+
 int MainWindow::getSelectedShapePos()
 {
     if (shapeObjList.empty())
@@ -1415,7 +1460,7 @@ gis::Crit3DRasterGrid* MainWindow::selectRaster(const QString &title, QString &r
         if (myProject.objectList[i]->fileName == rasterFileName)
         {
             isOk = true;
-            return myProject.objectList[i]->getRaster();
+            return myProject.objectList[i]->getRasterPointer();
         }
     }
 
