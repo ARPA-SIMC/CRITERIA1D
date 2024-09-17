@@ -1761,7 +1761,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
     int infoStep = 0;
     if (showInfo)
     {
-        infoStep = setProgressBar("Aggregating data...", this->meteoGridDbHandler->gridStructure().header().nrRows);
+        infoStep = setProgressBar("Creating data array...", this->meteoGridDbHandler->gridStructure().header().nrRows);
     }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
@@ -1803,8 +1803,16 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
      int nrDays = int(startDate.daysTo(endDate) + 1);
      std::vector< std::vector<float> > dailyElabAggregation(nrDays, std::vector<float>(int(zoneGrid->maximum), NODATA));
 
+     if (showInfo)
+     {
+         infoStep = setProgressBar("Computing spatial elaborations...", nrDays);
+     }
+
      for (int day = 0; day < nrDays; day++)
      {
+         if (showInfo && (day % infoStep) == 0)
+             updateProgressBar(day);
+
          for (int zoneRow = 0; zoneRow < zoneGrid->header->nrRows; zoneRow++)
          {
              for (int zoneCol = 0; zoneCol < zoneGrid->header->nrCols; zoneCol++)
@@ -1886,8 +1894,10 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
          }
      }
 
+     if (showInfo) closeProgressBar();
+
      // save dailyElabAggregation result into DB
-     if (showInfo) setProgressBar("Save data...", 0);
+     if (showInfo) setProgressBar("Saving data...", 0);
      if (! aggregationDbHandler->saveAggrData(int(zoneGrid->maximum), aggregationString, periodType,
                                              startDate, endDate, variable, dailyElabAggregation))
      {
@@ -2673,7 +2683,6 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
 
     // order variables for derived computation
     std::string errString;
-    QString myError;
     int myHour;
     QDate myDate = dateIni;
     frequencyType myFreq = getVarFrequency(myVar);
@@ -2685,24 +2694,23 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             return false;
     }
 
+    QFile file(filename);
+    if (! file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        errorString = "Error writing to file " + filename;
+        return false;
+    }
+
     // loading point data
     logInfoGUI("Loading meteo points data from " + dateIni.addDays(-1).toString("yyyy-MM-dd") + " to " + dateFin.toString("yyyy-MM-dd"));
     // load one day before (for transmissivity)
     if (! loadMeteoPointsData(dateIni, dateFin, myFreq == hourly, myFreq == daily, false))
         return false;
 
-    crossValidationStatistics stats;
-    QFile file(filename);
-    if (! file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        myError = "Error writing to file " + filename;
-        return false;
-    }
-
     Crit3DTime myTime;
 
     QTextStream cvOutput(&file);
-    cvOutput << "Time,MAE,MBE,RMSE,CRE,R2" << '\n';
+    cvOutput << "Time,MAE,MBE,RMSE,NS,R2" << '\n';
 
     logInfoGUI("Cross validating " + QString::fromStdString(getMeteoVarName(myVar)) + " from " + dateIni.toString("yyyy-MM-dd") + " to " + dateFin.toString("yyyy-MM-dd"));
     while (myDate <= dateFin)
@@ -2715,14 +2723,14 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             {
                 myTime = getCrit3DTime(myDate, myHour);
 
-                if (interpolationCv(myVar, myTime, &stats))
+                if (interpolationCv(myVar, myTime))
                 {
                     cvOutput << getQDateTime(myTime).toString();
-                    cvOutput << "," << stats.getMeanAbsoluteError();
-                    cvOutput << "," << stats.getMeanBiasError();
-                    cvOutput << "," << stats.getRootMeanSquareError();
-                    cvOutput << "," << stats.getCompoundRelativeError();
-                    cvOutput << "," << stats.getR2() << '\n';
+                    cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
+                    cvOutput << "," << crossValidationStatistics.getMeanBiasError();
+                    cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
+                    cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
+                    cvOutput << "," << crossValidationStatistics.getR2() << '\n';
                 }
             }
         }
@@ -2730,14 +2738,14 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         {
             myTime = getCrit3DTime(myDate, 0);
 
-            if (interpolationCv(myVar, myTime, &stats))
+            if (interpolationCv(myVar, myTime))
             {
                 cvOutput << getQDateTime(myTime).date().toString();
-                cvOutput << "," << stats.getMeanAbsoluteError();
-                cvOutput << "," << stats.getMeanBiasError();
-                cvOutput << "," << stats.getRootMeanSquareError();
-                cvOutput << "," << stats.getCompoundRelativeError();
-                cvOutput << "," << stats.getR2() << '\n';
+                cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
+                cvOutput << "," << crossValidationStatistics.getMeanBiasError();
+                cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
+                cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
+                cvOutput << "," << crossValidationStatistics.getR2() << '\n';
             }
         }
 

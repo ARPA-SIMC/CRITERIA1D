@@ -1081,7 +1081,7 @@ void localSelection(vector <Crit3DInterpolationDataPoint> &inputPoints, vector <
                     float x, float y, Crit3DInterpolationSettings& mySettings)
 {
     // search more stations to assure min points with all valid proxies
-    float ratioMinPoints = float(1.3);
+    float ratioMinPoints = float(1.2);
     unsigned minPoints = unsigned(mySettings.getMinPointsLocalDetrending() * ratioMinPoints);
     if (inputPoints.size() <= minPoints)
     {
@@ -1094,7 +1094,7 @@ void localSelection(vector <Crit3DInterpolationDataPoint> &inputPoints, vector <
         inputPoints[i].distance = gis::computeDistance(x, y, float((inputPoints[i]).point->utm.x), float((inputPoints[i]).point->utm.y));
 
     unsigned int nrValid = 0;
-    float stepRadius = 1000;           // [m]
+    float stepRadius = 7500;           // [m]
     float r0 = 0;                       // [m]
     float r1 = stepRadius;              // [m]
     unsigned int i;
@@ -1116,6 +1116,8 @@ void localSelection(vector <Crit3DInterpolationDataPoint> &inputPoints, vector <
                     nrPrimaries++;
             }
         }
+        if (nrValid > int(minPoints*0.8))
+            stepRadius = 1000;
         r0 = r1;
         r1 += stepRadius;
     }
@@ -2204,10 +2206,10 @@ float interpolate(vector <Crit3DInterpolationDataPoint> &myPoints, Crit3DInterpo
         myResult = modifiedShepardIdw(myPoints, mySettings, radius, myX, myY);
     }
 
-    if (int(myResult) != int(NODATA))
-        myResult += retrend(myVar, myProxyValues, mySettings);
-    else
+    if (int(myResult) == int(NODATA))
         return NODATA;
+    else if (!mySettings->getUseDoNotRetrend())
+        myResult += retrend(myVar, myProxyValues, mySettings);
 
     if (myVar == precipitation || myVar == dailyPrecipitation)
     {
