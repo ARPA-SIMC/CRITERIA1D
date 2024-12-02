@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stdio.h>
 #include <cmath>
 
@@ -133,6 +134,7 @@ bool computeResiduals(meteoVariable myVar, Crit3DMeteoPoint* meteoPoints, int nr
     return true;
 }
 
+
 bool computeResidualsLocalDetrending(meteoVariable myVar, Crit3DTime myTime, Crit3DMeteoPoint* meteoPoints, int nrMeteoPoints,
                                               std::vector <Crit3DInterpolationDataPoint> &interpolationPoints, Crit3DInterpolationSettings* settings,
                                               Crit3DMeteoSettings* meteoSettings, Crit3DClimateParameters* climateParameters,
@@ -159,7 +161,8 @@ bool computeResidualsLocalDetrending(meteoVariable myVar, Crit3DTime myTime, Cri
             float myValue = meteoPoints[i].currentValue;
 
             std::vector <Crit3DInterpolationDataPoint> subsetInterpolationPoints;
-            localSelection(interpolationPoints, subsetInterpolationPoints, meteoPoints->point.utm.x, meteoPoints->point.utm.y, *settings);
+            localSelection(interpolationPoints, subsetInterpolationPoints, float(meteoPoints[i].point.utm.x),
+                           float(meteoPoints[i].point.utm.y), *settings);
             if (! preInterpolation(subsetInterpolationPoints, settings, meteoSettings,
                                   climateParameters, meteoPoints, nrMeteoPoints, myVar, myTime, errorStdString))
             {
@@ -338,7 +341,7 @@ bool checkData(Crit3DQuality* myQuality, meteoVariable myVar, Crit3DMeteoPoint* 
         for (int i = 0; i < nrMeteoPoints; i++)
         {
             meteoPoints[i].currentValue = meteoPoints[i].elaboration;
-            if (int(meteoPoints[i].currentValue) != int(NODATA))
+            if (isEqual(meteoPoints[i].currentValue, NODATA))
                 meteoPoints[i].quality = quality::accepted;
             else
                 meteoPoints[i].quality = quality::missing_data;
@@ -350,7 +353,7 @@ bool checkData(Crit3DQuality* myQuality, meteoVariable myVar, Crit3DMeteoPoint* 
         for (int i = 0; i < nrMeteoPoints; i++)
         {
             meteoPoints[i].currentValue = meteoPoints[i].anomaly;
-            if (int(meteoPoints[i].currentValue) != int(NODATA))
+            if (isEqual(meteoPoints[i].currentValue, NODATA))
                 meteoPoints[i].quality = quality::accepted;
             else
                 meteoPoints[i].quality = quality::missing_data;

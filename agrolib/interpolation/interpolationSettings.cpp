@@ -342,8 +342,16 @@ void Crit3DInterpolationSettings::setChosenElevationFunction(TFittingFunction ch
 
     int elPos = NODATA;
     for (int i = 0; i < getProxyNr(); i++)
+    {
         if (getProxyPragaName(getProxy(i)->getName()) == proxyHeight)
             elPos = i;
+        else //if a proxy has been checked by the user but has no ranges for its parameters, add them
+        {
+            if (getProxy(i)->getFittingParametersRange().empty() && getSelectedCombination().isProxyActive(i))
+
+                getProxy(i)->setFittingParametersRange({-1, -40, 1, 50});
+        }
+    }
 
     double MIN_T = -20;
     double MAX_T = 40;
@@ -401,6 +409,8 @@ void Crit3DInterpolationSettings::setChosenElevationFunction(TFittingFunction ch
             getProxy(elPos)->setFittingFunctionName(chosenFunction);          
         }
     }
+
+
 }
 
 void Crit3DInterpolationSettings::setPointsRange(double min, double max)
@@ -439,16 +449,22 @@ void Crit3DInterpolationSettings::initializeProxy()
 void Crit3DInterpolationSettings::initialize()
 {
     currentDEM = nullptr;
+	macroAreasMap = nullptr;
     interpolationMethod = idw;
     useThermalInversion = true;
     useTD = false;
     useLocalDetrending = false;
+	useGlocalDetrending = false;
+    useExcludeStationsOutsideDEM = false;
     topoDist_maxKh = 128;
     useDewPoint = true;
     useInterpolatedTForRH = true;
     useMultipleDetrending = false;
     useBestDetrending = false;
     useLapseRateCode = false;
+    useDoNotRetrend = false;
+    useRetrendOnly = false;
+
     minRegressionR2 = float(PEARSONSTANDARDTHRESHOLD);
     meteoGridAggrMethod = aggrAverage;
     meteoGridUpscaleFromDem = true;
@@ -456,6 +472,7 @@ void Crit3DInterpolationSettings::initialize()
 
     fittingFunction.clear();
     fittingParameters.clear();
+    macroAreas.clear();
 
     isKrigingReady = false;
     precipitationAllZero = false;
@@ -468,6 +485,7 @@ void Crit3DInterpolationSettings::initialize()
 
     initializeProxy();
 }
+
 
 std::string getKeyStringInterpolationMethod(TInterpolationMethod value)
 {
@@ -501,6 +519,26 @@ std::string getKeyStringElevationFunction(TFittingFunction value)
     return key;
 }
 
+void Crit3DInterpolationSettings::setMacroAreasMap(gis::Crit3DRasterGrid *value)
+{
+    macroAreasMap = value;
+}
+
+gis::Crit3DRasterGrid* Crit3DInterpolationSettings::getMacroAreasMap()
+{
+    return macroAreasMap;
+}
+
+std::vector<Crit3DMacroArea> Crit3DInterpolationSettings::getMacroAreas()
+{
+    return macroAreas;
+}
+
+void Crit3DInterpolationSettings::setMacroAreas(std::vector<Crit3DMacroArea> myAreas)
+{
+    macroAreas = myAreas;
+}
+
 TInterpolationMethod Crit3DInterpolationSettings::getInterpolationMethod()
 { return interpolationMethod;}
 
@@ -510,8 +548,14 @@ bool Crit3DInterpolationSettings::getUseTD()
 bool Crit3DInterpolationSettings::getUseLocalDetrending()
 { return useLocalDetrending;}
 
+bool Crit3DInterpolationSettings::getUseGlocalDetrending()
+{ return useGlocalDetrending;}
+
 bool Crit3DInterpolationSettings::getUseDoNotRetrend()
 { return useDoNotRetrend;}
+
+bool Crit3DInterpolationSettings::getUseRetrendOnly()
+{ return useRetrendOnly;}
 
 float Crit3DInterpolationSettings::getMaxHeightInversion()
 { return maxHeightInversion;}
@@ -525,20 +569,32 @@ void Crit3DInterpolationSettings::setUseThermalInversion(bool myValue)
     selectedCombination.setUseThermalInversion(myValue);
 }
 
+void Crit3DInterpolationSettings::setUseExcludeStationsOutsideDEM(bool myValue)
+{ useExcludeStationsOutsideDEM = myValue; }
+
 void Crit3DInterpolationSettings::setUseTD(bool myValue)
 { useTD = myValue;}
 
 void Crit3DInterpolationSettings::setUseLocalDetrending(bool myValue)
 { useLocalDetrending = myValue;}
 
+void Crit3DInterpolationSettings::setUseGlocalDetrending(bool myValue)
+{ useGlocalDetrending = myValue;}
+
 void Crit3DInterpolationSettings::setUseDoNotRetrend(bool myValue)
 { useDoNotRetrend = myValue;}
+
+void Crit3DInterpolationSettings::setUseRetrendOnly(bool myValue)
+{ useRetrendOnly = myValue;}
 
 void Crit3DInterpolationSettings::setUseDewPoint(bool myValue)
 { useDewPoint = myValue;}
 
 bool Crit3DInterpolationSettings::getUseThermalInversion()
 { return (useThermalInversion);}
+
+bool Crit3DInterpolationSettings::getUseExcludeStationsOutsideDEM()
+{ return (useExcludeStationsOutsideDEM); }
 
 bool Crit3DInterpolationSettings::getUseDewPoint()
 { return (useDewPoint);}
@@ -558,6 +614,11 @@ int Crit3DInterpolationSettings::getProxyPosFromName(TProxyVar name)
     }
 
     return NODATA;
+}
+
+bool Crit3DInterpolationSettings::isGlocalReady()
+{
+    return (getMacroAreasMap() != nullptr && getMacroAreas().size() > 0);
 }
 
 std::string Crit3DProxy::getName() const
@@ -952,5 +1013,19 @@ bool Crit3DInterpolationSettings::getCombination(int combinationInteger, Crit3DP
     outCombination.setUseThermalInversion(binaryString[binaryString.length()-1] == '1' && selectedCombination.getUseThermalInversion());
 
     return true;
+}
+
+Crit3DMacroArea::Crit3DMacroArea()
+{
+    this->clear();
+}
+
+
+void Crit3DMacroArea::clear()
+{
+    areaCells.clear();
+    areaParameters.clear();
+    areaCombination.clear();
+    meteoPoints.clear();
 }
 
