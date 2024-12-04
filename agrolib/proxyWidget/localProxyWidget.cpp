@@ -33,31 +33,63 @@ Crit3DLocalProxyWidget::Crit3DLocalProxyWidget(double x, double y, double zDEM, 
     QVBoxLayout *selectionOptionLayout = new QVBoxLayout;
     QHBoxLayout *selectionOptionBoxLayout = new QHBoxLayout;
     QHBoxLayout *selectionOptionEditLayout = new QHBoxLayout;
+    QHBoxLayout *parametersListLayoutUp = new QHBoxLayout;
+    QHBoxLayout *parametersListLayoutMiddle = new QHBoxLayout;
+    QHBoxLayout *parametersListLayoutDown = new QHBoxLayout;
+    QVBoxLayout *parametersListLayout = new QVBoxLayout;
 
     detrended.setText("Detrended data");
-    climatologicalLR.setText("Climate lapserate");
     modelLR.setText("Model lapse rate");
     stationWeights.setText("See weight of stations");
 
     //temporaneamente disattivati
     detrended.setVisible(false);
-    climatologicalLR.setVisible(false);
-    climatologicalLR.setEnabled(false);
-
     QLabel *r2Label = new QLabel(tr("R2"));
-    QLabel *lapseRateLabel = new QLabel(tr("Lapse rate"));
 
     r2.setMaximumWidth(60);
     r2.setMinimumHeight(25);
     r2.setMaximumHeight(25);
     r2.setEnabled(false);
-    lapseRate.setMaximumWidth(60);
-    lapseRate.setMinimumHeight(25);
-    lapseRate.setMaximumHeight(25);
-    lapseRate.setEnabled(false);
 
     QLabel *variableLabel = new QLabel(tr("Variable"));
     QLabel *axisXLabel = new QLabel(tr("Axis X"));
+
+    QLabel *par0Label = new QLabel(tr("par0"));
+    QLabel *par1Label = new QLabel(tr("par1"));
+    QLabel *par2Label = new QLabel(tr("par2"));
+    QLabel *par3Label = new QLabel(tr("par3"));
+    QLabel *par4Label = new QLabel(tr("par4"));
+    QLabel *par5Label = new QLabel(tr("par5"));
+
+    par0.setMaximumWidth(90);
+    par0.setMinimumHeight(25);
+    par0.setMaximumHeight(25);
+    par0.setEnabled(false);
+
+    par1.setMaximumWidth(90);
+    par1.setMinimumHeight(25);
+    par1.setMaximumHeight(25);
+    par1.setEnabled(false);
+
+    par2.setMaximumWidth(90);
+    par2.setMinimumHeight(25);
+    par2.setMaximumHeight(25);
+    par2.setEnabled(false);
+
+    par3.setMaximumWidth(90);
+    par3.setMinimumHeight(25);
+    par3.setMaximumHeight(25);
+    par3.setEnabled(false);
+
+    par4.setMaximumWidth(90);
+    par4.setMinimumHeight(25);
+    par4.setMaximumHeight(25);
+    par4.setEnabled(false);
+
+    par5.setMaximumWidth(90);
+    par5.setMinimumHeight(25);
+    par5.setMaximumHeight(25);
+    par5.setEnabled(false);
 
     std::vector<Crit3DProxy> proxy = interpolationSettings->getCurrentProxy();
 
@@ -67,14 +99,6 @@ Crit3DLocalProxyWidget::Crit3DLocalProxyWidget(double x, double y, double zDEM, 
     }
     proxyPos = 0;
     comboAxisX.setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    if (comboAxisX.currentText() != "elevation")
-    {
-        climatologicalLR.setVisible(false);
-    }
-    else
-    {
-        climatologicalLR.setVisible(true);
-    }
 
     std::map<meteoVariable, std::string>::const_iterator it;
     if (currentFrequency == daily)
@@ -101,16 +125,33 @@ Crit3DLocalProxyWidget::Crit3DLocalProxyWidget(double x, double y, double zDEM, 
     selectionChartLayout->addWidget(axisXLabel);
     selectionChartLayout->addWidget(&comboAxisX);
 
+    parametersListLayoutUp->addWidget(par0Label);
+    parametersListLayoutUp->addWidget(&par0);
+    parametersListLayoutUp->addWidget(par3Label);
+    parametersListLayoutUp->addWidget(&par3);
+    parametersListLayoutMiddle->addWidget(par1Label);
+    parametersListLayoutMiddle->addWidget(&par1);
+    parametersListLayoutMiddle->addWidget(par4Label);
+    parametersListLayoutMiddle->addWidget(&par4);
+    parametersListLayoutDown->addWidget(par2Label);
+    parametersListLayoutDown->addWidget(&par2);
+    parametersListLayoutDown->addWidget(par5Label);
+    parametersListLayoutDown->addWidget(&par5);
+
+    parametersListLayout->addStretch(150);
+    parametersListLayout->addStretch(150);
+    parametersListLayout->addStretch(150);
+    parametersListLayout->addLayout(parametersListLayoutUp);
+    parametersListLayout->addLayout(parametersListLayoutMiddle);
+    parametersListLayout->addLayout(parametersListLayoutDown);
+
     selectionOptionBoxLayout->addWidget(&detrended);
     selectionOptionBoxLayout->addWidget(&modelLR);
-    selectionOptionBoxLayout->addWidget(&climatologicalLR);
     selectionOptionBoxLayout->addWidget(&stationWeights);
 
     selectionOptionEditLayout->addWidget(r2Label);
     selectionOptionEditLayout->addWidget(&r2);
     selectionOptionEditLayout->addStretch(150);
-    selectionOptionEditLayout->addWidget(lapseRateLabel);
-    selectionOptionEditLayout->addWidget(&lapseRate);
     selectionOptionEditLayout->addStretch(150);
     selectionOptionEditLayout->addStretch(150);
 
@@ -118,6 +159,8 @@ Crit3DLocalProxyWidget::Crit3DLocalProxyWidget(double x, double y, double zDEM, 
     selectionOptionLayout->addLayout(selectionOptionEditLayout);
 
     selectionLayout->addLayout(selectionChartLayout);
+    selectionLayout->addStretch(30);
+    selectionLayout->addLayout(parametersListLayout);
     selectionLayout->addStretch(30);
     selectionLayout->addLayout(selectionOptionLayout);
 
@@ -146,7 +189,6 @@ Crit3DLocalProxyWidget::Crit3DLocalProxyWidget(double x, double y, double zDEM, 
 
     connect(&comboAxisX, &QComboBox::currentTextChanged, [=](const QString &newProxy){ this->changeProxyPos(newProxy); });
     connect(&comboVariable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ this->changeVar(newVariable); });
-    connect(&climatologicalLR, &QCheckBox::toggled, [=](int toggled){ this->climatologicalLRClicked(toggled); });
     connect(&modelLR, &QCheckBox::toggled, [=](int toggled){ this->modelLRClicked(toggled); });
     connect(&detrended, &QCheckBox::toggled, [=](){ this->plot(); });
     connect(&stationWeights, &QCheckBox::toggled, [=] () {this->plot();});
@@ -286,7 +328,10 @@ void Crit3DLocalProxyWidget::plot()
         delete label;
     }
     weightLabels.clear();
+    int areaCode = NODATA;
 
+    if (interpolationSettings->getUseLocalDetrending())
+    {
     if (detrended.isChecked())
     {
         outInterpolationPoints.clear();
@@ -304,6 +349,52 @@ void Crit3DLocalProxyWidget::plot()
                                         interpolationSettings, meteoSettings, climateParam,
                                         outInterpolationPoints, checkSpatialQuality, errorStdStr);
         localSelection(outInterpolationPoints, subsetInterpolationPoints, x, y, *interpolationSettings);
+    }
+    }
+    else if (interpolationSettings->getUseGlocalDetrending())
+    {
+
+        areaCode = gis::getValueFromXY(*interpolationSettings->getMacroAreasMap(), x, y);
+        if (areaCode < interpolationSettings->getMacroAreas().size())
+        {
+            Crit3DMacroArea myArea = interpolationSettings->getMacroAreas()[areaCode];
+            std::vector<int> stations = myArea.getMeteoPoints();
+            if (detrended.isChecked())
+            {
+                outInterpolationPoints.clear();
+
+                checkAndPassDataToInterpolation(quality, myVar, meteoPoints, nrMeteoPoints, getCurrentTime(), SQinterpolationSettings,
+                                                interpolationSettings, meteoSettings, climateParam,
+                                                outInterpolationPoints, checkSpatialQuality, errorStdStr);
+
+                for (int k = 0; k < stations.size(); k++)
+                {
+                    for (int j = 0; j < outInterpolationPoints.size(); j++)
+                        if (outInterpolationPoints[j].index == stations[k])
+                        {
+                            subsetInterpolationPoints.push_back(outInterpolationPoints[j]);
+                        }
+                }
+
+                detrending(subsetInterpolationPoints, interpolationSettings->getSelectedCombination(), interpolationSettings, climateParam, myVar, getCurrentTime());
+            }
+            else
+            {
+                outInterpolationPoints.clear();
+                checkAndPassDataToInterpolation(quality, myVar, meteoPoints, nrMeteoPoints, getCurrentTime(), SQinterpolationSettings,
+                                                interpolationSettings, meteoSettings, climateParam,
+                                                outInterpolationPoints, checkSpatialQuality, errorStdStr);
+
+                for (int k = 0; k < stations.size(); k++)
+                {
+                    for (int j = 0; j < outInterpolationPoints.size(); j++)
+                        if (outInterpolationPoints[j].index == stations[k])
+                        {
+                            subsetInterpolationPoints.push_back(outInterpolationPoints[j]);
+                        }
+                }
+            }
+        }
     }
     QList<QPointF> pointListPrimary, pointListSecondary, pointListSupplemental, pointListMarked;
     QMap< QString, QPointF > idPointMap1;
@@ -381,7 +472,7 @@ void Crit3DLocalProxyWidget::plot()
             chartView->axisX->setTickCount(11);
         }
     }
-    else */
+    else
     {
         climatologicalLR.setVisible(true);
         if (climatologicalLR.isChecked())
@@ -395,7 +486,7 @@ void Crit3DLocalProxyWidget::plot()
         chartView->axisX->setMin(-100);
         chartView->axisX->setMax(nrStep * 100);
         chartView->axisX->setTickCount(nrStep+2);
-    }
+    }*/
 
     if (modelLR.isChecked())
     {
@@ -458,7 +549,12 @@ void Crit3DLocalProxyWidget::modelLRClicked(int toggled)
 {
     chartView->cleanModelLapseRate();
     r2.clear();
-    lapseRate.clear();
+    par0.clear();
+    par1.clear();
+    par2.clear();
+    par3.clear();
+    par4.clear();
+    par5.clear();
     QList<QPointF> point_vector;
     QPointF point;
     float xMin;
@@ -467,58 +563,113 @@ void Crit3DLocalProxyWidget::modelLRClicked(int toggled)
 
     if (toggled && subsetInterpolationPoints.size() != 0)
     {
-        if (comboAxisX.currentText() == "elevation")
+        int elevationPos = NODATA;
+        for (unsigned int pos=0; pos < interpolationSettings->getSelectedCombination().getProxySize(); pos++)
         {
+            if (getProxyPragaName(interpolationSettings->getProxy(pos)->getName()) == proxyHeight)
+                elevationPos = pos;
+        }
             std::string errorStr;
             setMultipleDetrendingHeightTemperatureRange(interpolationSettings);
             interpolationSettings->setCurrentCombination(interpolationSettings->getSelectedCombination());
             interpolationSettings->clearFitting();
-            if (! multipleDetrendingElevationFitting(proxyPos, subsetInterpolationPoints, interpolationSettings, myVar, errorStr)) return;
+            if (interpolationSettings->getUseLocalDetrending())
+            {
+                if (! multipleDetrendingElevationFitting(elevationPos, subsetInterpolationPoints, interpolationSettings, myVar, errorStr, true)) return;
+            }
+            else if (interpolationSettings->getUseGlocalDetrending())
+                if (! multipleDetrendingElevationFitting(elevationPos, subsetInterpolationPoints, interpolationSettings, myVar, errorStr, false)) return;
 
             std::vector<std::vector<double>> parameters = interpolationSettings->getFittingParameters();
 
-            if (!parameters.empty())
+            if (comboAxisX.currentText() == "elevation")
             {
-                if (parameters.front().size() > 3 && parameters.front().size() < 7)
+                if (!parameters.empty())
                 {
-                    xMin = getZmin(subsetInterpolationPoints);
-                    xMax = getZmax(subsetInterpolationPoints);
-
-                    if (interpolationSettings->getUseMultipleDetrending())
+                    if (parameters.front().size() > 3 && parameters.front().size() < 7)
                     {
-                        std::vector <double> xVector;
-                        for (int m = xMin; m < xMax; m += 5)
-                            xVector.push_back(m);
+                        xMin = getZmin(subsetInterpolationPoints);
+                        xMax = getZmax(subsetInterpolationPoints);
 
-                        for (int p = 0; p < int(xVector.size()); p++)
+                        if (interpolationSettings->getUseMultipleDetrending())
                         {
-                            point.setX(xVector[p]);
-                            if (parameters.front().size() == 4)
-                                point.setY(lapseRatePiecewise_two(xVector[p], parameters.front()));
-                            else if (parameters.front().size() == 5)
-                                point.setY(lapseRatePiecewise_three(xVector[p], parameters.front()));
-                            else if (parameters.front().size() == 6)
-                                point.setY(lapseRatePiecewise_three_free(xVector[p], parameters.front()));
-                            point_vector.append(point);
+                            std::vector <double> xVector;
+                            for (int m = xMin; m < xMax; m += 5)
+                                xVector.push_back(m);
+
+                            for (int p = 0; p < int(xVector.size()); p++)
+                            {
+                                point.setX(xVector[p]);
+                                if (parameters.front().size() == 4)
+                                    point.setY(lapseRatePiecewise_two(xVector[p], parameters.front()));
+                                else if (parameters.front().size() == 5)
+                                    point.setY(lapseRatePiecewise_three(xVector[p], parameters.front()));
+                                else if (parameters.front().size() == 6)
+                                    point.setY(lapseRatePiecewise_three_free(xVector[p], parameters.front()));
+                                point_vector.append(point);
+                            }
+
+                            if (interpolationSettings->getProxy(elevationPos)->getRegressionR2() != NODATA)
+                                r2.setText(QString("%1").arg(interpolationSettings->getProxy(elevationPos)->getRegressionR2(), 0, 'f', 3));
+
+                            if (parameters.front().size() > 3)
+                            {
+                                par0.setText(QString("%1").arg(parameters.front()[0], 0, 'f', 4));
+                                par1.setText(QString("%1").arg(parameters.front()[1], 0, 'f', 4));
+                                par2.setText(QString("%1").arg(parameters.front()[2], 0, 'f', 4));
+                                par3.setText(QString("%1").arg(parameters.front()[3], 0, 'f', 4));
+                            }
+                            if (parameters.front().size() > 4)
+                                par4.setText(QString("%1").arg(parameters.front()[4], 0, 'f', 4));
+                            if (parameters.front().size() > 5)
+                                par5.setText(QString("%1").arg(parameters.front()[5], 0, 'f', 4));
                         }
                     }
                 }
             }
-        }
-        else
-        {
-            //TODO: local proxy graph for other proxies
-            /*interpolationSettings->setCurrentCombination(interpolationSettings->getSelectedCombination());
-            interpolationSettings->clearFitting();
-            std::string errorStr;
-            if (! multipleDetrendingOtherProxiesFitting(proxyPos, subsetInterpolationPoints, interpolationSettings, myVar, errorStr)) return;
+            else
+            {
+                //TODO: OTHER PROXIES
+                /*std::string errorStr;
+                //detrendingElevation(elevationPos, outInterpolationPoints, interpolationSettings);
+                if (! multipleDetrendingOtherProxiesFitting(elevationPos, subsetInterpolationPoints, interpolationSettings, myVar, errorStr)) return;
 
-            std::vector<std::vector<double>> parameters = interpolationSettings->getFittingParameters();
-            if (!interpolationSettings->getFittingParameters().empty() && !interpolationSettings->getFittingFunction().empty())
-                detrendingOtherProxies(3, outInterpolationPoints, interpolationSettings);
-            */
+                parameters = interpolationSettings->getFittingParameters();
+                Crit3DProxyCombination myCombination = interpolationSettings->getCurrentCombination();
 
-        }
+                int pos = 0;
+                for (int i = 0; i < proxyPos + 1; i++)
+                    if (myCombination.isProxyActive(i) && myCombination.isProxySignificant(i)) pos++;
+                pos -= 1;
+
+                xMin = getZmin(subsetInterpolationPoints);
+                xMax = getZmax(subsetInterpolationPoints);
+
+                if (interpolationSettings->getUseMultipleDetrending() && pos < parameters.size())
+                {
+                    std::vector <double> xVector;
+                    for (int m = xMin; m < xMax; m += 5)
+                        xVector.push_back(m);
+
+                    for (int p = 0; p < int(xVector.size()); p++)
+                    {
+                        point.setX(xVector[p]);
+                        point.setY(functionLinear_intercept(xVector[p], parameters[pos]));
+                        point_vector.append(point);
+                    }
+
+                    if (interpolationSettings->getProxy(proxyPos)->getRegressionR2() != NODATA)
+                        r2.setText(QString("%1").arg(interpolationSettings->getProxy(proxyPos)->getRegressionR2(), 0, 'f', 3));
+
+                    if (parameters[pos].size() == 2)
+                    {
+                        par0.setText(QString("%1").arg(parameters[pos][0], 0, 'f', 4));
+                        par1.setText(QString("%1").arg(parameters[pos][1], 0, 'f', 4));
+                    }
+                }*/
+
+            }
+
         chartView->drawModelLapseRate(point_vector);
     }
 }

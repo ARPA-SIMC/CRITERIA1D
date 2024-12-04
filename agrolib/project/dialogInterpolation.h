@@ -24,12 +24,15 @@
             QLineEdit maxTdMultiplierEdit;
             QLineEdit minPointsLocalDetrendingEdit;
             QCheckBox* lapseRateCodeEdit;
+            QCheckBox* excludeStationsOutsideDEM;
             QCheckBox* thermalInversionEdit;
             QCheckBox* optimalDetrendingEdit;
             QCheckBox* multipleDetrendingEdit;
             QCheckBox* topographicDistanceEdit;
             QCheckBox* localDetrendingEdit;
+			QCheckBox* glocalDetrendingEdit;
             QCheckBox* doNotRetrendEdit;
+            QCheckBox* retrendOnlyEdit;
             QCheckBox* upscaleFromDemEdit;
             QCheckBox* useDewPointEdit;
             QCheckBox* useInterpolTForRH;
@@ -51,6 +54,7 @@
             void upscaleFromDemChanged(int active);
             void multipleDetrendingChanged(int active);
             void localDetrendingChanged(int active);
+            void glocalDetrendingChanged(int active);
             void optimalDetrendingChanged(int active);
     };
 
@@ -68,6 +72,13 @@
             QComboBox _table;
             QLineEdit _proxyGridName;
             QCheckBox _forQuality;
+            QTextEdit _param0;
+            QTextEdit _param1;
+            QTextEdit _param2;
+            QTextEdit _param3;
+            QTextEdit _param4;
+            QTextEdit _param5;
+
 
             void changedProxy(bool savePrevious);
             void changedTable();
