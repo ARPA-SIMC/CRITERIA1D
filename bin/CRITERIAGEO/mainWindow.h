@@ -114,6 +114,8 @@
         bool exportShapeToRaster_gdal(GisObject* myObject);
         bool exportToNetCDF(GisObject* myObject);
 
+        void rasterStatisticalSummary(GisObject* myObject);
+
         MapGraphicsShapeObject* getShapeObject(GisObject* myObject);
         RasterUtmObject* getRasterObject(GisObject* myObject);
 

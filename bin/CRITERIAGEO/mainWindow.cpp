@@ -39,7 +39,8 @@
 #include "shapeUtilities.h"
 #include "utilities.h"
 #include "formInfo.h"
-#include "mapGraphicsRasterObject.h"
+#include "gis.h"
+
 
 #ifdef GDAL
     #include "gdalExtensions.h"
@@ -56,7 +57,6 @@
 
 
 static CriteriaGeoProject myProject;
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -765,6 +765,33 @@ bool MainWindow::exportShapeToRaster_gdal(GisObject* myObject)
 }
 
 
+void MainWindow::rasterStatisticalSummary(GisObject* myObject)         //Qua dentro mettero la chiamata al gis...
+{
+    std::string errorStdStr;
+    int nrValidCells = NODATA;
+    float avgValue = NODATA;
+
+    if (! gis::rasterSummary(myObject->getRasterPointer(), nrValidCells, avgValue, errorStdStr))
+    {
+        QString errorString = QString::fromStdString(errorStdStr);
+        myProject.logError(errorString);
+        return;
+    }
+
+    if (nrValidCells == 0)
+    {
+        // logwarning
+        return;
+    }
+
+    // Creo lo scatolo di output:
+    gis::updateMinMaxRasterGrid(myObject->getRasterPointer());
+
+    // come faccio a passargli dentro le variabili calcolate?
+
+}
+
+
 void MainWindow::itemMenuRequested(const QPoint point)
 {
     QPoint itemPoint = ui->checkList->mapToGlobal(point);
@@ -817,6 +844,8 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addAction("Set default scale");
             submenu.addAction("Set dtm scale");
             submenu.addAction("Reverse color scale");
+            submenu.addSeparator();
+            submenu.addAction("Statistical summary");
             submenu.addSeparator();
 
             if (myRasterObject->opacity() < 1)
@@ -942,6 +971,13 @@ void MainWindow::itemMenuRequested(const QPoint point)
             {
                 reverseColorScale(myShapeObject->colorScale);
                 emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Statistical summary"))
+        {
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
+            {
+                this->rasterStatisticalSummary(myObject);
             }
         }
         else if (rightClickItem->text().contains("Set opaque"))
