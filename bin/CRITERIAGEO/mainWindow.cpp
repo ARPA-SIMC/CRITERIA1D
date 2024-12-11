@@ -1552,11 +1552,11 @@ void MainWindow::on_actionClipRaster_with_raster_triggered()
     // select raster
     QString refRasterFileName;
     bool isOk;
-    gis::Crit3DRasterGrid *refRaster = selectRaster("Select reference raster", refRasterFileName, isOk);
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Reference raster", refRasterFileName, isOk);
     if (! isOk) return;
 
     QString maskRasterFileName;
-    gis::Crit3DRasterGrid *maskRaster = selectRaster("Select mask raster", maskRasterFileName, isOk);
+    gis::Crit3DRasterGrid *maskRaster = selectRaster("Mask raster", maskRasterFileName, isOk);
     if (! isOk) return;
 
     gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
