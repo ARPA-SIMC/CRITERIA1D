@@ -780,15 +780,32 @@ void MainWindow::rasterStatisticalSummary(GisObject* myObject)         //Qua den
 
     if (nrValidCells == 0)
     {
-        // logwarning
+        myProject.logWarning("The raster selected has no valid values.");
         return;
     }
 
-    // Creo lo scatolo di output:
     gis::updateMinMaxRasterGrid(myObject->getRasterPointer());
 
-    // come faccio a passargli dentro le variabili calcolate?
+    float area = nrValidCells * myObject->getRasterPointer()->header->cellSize * myObject->getRasterPointer()->header->cellSize / 1000000;
 
+    QDialog myDialog;
+    myDialog.setWindowTitle("Raster statistics");
+
+    QTextBrowser textBrowser;
+
+    textBrowser.setText(QString("Raster name: " + myObject->fileName));
+    textBrowser.append(QString("Number of valid cells: " + QString::number(nrValidCells)));
+    textBrowser.append(QString("Valid area: " + QString::number(area) + " Km2"));
+    textBrowser.append(QString("Average: " + QString::number(avgValue)));
+    textBrowser.append(QString("Minimum: " + QString::number(myObject->getRasterPointer()->minimum)));
+    textBrowser.append(QString("Maximum: " + QString::number(myObject->getRasterPointer()->maximum)));
+
+    QVBoxLayout mainLayout;
+    mainLayout.addWidget(&textBrowser);
+
+    myDialog.setLayout(&mainLayout);
+    myDialog.setFixedSize(500,170);
+    myDialog.exec();
 }
 
 
