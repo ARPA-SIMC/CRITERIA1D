@@ -44,7 +44,7 @@ INCLUDEPATH +=  ../../mapGraphics \
 CONFIG += debug_and_release
 
 # comment to compile without GDAL library
-#CONFIG += GDAL
+CONFIG += GDAL
 
 GDAL {
     DEFINES += GDAL
