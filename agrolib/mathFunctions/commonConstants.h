@@ -109,7 +109,8 @@
     #define BOUNDARY_SOLUTEFLUX 30
     #define BOUNDARY_NONE 99
 
-    #define RELAXATION 1
+    #define GAUSS_SEIDEL 1
+    #define JACOBI 2
 
     // --------------- heat model -----------------
     #define SAVE_HEATFLUXES_NONE 0
@@ -159,6 +160,8 @@
     #define	MO2		0.032
     // [kg mol-1] mass of molecular nitrogen (N2)
     #define	MN2		0.028
+    // [kg mol-1] mass of air
+    #define M_AIR    0.029
     // [K] zero Celsius
     #define	ZEROCELSIUS	273.15
     // [] ratio molecular weight of water vapour/dry air

@@ -71,6 +71,12 @@ void PragaProject::clearPragaProject()
     }
 }
 
+
+QString PragaProject::getVersion()
+{
+    return "PRAGA V2.0.1 (2025)";
+}
+
 void PragaProject::createPragaProject(QString path_, QString name_, QString description_)
 {
     createProject(path_, name_, description_);
@@ -2946,6 +2952,10 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         if (! loadGlocalAreasMap()) return false;
         if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
     }
+
+    // save also derived variables
+    foreach (myVar, derivedVariables)
+        varToSave.push_back(myVar);
 
     // save also time aggregated variables
     foreach (myVar, aggrVariables)
