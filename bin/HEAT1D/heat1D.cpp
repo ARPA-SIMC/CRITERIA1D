@@ -160,7 +160,7 @@ bool initializeHeat1D(bool useInputSoils)
         else  depth[indexNode] = depth[indexNode-1] - myHeat1D.Thickness ;
     }
 
-    result = soilFluxes3D::initialize(myHeat1D.NodesNumber, (short) myHeat1D.NodesNumber, 0,
+    result = soilFluxes3D::initializeFluxes(myHeat1D.NodesNumber, (short) myHeat1D.NodesNumber, 0,
                                       myHeat1D.computeWater, myHeat1D.computeHeat, myHeat1D.computeSolutes);
     if (result != CRIT3D_OK) printf("\n error in initialize");
 
