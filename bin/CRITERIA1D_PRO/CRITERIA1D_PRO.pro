@@ -5,7 +5,7 @@
 #
 #-----------------------------------------------------------
 
-QT       += core gui widgets charts sql xml printsupport
+QT       += widgets charts sql xml printsupport
 
 TEMPLATE = app
 

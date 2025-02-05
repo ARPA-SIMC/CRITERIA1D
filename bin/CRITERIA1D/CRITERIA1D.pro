@@ -9,7 +9,7 @@
 
 
 QT -= gui
-QT += core sql xml
+QT += sql xml
 
 CONFIG += console
 TEMPLATE = app
