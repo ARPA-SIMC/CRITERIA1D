@@ -37,6 +37,7 @@
         double myDiffuseIrradiance;
         double myEmissivitySky;
         double myLongWaveIrradiance;
+        double psychrometricConstant;
 
     };
 
@@ -51,6 +52,7 @@
         double atmosphericPressure;
         //double meanDailyTemperature;
         double vaporPressureDeficit;
+        double last30DaysTAvg;
 
 
     };
@@ -59,7 +61,7 @@
     {
         double absorbedPAR ;
         double isothermalNetRadiation;
-        double leafAreaIndex ;
+        double leafAreaIndex;
         double totalConductanceHeatExchange;
         double aerodynamicConductanceHeatExchange;
         double aerodynamicConductanceCO2Exchange ;
@@ -71,6 +73,14 @@
         double compensationPoint, convexityFactorNonRectangularHyperbola ;
         double quantumYieldPS2 ;
         double assimilation,transpiration,stomatalConductance ;
+
+
+    };
+
+    struct TparameterWangLeuningFix
+    {
+        double optimalTemperatureForPhotosynthesis;
+        double stomatalConductanceMin;
 
 
     };
@@ -95,27 +105,47 @@
         // ~Crit3D_Hydrall();
 
         void initialize();
-        void initializeLeaf(TbigLeaf myLeaf);
-        //gis::Crit3DRasterGrid* stateMaps;
+        bool writeHydrallMaps;
 
         TbigLeaf sunlit,shaded;
         TweatherVariable weatherVariable;
-        double myChlorophyllContent;
-        double elevation;
+        TparameterWangLeuningFix parameterWangLeuningFix;
 
-        void radiationAbsorption(double mySunElevation, double leafAreaIndex);
+
+        double myChlorophyllContent;
+        double sineSolarElevation;
+        double elevation;
+        int simulationStepInSeconds;
+        double leafAreaIndex;
+        double plantHeight;
+        double myLeafWidth;
+        bool isAmphystomatic;
+
+        double directLightK;
+        double diffuseLightKPAR;
+        double diffuseLightKNIR;
+        double directLightKPAR;
+        double directLightKNIR;
+
+
+        void radiationAbsorption(double mySunElevation);
         void setHourlyVariables(double temp, double irradiance , double prec , double relativeHumidity , double windSpeed, double directIrradiance, double diffuseIrradiance, double cloudIndex);
         bool setWeatherVariables(double temp, double irradiance , double prec , double relativeHumidity , double windSpeed, double directIrradiance, double diffuseIrradiance, double cloudIndex);
         void setDerivedWeatherVariables(double directIrradiance, double diffuseIrradiance, double cloudIndex);
         void setPlantVariables(double chlorophyllContent);
+        bool computeHydrallPoint(Crit3DDate myDate, double myTemperature, double myElevation, int secondPerStep, double &AGBiomass, double &rootBiomass);
+        double getCO2(Crit3DDate myDate, double myTemperature, double myElevation);
+        //double getPressureFromElevation(double myTemperature, double myElevation);
+        double getLAI();
+        double meanLastMonthTemperature(double previousLastMonthTemp, double simulationStepInSeconds, double myInstantTemp);
+        double photosynthesisAndTranspiration();
+        void leafTemperature();
+        void aerodynamicalCoupling();
+        double leafWidth();
+        void upscale();
+        double acclimationFunction(double Ha , double Hd, double leafTemp, double entropicTerm,double optimumTemp);
 
     };
 
-    bool computeHydrallPoint(Crit3DDate myDate, double myTemperature, double myElevation, int secondPerStep);
-    double getCO2(Crit3DDate myDate, double myTemperature, double myElevation);
-    double getPressureFromElevation(double myTemperature, double myElevation);
-    double getLAI();
-    double meanLastMonthTemperature(double previousLastMonthTemp, double simulationStepInSeconds, double myInstantTemp);
-    double photosynthesisAndTranspiration();
 
 #endif // HYDRALL_H
