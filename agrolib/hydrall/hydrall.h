@@ -16,7 +16,9 @@
     // Tree-plant properties
     #define FORM   0.5          // stem form factor
     #define RHOF   0.1          // [KgDM m-3] foliage density
-    #define RHOS   750          // [KgDM m-3] wood-stem density
+    #define RHOS   750          // [KgDM m-3] default wood-stem density
+    #define LAIMIN 0.1          //[-]
+    #define LAIMAX 1            //[-]
 
     // Hydraulic properties
     #define H50     0.4         // height for 50% maturation of xylem cells (m) [not relevant]
@@ -81,6 +83,17 @@
     #define NOT_INITIALIZED_VINE -1
 
 
+    struct TstatePlant
+    {
+        double treeNetPrimaryProduction;
+        double treecumulatedBiomassFoliage;
+        double treecumulatedBiomassRoot;
+        double treecumulatedBiomassSapwood;
+        double understoreycumulatedBiomass;
+        double understoreycumulatedBiomassFoliage;
+        double understoreycumulatedBiomassRoot;
+    };
+
     struct TweatherDerivedVariable {
         double airVapourPressure;
         double emissivitySky;
@@ -106,6 +119,7 @@
         //double meanDailyTemperature;
         double vaporPressureDeficit;
         double last30DaysTAvg;
+        double meanDailyTemp;
 
 
     };
@@ -119,10 +133,21 @@
     struct Tplant {
 
         double myChlorophyllContent;
-        double height;
+        double height; // in cm
         double myLeafWidth;
         bool isAmphystomatic;
-
+        double foliageLongevity;
+        double sapwoodLongevity;
+        double fineRootLongevity;
+        double foliageDensity;
+        double woodDensity = RHOS;
+        double specificLeafArea;
+        double psiLeaf;
+        double psiLeafCritical;
+        double psiLeafMinimum;
+        double transpirationPerUnitFoliageAreaCritical;
+        double leafAreaIndexCanopy;
+        double leafAreaIndexCanopyMax;
 
     };
 
@@ -137,6 +162,11 @@
         std::vector <double> wiltingPoint;
         std::vector <double> fieldCapacity;
         std::vector <double> saturation;
+        std::vector <double> hydraulicConductivity;
+        std::vector <double> satHydraulicConductivity;
+        std::vector <double> nodeThickness;
+
+
     };
 
     struct TbigLeaf
@@ -189,6 +219,8 @@
         double respiration ;
         double transpirationGrass;
         double transpirationNoStress;
+        double evaporation;
+        double evapoTranspiration;
     };
 
     struct ThydrallNitrogen {
@@ -202,6 +234,13 @@
         double leaf ;
         double sapwood ;
         double fineRoot ;
+    };
+
+    struct TallocationCoefficient {
+
+        double toFoliage;
+        double toFineRoots;
+        double toSapwood;
     };
 
 
@@ -224,11 +263,13 @@
     class Crit3D_Hydrall{
     public:
 
-        // Crit3D_Hydrall();
-        // ~Crit3D_Hydrall();
+        //Crit3D_Hydrall();
+        //~Crit3D_Hydrall();
 
         void initialize();
-        bool writeHydrallMaps;
+        bool firstDayOfMonth;
+        int firstMonthVegetativeSeason;
+        bool isFirstYearSimulation;
 
         TbigLeaf sunlit,shaded, understorey;
         TweatherVariable weatherVariable;
@@ -241,12 +282,18 @@
         ThydrallDeltaTimeOutputs deltaTime;
         ThydrallNitrogen nitrogenContent;
         ThydrallBiomass treeBiomass, understoreyBiomass;
-
+        TstatePlant statePlant;
+        TallocationCoefficient allocationCoefficient;
 
 
         double elevation;
         int simulationStepInSeconds;
-        double leafAreaIndex;
+        double understoreyLeafAreaIndexMax;
+        double cover = 1; // TODO
+
+
+
+        double annualGrossStandGrowth;
 
         //gasflux results
         std::vector<double> treeTranspirationRate;          //molH2O m^-2 s^-1
@@ -263,7 +310,7 @@
         bool computeHydrallPoint(Crit3DDate myDate, double myTemperature, double myElevation, int secondPerStep, double &AGBiomass, double &rootBiomass);
         double getCO2(Crit3DDate myDate, double myTemperature, double myElevation);
         //double getPressureFromElevation(double myTemperature, double myElevation);
-        double getLAI();
+        double computeLAI(Crit3DDate myDate);
         double meanLastMonthTemperature(double previousLastMonthTemp, double simulationStepInSeconds, double myInstantTemp);
         double photosynthesisAndTranspiration();
         double photosynthesisAndTranspirationUnderstorey();
@@ -277,9 +324,13 @@
         void carbonWaterFluxesProfile();
         void cumulatedResults();
         double plantRespiration();
+        double computeEvaporation();
         double soilTemperatureModel();
         double temperatureMoistureFunction(double temperature);
         bool growthStand();
+        void resetStandVariables();
+        void optimal();
+        void rootfind(double &allf, double &allr, double &alls, bool &sol);
 
     };
 
