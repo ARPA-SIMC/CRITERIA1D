@@ -17,6 +17,8 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TEMPLATE = app
 
+VERSION = 1.8.7
+
 unix:{
     CONFIG(debug, debug|release) {
         TARGET = debug/CRITERIA_GEO
