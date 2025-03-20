@@ -2,6 +2,7 @@
     \name hydrall.cpp
     \brief
     \authors Antonio Volta, Caterina Toscano
+    \email avolta@arpae.it ctoscano@arpae.it
 
 */
 
@@ -12,6 +13,7 @@
 #include "commonConstants.h"
 #include "hydrall.h"
 #include "furtherMathFunctions.h"
+#include "basicMath.h"
 #include "physics.h"
 #include "statistics.h"
 
@@ -29,6 +31,7 @@ void Crit3DHydrallMaps::initialize(const gis::Crit3DRasterGrid& DEM)
     standBiomassMap->initializeGrid(DEM);
     rootBiomassMap->initializeGrid(DEM);
     mapLast30DaysTavg->initializeGrid(DEM);
+    treeSpeciesMap.initializeGrid(DEM);
 }
 
 Crit3DHydrallMaps::~Crit3DHydrallMaps()
@@ -39,16 +42,18 @@ Crit3DHydrallMaps::~Crit3DHydrallMaps()
     mapLast30DaysTavg->clear();
 }
 
-bool Crit3D_Hydrall::computeHydrallPoint(Crit3DDate myDate, double myTemperature, double myElevation, int secondPerStep, double &AGBiomass, double &rootBiomass)
+bool Crit3D_Hydrall::computeHydrallPoint(Crit3DDate myDate, double myTemperature, double myElevation, int secondPerStep)
 {
     //getCO2(myDate, myTemperature, myElevation);
 
 
     // da qui in poi bisogna fare un ciclo su tutte le righe e le colonne
     plant.leafAreaIndexCanopyMax = statePlant.treecumulatedBiomassFoliage *  plant.specificLeafArea / cover;
-    plant.leafAreaIndexCanopy = plant.leafAreaIndexCanopyMax * computeLAI(myDate);
+    plant.leafAreaIndexCanopy = MAXVALUE(5,plant.leafAreaIndexCanopyMax * computeLAI(myDate));
     understoreyLeafAreaIndexMax = statePlant.understoreycumulatedBiomassFoliage * plant.specificLeafArea;
-    understorey.leafAreaIndex = understoreyLeafAreaIndexMax* computeLAI(myDate);
+    understorey.leafAreaIndex = MAXVALUE(LAIMIN,understoreyLeafAreaIndexMax* computeLAI(myDate));
+
+    Crit3D_Hydrall::photosynthesisAndTranspiration();
 
     /* necessaria per ogni specie:
      *  il contenuto di clorofilla (g cm-2) il default è 500
@@ -62,7 +67,7 @@ bool Crit3D_Hydrall::computeHydrallPoint(Crit3DDate myDate, double myTemperature
     return true;
 }
 
-double Crit3D_Hydrall::getCO2(Crit3DDate myDate, double myTemperature, double myElevation)
+double Crit3D_Hydrall::getCO2(Crit3DDate myDate, double myTemperature)
 {
     double atmCO2 = 400 ; //https://www.eea.europa.eu/data-and-maps/daviz/atmospheric-concentration-of-carbon-dioxide-5/download.table
     double year[24] = {1750,1800,1850,1900,1910,1920,1930,1940,1950,1960,1970,1980,1990,2000,2010,2020,2030,2040,2050,2060,2070,2080,2090,2100};
@@ -70,20 +75,9 @@ double Crit3D_Hydrall::getCO2(Crit3DDate myDate, double myTemperature, double my
 
     atmCO2 = interpolation::linearInterpolation(double(myDate.year), year, valueCO2, 24);
 
-    // exponential fitting Mauna Loa
-    /*if (myDate.year < 1990)
-    {
-        atmCO2= 280 * exp(0.0014876*(myDate.year -1840));//exponential change in CO2 concentration (ppm)
-    }
-    else
-    {
-        atmCO2= 353 * exp(0.00630*(myDate.year - 1990));
-    }
-*/
-    atmCO2 += 3*cos(2*PI*getDoyFromDate(myDate)/365.0);		     // to consider the seasonal effects
-    //return atmCO2*getPressureFromElevation(myTemperature, myElevation)/1000000  ;   // [Pa] in +- ppm/10 formula changed from the original Hydrall
 
-    return atmCO2 * weatherVariable.atmosphericPressure/1000000;
+    atmCO2 += 3*cos(2*PI*getDoyFromDate(myDate)/365.0);		     // to consider the seasonal effects
+    return atmCO2 * weatherVariable.atmosphericPressure/1000000;   // [Pa] in +- ppm/10 formula changed from the original Hydrall
 }
 /*
 double Crit3D_Hydrall::getPressureFromElevation(double myTemperature, double myElevation)
@@ -110,11 +104,11 @@ double Crit3D_Hydrall::photosynthesisAndTranspiration()
     TweatherDerivedVariable weatherDerivedVariable;
 
     Crit3D_Hydrall::radiationAbsorption();
-    Crit3D_Hydrall::aerodynamicalCoupling();
-    Crit3D_Hydrall::upscale();
+    //Crit3D_Hydrall::aerodynamicalCoupling();
+    //Crit3D_Hydrall::upscale();
 
-    Crit3D_Hydrall::carbonWaterFluxesProfile();
-    Crit3D_Hydrall::cumulatedResults();
+    //Crit3D_Hydrall::carbonWaterFluxesProfile();
+    //Crit3D_Hydrall::cumulatedResults();
 
     return 0;
 }
@@ -209,12 +203,12 @@ bool Crit3D_Hydrall::setWeatherVariables(double temp, double irradiance , double
 void Crit3D_Hydrall::setDerivedWeatherVariables(double directIrradiance, double diffuseIrradiance, double cloudIndex)
 {
     weatherVariable.derived.airVapourPressure = saturationVaporPressure(weatherVariable.myInstantTemp)*weatherVariable.relativeHumidity/100.;
-    weatherVariable.derived.slopeSatVapPressureVSTemp = 2588464.2 / pow(240.97 + weatherVariable.myInstantTemp, 2) * exp(17.502 * weatherVariable.myInstantTemp / (240.97 + weatherVariable.myInstantTemp)) ;
+    weatherVariable.derived.slopeSatVapPressureVSTemp = 2588464.2 / POWER2(240.97 + weatherVariable.myInstantTemp) * exp(17.502 * weatherVariable.myInstantTemp / (240.97 + weatherVariable.myInstantTemp)) ;
     weatherVariable.derived.myDirectIrradiance = directIrradiance;
     weatherVariable.derived.myDiffuseIrradiance = diffuseIrradiance;
-    double myCloudiness = MINVALUE(1,MAXVALUE(0,cloudIndex));
+    double myCloudiness = BOUNDFUNCTION(0,1,cloudIndex);
     weatherVariable.derived.myEmissivitySky = 1.24 * pow((weatherVariable.derived.airVapourPressure/100.0) / (weatherVariable.myInstantTemp+ZEROCELSIUS),(1.0/7.0))*(1 - 0.84*myCloudiness)+ 0.84*myCloudiness;
-    weatherVariable.derived.myLongWaveIrradiance = pow(weatherVariable.myInstantTemp+ZEROCELSIUS,4) * weatherVariable.derived.myEmissivitySky * STEFAN_BOLTZMANN ;
+    weatherVariable.derived.myLongWaveIrradiance = POWER4(weatherVariable.myInstantTemp+ZEROCELSIUS) * weatherVariable.derived.myEmissivitySky * STEFAN_BOLTZMANN ;
     weatherVariable.derived.psychrometricConstant = psychro(weatherVariable.atmosphericPressure,weatherVariable.myInstantTemp);
     return;
 }
@@ -222,6 +216,38 @@ void Crit3D_Hydrall::setDerivedWeatherVariables(double directIrradiance, double 
 void Crit3D_Hydrall::setPlantVariables(double chlorophyllContent)
 {
     plant.myChlorophyllContent = chlorophyllContent;
+}
+
+void Crit3D_Hydrall::setStateVariables(Crit3DHydrallMaps &stateMap, int row, int col)
+{
+    stateVariable.standBiomass = stateMap.standBiomassMap->value[row][col];
+    stateVariable.rootBiomass = stateMap.rootBiomassMap->value[row][col];
+}
+
+void Crit3D_Hydrall::setSoilVariables(int iLayer, int currentNode,float checkFlag, int horizonIndex, double waterContent, double waterContentFC, double waterContentWP, int firstRootLayer, int lastRootLayer, double rootDensity)
+{
+    if (iLayer == 0)
+    {
+        soil.layersNr = 1;
+    }
+    (soil.layersNr)++;
+    soil.waterContent.resize(soil.layersNr);
+    soil.stressCoefficient.resize(soil.layersNr);
+    soil.rootDensity.resize(soil.layersNr);
+
+    if (currentNode != checkFlag)
+    {
+        soil.waterContent[iLayer] = waterContent;
+        soil.stressCoefficient[iLayer] = MINVALUE(1.0, (10*(soil.waterContent[iLayer]-waterContentWP))/(3*(waterContentFC-waterContentWP)));
+    }
+    soil.rootDensity[iLayer] = LOGICAL_IO((iLayer >= firstRootLayer && iLayer <= lastRootLayer),rootDensity,0);
+
+}
+
+void Crit3D_Hydrall::getStateVariables(Crit3DHydrallMaps &stateMap, int row, int col)
+{
+    stateMap.standBiomassMap->value[row][col] = stateVariable.standBiomass;
+    stateMap.rootBiomassMap->value[row][col] = stateVariable.rootBiomass;
 }
 
 void Crit3D_Hydrall::radiationAbsorption()
@@ -240,7 +266,7 @@ void Crit3D_Hydrall::radiationAbsorption()
     double directReflectionCoefficientPAR , directReflectionCoefficientNIR , diffuseReflectionCoefficientPAR , diffuseReflectionCoefficientNIR;
     //projection of the unit leaf area in the direction of the sun's beam, following Sellers 1985 (in Wang & Leuning 1998)
 
-    directLightExtinctionCoefficient.global = (0.5 - hemisphericalIsotropyParameter*(0.633-1.11*environmentalVariable.sineSolarElevation) - pow(hemisphericalIsotropyParameter,2)*(0.33-0.579*environmentalVariable.sineSolarElevation))/ environmentalVariable.sineSolarElevation;
+    directLightExtinctionCoefficient.global = (0.5 - hemisphericalIsotropyParameter*(0.633-1.11*environmentalVariable.sineSolarElevation) - POWER2(hemisphericalIsotropyParameter)*(0.33-0.579*environmentalVariable.sineSolarElevation))/ environmentalVariable.sineSolarElevation;
 
     /*Extinction coeff for canopy of black leaves, diffuse radiation
     The average extinctio coefficient is computed considering three sky sectors,
@@ -295,12 +321,14 @@ void Crit3D_Hydrall::radiationAbsorption()
         dum[15]= UPSCALINGFUNC(directLightExtinctionCoefficient.global,plant.leafAreaIndexCanopy) - UPSCALINGFUNC((2.0*directLightExtinctionCoefficient.global),plant.leafAreaIndexCanopy) ;
         // PAR absorbed by sunlit (1) and shaded (2) big-leaf (W m-2) from Wang & Leuning 1998
         sunlit.absorbedPAR = dum[5] * dum[11] + dum[6] * dum[12] + dum[7] * dum[15] ;
-        shaded.absorbedPAR = dum[5]*(UPSCALINGFUNC(diffuseLightExtinctionCoefficient.par,plant.leafAreaIndexCanopy)- dum[11]) + dum[6]*(UPSCALINGFUNC(directLightExtinctionCoefficient.par,plant.leafAreaIndexCanopy)- dum[12]) - dum[7] * dum[15];
+        shaded.absorbedPAR = dum[5]*(UPSCALINGFUNC(diffuseLightExtinctionCoefficient.par,plant.leafAreaIndexCanopy)- dum[11])
+                             + dum[6]*(UPSCALINGFUNC(directLightExtinctionCoefficient.par,plant.leafAreaIndexCanopy)- dum[12])
+                             - dum[7] * dum[15];
         // NIR absorbed by sunlit (1) and shaded (2) big-leaf (W m-2) fromWang & Leuning 1998
         sunlitAbsorbedNIR = dum[8]*dum[13]+dum[9]*dum[14]+dum[10]*dum[15];
         shadedAbsorbedNIR = dum[8]*(UPSCALINGFUNC(diffuseLightExtinctionCoefficient.nir,plant.leafAreaIndexCanopy)-dum[13])+dum[9]*(UPSCALINGFUNC(directLightExtinctionCoefficient.nir,plant.leafAreaIndexCanopy)- dum[14]) - dum[10] * dum[15];
         // Long-wave radiation balance by sunlit (1) and shaded (2) big-leaf (W m-2) from Wang & Leuning 1998
-        dum[16]= weatherVariable.derived.myLongWaveIrradiance -STEFAN_BOLTZMANN*pow(weatherVariable.myInstantTemp+ZEROCELSIUS,4); //negativo
+        dum[16]= weatherVariable.derived.myLongWaveIrradiance -STEFAN_BOLTZMANN*POWER4(weatherVariable.myInstantTemp+ZEROCELSIUS); //negativo
         dum[16] *= diffuseLightExtinctionCoefficient.global ;
         double emissivityLeaf, emissivitySoil;
         emissivityLeaf = 0.96 ; // supposed constant because variation is very small
@@ -590,7 +618,7 @@ void Crit3D_Hydrall::upscale()
     }
 }
 
-double Crit3D_Hydrall::acclimationFunction(double Ha , double Hd, double leafTemp,
+inline double Crit3D_Hydrall::acclimationFunction(double Ha , double Hd, double leafTemp,
                                              double entropicTerm,double optimumTemp)
 {
     // taken from Hydrall Model, Magnani UNIBO

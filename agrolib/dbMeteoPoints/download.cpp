@@ -7,21 +7,6 @@
 
 const QByteArray Download::_authorization = QString("Basic " + QString("ugo:Ul1ss&").toLocal8Bit().toBase64()).toLocal8Bit();
 
-Download::Download(QString dbName, QObject* parent) : QObject(parent)
-{
-    _dbMeteo = new DbArkimet(dbName);
-}
-
-Download::~Download()
-{
-    delete _dbMeteo;
-}
-
-DbArkimet* Download::getDbArkimet()
-{
-    return _dbMeteo;
-}
-
 
 bool Download::getPointProperties(const QList<QString> &datasetList, int utmZone, QString &errorString)
 {
@@ -481,7 +466,12 @@ bool Download::downloadDailyData(const QDate &startDate, const QDate &endDate, c
         }
         else
         {
-            _dbMeteo->createTmpTableDaily();
+            if (! _dbMeteo->createTmpTableDaily())
+            {
+                errorString = _dbMeteo->getErrorString();
+                return false;
+            }
+
             bool isFirstData = true;
             QString dateStr, idPoint, flag;
             int idArkimet, idVar;

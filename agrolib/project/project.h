@@ -56,10 +56,11 @@
     #define ERROR_DBGRID 4
     #define ERROR_OUTPUTPOINTLIST 5
 
-    #define ERROR_STR_MISSING_DB "Load a meteo points DB before."
+    #define ERROR_STR_MISSING_DB "Load a meteo points database before."
     #define ERROR_STR_MISSING_DEM "Load a Digital Elevation Model (DEM) before."
     #define ERROR_STR_MISSING_PROJECT "Open a project before."
     #define ERROR_STR_MISSING_GRID "Load a meteo grid DB before."
+    #define ERROR_STR_MISSING_NETCDF "Load a NetCDF file before."
     #define ERROR_STR_MISSING_POINT_GRID "Load a meteo points DB or a meteo grid before."
 
     class Crit3DMeteoWidget;
@@ -308,7 +309,7 @@
         bool setActiveStateWithCriteria(bool isActive);
         bool setSelectedStateWithCriteria();
         bool setMarkedFromPointList(QString fileName);
-        bool setMarkedPointsOfMacroArea(int areaNumber);
+        bool setMarkedPointsOfMacroArea(int areaNumber, bool viewNotActivePoints);
         bool deleteMeteoPoints(const QList<QString>& pointList);
         bool deleteMeteoPointsData(const QList<QString>& pointList);
         bool loadOutputPointList(QString fileName);
@@ -336,6 +337,8 @@
         Crit3DCrossValidationStatistics getCrossValidationStatistics() const;
         void setCrossValidationStatistics(const Crit3DCrossValidationStatistics &newCrossValidationStatistics);
         void getMeteoPointsCurrentValues(std::vector<float> &validValues);
+
+        bool readVmArkimetData(const QList<QString> &vmFileList, frequencyType frequency);
 
     private slots:
         void deleteMeteoWidgetPoint(int id);

@@ -4,6 +4,18 @@
     #ifndef _VECTOR_
         #include <vector>
     #endif
+    #ifndef POWER4
+        #define POWER4(x) ((x) * (x) * (x) * (x))
+    #endif
+    #ifndef POWER3
+        #define POWER3(x) ((x) * (x) * (x))
+    #endif
+    #ifndef POWER2
+        #define POWER2(x) ((x) * (x))
+    #endif
+    #ifndef LOGICAL_IO
+        #define LOGICAL_IO(logicCondition, val1, val2) ((logicCondition) ? (val1) : (val2))
+    #endif
 
     bool sameSignNoZero(float a, float b);
     bool sameSign(float a, float b);
@@ -25,9 +37,11 @@
     int sgn(float v);
     bool isEqual(float value1, float value2);
     bool isEqual(double value1, double value2);
+
     char* decimal_to_binary(unsigned int n, int nrBits);
     float getSinDecimalDegree(float angle);
     float getCosDecimalDegree(float angle);
+    double powerIntegerExponent(double base, int exponent);
 
     namespace sorting
     {
