@@ -31,9 +31,9 @@ void usage()
 int main(int argc, char *argv[])
 {
     QCoreApplication myApp(argc, argv);
-    std::cout << "CRITERIA-1D agro-hydrological model v1.8.7\n" << std::endl;
-
     Crit1DProject myProject;
+
+    std::cout << "CRITERIA-1D agro-hydrological model " << CRITERIA_VERSION << std::endl;
 
     QString appPath = myApp.applicationDirPath() + "/";
     QString projectFileName;

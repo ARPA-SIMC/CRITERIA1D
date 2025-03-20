@@ -11,6 +11,8 @@ TEMPLATE = app
 
 CONFIG += debug_and_release
 
+VERSION = 1.8.7
+
 unix:{
     CONFIG(debug, debug|release) {
         TARGET = debug/CRITERIA1D_PRO
