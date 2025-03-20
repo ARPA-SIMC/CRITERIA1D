@@ -56,14 +56,14 @@
 #define TOOLSWIDTH 260
 
 
-static CriteriaGeoProject myProject;
+CriteriaGeoProject myProject;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("CRITERIA GEO V1.8.7 (2025)");
+    setWindowTitle("CRITERIA GEO " + QString(CRITERIA_VERSION));
 
     isDoubleClick = false;
 
