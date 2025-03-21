@@ -42,7 +42,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QFileDialog>
-#include <QDebug>
+#include <QApplication>
 
 
 CriteriaGeoProject::CriteriaGeoProject()
@@ -347,27 +347,27 @@ bool CriteriaGeoProject::createShapeFromCsv(int shapeIndex, QString fileCsv, QSt
 int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputName)
 {
     FormInfo formInfo;
+    formInfo.start("Create CSV file...", 0);
+    qApp->processEvents();
 
     QString outputCsvFileName = output.path + "tmp/" + outputName +".csv";
-    int result;
-    if (! QFile(outputCsvFileName).exists())
+    int result = output.createCsvFileFromGUI(dateComputation, outputCsvFileName);
+    if (result != CRIT1D_OK)
     {
-        formInfo.start("Create CSV file...", 0);
-        result = output.createCsvFileFromGUI(dateComputation, outputCsvFileName);
-        if (result != CRIT1D_OK)
-        {
-            return result;
-        }
         formInfo.close();
+        return result;
     }
 
-    formInfo.start("Create output map...", 0);
+    formInfo.setText("Create output map...");
+    qApp->processEvents();
     result = output.createShapeFileFromGUI();
+    if (result != CRIT1D_OK)
+    {
+        formInfo.close();
+        return result;
+    }
 
     formInfo.close();
-
-    if (result != CRIT1D_OK)
-        logError("ERROR CODE " + QString::number(result));
 
     // clean .csv
     QFile::remove(output.path + "tmp/" + outputName +".csv");

@@ -1305,25 +1305,25 @@ void MainWindow::on_actionClose_Project_triggered()
 
 void MainWindow::on_actionOutput_Map_triggered()
 {
-    if (!myProject.output.getAllDbVariable())
+    if (! myProject.output.getAllDbVariable())
     {
-        QMessageBox::critical(nullptr, "Error", "Error in load db data variables:\n" + myProject.output.projectError);
+        myProject.logError("Error in load db data variables:\n" + myProject.output.projectError);
         return;
     }
     else
     {
         // add DTX
-        myProject.output.outputVariable.varName << "DT30" << "DT90" << "DT180" ;
+        myProject.output.outputVariable.varNameList << "DT30" << "DT90" << "DT180" ;
     }
     QDate firstDate;
     QDate lastDate;
-    if (!myProject.output.getDbDataDates(firstDate, lastDate))
+    if (! myProject.output.getDbDataDates(firstDate, lastDate))
     {
-        QMessageBox::critical(nullptr, "Ivalid first and last date db data.\n", myProject.output.projectError);
+        myProject.logError("Ivalid dates: " + myProject.output.projectError);
         return;
     }
 
-    DialogOutputMap outputMap(myProject.output.outputVariable.varName, firstDate, lastDate);
+    DialogOutputMap outputMap(myProject.output.outputVariable.varNameList, firstDate, lastDate);
     if (outputMap.result() != QDialog::Accepted)
     {
         return;
@@ -1332,17 +1332,17 @@ void MainWindow::on_actionOutput_Map_triggered()
     {
         // fill myProject.output.outputVariable
         QDate dateComputation;
-        myProject.output.outputVariable.varName.clear();
-        myProject.output.outputVariable.varName << outputMap.getTabMapVariable();
+        myProject.output.outputVariable.varNameList.clear();
+        myProject.output.outputVariable.varNameList << outputMap.getTabMapVariable();
         if (outputMap.getTabMapElab() == "daily value")
         {
-            myProject.output.outputVariable.computation << ""; // computation is empty
+            myProject.output.outputVariable.computationList << ""; // computation is empty
             dateComputation = outputMap.getTabMapDate();
             myProject.output.outputVariable.nrDays << "0";
         }
         else
         {
-            myProject.output.outputVariable.computation << outputMap.getTabMapElab();
+            myProject.output.outputVariable.computationList << outputMap.getTabMapElab();
             dateComputation = outputMap.getTabMapStartDate();
             myProject.output.outputVariable.nrDays << QString::number(outputMap.getTabMapStartDate().daysTo(outputMap.getTabMapEndDate()));
         }
@@ -1359,15 +1359,15 @@ void MainWindow::on_actionOutput_Map_triggered()
             myProject.output.outputVariable.climateComputation << "";
         }
 
-        QString fieldName = "outputVar";
-        myProject.output.outputVariable.outputVarName << fieldName;
+        QString fieldName = outputMap.getTabMapVariable();;
+        myProject.output.outputVariable.outputVarNameList << fieldName;
 
         // create CSV and shapeOutput
         QString outputName = outputMap.getTabMapOutputName();
         int result = myProject.createShapeOutput(dateComputation, outputName);
         if (result != CRIT1D_OK)
         {
-            QMessageBox::critical(nullptr, "ERROR", "createShapeOutput error");
+            myProject.logError("Error in createShapeOutput\n" + myProject.output.projectError);
             return;
         }
 
@@ -1377,7 +1377,7 @@ void MainWindow::on_actionOutput_Map_triggered()
 
         GisObject* myObject = myProject.objectList.back();
         this->addShapeObject(myObject);
-        setShapeStyle(myObject, fieldName.toStdString());
+        setShapeStyle(myObject, "outputVar");
     }
 }
 
