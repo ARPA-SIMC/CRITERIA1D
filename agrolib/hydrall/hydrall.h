@@ -260,6 +260,7 @@
         gis::Crit3DRasterGrid* mapLAI;
         gis::Crit3DRasterGrid* mapLast30DaysTavg;
         gis::Crit3DRasterGrid treeSpeciesMap;
+        gis::Crit3DRasterGrid plantHeight;
 
         Crit3DHydrallMaps();
         ~Crit3DHydrallMaps();
@@ -294,7 +295,7 @@
 
 
         double elevation;
-        int simulationStepInSeconds;
+        int simulationStepInSeconds = 3600;
         double understoreyLeafAreaIndexMax;
         double cover = 1; // TODO
 
@@ -315,7 +316,7 @@
         void setHourlyVariables(double temp, double irradiance , double prec , double relativeHumidity , double windSpeed, double directIrradiance, double diffuseIrradiance, double cloudIndex, double atmosphericPressure, double CO2, double sunElevation);
         bool setWeatherVariables(double temp, double irradiance , double prec , double relativeHumidity , double windSpeed, double directIrradiance, double diffuseIrradiance, double cloudIndex, double atmosphericPressure);
         void setDerivedWeatherVariables(double directIrradiance, double diffuseIrradiance, double cloudIndex);
-        void setPlantVariables(double chlorophyllContent);
+        void setPlantVariables(double chlorophyllContent, double height);
         bool computeHydrallPoint(Crit3DDate myDate, double myTemperature, double myElevation, int secondPerStep);
         double getCO2(Crit3DDate myDate, double myTemperature);
         //double getPressureFromElevation(double myTemperature, double myElevation);
@@ -325,6 +326,9 @@
         double photosynthesisAndTranspirationUnderstorey();
         void leafTemperature();
         void aerodynamicalCoupling();
+        void preliminaryComputations(double diffuseIncomingPAR, double diffuseReflectionCoefficientPAR, double directIncomingPAR, double directReflectionCoefficientPAR,
+                                                     double diffuseIncomingNIR, double diffuseReflectionCoefficientNIR, double directIncomingNIR, double directReflectionCoefficientNIR,
+                                     double scatteringCoefPAR, double scatteringCoefNIR, std::vector<double> &dum);
         double leafWidth();
         void upscale();
         inline double acclimationFunction(double Ha , double Hd, double leafTemp, double entropicTerm,double optimumTemp);
