@@ -59,6 +59,7 @@ Only for **CRITERIA GEO**:
 - WINDOWS (Visual Studio c++ compiler): *deploy/CRITERIA1D_build_MSVC_bat*
 - WINDOWS (MinGW c++ compiler): *deploy/CRITERIA1D_build_MinGW_bat*
 >The distribution will be created in the directory */deploy/CRITERIA1D/*  
+
 ### Warnings 
 - For LINUX and MACOS: modify QT_DIR in the first line of the script.
 - For WINDOWS: read the information in the first lines of the script file.  
