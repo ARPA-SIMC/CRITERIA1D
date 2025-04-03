@@ -1,6 +1,6 @@
 #----------------------------------------------------------------
 #
-#   criteriaModel library
+#   criteria1DModel library
 #
 #   Water balance 1D
 #   algorithms for soil water infiltration, redistribution,
@@ -21,18 +21,18 @@ DEFINES += _CRT_SECURE_NO_WARNINGS
 
 unix:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/criteriaModel
+        TARGET = debug/criteria1DModel
     } else {
-        TARGET = release/criteriaModel
+        TARGET = release/criteria1DModel
     }
 }
 win32:{
-    TARGET = criteriaModel
+    TARGET = criteria1DModel
 }
 
-INCLUDEPATH +=  ../crit3dDate ../mathFunctions ../gis ../meteo \
-                ../dbMeteoGrid ../soil ../crop ../utilities \
-                ../soilFluxes3D/header ../carbonNitrogen
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo \
+                ../../agrolib/dbMeteoGrid ../../agrolib/soil ../../agrolib/crop ../../agrolib/utilities \
+                ../../agrolib/soilFluxes3D/header ../carbonNitrogen
 
 HEADERS += \
     criteria1DCase.h \

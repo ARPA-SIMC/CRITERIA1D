@@ -33,23 +33,22 @@ win32:{
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
                 ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities \
-                ../../agrolib/soil ../../agrolib/crop ../../agrolib/carbonNitrogen ../../agrolib/criteriaModel \
-                ../../agrolib/qcustomplot ../../agrolib/commonDialogs \
-                ../../agrolib/commonChartElements ../../agrolib/meteoWidget \
-                ../../agrolib/soilWidget ../../agrolib/criteria1DWidget
+                ../../agrolib/soil ../../agrolib/crop ../../agrolib/qcustomplot ../../agrolib/commonDialogs \
+                ../../agrolib/commonChartElements ../../agrolib/meteoWidget ../../agrolib/soilWidget \
+                ../../src/carbonNitrogen  ../../src/criteria1DModel ../../src/criteria1DWidget
 
 CONFIG(debug, debug|release) {
-    LIBS += -L../../agrolib/criteria1DWidget/debug -lcriteria1DWidget
+    LIBS += -L../../src/criteria1DWidget/debug -lcriteria1DWidget
+    LIBS += -L../../src/criteria1DModel/debug -lcriteria1DModel
     LIBS += -L../../agrolib/soilWidget/debug -lsoilWidget
     LIBS += -L../../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/commonChartElements/debug -lcommonChartElements
-    LIBS += -L../../agrolib/criteriaModel/debug -lcriteriaModel
     LIBS += -L../../agrolib/qcustomplot/debug -lqcustomplot
     LIBS += -L../../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../../agrolib/crop/debug -lcrop
     LIBS += -L../../agrolib/utilities/debug -lutilities
-    LIBS += -L../../agrolib/carbonNitrogen/debug -lcarbonNitrogen
+    LIBS += -L../../src/carbonNitrogen/debug -lcarbonNitrogen
     LIBS += -L../../agrolib/soil/debug -lsoil
     LIBS += -L../../agrolib/meteo/debug -lmeteo
     LIBS += -L../../agrolib/gis/debug -lgis
@@ -58,17 +57,17 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/crit3dDate/debug -lcrit3dDate
 } else {
 
-    LIBS += -L../../agrolib/criteria1DWidget/release -lcriteria1DWidget
+    LIBS += -L../../src/criteria1DWidget/release -lcriteria1DWidget
+    LIBS += -L../../src/criteria1DModel/release -lcriteria1DModel
     LIBS += -L../../agrolib/soilWidget/release -lsoilWidget
     LIBS += -L../../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../../agrolib/commonChartElements/release -lcommonChartElements
-    LIBS += -L../../agrolib/criteriaModel/release -lcriteriaModel
     LIBS += -L../../agrolib/qcustomplot/release -lqcustomplot
     LIBS += -L../../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../../agrolib/crop/release -lcrop
     LIBS += -L../../agrolib/utilities/release -lutilities
-    LIBS += -L../../agrolib/carbonNitrogen/release -lcarbonNitrogen
+    LIBS += -L../../src/carbonNitrogen/release -lcarbonNitrogen
     LIBS += -L../../agrolib/soil/release -lsoil
     LIBS += -L../../agrolib/meteo/release -lmeteo
     LIBS += -L../../agrolib/gis/release -lgis

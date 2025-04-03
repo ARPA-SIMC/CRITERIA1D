@@ -24,7 +24,7 @@ win32:{
     TARGET = carbonNitrogen
 }
 
-INCLUDEPATH += ../mathFunctions ../soil
+INCLUDEPATH += ../../agrolib/mathFunctions ../../agrolib/soil
 
 HEADERS += carbonNitrogen.h
 	

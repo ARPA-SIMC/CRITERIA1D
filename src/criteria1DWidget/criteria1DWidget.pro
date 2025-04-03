@@ -30,9 +30,11 @@ win32:{
     TARGET = criteria1DWidget
 }
 
-INCLUDEPATH += ../crit3dDate ../mathFunctions ../utilities ../gis ../meteo ../dbMeteoGrid  \
-            ../soil ../carbonNitrogen ../crop ../qcustomplot ../criteriaModel ../commonDialogs \
-            ../commonChartElements ../meteoWidget ../soilWidget
+INCLUDEPATH += ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/utilities  \
+            ../../agrolib/gis ../../agrolib/meteo ../../agrolib/soil ../../agrolib/dbMeteoGrid  \
+            ../../agrolib/crop ../../agrolib/qcustomplot ../../agrolib/commonDialogs \
+            ../../agrolib/commonChartElements ../../agrolib/meteoWidget ../../agrolib/soilWidget \
+            ../carbonNitrogen ../criteria1DModel
 
 
 SOURCES += \
