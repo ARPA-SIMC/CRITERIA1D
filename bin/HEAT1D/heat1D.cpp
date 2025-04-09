@@ -168,7 +168,7 @@ bool initializeHeat1D(bool useInputSoils)
 
     if (! initializeSoil(useInputSoils)) printf("\n error in setSoilProperties");
     soilFluxes3D::setHydraulicProperties(MODIFIEDVANGENUCHTEN, MEAN_LOGARITHMIC, 10.);
-    soilFluxes3D::setNumericalParameters(0.1f, 600.f, 100, 10, 12, 6);
+    soilFluxes3D::setNumericalParameters(0.1f, 3600.f, 200, 10, 12, 6);
     soilFluxes3D::setThreads(1);
 
     for (indexNode = 0 ; indexNode < myHeat1D.NodesNumber ; indexNode++ )
