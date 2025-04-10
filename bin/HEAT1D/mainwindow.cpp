@@ -106,6 +106,7 @@ bool MainWindow::initializeModel()
     return (initializeHeat1D(useInputSoilData));
 }
 
+
 void MainWindow::on_pushRunAllPeriod_clicked()
 {
     myHeatOutput.clean();
