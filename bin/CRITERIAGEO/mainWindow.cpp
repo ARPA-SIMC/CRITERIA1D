@@ -1099,7 +1099,7 @@ void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
     if (myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
                                  ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
                                  ucmDialog.getIdMeteo().toStdString(), ucmDialog.getCellSize(), threshold,
-                                 ucmFileName, isPrevailing, true))
+                                 ucmFileName, isPrevailing))
     {
         addShapeObject(myProject.objectList.back());
     }
@@ -1133,7 +1133,7 @@ void MainWindow::on_actionCompute_Ucm_intersection_triggered()
     if (myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
                                  ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
                                  ucmDialog.getIdMeteo().toStdString(), NODATA, threshold,
-                                 ucmFileName, isPrevailing, true))
+                                 ucmFileName, isPrevailing))
     {
         addShapeObject(myProject.objectList.back());
     }

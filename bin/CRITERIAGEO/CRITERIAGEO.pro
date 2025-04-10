@@ -41,7 +41,8 @@ INCLUDEPATH +=  ../../mapGraphics \
                 ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo   \
                 ../../agrolib/utilities ../../agrolib/shapeUtilities  \
                 ../../agrolib/shapeHandler ../../agrolib/shapeHandler/shapelib  ../../agrolib/netcdfHandler \
-                ../../agrolib/criteriaOutput ../../agrolib/graphics ../../agrolib/commonDialogs
+                ../../agrolib/criteriaOutput ../../agrolib/graphics ../../agrolib/commonDialogs \
+                ../../src/criteriaGeoProject
 
 CONFIG += debug_and_release
 
@@ -60,8 +61,9 @@ GDAL {
     include(../../agrolib/gdal.pri)
 }
 
-CONFIG(debug, debug|release) {
 
+CONFIG(debug, debug|release) {
+    LIBS += -L../../src/criteriaGeoProject/debug -lcriteriaGeoProject
     LIBS += -L../../mapGraphics/debug -lMapGraphics
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/graphics/debug -lgraphics
@@ -85,10 +87,10 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
-
+    LIBS += -L../../src/criteriaGeoProject/release -lcriteriaGeoProject
     LIBS += -L../../mapGraphics/release -lMapGraphics
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
-   LIBS += -L../../agrolib/graphics/release -lgraphics
+    LIBS += -L../../agrolib/graphics/release -lgraphics
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/release -lnetcdfHandler
     win32:{
@@ -109,38 +111,13 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
 }
 
+
 HEADERS += \
-    criteriaGeoProject.h \
-    dialogDbfNewCol.h \
-    dialogDbfTable.h \
-    dialogOutputMap.h \
-    dialogSelectField.h \
-    dialogShapeAnomaly.h \
-    dialogShapeProperties.h \
-    dialogUcmIntersection.h \
-    dialogUcmPrevailing.h \
-    gisObject.h \
-    mainWindow.h \
-    tabMap.h \
-    tabSymbology.h \
-    tableDbf.h
+    mainWindow.h
 
 SOURCES += \
-    criteriaGeoProject.cpp \
-    dialogDbfNewCol.cpp \
-    dialogDbfTable.cpp \
-    dialogOutputMap.cpp \
-    dialogSelectField.cpp \
-    dialogShapeAnomaly.cpp \
-    dialogShapeProperties.cpp \
-    dialogUcmIntersection.cpp \
-    dialogUcmPrevailing.cpp \
     mainWindow.cpp \
-    gisObject.cpp \
-    main.cpp \
-    tabMap.cpp \
-    tabSymbology.cpp \
-    tableDbf.cpp
+    main.cpp
 
 
 FORMS += \

@@ -219,7 +219,7 @@ bool CriteriaGeoProject::computeShapeAnomaly(Crit3DShapeHandler *shape1, Crit3DS
 bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                                 std::string idCrop, std::string idSoil, std::string idMeteo,
                                 double cellSize, double threshold,
-                                QString ucmFileName, bool isPrevailing, bool showInfo)
+                                QString ucmFileName, bool isPrevailing)
 {
     std::string errorStr;
 
@@ -228,7 +228,7 @@ bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3
         Crit3DShapeHandler *shapeUCM = new Crit3DShapeHandler();
 
         if (computeUcmPrevailing(*shapeUCM, *shapeCrop, *shapeSoil, *shapeMeteo, idCrop, idSoil, idMeteo,
-                                 cellSize, threshold, ucmFileName, errorStr, showInfo))
+                                 cellSize, threshold, ucmFileName, errorStr))
         {
             addShapeFile(shapeUCM, QString::fromStdString(shapeUCM->getFilepath()), "", shapeUCM->getUtmZone());
             return true;

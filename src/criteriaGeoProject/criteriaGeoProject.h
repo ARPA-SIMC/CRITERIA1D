@@ -51,7 +51,7 @@
 
         bool computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
                             std::string idCrop, std::string idSoil, std::string idMeteo,
-                            double cellSize, double threshold, QString ucmFileName, bool isPrevailing, bool showInfo);
+                            double cellSize, double threshold, QString ucmFileName, bool isPrevailing);
 
         void logError(QString errorString);
         void logWarning(QString errorString);
