@@ -1294,11 +1294,11 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
                     if (! checkYearMeteoGridFixedFields(myProject.dbMeteo, meteoTableName, myProject.observedMeteoGrid->tableDaily().fieldTime, fieldTmin, fieldTmax, fieldPrec, yearList[i], &errorStr))
                     {
                         yearList.removeAt(pos);
-                        i = i - 1;
+                        i--;
                     }
                     else
                     {
-                        pos = pos + 1;
+                        pos++;
                     }
             }
             // store last Date
@@ -1345,7 +1345,7 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
 
         meteoTableName = getTableNameFromIdMeteo(myProject.dbMeteo, idMeteo, errorStr);
 
-        if (!getYearList(&(myProject.dbMeteo), meteoTableName, &yearList, &errorStr))
+        if (! getYearList(&(myProject.dbMeteo), meteoTableName, &yearList, &errorStr))
         {
             QMessageBox::critical(nullptr, "Error!", errorStr);
             return;
@@ -1356,14 +1356,14 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
         // last year can be incomplete
         for (int i = 0; i<yearList.size()-1; i++)
         {
-            if ( !checkYear(&(myProject.dbMeteo), meteoTableName, yearList[i], &errorStr))
+            if (! checkYear(&(myProject.dbMeteo), meteoTableName, yearList[i], &errorStr))
             {
                 yearList.removeAt(pos);
-                i = i - 1;
+                i--;
             }
             else
             {
-                pos = pos + 1;
+                pos++;
             }
         }
         // store last Date
