@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("CRITERIA GEO " + QString(CRITERIA_VERSION));
+    setWindowTitle("CRITERIA GEO  " + QString(CRITERIA_VERSION));
 
     isDoubleClick = false;
 
