@@ -1965,7 +1965,7 @@ int Crit1DProject::openAllDatabase()
         {
             return ERROR_DBMETEO_OBSERVED;
         }
-        if (! observedMeteoGrid->loadCellProperties(&projectError))
+        if (! observedMeteoGrid->loadCellProperties(projectError))
         {
             return ERROR_PROPERTIES_DBMETEO_OBSERVED;
         }
@@ -2004,7 +2004,7 @@ int Crit1DProject::openAllDatabase()
             {
                 return ERROR_DBMETEO_FORECAST;
             }
-            if (! forecastMeteoGrid->loadCellProperties(&projectError))
+            if (! forecastMeteoGrid->loadCellProperties(projectError))
             {
                 return ERROR_PROPERTIES_DBMETEO_FORECAST;
             }

@@ -1259,7 +1259,7 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
 
     if (myProject.isXmlMeteoGrid)
     {
-        if (! myProject.observedMeteoGrid->loadIdMeteoProperties(&errorStr, idMeteo))
+        if (! myProject.observedMeteoGrid->loadIdMeteoProperties(idMeteo, errorStr))
         {
             QMessageBox::critical(nullptr, "Error load properties DB Grid", errorStr);
             return;
