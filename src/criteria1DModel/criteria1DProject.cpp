@@ -1957,11 +1957,11 @@ int Crit1DProject::openAllDatabase()
     if (isXmlMeteoGrid)
     {
         observedMeteoGrid = new Crit3DMeteoGridDbHandler();
-        if (! observedMeteoGrid->parseXMLGrid(dbMeteoName, &projectError))
+        if (! observedMeteoGrid->parseXMLGrid(dbMeteoName, projectError))
         {
             return ERROR_XMLGRIDMETEO_OBSERVED;
         }
-        if (! observedMeteoGrid->openDatabase(&projectError, "observed"))
+        if (! observedMeteoGrid->openDatabase(projectError, "observed"))
         {
             return ERROR_DBMETEO_OBSERVED;
         }
@@ -1996,11 +1996,11 @@ int Crit1DProject::openAllDatabase()
         if (isXmlMeteoGrid)
         {
             forecastMeteoGrid = new Crit3DMeteoGridDbHandler();
-            if (! forecastMeteoGrid->parseXMLGrid(dbForecastName, &projectError))
+            if (! forecastMeteoGrid->parseXMLGrid(dbForecastName, projectError))
             {
                 return ERROR_XMLGRIDMETEO_FORECAST;
             }
-            if (! forecastMeteoGrid->openDatabase(&projectError, "forecast"))
+            if (! forecastMeteoGrid->openDatabase(projectError, "forecast"))
             {
                 return ERROR_DBMETEO_FORECAST;
             }

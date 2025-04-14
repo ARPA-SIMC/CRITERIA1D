@@ -890,12 +890,12 @@ void Criteria1DWidget::openMeteoDB(QString dbMeteoName, bool isMenu)
     {
         if (isMenu)
         {
-            if (! myProject.observedMeteoGrid->parseXMLGrid(dbMeteoName, &errorStr))
+            if (! myProject.observedMeteoGrid->parseXMLGrid(dbMeteoName, errorStr))
             {
                 QMessageBox::critical(nullptr, "Error XML meteo grid", errorStr);
                 return;
             }
-            if (! myProject.observedMeteoGrid->openDatabase(&errorStr, "observed"))
+            if (! myProject.observedMeteoGrid->openDatabase(errorStr, "observed"))
             {
                 QMessageBox::critical(nullptr, "Error DB Grid", errorStr);
                 return;
@@ -903,7 +903,7 @@ void Criteria1DWidget::openMeteoDB(QString dbMeteoName, bool isMenu)
         }
 
         // check daily list
-        if (! myProject.observedMeteoGrid->idDailyList(&errorStr, &idMeteoList))
+        if (! myProject.observedMeteoGrid->idDailyList(errorStr, idMeteoList))
         {
             QMessageBox::critical(nullptr, "Error daily table list", errorStr);
             return;
@@ -1274,7 +1274,7 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
         myProject.myCase.meteoPoint.latitude = lat;
 
         meteoTableName = myProject.observedMeteoGrid->tableDaily().prefix + idMeteo + myProject.observedMeteoGrid->tableDaily().postFix;
-        if (!myProject.observedMeteoGrid->getYearList(&errorStr, idMeteo, &yearList))
+        if (!myProject.observedMeteoGrid->getYearList(errorStr, idMeteo, &yearList))
         {
             QMessageBox::critical(nullptr, "Error!", errorStr);
             return;
