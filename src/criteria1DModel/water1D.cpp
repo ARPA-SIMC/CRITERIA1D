@@ -262,6 +262,7 @@ double computeInfiltration(std::vector<soil::Crit1DLayer> &soilLayers, double in
 
 /*!
  * \brief compute capillary rise due to watertable
+ * and compute current threshold for vertical drainage (soilLayers[i].critical)
  * \param soilLayers
  * \param waterTableDepth [m]
  * \return capillary rise
@@ -281,9 +282,9 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
     unsigned int lastLayer = nrLayers-1;
     if (nrLayers == 0) return 0;
 
-    // No WaterTable, wrong data or watertable too depth (6 meters)
+    // No WaterTable, wrong data or watertable too depth (default: 5 meters)
     if ( isEqual(waterTableDepth, NODATA) || waterTableDepth <= 0
-            || waterTableDepth > (soilLayers[lastLayer].depth + 6) )
+            || waterTableDepth > (soilLayers[lastLayer].depth + 5) )
     {
         // re-initialize threshold for vertical drainage
         for (unsigned int i = 1; i < nrLayers; i++)

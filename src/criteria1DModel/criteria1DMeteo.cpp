@@ -10,6 +10,7 @@
 #include "utilities.h"
 #include "meteoPoint.h"
 #include "basicMath.h"
+#include "meteo.h"
 
 
 bool openDbMeteo(QString dbName, QSqlDatabase &dbMeteo, QString &error)

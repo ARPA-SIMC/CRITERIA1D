@@ -539,7 +539,16 @@ bool Crit1DCase::computeDailyModel(Crit3DDate &myDate, std::string &error)
     output.dailyWaterTable = double(meteoPoint.getMeteoPointValueD(myDate, dailyWaterTableDepth));
     // check
     if (! isEqual(output.dailyWaterTable, NODATA))
+    {
         output.dailyWaterTable = MAXVALUE(output.dailyWaterTable, 0.01);
+    }
+    else
+    {
+        if (unit.useWaterTableData)
+        {
+            // TODO Fausto usare i parametri (leggere) e i dati precedenti (salvare) per calcolare la profondità corrente di falda
+        }
+    }
 
     // prec forecast
     double precTomorrow = double(meteoPoint.getMeteoPointValueD(myDate.addDays(1), dailyPrecipitation));
@@ -548,7 +557,9 @@ bool Crit1DCase::computeDailyModel(Crit3DDate &myDate, std::string &error)
     // ET0
     output.dailyEt0 = double(meteoPoint.getMeteoPointValueD(myDate, dailyReferenceEvapotranspirationHS));
     if (isEqual(output.dailyEt0, NODATA) || output.dailyEt0 <= 0)
+    {
         output.dailyEt0 = ET0_Hargreaves(TRANSMISSIVITY_SAMANI_COEFF_DEFAULT, meteoPoint.latitude, doy, tmax, tmin);
+    }
 
     // update LAI and root depth
     if (! crop.dailyUpdate(myDate, meteoPoint.latitude, soilLayers, tmin, tmax, output.dailyWaterTable, error))
@@ -561,7 +572,8 @@ bool Crit1DCase::computeDailyModel(Crit3DDate &myDate, std::string &error)
 
     // Water fluxes (first computation)
     storeWaterContent();
-    if (! computeWaterFluxes(myDate, error)) return false;
+    if (! computeWaterFluxes(myDate, error))
+        return false;
 
     // Irrigation
     double irrigation = checkIrrigationDemand(doy, prec, precTomorrow, output.dailyMaxTranspiration);
