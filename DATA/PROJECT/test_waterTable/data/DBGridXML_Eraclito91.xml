@@ -1,0 +1,64 @@
+﻿<xml version="1.0" encoding="ISO-8859-1">
+
+	<connection>
+		<provider>mysql</provider>
+		<server>agrosql-smr.metarpa</server>
+		<name>ERG5_Eraclito91</name>
+		<user>root</user>
+		<password>Praga</password>
+	</connection>
+	
+	<gridstructure isregular="true" isutm="false" istin="false" isfixedfields="false">
+		<xll>9.102</xll>
+		<yll>43.62</yll>
+		<nrows>40</nrows>
+		<ncols>60</ncols>
+		<xwidth>0.06305</xwidth>
+		<ywidth>0.045</ywidth>
+	</gridstructure>
+	
+	<tabledaily>
+		<postFix>_d</postFix>
+		<fieldtime>PragaTime</fieldtime>
+		<varcode>
+			<varcode>1</varcode>
+			<varpraganame>DAILY_TMIN</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>2</varcode>
+			<varpraganame>DAILY_TMAX</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>3</varcode>
+			<varpraganame>DAILY_PREC</varpraganame>
+		</varcode>
+	</tabledaily>
+        
+        <tablemonthly>
+		<varcode>
+			<varcode>201</varcode>
+			<varpraganame>MONTHLY_TAVG</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>202</varcode>
+			<varpraganame>MONTHLY_TMIN</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>203</varcode>
+			<varpraganame>MONTHLY_TMAX</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>204</varcode>
+			<varpraganame>MONTHLY_PREC</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>205</varcode>
+			<varpraganame>MONTHLY_ET0_HS</varpraganame>
+		</varcode>
+                <varcode>
+			<varcode>206</varcode>
+			<varpraganame>MONTHLY_BIC</varpraganame>
+		</varcode>
+	</tablemonthly>
+	
+</xml>
