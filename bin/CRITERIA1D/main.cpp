@@ -9,6 +9,7 @@
 
 // uncomment to execute test
 //#define TEST
+//#define TEST_WATERTABLE
 //#define TEST_GEO
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
@@ -54,6 +55,10 @@ int main(int argc, char *argv[])
 
         #ifdef TEST
             projectFileName = projectPath + "test/test.ini";
+        #endif
+
+        #ifdef TEST_WATERTABLE
+            projectFileName = projectPath + "test_waterTable/test_waterTable.ini";
         #endif
 
         #ifdef TEST_GEO
