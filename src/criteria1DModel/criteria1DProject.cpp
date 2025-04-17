@@ -39,6 +39,7 @@ void Crit1DProject::initialize()
     dbMeteoName = "";
     dbForecastName = "";
     dbOutputName = "";
+    dbWaterTableName = "";
     dbComputationUnitsName = "";
 
     projectError = "";
@@ -140,6 +141,12 @@ bool Crit1DProject::readSettings()
         if (dbForecastName.left(1) == ".")
         {
             dbForecastName = QDir::cleanPath(path + dbForecastName);
+        }
+
+        dbWaterTableName = projectSettings->value("db_waterTable", "").toString();
+        if (dbWaterTableName.left(1) == ".")
+        {
+            dbWaterTableName = QDir::cleanPath(path + dbWaterTableName);
         }
 
         dbComputationUnitsName = projectSettings->value("db_comp_units", "").toString();
@@ -1982,6 +1989,11 @@ int Crit1DProject::openAllDatabase()
         }
     }
 
+    if (! dbWaterTableName.isEmpty())
+    {
+        logger.writeInfo ("Water Table DB: " + dbWaterTableName);
+    }
+
     // meteo forecast
     if (isShortTermForecast || isEnsembleForecast)
     {
@@ -2022,6 +2034,8 @@ int Crit1DProject::openAllDatabase()
         }
     }
 
+    logger.writeInfo ("Computational units DB: " + dbComputationUnitsName);
+
     // output DB (not used in seasonal/monthly forecast)
     if ( !isMonthlyStatistics && !isSeasonalForecast && !isEnsembleForecast)
     {
@@ -2046,8 +2060,6 @@ int Crit1DProject::openAllDatabase()
             return ERROR_DBOUTPUT;
         }
     }
-
-    logger.writeInfo ("Computational units DB: " + dbComputationUnitsName);
 
     return CRIT1D_OK;
 }

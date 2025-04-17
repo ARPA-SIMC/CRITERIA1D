@@ -45,6 +45,7 @@
         QString dbOutputName;
         QString dbMeteoName;
         QString dbForecastName;
+        QString dbWaterTableName;
         QString dbComputationUnitsName;
 
         bool isXmlMeteoGrid;
