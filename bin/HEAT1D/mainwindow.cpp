@@ -62,9 +62,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
 bool MainWindow::initializeModel()
 {
-
     useInputMeteoData = ui->chkUseInputMeteo->isChecked() && meteoDataLoaded;
     useInputSoilData = ui->chkUseInputSoil->isChecked() && soilDataLoaded;
 
@@ -127,7 +127,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
     myPIniHour = ui->lineEditPrecStart->text().toInt();
     myPHours = ui->lineEditPrecHours->text().toInt();
 
-    double outputTimeStep = ui->lineEditTimeStep->text().toDouble();
+    double outputTimeStep = std::min(HOUR_SECONDS, ui->lineEditTimeStep->text().toDouble());
 
     int hourFin;
     if (!useInputMeteoData)
@@ -138,7 +138,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
     QDateTime myTimeIni = QDateTime::currentDateTime();
     myTimeIni.setTime(QTime(0,0,0,0));
-    QDateTime myTimeFin = myTimeIni.addSecs(3600 * hourFin);
+    QDateTime myTimeFin = myTimeIni.addSecs(HOUR_SECONDS * hourFin);
     QDateTime myTime = myTimeIni;
     QDateTime myRefHour = myTimeIni;
 
@@ -154,7 +154,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
         if (myTime.secsTo(myRefHour) < 0)
         {
-            myRefHour = myRefHour.addSecs(3600);
+            myRefHour = myRefHour.addSecs(HOUR_SECONDS);
             indexHour++;
         }
 
@@ -181,7 +181,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
         runHeat1D(myT, myRH, myWS, myNR, myP, outputTimeStep);
 
-        totalHours += outputTimeStep / 3600;
+        totalHours += outputTimeStep / HOUR_SECONDS;
         getOutputAllPeriod(0, getNodesNumber(), &myHeatOutput, totalHours);
 
         ui->prgBar->setValue(indexHour);

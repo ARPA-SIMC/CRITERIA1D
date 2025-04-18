@@ -82,6 +82,7 @@ long getNodesNumber()
 void setSoilHorizonNumber(int myNumber)
 {   myHeat1D.myHorizonNumber = myNumber;}
 
+
 void setSurface(double myArea, double myRoughness, double minWaterRunoff, double myRoughnessHeat)
 {
     myHeat1D.surfaceArea = myArea;
@@ -91,9 +92,6 @@ void setSurface(double myArea, double myRoughness, double minWaterRunoff, double
 
     int result = soilFluxes3D::setSurfaceProperties(0, myHeat1D.Roughness);
     if (result != CRIT3D_OK) printf("\nError in SetSurfaceProperties!");
-
-    result = soilFluxes3D::setNodePond(0, myHeat1D.Plough);
-    if (result != CRIT3D_OK) printf("\nError in setNodePond!");
 }
 
 
@@ -168,7 +166,7 @@ bool initializeHeat1D(bool useInputSoils)
 
     if (! initializeSoil(useInputSoils)) printf("\n error in setSoilProperties");
     soilFluxes3D::setHydraulicProperties(MODIFIEDVANGENUCHTEN, MEAN_LOGARITHMIC, 10.);
-    soilFluxes3D::setNumericalParameters(1.0, 3600.0, 100, 10, 12, 6);
+    soilFluxes3D::setNumericalParameters(1., HOUR_SECONDS, 100, 10, 12, 6);
     soilFluxes3D::setThreads(1);
 
     for (indexNode = 0 ; indexNode < myHeat1D.NodesNumber ; indexNode++ )
@@ -181,6 +179,9 @@ bool initializeHeat1D(bool useInputSoils)
 
             result = soilFluxes3D::setNodeSurface(0, 0) ;
             if (result != CRIT3D_OK) printf("\n error in setNodeSurface!");
+
+            result = soilFluxes3D::setNodePond(0, myHeat1D.Plough);
+            if (result != CRIT3D_OK) printf("\nError in setNodePond!");
 
             if (myHeat1D.computeWater)
             {
