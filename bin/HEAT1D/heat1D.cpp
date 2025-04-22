@@ -104,7 +104,7 @@ bool initializeSoil(bool useInputSoils)
     double VG_alpha     = 1.60;     // m-1
     double VG_n         = 1.25;
     double mualemTort   = 0.5;
-    double KSat         = 0.4 / (3600. * 100.);  // [cm h-1] -> [m s-1]
+    double KSat         = 0.4 / (HOUR_SECONDS * 100.);  // [cm h-1] -> [m s-1]
 
     if (useInputSoils)
     {
@@ -166,7 +166,7 @@ bool initializeHeat1D(bool useInputSoils)
 
     if (! initializeSoil(useInputSoils)) printf("\n error in setSoilProperties");
     soilFluxes3D::setHydraulicProperties(MODIFIEDVANGENUCHTEN, MEAN_LOGARITHMIC, 10.);
-    soilFluxes3D::setNumericalParameters(1.0, HOUR_SECONDS, 200, 10, 12, 5);
+    soilFluxes3D::setNumericalParameters(0.1, HOUR_SECONDS, 200, 10, 12, 5);
     soilFluxes3D::setThreads(1);
 
     for (indexNode = 0 ; indexNode < myHeat1D.NodesNumber ; indexNode++ )
@@ -298,7 +298,7 @@ void setSinkSources(double myHourlyPrec)
         if (myHeat1D.computeWater)
         {
             if (i == 0)
-                soilFluxes3D::setWaterSinkSource(i, myHourlyPrec * myHeat1D.surfaceArea / (3600. * 1000.));
+                soilFluxes3D::setWaterSinkSource(i, myHourlyPrec * myHeat1D.surfaceArea / (HOUR_SECONDS * 1000.));
             else
                 soilFluxes3D::setWaterSinkSource(i, 0);
         }
