@@ -86,7 +86,7 @@ void ColorMapGraph::draw(Crit3DOut* out, outputGroup graphType)
         maxGraph = (maxGraph == NODATA) ? maxSeries : ((maxSeries != NODATA && maxSeries > maxGraph) ? maxSeries : maxGraph);
     }
 
-    double eps = 0.0001;
+    double eps = 0.00001;
     if (fabs(minGraph-maxGraph) < eps)
     {
         minGraph -= eps;

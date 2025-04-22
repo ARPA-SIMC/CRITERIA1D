@@ -160,7 +160,7 @@ Criteria1DWidget::Criteria1DWidget()
     waterContentGroup = new QGroupBox(tr(""));
     carbonNitrogenGroup = new QGroupBox(tr(""));
 
-    float widthRatio = 0.30f;
+    float widthRatio = 0.25f;
     infoCaseGroup->setFixedWidth(this->width() * widthRatio);
     infoCropGroup->setFixedWidth(this->width() * widthRatio);
     infoMeteoGroup->setFixedWidth(this->width() * widthRatio);
