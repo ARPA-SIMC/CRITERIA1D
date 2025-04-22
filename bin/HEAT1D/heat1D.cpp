@@ -285,7 +285,7 @@ bool initializeHeat1D(bool useInputSoils)
 
     soilFluxes3D::initializeBalance();
 
-	return (true);
+    return true;
 }
 
 
