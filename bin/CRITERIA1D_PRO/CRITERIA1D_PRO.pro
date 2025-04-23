@@ -32,7 +32,7 @@ win32:{
 }
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
-                ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities \
+                ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities ../../agrolib/waterTable \
                 ../../agrolib/soil ../../agrolib/crop ../../agrolib/qcustomplot ../../agrolib/commonDialogs \
                 ../../agrolib/commonChartElements ../../agrolib/meteoWidget ../../agrolib/soilWidget \
                 ../../src/carbonNitrogen  ../../src/criteria1DModel ../../src/criteria1DWidget
@@ -43,6 +43,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/soilWidget/debug -lsoilWidget
     LIBS += -L../../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
+    LIBS += -L../../agrolib/waterTable/debug -lwaterTable
     LIBS += -L../../agrolib/commonChartElements/debug -lcommonChartElements
     LIBS += -L../../agrolib/qcustomplot/debug -lqcustomplot
     LIBS += -L../../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
@@ -62,6 +63,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/soilWidget/release -lsoilWidget
     LIBS += -L../../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
+    LIBS += -L../../agrolib/waterTable/release -lwaterTable
     LIBS += -L../../agrolib/commonChartElements/release -lcommonChartElements
     LIBS += -L../../agrolib/qcustomplot/release -lqcustomplot
     LIBS += -L../../agrolib/dbMeteoGrid/release -ldbMeteoGrid
