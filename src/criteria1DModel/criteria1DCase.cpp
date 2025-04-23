@@ -36,6 +36,7 @@
 #include "soil.h"
 #include "crop.h"
 #include "waterTable.h"
+#include "utilities.h"
 
 
 Crit1DOutput::Crit1DOutput()
@@ -504,7 +505,26 @@ bool Crit1DCase::fillWaterTableData()
     WaterTable myWaterTable;
     myWaterTable.setLatLon(waterTableParameters.lat, waterTableParameters.lon);
 
-    // TODO
+    QDate firstDate = getQDate(meteoPoint.getFirstDailyData());
+    QDate lastDate = getQDate(meteoPoint.getLastDailyData());
+    if (! myWaterTable.initializeMeteoData(firstDate, lastDate))
+        return false;
+
+    myWaterTable.setParameters(waterTableParameters.nrDaysPeriod, waterTableParameters.alpha,
+                               waterTableParameters.h0, waterTableParameters.avgDailyCWB);
+
+    for (int i = 0; i < meteoPoint.nrObsDataDaysD; i++)
+    {
+        QDate currentDate = getQDate(meteoPoint.obsDataD[i].date);
+        if (! myWaterTable.setMeteoData(currentDate, meteoPoint.obsDataD[i].tMin, meteoPoint.obsDataD[i].tMax, meteoPoint.obsDataD[i].prec))
+            return false;
+
+        if (meteoPoint.obsDataD[i].waterTable == NODATA)
+        {
+            meteoPoint.obsDataD[i].waterTable = myWaterTable.getWaterTableDaily(currentDate);
+        }
+    }
+
     return true;
 }
 

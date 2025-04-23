@@ -2175,7 +2175,15 @@ bool Criteria1DWidget::setMeteoSqlite(QString& errorStr)
         return false;
 
     if (errorStr != "")
+    {
         QMessageBox::warning(nullptr, "WARNING!", errorStr);
+    }
+
+    // fill watertable
+    if(myProject.myCase.unit.useWaterTableData && myProject.myCase.waterTableParameters.isLoaded)
+    {
+        myProject.myCase.fillWaterTableData();
+    }
 
     return true;
 }
