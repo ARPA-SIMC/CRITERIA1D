@@ -502,8 +502,9 @@ bool Crit1DCase::fillWaterTableData()
     }
 
     WaterTable myWaterTable;
+    myWaterTable.setLatLon(waterTableParameters.lat, waterTableParameters.lon);
 
-
+    // TODO
     return true;
 }
 
