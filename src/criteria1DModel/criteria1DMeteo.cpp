@@ -11,6 +11,7 @@
 #include "meteoPoint.h"
 #include "basicMath.h"
 #include "meteo.h"
+#include "criteria1DCase.h"
 
 
 bool openDbMeteo(QString dbName, QSqlDatabase &dbMeteo, QString &error)
@@ -1004,7 +1005,10 @@ bool readDailyDataCriteria1D(QSqlQuery &query, Crit3DMeteoPoint &meteoPoint, int
                 if (waterTable < 0.f)
                     waterTable = NODATA;
             }
-            else waterTable = NODATA;
+            else
+            {
+                waterTable = NODATA;
+            }
 
             date = getCrit3DDate(myDate);
             if (meteoPoint.obsDataD[0].date.daysTo(date) < meteoPoint.nrObsDataDaysD)

@@ -1057,6 +1057,20 @@ void Criteria1DWidget::on_actionChooseCase()
     myProject.myCase.unit = myProject.compUnitList[unsigned(index)];
     myProject.myCase.fittingOptions.useWaterRetentionData = myProject.myCase.unit.useWaterRetentionData;
 
+    // WATERTABLE
+    if (myProject.myCase.unit.useWaterTableData &&  !myProject.dbWaterTableName.isEmpty() && !myProject.myCase.unit.idWaterTable.isEmpty())
+    {
+        WaterTableDb wtDataBase = WaterTableDb(myProject.dbWaterTableName, errorStr);
+        if (! errorStr.isEmpty())
+        {
+            QMessageBox::warning(nullptr, "Error!", errorStr);
+        }
+        if (! wtDataBase.readSingleWaterTableParameters(myProject.myCase.unit.idWaterTable, myProject.myCase.waterTableParameters, errorStr))
+        {
+            QMessageBox::warning(nullptr, "Error!", errorStr);
+        }
+    }
+
     // METEO
     meteoListComboBox.setCurrentText(myProject.myCase.unit.idMeteo);
 

@@ -8,6 +8,7 @@
 #include "cropDbQuery.h"
 #include "criteria1DMeteo.h"
 #include "utilities.h"
+#include "waterTableDb.h"
 
 #include <QSqlError>
 #include <QDate>
@@ -711,7 +712,7 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
 
     if (! query.isValid() && idMeteo.at(0) == '0')
     {
-        // try with one digit less
+        // try with one digit less (Pavan case)
         QString idMeteoShort = idMeteo.right(idMeteo.size()-1);
         queryString = "SELECT * FROM point_properties WHERE id_meteo='" + idMeteoShort + "'";
         query = dbMeteo.exec(queryString);
@@ -720,15 +721,7 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
 
     if (! query.isValid())
     {
-        // try the previous code version
-        queryString = "SELECT * FROM meteo_locations WHERE id_meteo='" + idMeteo + "'";
-        query = dbMeteo.exec(queryString);
-        query.last();
-    }
-
-    if (! query.isValid())
-    {
-        projectError = "Missing point_properties for ID meteo: " + idMeteo;
+        projectError = "Missing ID meteo in point_properties table: " + idMeteo;
         return false;
     }
 
@@ -741,7 +734,7 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
     }
     else
     {
-        projectError = "Missing latitude in idMeteo: " + idMeteo;
+        projectError = "Missing latitude for ID Meteo: " + idMeteo;
         return false;
     }
 
@@ -751,7 +744,7 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
     }
     else
     {
-        projectError = "Missing longitude in idMeteo: " + idMeteo;
+        projectError = "Missing longitude for ID Meteo: " + idMeteo;
         return false;
     }
 
@@ -780,12 +773,13 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
     {
         if (firstSimulationDate < firstDate)
         {
-            projectError = "Missing meteo data: required first date " + firstSimulationDate.toString("yyyy-MM-dd");
+            projectError = "Missing meteo data: required first date: " + firstSimulationDate.toString("yyyy-MM-dd");
             return false;
         }
         else
         {
-            firstDate = firstSimulationDate;
+            // data not reduced for watertable computation
+            //firstDate = firstSimulationDate;
             subQuery = true;
         }
     }
@@ -793,7 +787,7 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
     {
         if (lastSimulationDate > lastDate)
         {
-            projectError = "Missing meteo data: required last date " + lastSimulationDate.toString("yyyy-MM-dd");
+            projectError = "Missing meteo data: required last date: " + lastSimulationDate.toString("yyyy-MM-dd");
             return false;
         }
         else
@@ -823,13 +817,21 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
     // Read observed data
     int maxNrDays = NODATA; // all data
     if (! readDailyDataCriteria1D(query, myCase.meteoPoint, maxNrDays, projectError))
+    {
         return false;
+    }
 
-    // write missing data on log
+    // write missing meteo data on log
     if (projectError != "")
     {
         this->logger.writeInfo(projectError);
         projectError = "";
+    }
+
+    // fill watertable
+    if(myCase.unit.useWaterTableData && myCase.waterTableParameters.isLoaded)
+    {
+        myCase.fillWaterTableData();
     }
 
     // Add Short-Term forecast
@@ -897,7 +899,9 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
         // Read forecast data
         maxNrDays = daysOfForecast;
         if (! readDailyDataCriteria1D(query, myCase.meteoPoint, maxNrDays, projectError))
-                return false;
+        {
+            return false;
+        }
 
         if (projectError != "")
         {
@@ -973,6 +977,20 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
 
     if (! setSoil(myCase.unit.idSoil, projectError))
         return false;
+
+    if (myCase.unit.useWaterTableData && !dbWaterTableName.isEmpty() && !myCase.unit.idWaterTable.isEmpty())
+    {
+        projectError = "";
+        WaterTableDb wtDataBase = WaterTableDb(dbWaterTableName, projectError);
+        if (! projectError.isEmpty())
+        {
+            return false;
+        }
+        if (! wtDataBase.readSingleWaterTableParameters(myCase.unit.idWaterTable, myCase.waterTableParameters, projectError))
+        {
+            return false;
+        }
+    }
 
     if (isXmlMeteoGrid)
     {

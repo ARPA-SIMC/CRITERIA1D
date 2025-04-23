@@ -1931,7 +1931,7 @@ void Crit1DCarbonNitrogenProfile::N_plough(Crit1DCase &myCase) // this function 
         N_totNO3 += myCase.carbonNitrogenLayers[l].N_NO3;
         N_totNH4 += myCase.carbonNitrogenLayers[l].N_NH4;
         l++;
-    } while (myCase.soilLayers[l].thickness + myCase.soilLayers[l].depth <= myCase.ploughedSoilDepth);
+    } while (myCase.soilLayers[l].thickness + myCase.soilLayers[l].depth <= myCase.getPloughedSoilDepth());
 
     if (l == 1)
         return;

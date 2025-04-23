@@ -16,6 +16,9 @@
     #ifndef COMPUTATIONUNITSDB_H
         #include "computationUnitsDb.h"
     #endif
+    #ifndef WATERTABLEDB_H
+        #include "waterTableDb.h"
+    #endif
 
     #include <QString>
     #include <vector>
@@ -42,8 +45,8 @@
         double dailyAvailableWater;
         double dailyFractionAW;
         double dailyReadilyAW;
-        double dailyWaterTable;             // [m]
         double dailyCapillaryRise;
+        double dailyWaterTable;                 // [m]
         double dailyBalance;
 
         Crit1DOutput();
@@ -64,8 +67,13 @@
         std::vector<Crit3DCarbonNitrogenLayer> carbonNitrogenLayers;
         soil::Crit3DFittingOptions fittingOptions;
 
+        std::vector<double> prevWaterContent;           // [mm]
+
         // CROP
         Crit3DCrop crop;
+
+        // WATERTABLE
+        Crit1DWaterTableParameters waterTableParameters;
 
         // WHEATER
         Crit3DMeteoPoint meteoPoint;
@@ -77,6 +85,8 @@
 
         bool initializeSoil(std::string &error);
         bool initializeWaterContent(Crit3DDate myDate);
+        bool fillWaterTableData();
+
         bool computeDailyModel(Crit3DDate &myDate, std::string &error);
 
         double getVolumetricWaterContent(double computationDepth);
@@ -90,12 +100,16 @@
         double getAvailableWaterSum(double computationDepth);
         double getSoilWaterIndex(double computationDepth);
 
-    private:
-        double minLayerThickness;       // [m]
-        double geometricFactor;         // [-]
+        double getPloughedSoilDepth() { return _ploughedSoilDepth; }
 
-        double lx, ly;                  // [m]
-        double area;                    // [m2]
+    private:
+        double _minLayerThickness;       // [m]
+        double _geometricFactor;         // [-]
+
+        double _ploughedSoilDepth;       // [m]
+
+        double _lx, _ly;                 // [m]
+        double _area;                    // [m2]
 
 
         bool initializeNumericalFluxes(std::string &error);
@@ -105,11 +119,6 @@
         void storeWaterContent();
         void restoreWaterContent();
         double getTotalWaterContent();
-
-
-     public:
-        std::vector<double> prevWaterContent;
-        double ploughedSoilDepth;       // [m]
 
     };
 

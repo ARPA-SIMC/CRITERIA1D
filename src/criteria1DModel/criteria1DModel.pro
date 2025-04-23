@@ -32,7 +32,7 @@ win32:{
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo \
                 ../../agrolib/dbMeteoGrid ../../agrolib/soil ../../agrolib/crop ../../agrolib/utilities \
-                ../../agrolib/soilFluxes3D/header ../carbonNitrogen
+                ../../agrolib/waterTable ../../agrolib/soilFluxes3D/header ../carbonNitrogen
 
 HEADERS += \
     criteria1DCase.h \
