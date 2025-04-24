@@ -54,6 +54,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/crop/debug -lcrop
     LIBS += -L../../agrolib/utilities/debug -lutilities
     LIBS += -L../../src/carbonNitrogen/debug -lcarbonNitrogen
+    LIBS += -L../../agrolib/waterTable/debug -lwaterTable
     LIBS += -L../../agrolib/soil/debug -lsoil
     LIBS += -L../../agrolib/meteo/debug -lmeteo
     LIBS += -L../../agrolib/gis/debug -lgis
@@ -68,6 +69,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/crop/release -lcrop
     LIBS += -L../../agrolib/utilities/release -lutilities
     LIBS += -L../../src/carbonNitrogen/release -lcarbonNitrogen
+    LIBS += -L../../agrolib/waterTable/release -lwaterTable
     LIBS += -L../../agrolib/soil/release -lsoil
     LIBS += -L../../agrolib/meteo/release -lmeteo
     LIBS += -L../../agrolib/gis/release -lgis
