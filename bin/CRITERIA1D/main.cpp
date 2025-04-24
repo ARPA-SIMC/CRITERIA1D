@@ -9,7 +9,7 @@
 
 // uncomment to execute test
 //#define TEST
-#define TEST_WATERTABLE
+//#define TEST_WATERTABLE
 //#define TEST_GEO
 //#define TEST_FIRSTRUN
 //#define TEST_RESTART
