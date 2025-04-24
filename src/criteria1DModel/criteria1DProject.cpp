@@ -176,10 +176,10 @@ bool Crit1DProject::readSettings()
         // first and last date
         if (firstSimulationDate == QDate(1800,1,1))
         {
-            firstSimulationDate = projectSettings->value("firstDate",0).toDate();
+            firstSimulationDate = projectSettings->value("firstDate", 0).toDate();
             if (! firstSimulationDate.isValid())
             {
-                firstSimulationDate = projectSettings->value("first_date",0).toDate();
+                firstSimulationDate = projectSettings->value("first_date", 0).toDate();
             }
             if (! firstSimulationDate.isValid())
             {
@@ -538,8 +538,8 @@ bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, QString idForecast, unsigne
         projectError = "Missing last simulation date.";
         return false;
     }
-    unsigned nrDays = unsigned(firstSimulationDate.daysTo(lastSimulationDate)) + 1;
 
+    // check id
     unsigned row, col;
     bool isMeteoCellFound = false;
     if (observedMeteoGrid->meteoGrid()->findMeteoPointFromId(&row, &col, idMeteo.toStdString()))
@@ -562,9 +562,18 @@ bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, QString idForecast, unsigne
         return false;
     }
 
+    // set firstObsDate: load previous meteo data to compute watertable
+    QDate firstObsDate = firstSimulationDate;
+    if(myCase.unit.useWaterTableData && myCase.waterTableParameters.isLoaded)
+    {
+        firstObsDate = firstSimulationDate.addDays(-myCase.waterTableParameters.nrDaysPeriod);
+    }
+
+    unsigned nrDays = unsigned(firstObsDate.daysTo(lastSimulationDate)) + 1;
+
     if (! observedMeteoGrid->gridStructure().isFixedFields())
     {
-        if (! observedMeteoGrid->loadGridDailyData(projectError, idMeteo, firstSimulationDate, lastSimulationDate))
+        if (! observedMeteoGrid->loadGridDailyData(projectError, idMeteo, firstObsDate, lastSimulationDate))
         {
             projectError = "Missing observed data: " + idMeteo;
             return false;
@@ -572,7 +581,7 @@ bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, QString idForecast, unsigne
     }
     else
     {
-        if (! observedMeteoGrid->loadGridDailyDataFixedFields(projectError, idMeteo, firstSimulationDate, lastSimulationDate))
+        if (! observedMeteoGrid->loadGridDailyDataFixedFields(projectError, idMeteo, firstObsDate, lastSimulationDate))
         {
             if (projectError == "Missing MeteoPoint id")
             {
@@ -649,55 +658,60 @@ bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, QString idForecast, unsigne
         nrDays += unsigned(daysOfForecast);
     }
 
+    // set meteoPoint
     myCase.meteoPoint.latitude = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->latitude;
     myCase.meteoPoint.longitude = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->longitude;
-    myCase.meteoPoint.initializeObsDataD(nrDays, getCrit3DDate(firstSimulationDate));
+    myCase.meteoPoint.initializeObsDataD(nrDays, getCrit3DDate(firstObsDate));
 
-    float tmin, tmax, tavg, prec;
-    long lastIndex = long(firstSimulationDate.daysTo(lastSimulationDate)) + 1;
-    for (int i = 0; i < lastIndex; i++)
+    long lastObsIndex = long(firstObsDate.daysTo(lastSimulationDate)) + 1;
+    Crit3DDate currentDate = getCrit3DDate(firstObsDate);
+    for (int i = 0; i < lastObsIndex; i++)
     {
-        Crit3DDate myDate = getCrit3DDate(firstSimulationDate.addDays(i));
-        tmin = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureMin);
-        myCase.meteoPoint.setMeteoPointValueD(myDate, dailyAirTemperatureMin, tmin);
+        float tmin = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(currentDate, dailyAirTemperatureMin);
+        myCase.meteoPoint.setMeteoPointValueD(currentDate, dailyAirTemperatureMin, tmin);
 
-        tmax = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureMax);
-        myCase.meteoPoint.setMeteoPointValueD(myDate, dailyAirTemperatureMax, tmax);
+        float tmax = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(currentDate, dailyAirTemperatureMax);
+        myCase.meteoPoint.setMeteoPointValueD(currentDate, dailyAirTemperatureMax, tmax);
 
-        tavg = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureAvg);
-        if (int(tavg) == int(NODATA))
+        float tavg = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(currentDate, dailyAirTemperatureAvg);
+        if (isEqual(tavg, NODATA))
         {
-            tavg = (tmax + tmin)/2;
+            tavg = (tmax + tmin) * 0.5;
         }
-        myCase.meteoPoint.setMeteoPointValueD(myDate, dailyAirTemperatureAvg, tavg);
+        myCase.meteoPoint.setMeteoPointValueD(currentDate, dailyAirTemperatureAvg, tavg);
 
-        prec = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyPrecipitation);
-        myCase.meteoPoint.setMeteoPointValueD(myDate, dailyPrecipitation, prec);
+        float prec = observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(currentDate, dailyPrecipitation);
+        myCase.meteoPoint.setMeteoPointValueD(currentDate, dailyPrecipitation, prec);
+        ++currentDate;
     }
 
     if (isShortTermForecast || isEnsembleForecast)
     {
-        QDate start = lastSimulationDate.addDays(1);
-        QDate end = lastSimulationDate.addDays(daysOfForecast);
-        for (int i = 0; i< start.daysTo(end)+1; i++)
+        for (int i = 1; i <= daysOfForecast; i++)
         {
-            Crit3DDate myDate = getCrit3DDate(start.addDays(i));
-            tmin = forecastMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureMin);
+            Crit3DDate myDate = getCrit3DDate(lastSimulationDate.addDays(i));
+            float tmin = forecastMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureMin);
             myCase.meteoPoint.setMeteoPointValueD(myDate, dailyAirTemperatureMin, tmin);
 
-            tmax = forecastMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureMax);
+            float tmax = forecastMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureMax);
             myCase.meteoPoint.setMeteoPointValueD(myDate, dailyAirTemperatureMax, tmax);
 
-            tavg = forecastMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureAvg);
-            if (int(tavg) == int(NODATA))
+            float tavg = forecastMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureAvg);
+            if (isEqual(tavg, NODATA))
             {
-                tavg = (tmax + tmin)/2;
+                tavg = (tmax + tmin) * 0.5;
             }
             myCase.meteoPoint.setMeteoPointValueD(myDate, dailyAirTemperatureAvg, tavg);
 
-            prec = forecastMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyPrecipitation);
+            float prec = forecastMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyPrecipitation);
             myCase.meteoPoint.setMeteoPointValueD(myDate, dailyPrecipitation, prec);
         }
+    }
+
+    // set watertable data
+    if(myCase.unit.useWaterTableData && myCase.waterTableParameters.isLoaded)
+    {
+        myCase.fillWaterTableData();
     }
 
     return true;
@@ -934,12 +948,11 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
     float previousWatertable = NODATA;
     for (unsigned long i = 0; i < unsigned(myCase.meteoPoint.nrObsDataDaysD); i++)
     {
-        // watertable
         if (! isEqual(myCase.meteoPoint.obsDataD[i].waterTable, NODATA))
         {
             previousWatertable = myCase.meteoPoint.obsDataD[i].waterTable;
         }
-        else if (isEqual(previousWatertable, NODATA))
+        else if (! isEqual(previousWatertable, NODATA))
         {
             myCase.meteoPoint.obsDataD[i].waterTable = previousWatertable;
         }
@@ -969,6 +982,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
     // initialize
     myCase.nrMissingPrec = 0;
     myCase.fittingOptions.useWaterRetentionData = myCase.unit.useWaterRetentionData;
+
     // the user wants to compute the factor of safety
     myCase.computeFactorOfSafety = (factorOfSafetyDepth.size() > 0);
 
@@ -978,6 +992,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
     if (! setSoil(myCase.unit.idSoil, projectError))
         return false;
 
+    // watertable
     if (myCase.unit.useWaterTableData && !dbWaterTableName.isEmpty() && !myCase.unit.idWaterTable.isEmpty())
     {
         projectError = "";
@@ -992,6 +1007,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
         }
     }
 
+    // meteo data
     if (isXmlMeteoGrid)
     {
         if (! setMeteoXmlGrid(myCase.unit.idMeteo, myCase.unit.idForecast, memberNr))
@@ -1027,11 +1043,15 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
         }
     }
 
-    // set computation period (all meteo data)
-    Crit3DDate myDate, firstDate, lastDate;
+    // set computation period
     unsigned long lastIndex = unsigned(myCase.meteoPoint.nrObsDataDaysD-1);
-    firstDate = myCase.meteoPoint.obsDataD[0].date;
-    lastDate = myCase.meteoPoint.obsDataD[lastIndex].date;
+
+    Crit3DDate firstDate = myCase.meteoPoint.obsDataD[0].date;
+    if (firstSimulationDate.isValid() && firstSimulationDate != QDate(1800,1,1))
+    {
+        firstDate = getCrit3DDate(firstSimulationDate);
+    }
+    Crit3DDate lastDate = myCase.meteoPoint.obsDataD[lastIndex].date;
 
     if (isYearlyStatistics || isMonthlyStatistics || isSeasonalForecast)
     {
@@ -1054,14 +1074,14 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
     if (isRestart)
     {
         QString outputDbPath = getFilePath(dbOutput.databaseName());
-        QString stateDbName = outputDbPath + "state_" + firstSimulationDate.toString("yyyy_MM_dd")+".db";
+        QString stateDbName = outputDbPath + "state_" + firstSimulationDate.toString("yyyy_MM_dd") + ".db";
         if (! restoreState(stateDbName, projectError))
         {
             return false;
         }
 
         float waterTable = myCase.meteoPoint.getMeteoPointValueD(firstDate, dailyWaterTableDepth);
-        if (! myCase.crop.restore(myDate, myCase.meteoPoint.latitude, myCase.soilLayers, double(waterTable), errorString))
+        if (! myCase.crop.restore(firstDate, myCase.meteoPoint.latitude, myCase.soilLayers, double(waterTable), errorString))
         {
             projectError = QString::fromStdString(errorString);
             return false;
@@ -1069,7 +1089,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
     }
 
     // daily cycle
-    for (myDate = firstDate; myDate <= lastDate; ++myDate)
+    for (Crit3DDate myDate = firstDate; myDate <= lastDate; ++myDate)
     {
         if (! myCase.computeDailyModel(myDate, errorString))
         {
@@ -1151,13 +1171,13 @@ int Crit1DProject::computeAllUnits()
     {
         for (unsigned int i = 0; i < compUnitList.size(); i++)
         {
-            // is numerical
+            // is numerical infiltration
             if (compUnitList[i].isNumericalInfiltration)
             {
                 logger.writeInfo(compUnitList[i].idCase + " - numerical computation...");
             }
 
-            // check if it is crop class
+            // check crop class
             compUnitList[i].idCrop = getIdCropFromClass(dbCrop, "crop_class", "id_class",
                                                          compUnitList[i].idCropClass, projectError);
             if (compUnitList[i].idCrop == "")
@@ -1165,7 +1185,7 @@ int Crit1DProject::computeAllUnits()
                 compUnitList[i].idCrop = compUnitList[i].idCropClass;
             }
 
-            // IRRI_RATIO
+            // check irri ratio
             float irriRatio = getIrriRatioFromCropClass(dbCrop, "crop_class", "id_class",
                                                     compUnitList[i].idCropClass, projectError);
             if (isEqual(irriRatio, NODATA))
@@ -1173,10 +1193,11 @@ int Crit1DProject::computeAllUnits()
                 irriRatio = 1;
             }
 
-            // SOIL
+            // check soil
             if (compUnitList[i].idSoilNumber != NODATA)
+            {
                 compUnitList[i].idSoil = getIdSoilString(dbSoil, compUnitList[i].idSoilNumber, projectError);
-
+            }
             if (compUnitList[i].idSoil == "")
             {
                 logger.writeInfo("Unit " + compUnitList[i].idCase + " Soil nr." + QString::number(compUnitList[i].idSoilNumber) + " ***** missing SOIL *****");

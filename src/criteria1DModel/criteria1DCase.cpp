@@ -37,6 +37,7 @@
 #include "crop.h"
 #include "waterTable.h"
 #include "utilities.h"
+#include "meteoPoint.h"
 
 
 Crit1DOutput::Crit1DOutput()
@@ -495,6 +496,7 @@ double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double nex
 }
 
 
+// assume meteoPoint data and waterTableParameters loaded
 bool Crit1DCase::fillWaterTableData()
 {
     if (!unit.useWaterTableData || !waterTableParameters.isLoaded)
@@ -521,7 +523,11 @@ bool Crit1DCase::fillWaterTableData()
 
         if (meteoPoint.obsDataD[i].waterTable == NODATA)
         {
-            meteoPoint.obsDataD[i].waterTable = myWaterTable.getWaterTableDaily(currentDate);
+            double waterTableDepth = myWaterTable.getWaterTableDaily(currentDate);      // [cm]
+            if (waterTableDepth != NODATA)
+            {
+                meteoPoint.obsDataD[i].waterTable = waterTableDepth * 0.01;             // [m]
+            }
         }
     }
 
@@ -571,19 +577,12 @@ bool Crit1DCase::computeDailyModel(Crit3DDate &myDate, std::string &error)
     if (prec < 0) prec = 0;
     output.dailyPrec = prec;
 
-    // water table
+    // check water table [m]
     output.dailyWaterTable = double(meteoPoint.getMeteoPointValueD(myDate, dailyWaterTableDepth));
-    // check
+
     if (! isEqual(output.dailyWaterTable, NODATA))
     {
         output.dailyWaterTable = MAXVALUE(output.dailyWaterTable, 0.01);
-    }
-    else
-    {
-        if (unit.useWaterTableData)
-        {
-            // TODO Fausto usare i parametri (leggere) e i dati precedenti (salvare) per calcolare la profondità corrente di falda
-        }
     }
 
     // prec forecast
