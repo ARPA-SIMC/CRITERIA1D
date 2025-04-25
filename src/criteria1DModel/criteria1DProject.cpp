@@ -857,14 +857,6 @@ bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
 
         if (! query.isValid())
         {
-            // previous code version
-            queryString = "SELECT * FROM meteo_locations WHERE id_meteo='" + idForecast + "'";
-            query = dbMeteo.exec(queryString);
-            query.last();
-        }
-
-        if (! query.isValid())
-        {
             if (query.lastError().text().isEmpty())
             {
                 projectError = "DB: " + dbForecast.databaseName() + "\nMissing point_properties for id meteo:" + idForecast;

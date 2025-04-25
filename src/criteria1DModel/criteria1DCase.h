@@ -115,7 +115,7 @@
         bool initializeNumericalFluxes(std::string &error);
         bool computeNumericalFluxes(const Crit3DDate &myDate, std::string &error);
         bool computeWaterFluxes(const Crit3DDate &myDate, std::string &error);
-        double checkIrrigationDemand(int doy, double currentPrec, double nextPrec, double maxTranspiration);
+        double checkIrrigationDemand(int doy, double currentPrec, double precForecast, double maxTranspiration);
         void storeWaterContent();
         void restoreWaterContent();
         double getTotalWaterContent();

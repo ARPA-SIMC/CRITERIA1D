@@ -439,7 +439,7 @@ bool Crit1DCase::computeWaterFluxes(const Crit3DDate &myDate, std::string &error
 }
 
 
-double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double nextPrec, double maxTranspiration)
+double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double precForecast, double maxTranspiration)
 {
     // update days since last irrigation
     if (crop.daysSinceIrrigation != NODATA)
@@ -461,12 +461,13 @@ double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double nex
             return 0;
     }
 
-    // check forecast (today and tomorrow)
+    // check prec forecast
     double dailyWaterNeeds = crop.irrigationVolume / crop.irrigationShift;
     double todayWater = currentPrec + soilLayers[0].waterContent;
-    double twoDaysWater = todayWater + nextPrec;
-    if (todayWater >= dailyWaterNeeds) return 0;
-    if (twoDaysWater >= 2*dailyWaterNeeds) return 0;
+    if (todayWater >= dailyWaterNeeds)
+        return 0;
+    if ((todayWater + precForecast) >= 2*dailyWaterNeeds)
+        return 0;
 
     // check water stress (before infiltration)
     double threshold = 1. - crop.stressTolerance;
@@ -566,14 +567,14 @@ bool Crit1DCase::computeDailyModel(Crit3DDate &myDate, std::string &error)
     {
         prec = 0;
         nrMissingPrec++;
-        if ((nrMissingPrec / meteoPoint.nrObsDataDaysD) > 0.01)
+        if ((nrMissingPrec / meteoPoint.nrObsDataDaysD) > 0.02)
         {
-            error = "Too many precipitation data are missing (> 1%)";
+            error = "Too many precipitation data are missing (> 2%)";
             return false;
         }
     }
 
-    // check on wrong data
+    // check prec
     if (prec < 0) prec = 0;
     output.dailyPrec = prec;
 
@@ -586,8 +587,12 @@ bool Crit1DCase::computeDailyModel(Crit3DDate &myDate, std::string &error)
     }
 
     // prec forecast
-    double precTomorrow = double(meteoPoint.getMeteoPointValueD(myDate.addDays(1), dailyPrecipitation));
-    if (isEqual(precTomorrow, NODATA)) precTomorrow = 0;
+    double prec01 = double(meteoPoint.getMeteoPointValueD(myDate.addDays(1), dailyPrecipitation));
+    if (isEqual(prec01, NODATA)) prec01 = 0;
+    double prec02 = double(meteoPoint.getMeteoPointValueD(myDate.addDays(2), dailyPrecipitation));
+    if (isEqual(prec02, NODATA)) prec02 = 0;
+
+    double precForecast = prec01 + prec02;
 
     // ET0
     output.dailyEt0 = double(meteoPoint.getMeteoPointValueD(myDate, dailyReferenceEvapotranspirationHS));
@@ -611,7 +616,7 @@ bool Crit1DCase::computeDailyModel(Crit3DDate &myDate, std::string &error)
         return false;
 
     // Irrigation
-    double irrigation = checkIrrigationDemand(doy, prec, precTomorrow, output.dailyMaxTranspiration);
+    double irrigation = checkIrrigationDemand(doy, prec, precForecast, output.dailyMaxTranspiration);
 
     // Assign irrigation: optimal (subirrigation) or add to precipitation (sprinkler)
     // and recompute water fluxes

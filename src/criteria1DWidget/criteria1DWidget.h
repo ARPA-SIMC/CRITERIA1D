@@ -49,7 +49,7 @@
             void on_actionViewWeather();
             void on_actionViewSoil();
             bool saveCrop();
-            bool updateMeteoPointValues();
+            bool updateMeteoPointData();
             void updateCropParam(QString idCrop);
             bool updateCrop();
             void updateTabLAI();
