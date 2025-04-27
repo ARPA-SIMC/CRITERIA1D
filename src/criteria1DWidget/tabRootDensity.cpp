@@ -11,17 +11,17 @@ TabRootDensity::TabRootDensity()
     QVBoxLayout *plotLayout = new QVBoxLayout;
 
     dateLayout->setAlignment(Qt::AlignHCenter);
-    currentDate = new QDateEdit;
-    slider = new QSlider(Qt::Horizontal);
-    slider->setMinimum(1);
-    QDate middleDate(currentDate->date().year(),06,30);
-    slider->setMaximum(QDate(middleDate.year(),12,31).dayOfYear());
-    slider->setValue(middleDate.dayOfYear());
-    currentDate->setDate(middleDate);
-    currentDate->setDisplayFormat("MMM dd");
-    currentDate->setMaximumWidth(this->width()/5);
-    yearComboBox.addItem(QString::number(QDate::currentDate().year()));
-    yearComboBox.setMaximumWidth(this->width()/5);
+    m_currentDateEdit = new QDateEdit;
+    m_slider = new QSlider(Qt::Horizontal);
+    m_slider->setMinimum(1);
+    QDate middleDate(m_currentDateEdit->date().year(),06,30);
+    m_slider->setMaximum(QDate(middleDate.year(),12,31).dayOfYear());
+    m_slider->setValue(middleDate.dayOfYear());
+    m_currentDateEdit->setDate(middleDate);
+    m_currentDateEdit->setDisplayFormat("MMM dd");
+    m_currentDateEdit->setMaximumWidth(this->width()/5);
+    m_yearComboBox.addItem(QString::number(QDate::currentDate().year()));
+    m_yearComboBox.setMaximumWidth(this->width()/5);
     chart = new QChart();
     chartView = new QChartView(chart);
     chartView->setChart(chart);
@@ -55,19 +55,19 @@ TabRootDensity::TabRootDensity()
     seriesRootDensity->attachAxis(axisY);
 
     chart->legend()->setVisible(false);
-    nrLayers = 0;
+    m_nrLayers = 0;
 
     m_tooltip = new Callout(chart);
     m_tooltip->hide();
 
-    connect(currentDate, &QDateEdit::dateChanged, this, &TabRootDensity::updateRootDensity);
-    connect(slider, &QSlider::valueChanged, this, &TabRootDensity::updateDate);
+    connect(m_currentDateEdit, &QDateEdit::dateChanged, this, &TabRootDensity::updateRootDensity);
+    connect(m_slider, &QSlider::valueChanged, this, &TabRootDensity::updateDate);
     connect(seriesRootDensity, &QHorizontalBarSeries::hovered, this, &TabRootDensity::tooltip);
-    connect(&yearComboBox, &QComboBox::currentTextChanged, this, &TabRootDensity::on_actionChooseYear);
+    connect(&m_yearComboBox, &QComboBox::currentTextChanged, this, &TabRootDensity::on_actionChooseYear);
     plotLayout->addWidget(chartView);
-    sliderLayout->addWidget(slider);
-    dateLayout->addWidget(&yearComboBox);
-    dateLayout->addWidget(currentDate);
+    sliderLayout->addWidget(m_slider);
+    dateLayout->addWidget(&m_yearComboBox);
+    dateLayout->addWidget(m_currentDateEdit);
     mainLayout->addLayout(sliderLayout);
     mainLayout->addLayout(dateLayout);
     mainLayout->addLayout(plotLayout);
@@ -77,41 +77,41 @@ TabRootDensity::TabRootDensity()
 
 void TabRootDensity::computeRootDensity(const Crit1DProject &myProject, int firstYear, int lastYear)
 {
-    mp =  myProject.myCase.meteoPoint;
-    myCrop = myProject.myCase.crop;
-    layers = myProject.myCase.soilLayers;
-    nrLayers = unsigned(layers.size());
-    lastMeteoDate = myProject.lastSimulationDate;
+    m_meteoPoint =  myProject.myCase.meteoPoint;
+    m_crop = myProject.myCase.crop;
+    m_layers = myProject.myCase.soilLayers;
+    m_nrLayers = unsigned(m_layers.size());
+    m_lastMeteoDate = myProject.lastSimulationDate;
 
-    yearComboBox.blockSignals(true);
-    yearComboBox.clear();
+    m_yearComboBox.blockSignals(true);
+    m_yearComboBox.clear();
     for (int i = firstYear; i<=lastYear; i++)
     {
-        yearComboBox.addItem(QString::number(i));
+        m_yearComboBox.addItem(QString::number(i));
     }
-    year = yearComboBox.currentText().toInt();
-    yearComboBox.blockSignals(false);
+    m_year = m_yearComboBox.currentText().toInt();
+    m_yearComboBox.blockSignals(false);
 
-    if (year == myProject.lastSimulationDate.year())
+    if (m_year == myProject.lastSimulationDate.year())
     {
-        slider->setMaximum(myProject.lastSimulationDate.dayOfYear());
-        currentDate->setDate(myProject.lastSimulationDate);
+        m_slider->setMaximum(myProject.lastSimulationDate.dayOfYear());
+        m_currentDateEdit->setDate(myProject.lastSimulationDate);
     }
     else
     {
-        QDate middleDate(currentDate->date().year(), 06, 30);
-        QDate lastDate(year,12,31);
-        slider->setMaximum(lastDate.dayOfYear());
-        currentDate->setDate(middleDate);
+        QDate middleDate(m_currentDateEdit->date().year(), 06, 30);
+        QDate lastDate(m_year,12,31);
+        m_slider->setMaximum(lastDate.dayOfYear());
+        m_currentDateEdit->setDate(middleDate);
     }
 
     double totalSoilDepth = 0;
-    if (nrLayers > 0) totalSoilDepth = myProject.myCase.soilLayers[nrLayers-1].depth
-                                        + myProject.myCase.soilLayers[nrLayers-1].thickness / 2;
+    if (m_nrLayers > 0) totalSoilDepth = myProject.myCase.soilLayers[m_nrLayers-1].depth
+                                        + myProject.myCase.soilLayers[m_nrLayers-1].thickness / 2;
 
     axisY->clear();
     categories.clear();
-    depthLayers.clear();
+    m_depthLayers.clear();
     double i = totalSoilDepth-0.05;
     while (i >= 0)
     {
@@ -124,32 +124,32 @@ void TabRootDensity::computeRootDensity(const Crit1DProject &myProject, int firs
     for (int i = n; i>0; i--)
     {
         value = (i-1)*0.02 + 0.01;
-        depthLayers.append(value);
+        m_depthLayers.append(value);
     }
 
     axisY->append(categories);
 
     int currentDoy = 1;
-    myCrop.initialize(myProject.myCase.meteoPoint.latitude, nrLayers, totalSoilDepth, currentDoy);
+    m_crop.initialize(myProject.myCase.meteoPoint.latitude, m_nrLayers, totalSoilDepth, currentDoy);
 
     updateRootDensity();
 }
 
 
-void TabRootDensity::on_actionChooseYear(QString myYear)
+void TabRootDensity::on_actionChooseYear(const QString &myYear)
 {
-    this->year = myYear.toInt();
-    if (year == lastMeteoDate.year())
+    m_year = myYear.toInt();
+    if (m_year == m_lastMeteoDate.year())
     {
-        slider->setMaximum(lastMeteoDate.dayOfYear());
-        currentDate->setDate(lastMeteoDate);
+        m_slider->setMaximum(m_lastMeteoDate.dayOfYear());
+        m_currentDateEdit->setDate(m_lastMeteoDate);
     }
     else
     {
-        QDate middleDate(currentDate->date().year(),06,30);
-        QDate lastDate(this->year,12,31);
-        slider->setMaximum(lastDate.dayOfYear());
-        currentDate->setDate(middleDate);
+        QDate middleDate(m_currentDateEdit->date().year(),06,30);
+        QDate lastDate(m_year,12,31);
+        m_slider->setMaximum(lastDate.dayOfYear());
+        m_currentDateEdit->setDate(middleDate);
     }
 
     updateRootDensity();
@@ -158,28 +158,28 @@ void TabRootDensity::on_actionChooseYear(QString myYear)
 
 void TabRootDensity::updateDate()
 {
-    int doy = slider->value();
-    QDate newDate = QDate(year, 1, 1).addDays(doy - 1);
-    if (newDate != currentDate->date())
+    int doy = m_slider->value();
+    QDate newDate = QDate(m_year, 1, 1).addDays(doy - 1);
+    if (newDate != m_currentDateEdit->date())
     {
-        currentDate->setDate(newDate);
+        m_currentDateEdit->setDate(newDate);
     }
 }
 
 
 void TabRootDensity::updateRootDensity()
 {
-    QDate newDate(year,currentDate->date().month(),currentDate->date().day());
-    if (newDate > lastMeteoDate)
+    QDate newDate(m_year,m_currentDateEdit->date().month(),m_currentDateEdit->date().day());
+    if (newDate > m_lastMeteoDate)
     {
-        currentDate->setDate(lastMeteoDate);
+        m_currentDateEdit->setDate(m_lastMeteoDate);
         return;
     }
-    slider->blockSignals(true);
-    slider->setValue(newDate.dayOfYear());
-    slider->blockSignals(false);
+    m_slider->blockSignals(true);
+    m_slider->setValue(newDate.dayOfYear());
+    m_slider->blockSignals(false);
 
-    if (nrLayers == 0) return;
+    if (m_nrLayers == 0) return;
 
     if (set != nullptr)
     {
@@ -188,41 +188,41 @@ void TabRootDensity::updateRootDensity()
     }
     set = new QBarSet("");
 
-    std::string error;
-    int prevYear = year - 1;
+    std::string errorStr;
+    int prevYear = m_year - 1;
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
-    Crit3DDate lastDate = Crit3DDate(currentDate->date().day(), currentDate->date().month(), year);
+    Crit3DDate lastDate = Crit3DDate(m_currentDateEdit->date().day(), m_currentDateEdit->date().month(), m_year);
 
     double tmin, tmax, waterTableDepth;
     double maxRootDensity = 0;
 
     for (Crit3DDate myDate = firstDate; myDate <= lastDate; ++myDate)
     {
-        tmin = mp.getMeteoPointValueD(myDate, dailyAirTemperatureMin);
-        tmax = mp.getMeteoPointValueD(myDate, dailyAirTemperatureMax);
-        waterTableDepth = mp.getMeteoPointValueD(myDate, dailyWaterTableDepth);
+        tmin = m_meteoPoint.getMeteoPointValueD(myDate, dailyAirTemperatureMin);
+        tmax = m_meteoPoint.getMeteoPointValueD(myDate, dailyAirTemperatureMax);
+        waterTableDepth = m_meteoPoint.getMeteoPointValueD(myDate, dailyWaterTableDepth);
 
-        if (!myCrop.dailyUpdate(myDate, mp.latitude, layers, tmin, tmax, waterTableDepth, error))
+        if (!m_crop.dailyUpdate(myDate, m_meteoPoint.latitude, m_layers, tmin, tmax, waterTableDepth, errorStr))
         {
-            QMessageBox::critical(nullptr, "Error!", QString::fromStdString(error));
+            QMessageBox::critical(nullptr, "Error!", QString::fromStdString(errorStr));
             return;
         }
 
         // display only current doy
         if (myDate == lastDate)
         {
-            for (int i = 0; i<depthLayers.size(); i++)
+            for (int i = 0; i < m_depthLayers.size(); i++)
             {
                 int layerIndex;
                 double rootDensity;
                 double rootDensityAdj;
-                if (depthLayers[i] <= 2)
+                if (m_depthLayers[i] <= 2)
                 {
-                    layerIndex = getSoilLayerIndex(layers, depthLayers[i]);
+                    layerIndex = getSoilLayerIndex(m_layers, m_depthLayers[i]);
                     if (layerIndex != NODATA)
                     {
-                        rootDensity = myCrop.roots.rootDensity[layerIndex]*100;
-                        rootDensityAdj = rootDensity/layers[layerIndex].thickness*0.02;
+                        rootDensity = m_crop.roots.rootDensity[layerIndex]*100;
+                        rootDensityAdj = rootDensity / m_layers[layerIndex].thickness*0.02;
                         *set << rootDensityAdj;
 
                         if (rootDensityAdj > maxRootDensity)

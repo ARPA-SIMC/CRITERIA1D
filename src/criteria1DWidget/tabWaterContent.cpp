@@ -73,7 +73,7 @@ TabWaterContent::TabWaterContent()
 
 
 void TabWaterContent::computeWaterContent(Crit1DCase &myCase, int firstYear, int lastYear,
-                                          const QDate &lastDBMeteoDate, bool isVolumetricWaterContent)
+                                          const QDate &lastSimulationDate, bool isVolumetricWaterContent)
 {
     FormInfo formInfo;
     if (isVolumetricWaterContent)
@@ -97,13 +97,13 @@ void TabWaterContent::computeWaterContent(Crit1DCase &myCase, int firstYear, int
 
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
     Crit3DDate lastDate;
-    if (lastYear != lastDBMeteoDate.year())
+    if (lastYear != lastSimulationDate.year())
     {
         lastDate = Crit3DDate(31, 12, lastYear);
     }
     else
     {
-        lastDate = Crit3DDate(lastDBMeteoDate.day(), lastDBMeteoDate.month(), lastYear);
+        lastDate = Crit3DDate(lastSimulationDate.day(), lastSimulationDate.month(), lastYear);
     }
 
     // update axes

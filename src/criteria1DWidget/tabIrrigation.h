@@ -13,7 +13,7 @@
 
     public:
         TabIrrigation();
-        void computeIrrigation(Crit1DCase &myCase, int firstYear, int lastYear, const QDate &lastDBMeteoDate);
+        void computeIrrigation(Crit1DCase &myCase, int firstYear, int lastYear, const QDate &lastSimulationDate);
 
         void tooltipLAI(QPointF point, bool isShow);
         void tooltipEvapTransp(QPointF point, bool isShow);
@@ -22,7 +22,8 @@
         void handleMarkerClicked();
 
     private:
-        int firstYear;
+        int firstYear_;
+
         QChartView *chartView;
         QChart *chart;
         QBarCategoryAxis *axisX;

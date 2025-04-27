@@ -1059,7 +1059,7 @@ void Criteria1DWidget::on_actionChooseCase()
     myProject.myCase.unit = myProject.compUnitList[unsigned(index)];
     myProject.myCase.fittingOptions.useWaterRetentionData = myProject.myCase.unit.useWaterRetentionData;
 
-    // WATERTABLE
+    // Read watertable parameters
     if (myProject.myCase.unit.useWaterTableData &&  !myProject.dbWaterTableName.isEmpty() && !myProject.myCase.unit.idWaterTable.isEmpty())
     {
         WaterTableDb wtDataBase = WaterTableDb(myProject.dbWaterTableName, errorStr);
@@ -1074,7 +1074,14 @@ void Criteria1DWidget::on_actionChooseCase()
     }
 
     // METEO
-    meteoListComboBox.setCurrentText(myProject.myCase.unit.idMeteo);
+    if (myProject.myCase.unit.idMeteo != meteoListComboBox.currentText())
+    {
+        meteoListComboBox.setCurrentText(myProject.myCase.unit.idMeteo);
+    }
+    else
+    {
+        on_actionChooseMeteo(myProject.myCase.unit.idMeteo);
+    }
 
     // CROP ID
     myProject.myCase.unit.idCrop = getIdCropFromClass(myProject.dbCrop, "crop_class", "id_class", myProject.myCase.unit.idCropClass, errorStr);
@@ -1099,8 +1106,14 @@ void Criteria1DWidget::on_actionChooseCase()
     }
     if (myProject.myCase.unit.idSoil != "")
     {
-        soilListComboBox.setCurrentText(myProject.myCase.unit.idSoil);
-        on_actionChooseSoil(myProject.myCase.unit.idSoil);
+        if (myProject.myCase.unit.idSoil != soilListComboBox.currentText())
+        {
+            soilListComboBox.setCurrentText(myProject.myCase.unit.idSoil);
+        }
+        else
+        {
+            on_actionChooseSoil(myProject.myCase.unit.idSoil);
+        }
     }
     else
     {
@@ -1875,7 +1888,7 @@ void Criteria1DWidget::updateTabRootDepth()
 {
     if (myProject.isProjectLoaded)
     {
-        tabRootDepth->computeRootDepth(&(myProject.myCase.crop), &(myProject.myCase.meteoPoint),
+        tabRootDepth->computeRootDepth(myProject.myCase.crop, myProject.myCase.meteoPoint,
                                        firstYearListComboBox.currentText().toInt(),
                                        lastYearListComboBox.currentText().toInt(),
                                        myProject.lastSimulationDate, myProject.myCase.soilLayers);

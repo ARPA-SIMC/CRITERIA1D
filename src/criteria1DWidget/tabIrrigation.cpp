@@ -3,6 +3,7 @@
 #include "formInfo.h"
 #include "math.h"
 #include "criteria1DCase.h"
+#include "crit3dDate.h"
 
 
 TabIrrigation::TabIrrigation()
@@ -128,7 +129,7 @@ TabIrrigation::TabIrrigation()
 }
 
 
-void TabIrrigation::computeIrrigation(Crit1DCase &myCase, int firstYear, int lastYear, const QDate &lastDBMeteoDate)
+void TabIrrigation::computeIrrigation(Crit1DCase &myCase, int firstYear, int lastYear, const QDate &lastSimulationDate)
 {
     FormInfo formInfo;
 
@@ -136,18 +137,18 @@ void TabIrrigation::computeIrrigation(Crit1DCase &myCase, int firstYear, int las
     double totalSoilDepth = 0;
     if (nrLayers > 0) totalSoilDepth = myCase.soilLayers[nrLayers-1].depth + myCase.soilLayers[nrLayers-1].thickness / 2;
 
-    this->firstYear = firstYear;
+    firstYear_ = firstYear;
     int prevYear = firstYear - 1;
 
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
     Crit3DDate lastDate;
-    if (lastYear != lastDBMeteoDate.year())
+    if (lastYear != lastSimulationDate.year())
     {
         lastDate = Crit3DDate(31, 12, lastYear);
     }
     else
     {
-        lastDate = Crit3DDate(lastDBMeteoDate.day(), lastDBMeteoDate.month(), lastYear);
+        lastDate = Crit3DDate(lastSimulationDate.day(), lastSimulationDate.month(), lastYear);
     }
 
     axisX->clear();
@@ -238,7 +239,7 @@ void TabIrrigation::tooltipLAI(QPointF point, bool isShow)
 {
     if (isShow)
     {
-        QDate xDate(firstYear, 1, 1);
+        QDate xDate(firstYear_, 1, 1);
         int doy = int(round(point.x())); // start from 0
         xDate = xDate.addDays(doy);
         m_tooltip->setText(QString("%1\nLAI: %2 [m2 m-2]").arg(xDate.toString("yyyy-MM-dd")).arg(point.y(), 0, 'f', 1));
@@ -257,7 +258,7 @@ void TabIrrigation::tooltipEvapTransp(QPointF point, bool isShow)
 {
     if (isShow)
     {
-        QDate xDate(firstYear, 1, 1);
+        QDate xDate(firstYear_, 1, 1);
         int doy = int(round(point.x()));
         xDate = xDate.addDays(doy);
         m_tooltip->setText(xDate.toString("yyyy-MM-dd") + "\n" + QString::number(point.y(),'f', 2)+ " mm");
@@ -284,7 +285,7 @@ void TabIrrigation::tooltipPrecIrr(bool isShow, int index, QBarSet *barset)
         double ratio = axisYdx->max() / axisY->max();
         pointF.setY(pointF.y() / ratio);
 
-        QDate xDate(firstYear, 1, 1);
+        QDate xDate(firstYear_, 1, 1);
         xDate = xDate.addDays(index);
 
         QString valueStr;

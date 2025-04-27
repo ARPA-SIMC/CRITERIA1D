@@ -13,7 +13,7 @@
     public:
         TabWaterContent();
         void computeWaterContent(Crit1DCase &myCase, int firstYear, int lastYear,
-                                 const QDate &lastDBMeteoDate, bool isVolumetricWaterContent);
+                                 const QDate &lastSimulationDate, bool isVolumetricWaterContent);
 
     private:
         //bool isVolumetricWaterContent;

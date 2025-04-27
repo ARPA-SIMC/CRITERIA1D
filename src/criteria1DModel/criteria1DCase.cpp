@@ -157,7 +157,14 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &error)
 
     float horizontalConductivityRatio = 10.0;
     soilFluxes3D::setHydraulicProperties(fittingOptions.waterRetentionCurve, MEAN_LOGARITHMIC, horizontalConductivityRatio);
-    soilFluxes3D::setNumericalParameters(30, 3600, 200, 10, 12, 3);
+    if (unit.useWaterTableData)
+    {
+        soilFluxes3D::setNumericalParameters(60, 3600, 200, 10, 12, 2);
+    }
+    else
+    {
+        soilFluxes3D::setNumericalParameters(30, 3600, 200, 10, 12, 3);
+    }
     soilFluxes3D::setThreads(1);
 
     // set soil properties (units of measurement: MKS)
@@ -206,8 +213,8 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &error)
     isSurface = false;
     for (int i = 1; i < nrLayers; i++)
     {
-        double volume = _area * soilLayers[unsigned(i)].thickness;             // [m3]
-        double z = z0 - soilLayers[unsigned(i)].depth;                        // [m]
+        double volume = _area * soilLayers[unsigned(i)].thickness;              // [m3]
+        double z = z0 - soilLayers[unsigned(i)].depth;                          // [m]
         if (i == lastLayer)
         {
             if (unit.useWaterTableData)
