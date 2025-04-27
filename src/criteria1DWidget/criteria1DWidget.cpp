@@ -1080,7 +1080,7 @@ void Criteria1DWidget::on_actionChooseCase()
     }
     else
     {
-        on_actionChooseMeteo(myProject.myCase.unit.idMeteo);
+        updateMeteoPointData();
     }
 
     // CROP ID
