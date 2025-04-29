@@ -73,8 +73,8 @@ Crit1DCase::Crit1DCase()
     _minLayerThickness = 0.02;           /*!< [m] layer thickness (default = 2 cm)  */
     _geometricFactor = 1.2;              /*!< [-] factor for geometric progression of thickness  */
     _ploughedSoilDepth = 0.5;            /*!< [m] depth of ploughed soil  */
-    _lx = 2;                             /*!< [m]   */
-    _ly = 2;                             /*!< [m]   */
+    _lx = 100;                           /*!< [m]   */
+    _ly = 100;                           /*!< [m]   */
     _area = _lx * _ly;                   /*!< [m2]  */
 
     soilLayers.clear();
@@ -110,7 +110,7 @@ bool Crit1DCase::initializeSoil(std::string &error)
 }
 
 
-bool Crit1DCase::initializeWaterContent(Crit3DDate myDate)
+bool Crit1DCase::initializeWaterContent(const Crit3DDate &myDate)
 {
     if (soilLayers.size() > 0)
     {
@@ -434,7 +434,7 @@ bool Crit1DCase::computeWaterFluxes(const Crit3DDate &myDate, std::string &error
         // LATERAL DRAINAGE
         if (this->unit.isComputeLateralDrainage)
         {
-            output.dailyLateralDrainage = computeLateralDrainage(soilLayers);
+            output.dailyLateralDrainage = computeLateralDrainage(soilLayers, _lx);
         }
         else
         {
@@ -547,7 +547,7 @@ bool Crit1DCase::fillWaterTableData()
  * \brief run model (daily cycle)
  * \param myDate
  */
-bool Crit1DCase::computeDailyModel(Crit3DDate &myDate, std::string &error)
+bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
 {
     output.initialize();
     double previousWC = getTotalWaterContent();

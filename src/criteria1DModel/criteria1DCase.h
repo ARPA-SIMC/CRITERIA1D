@@ -84,10 +84,10 @@
         Crit1DCase();
 
         bool initializeSoil(std::string &error);
-        bool initializeWaterContent(Crit3DDate myDate);
+        bool initializeWaterContent(const Crit3DDate &myDate);
         bool fillWaterTableData();
 
-        bool computeDailyModel(Crit3DDate &myDate, std::string &error);
+        bool computeDailyModel(const Crit3DDate &myDate, std::string &error);
 
         double getVolumetricWaterContent(double computationDepth);
         double getDegreeOfSaturation(double computationDepth);
@@ -111,11 +111,13 @@
         double _lx, _ly;                 // [m]
         double _area;                    // [m2]
 
-
         bool initializeNumericalFluxes(std::string &error);
         bool computeNumericalFluxes(const Crit3DDate &myDate, std::string &error);
+
         bool computeWaterFluxes(const Crit3DDate &myDate, std::string &error);
+
         double checkIrrigationDemand(int doy, double currentPrec, double precForecast, double maxTranspiration);
+
         void storeWaterContent();
         void restoreWaterContent();
         double getTotalWaterContent();

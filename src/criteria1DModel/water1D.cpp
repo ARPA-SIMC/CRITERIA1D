@@ -482,10 +482,11 @@ double computeSurfaceRunoff(const Crit3DCrop &myCrop, std::vector<soil::Crit1DLa
 /*!
  * \brief Compute lateral drainage
  * \param soilLayers
+ * fielfWidth       [m]
  * \note P.M.Driessen, 1986, eq.58
  * \return lateralDrainage
  */
-double computeLateralDrainage(std::vector<soil::Crit1DLayer> &soilLayers)
+double computeLateralDrainage(std::vector<soil::Crit1DLayer> &soilLayers, double fieldWidth)
 {
     double satFactor;                       // [-]
     double hydrHead;                        // [m]
@@ -493,9 +494,8 @@ double computeLateralDrainage(std::vector<soil::Crit1DLayer> &soilLayers)
     double layerDrainage;                   // [mm]
     double maxDrainage;                     // [mm]
 
-    const double drainRadius = 0.25;        // [m]
+    const double drainRadius = 0.25;        // [m] radius of drain
     const double drainDepth = 1.0;          // [m] depth of drain
-    const double fieldWidth = 100.0;        // [m]
 
     double lateralDrainageSum = 0;          // [mm]
 

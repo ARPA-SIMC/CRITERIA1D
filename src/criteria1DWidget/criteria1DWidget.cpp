@@ -875,9 +875,9 @@ void Criteria1DWidget::on_actionOpenMeteoDB()
     if (! dbMeteoName.isEmpty())
     {
         if (dbMeteoName.right(3) == "xml")
-            myProject.isXmlMeteoGrid = true;
+            myProject.setIsXmlGrid(true);
         else
-            myProject.isXmlMeteoGrid = false;
+            myProject.setIsXmlGrid(false);
 
         openMeteoDB(dbMeteoName, true);
     }
@@ -888,7 +888,7 @@ void Criteria1DWidget::openMeteoDB(QString dbMeteoName, bool isMenu)
 {
     QString errorStr;
     QList<QString> idMeteoList;
-    if (myProject.isXmlMeteoGrid)
+    if (myProject.isXmlMeteoGrid())
     {
         if (isMenu)
         {
@@ -1286,7 +1286,7 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
     myProject.myCase.meteoPoint.setId(idMeteo.toStdString());
     QString errorStr;
 
-    if (myProject.isXmlMeteoGrid)
+    if (myProject.isXmlMeteoGrid())
     {
         if (! myProject.observedMeteoGrid->loadIdMeteoProperties(idMeteo, errorStr))
         {
@@ -1493,7 +1493,7 @@ bool Criteria1DWidget::updateMeteoPointData()
 
     myProject.myCase.meteoPoint.initializeObsDataD(numberDays, getCrit3DDate(firstDate));
 
-    if (myProject.isXmlMeteoGrid)
+    if (myProject.isXmlMeteoGrid())
     {
         unsigned row, col;
         if (! myProject.observedMeteoGrid->meteoGrid()->findMeteoPointFromId(&row, &col, myProject.myCase.meteoPoint.id))
@@ -2212,7 +2212,7 @@ bool Criteria1DWidget::setMeteoSqlite(QString& errorStr)
 
 void Criteria1DWidget::on_actionViewWeather()
 {
-    if (! myProject.isXmlMeteoGrid)
+    if (! myProject.isXmlMeteoGrid())
     {
         if (! setMeteoSqlite(myProject.projectError))
         {
@@ -2221,7 +2221,7 @@ void Criteria1DWidget::on_actionViewWeather()
         }
     }
 
-    Crit3DMeteoWidget* meteoWidgetPoint = new Crit3DMeteoWidget(myProject.isXmlMeteoGrid, myProject.path, &meteoSettings);
+    Crit3DMeteoWidget* meteoWidgetPoint = new Crit3DMeteoWidget(myProject.isXmlMeteoGrid(), myProject.path, &meteoSettings);
 
     QDate lastDate = getQDate(myProject.myCase.meteoPoint.getLastDailyData());
     meteoWidgetPoint->setCurrentDate(lastDate);

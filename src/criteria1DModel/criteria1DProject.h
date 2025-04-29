@@ -31,8 +31,6 @@
         QDate firstSimulationDate;
         QDate lastSimulationDate;
 
-        double computationSoilDepth;                    // [m]
-
         bool isProjectLoaded;
         QString projectError;
         Logger logger;
@@ -47,8 +45,6 @@
         QString dbForecastName;
         QString dbWaterTableName;
         QString dbComputationUnitsName;
-
-        bool isXmlMeteoGrid;
 
         Crit1DCase myCase;
         Crit1DCarbonNitrogenProfile myCarbonNitrogenProfile;
@@ -69,29 +65,37 @@
 
         bool setSoil(const QString &soilCode, QString &errorStr);
 
+        void setIsXmlGrid(bool isGrid) { _isXmlMeteoGrid = isGrid; }
+        bool isXmlMeteoGrid() { return _isXmlMeteoGrid; }
+
     private:
-        bool computeAllSoilDepth;
+        bool _computeAllSoilDepth;
+        bool _isXmlMeteoGrid;
+
+        double _computationSoilDepth;                    // [m]
 
         QString projectName;
         QString configFileName;
-        bool addDateTimeLogFile;
+        bool _addDateTimeLogFile;
 
         // save/restart
-        bool isSaveState;
-        bool isRestart;
+        bool _isSaveState;
+        bool _isRestart;
 
         // forecast/climate type
-        bool isYearlyStatistics;
-        bool isMonthlyStatistics;
-        bool isSeasonalForecast;
-        bool isEnsembleForecast;
-        bool isShortTermForecast;
+        bool _isYearlyStatistics;
+        bool _isMonthlyStatistics;
+        bool _isSeasonalForecast;
+        bool _isEnsembleForecast;
+        bool _isShortTermForecast;
 
-        int firstMonth;
-        int daysOfForecast;
-        int nrYears;
-        std::vector<float> irriSeries;                  // [mm]
-        std::vector<float> precSeries;                  // [mm]
+        int _firstComputationMonth;
+        int _daysOfForecast;
+        int _nrComputationYears;
+        int _nrSetupYears;
+
+        std::vector<float> _irriSeries;                 // [mm]
+        std::vector<float> _precSeries;                 // [mm]
 
         QString outputString;
         QString outputCsvFileName;

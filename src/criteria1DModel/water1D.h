@@ -15,7 +15,7 @@
 
     double computeEvaporation(std::vector<soil::Crit1DLayer> &soilLayers, double maxEvaporation);
     double computeSurfaceRunoff(const Crit3DCrop &myCrop, std::vector<soil::Crit1DLayer> &soilLayers);
-    double computeLateralDrainage(std::vector<soil::Crit1DLayer> &soilLayers);
+    double computeLateralDrainage(std::vector<soil::Crit1DLayer> &soilLayers, double fieldWidth);
     double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double waterTableDepth);
 
     double assignOptimalIrrigation(std::vector<soil::Crit1DLayer> &soilLayers, unsigned int lastRootLayer, double irrigationMax);
