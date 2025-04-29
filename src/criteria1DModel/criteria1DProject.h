@@ -62,12 +62,12 @@
         Crit1DProject();
 
         void initialize();
-        int initializeProject(QString settingsFileName);
+        int initializeProject(const QString &settingsFileName);
 
         int computeAllUnits();
         bool computeUnit(const Crit1DCompUnit& myUnit);
 
-        bool setSoil(QString soilCode, QString &errorStr);
+        bool setSoil(const QString &soilCode, QString &errorStr);
 
     private:
         bool computeAllSoilDepth;
@@ -122,24 +122,25 @@
         int openAllDatabase();
         void checkSimulationDates();
 
-        bool setMeteoSqlite(QString idMeteo, QString idForecast);
-        bool setMeteoXmlGrid(QString idMeteo, QString idForecast, unsigned int memberNr);
+        bool setMeteoSqlite(const QString &idMeteo, const QString &idForecast);
+        bool setMeteoXmlGrid(QString idMeteo, const QString &idForecast, unsigned int memberNr);
 
         bool setPercentileOutputCsv();
-        void updateMediumTermForecastOutput(Crit3DDate myDate, unsigned int memberNr);
+
         void initializeIrrigationStatistics(const Crit3DDate &firstDate, const Crit3DDate &lastDate);
-        void updateIrrigationStatistics(Crit3DDate myDate, int &currentIndex);
+        void updateIrrigationStatistics(const Crit3DDate &myDate, int &currentYearIndex);
         bool computeIrrigationStatistics(unsigned int index, float irriRatio);
-        bool computeMonthlyForecast(unsigned int unitIndex, float irriRatio);
+        bool computeEnsembleForecast(unsigned int unitIndex, float irriRatio);
+        void updateEnsembleForecastOutput(const Crit3DDate &myDate, unsigned int memberNr);
 
         bool computeCase(unsigned int memberNr);
         bool computeUnit(unsigned int unitIndex, unsigned int memberNr);
 
-        bool createOutputTable(QString &myError);
-        bool createDbState(QString &myError);
-        bool saveState(QString &myError);
-        bool restoreState(QString dbStateToRestoreName, QString &myError);
-        void updateOutput(Crit3DDate myDate, bool isFirst);
+        bool createOutputTable(QString &errorStr);
+        bool createDbState(QString &errorStr);
+        bool saveState(QString &errorStr);
+        bool restoreState(const QString &dbStateName, QString &errorStr);
+        void updateOutput(const Crit3DDate &myDate, bool isFirst);
         bool saveOutput(QString &errorStr);
 
     };

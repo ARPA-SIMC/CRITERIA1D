@@ -389,7 +389,7 @@ bool Crit1DProject::readSettings()
 }
 
 
-int Crit1DProject::initializeProject(QString settingsFileName)
+int Crit1DProject::initializeProject(const QString &settingsFileName)
 {
     if (settingsFileName == "")
     {
@@ -498,7 +498,7 @@ void Crit1DProject::checkSimulationDates()
 }
 
 
-bool Crit1DProject::setSoil(QString soilCode, QString &errorStr)
+bool Crit1DProject::setSoil(const QString &soilCode, QString &errorStr)
 {
     if (! loadSoil(dbSoil, soilCode, myCase.mySoil, texturalClassList, geotechnicsClassList, myCase.fittingOptions, errorStr))
         return false;
@@ -524,7 +524,7 @@ bool Crit1DProject::setSoil(QString soilCode, QString &errorStr)
 }
 
 
-bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, QString idForecast, unsigned int memberNr)
+bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, const QString &idForecast, unsigned int memberNr)
 {
     // check date
     QDate NODATE = QDate(1800, 1, 1);
@@ -718,7 +718,7 @@ bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, QString idForecast, unsigne
 }
 
 
-bool Crit1DProject::setMeteoSqlite(QString idMeteo, QString idForecast)
+bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idForecast)
 {
     QString queryString = "SELECT * FROM point_properties WHERE id_meteo='" + idMeteo + "'";
     QSqlQuery query = dbMeteo.exec(queryString);
@@ -1028,7 +1028,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
     {
         float irriRatio = getIrriRatioFromCropClass(dbCrop, "crop_class", "id_class",
                                                 myCase.unit.idCropClass, projectError);
-        if (irriRatio < 0.001)
+        if (irriRatio < EPSILON)
         {
             // No irrigation: nothing to do
             return true;
@@ -1096,7 +1096,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
         }
         if (isEnsembleForecast)
         {
-            updateMediumTermForecastOutput(myDate, memberNr);
+            updateEnsembleForecastOutput(myDate, memberNr);
         }
         if ( !isEnsembleForecast && !isSeasonalForecast && !isMonthlyStatistics)
         {
@@ -1129,7 +1129,7 @@ int Crit1DProject::computeAllUnits()
 
     if (isYearlyStatistics || isMonthlyStatistics || isSeasonalForecast || isEnsembleForecast)
     {
-        if (!setPercentileOutputCsv())
+        if (! setPercentileOutputCsv())
             return ERROR_DBOUTPUT;
     }
     else
@@ -1208,7 +1208,7 @@ int Crit1DProject::computeAllUnits()
             {
                 if (isEnsembleForecast)
                 {
-                    if (computeMonthlyForecast(i, irriRatio))
+                    if (computeEnsembleForecast(i, irriRatio))
                         nrUnitsComputed++;
                     else
                         isErrorModel = true;
@@ -1277,7 +1277,7 @@ int Crit1DProject::computeAllUnits()
 
 
 // update values of medium term forecast
-void Crit1DProject::updateMediumTermForecastOutput(Crit3DDate myDate, unsigned int memberNr)
+void Crit1DProject::updateEnsembleForecastOutput(const Crit3DDate &myDate, unsigned int memberNr)
 {
     QDate myQdate = getQDate(myDate);
 
@@ -1294,8 +1294,8 @@ void Crit1DProject::updateMediumTermForecastOutput(Crit3DDate myDate, unsigned i
 }
 
 
-// update values of annual irrigation
-void Crit1DProject::updateIrrigationStatistics(Crit3DDate myDate, int &currentIndex)
+// update values of annual irrigation (month, season or whole year)
+void Crit1DProject::updateIrrigationStatistics(const Crit3DDate &myDate, int &currentYearIndex)
 {
     if ( !isYearlyStatistics && !isMonthlyStatistics && !isSeasonalForecast )
         return;
@@ -1331,28 +1331,33 @@ void Crit1DProject::updateIrrigationStatistics(Crit3DDate myDate, int &currentIn
 
     if (isInsideSeason)
     {
-        // first date of season
+        // first date of season: increase year index
         if (myDate.day == 1 && myDate.month == firstMonth)
         {
-            if (currentIndex == NODATA)
-                currentIndex = 0;
+            if (currentYearIndex == NODATA)
+                currentYearIndex = 0;
             else
-                currentIndex++;
+                currentYearIndex++;
         }
 
         // sum of irrigations
-        if (currentIndex != NODATA)
+        if (currentYearIndex != NODATA)
         {
-            if (isEqual(irriSeries[unsigned(currentIndex)], NODATA))
-                irriSeries[unsigned(currentIndex)] = float(myCase.output.dailyIrrigation);
+            if (isEqual(irriSeries[currentYearIndex], NODATA))
+            {
+                // first value
+                irriSeries[currentYearIndex] = float(myCase.output.dailyIrrigation);
+            }
             else
-                irriSeries[unsigned(currentIndex)] += float(myCase.output.dailyIrrigation);
+            {
+                irriSeries[currentYearIndex] += float(myCase.output.dailyIrrigation);
+            }
         }
     }
 }
 
 
-bool Crit1DProject::computeMonthlyForecast(unsigned int unitIndex, float irriRatio)
+bool Crit1DProject::computeEnsembleForecast(unsigned int unitIndex, float irriRatio)
 {
     logger.writeInfo(compUnitList[unitIndex].idCase);
 
@@ -1428,7 +1433,7 @@ bool Crit1DProject::computeIrrigationStatistics(unsigned int index, float irriRa
     outputCsvFile << compUnitList[index].idCase.toStdString() << "," << compUnitList[index].idCrop.toStdString() << ",";
     outputCsvFile << compUnitList[index].idSoil.toStdString() << "," << compUnitList[index].idMeteo.toStdString();
 
-    if (irriRatio < 0.001f)
+    if (irriRatio < EPSILON)
     {
         // No irrigation
         outputCsvFile << ",0,0,0,0,0\n";
@@ -1478,7 +1483,7 @@ bool Crit1DProject::setPercentileOutputCsv()
     {
         outputCsvFile << "ID_CASE,CROP,SOIL,METEO,irri_05,irri_25,irri_50,irri_75,irri_95\n";
     }
-    if (isEnsembleForecast)
+    else if (isEnsembleForecast)
     {
         outputCsvFile << "ID_CASE,CROP,irri_05,irri_25,irri_50,irri_75,irri_95,prec_05,prec_25,prec_50,prec_75,prec_95\n";
     }
@@ -1493,11 +1498,11 @@ void Crit1DProject::initializeIrrigationStatistics(const Crit3DDate& firstDate, 
     irriSeries.clear();
 
     nrYears = lastDate.year - firstDate.year +1;
-    irriSeries.resize(unsigned(nrYears));
+    irriSeries.resize(nrYears);
 
     for (int i = 0; i < nrYears; i++)
     {
-        irriSeries[unsigned(i)] = NODATA;
+        irriSeries[i] = NODATA;
     }
 }
 
@@ -1546,11 +1551,11 @@ bool Crit1DProject::createDbState(QString &myError)
 }
 
 
-bool Crit1DProject::restoreState(QString dbStateToRestoreName, QString &myError)
+bool Crit1DProject::restoreState(const QString &dbStateName, QString &errorStr)
 {
-    if (!QFile::exists(dbStateToRestoreName))
+    if (! QFile::exists(dbStateName))
     {
-        myError = "DB state: " + dbStateToRestoreName + " does not exist";
+        errorStr = "DB state: " + dbStateName + " does not exist";
         return false;
     }
 
@@ -1560,12 +1565,12 @@ bool Crit1DProject::restoreState(QString dbStateToRestoreName, QString &myError)
     else
     {
         dbStateToRestore = QSqlDatabase::addDatabase("QSQLITE", "stateToRestore");
-        dbStateToRestore.setDatabaseName(dbStateToRestoreName);
+        dbStateToRestore.setDatabaseName(dbStateName);
     }
 
     if (! dbStateToRestore.open())
     {
-        myError = "Open state DB failed: " + dbStateToRestore.lastError().text();
+        errorStr = "Open state DB failed: " + dbStateToRestore.lastError().text();
         return false;
     }
     QSqlQuery qry(dbStateToRestore);
@@ -1574,7 +1579,7 @@ bool Crit1DProject::restoreState(QString dbStateToRestoreName, QString &myError)
 
     if( !qry.exec() )
     {
-        myError = qry.lastError().text();
+        errorStr = qry.lastError().text();
         return false;
     }
     else
@@ -1585,7 +1590,7 @@ bool Crit1DProject::restoreState(QString dbStateToRestoreName, QString &myError)
         {
             if (!getValue(qry.value("DEGREE_DAYS"), &degreeDays))
             {
-                myError = "DEGREE_DAYS not found";
+                errorStr = "DEGREE_DAYS not found";
                 return false;
             }
             myCase.crop.degreeDays = degreeDays;
@@ -1600,7 +1605,7 @@ bool Crit1DProject::restoreState(QString dbStateToRestoreName, QString &myError)
         }
         else
         {
-            myError = "variables table: idCase not found";
+            errorStr = "variables table: idCase not found";
             return false;
         }
     }
@@ -1610,7 +1615,7 @@ bool Crit1DProject::restoreState(QString dbStateToRestoreName, QString &myError)
 
     if( !qry.exec() )
     {
-        myError = qry.lastError().text();
+        errorStr = qry.lastError().text();
         return false;
     }
     else
@@ -1621,17 +1626,17 @@ bool Crit1DProject::restoreState(QString dbStateToRestoreName, QString &myError)
         {
             if (!getValue(qry.value("NR_LAYER"), &nrLayer))
             {
-                myError = "NR_LAYER not found";
+                errorStr = "NR_LAYER not found";
                 return false;
             }
             if (!getValue(qry.value("WC"), &wc))
             {
-                myError = "WC not found";
+                errorStr = "WC not found";
                 return false;
             }
             if (nrLayer < 0 || unsigned(nrLayer) >= myCase.soilLayers.size())
             {
-                myError = "Invalid NR_LAYER";
+                errorStr = "Invalid NR_LAYER";
                 return false;
             }
 
@@ -1647,7 +1652,7 @@ bool Crit1DProject::restoreState(QString dbStateToRestoreName, QString &myError)
 
         if (nrLayer == -1)
         {
-            myError = "waterContent table: idCase not found";
+            errorStr = "waterContent table: idCase not found";
             return false;
         }
     }
@@ -1775,7 +1780,7 @@ bool Crit1DProject::createOutputTable(QString &myError)
 }
 
 
-void Crit1DProject::updateOutput(Crit3DDate myDate, bool isFirst)
+void Crit1DProject::updateOutput(const Crit3DDate &myDate, bool isFirst)
 {
     if (isFirst)
     {
