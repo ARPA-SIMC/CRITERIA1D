@@ -22,7 +22,7 @@
         void handleMarkerClicked();
 
     private:
-        int firstYear_;
+        int _firstYear;
 
         QChartView *chartView;
         QChart *chart;

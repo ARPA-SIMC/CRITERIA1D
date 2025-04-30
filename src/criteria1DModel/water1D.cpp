@@ -282,7 +282,7 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
     unsigned int lastLayer = nrLayers-1;
     if (nrLayers == 0) return 0;
 
-    // No WaterTable, wrong data or watertable too depth (default: 5 meters)
+    // No WaterTable, wrong data or watertable too depth
     if ( isEqual(waterTableDepth, NODATA) || waterTableDepth <= 0
             || waterTableDepth > (soilLayers[lastLayer].depth + 5) )
     {
@@ -299,6 +299,8 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
     while ((boundaryLayer > 1) && (waterTableDepth <= soilLayers[boundaryLayer].depth))
             boundaryLayer--;
 
+    boundaryLayer = MAXVALUE(boundaryLayer, 1);
+
     // layer below watertable: saturated
     if (boundaryLayer < lastLayer)
     {
@@ -314,7 +316,7 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
         }
     }
 
-    // air entry point of boundary layer
+    // air entry point of the boundary layer
     he_boundary = soilLayers[boundaryLayer].horizonPtr->vanGenuchten.he;       // [kPa]
 
     // above watertable: assign water content threshold for vertical drainage
@@ -342,13 +344,14 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
 
         dPsi = soil::kPaToMeters(psi - he_boundary);                    // [m]
         dz = waterTableDepth - soilLayers[i].depth;                     // [m]
+        dz = std::max(dz, EPSILON);
 
         if (dPsi > dz)
         {
-            // [cm day-1]
-            k_psi = soilLayers[i].getWaterConductivity();
             // [mm day-1]
-            k_psi *= REDUCTION_FACTOR * 10.;
+            k_psi = soilLayers[i].getWaterConductivity() * 10.;
+            // reduce capillary rise to consider the soil inertia
+            k_psi *= REDUCTION_FACTOR;
             // [mm day-1]
             double capillaryRise = k_psi * ((dPsi / dz) - 1);
             // [mm day-1]
@@ -356,7 +359,7 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
 
             capillaryRise = MINVALUE(capillaryRise, maxCapillaryRise);
 
-            // update water contet
+            // update water content
             soilLayers[i].waterContent += capillaryRise;
             capillaryRiseSum += capillaryRise;
 

@@ -112,23 +112,19 @@ bool Crit1DCase::initializeSoil(std::string &error)
 
 bool Crit1DCase::initializeWaterContent(const Crit3DDate &myDate)
 {
-    if (soilLayers.size() > 0)
-    {
-        initializeWater(soilLayers);
-
-        // water table
-        if (unit.useWaterTableData)
-        {
-            float waterTable = meteoPoint.getMeteoPointValueD(myDate, dailyWaterTableDepth);
-            computeCapillaryRise(soilLayers, double(waterTable));
-        }
-
-        return true;
-    }
-    else
-    {
+    if (soilLayers.empty())
         return false;
+
+    initializeWater(soilLayers);
+
+    // water table
+    if (unit.useWaterTableData)
+    {
+        float waterTable = meteoPoint.getMeteoPointValueD(myDate, dailyWaterTableDepth);
+        computeCapillaryRise(soilLayers, double(waterTable));
     }
+
+    return true;
 }
 
 
@@ -432,7 +428,7 @@ bool Crit1DCase::computeWaterFluxes(const Crit3DDate &myDate, std::string &error
         output.dailySurfaceRunoff = computeSurfaceRunoff(crop, soilLayers);
 
         // LATERAL DRAINAGE
-        if (this->unit.isComputeLateralDrainage)
+        if (unit.isComputeLateralDrainage)
         {
             output.dailyLateralDrainage = computeLateralDrainage(soilLayers, _lx);
         }

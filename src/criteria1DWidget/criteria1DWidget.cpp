@@ -658,7 +658,7 @@ void Criteria1DWidget::on_actionNewProject()
             }
             else
             {
-                QDir().mkdir(completePath+"/data");
+                QDir().mkdir(completePath + "/data");
             }
             // copy template computational units
             if (!QFile::copy(dataPath + PATH_TEMPLATE + "template_comp_units.db",
@@ -681,7 +681,7 @@ void Criteria1DWidget::on_actionNewProject()
             else if (dialog.getSoilDbOption() == DEFAULT_DB)
             {
                 db_soil = "soil_ER_2021.db";
-                if (!QFile::copy(dataPath + "SOIL/soil_ER_2021.db", completePath + "/data/" + db_soil))
+                if (! QFile::copy(dataPath + "SOIL/soil_ER_2021.db", completePath + "/data/" + db_soil))
                 {
                     QMessageBox::critical(nullptr, "Copy failed", "Error in copying soil_ER_2021.db");
                     return;
