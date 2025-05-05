@@ -478,7 +478,7 @@ double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double pre
     double waterStress = 0;
     double waterExcessStress = 0;
     crop.computeTranspiration(maxTranspiration, soilLayers, waterStress, waterExcessStress);
-    if ((waterStress - waterExcessStress)  <= threshold)
+    if (waterStress < threshold)
         return 0;
 
     // check irrigation shift

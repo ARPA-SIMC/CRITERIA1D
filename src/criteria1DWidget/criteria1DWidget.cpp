@@ -1756,6 +1756,7 @@ bool Criteria1DWidget::updateCrop()
     {
         return false;
     }
+
     myProject.myCase.crop.type = getCropType(cropTypeValue->text().toStdString());
     // sowing
     if (cropSowing.isVisible())
@@ -1819,7 +1820,6 @@ bool Criteria1DWidget::updateCrop()
         myProject.myCase.crop.irrigationShift = NODATA;
         myProject.myCase.crop.degreeDaysStartIrrigation = NODATA;
         myProject.myCase.crop.degreeDaysEndIrrigation = NODATA;
-
     }
     else if (QLocale().toDouble(irrigationVolumeValue->text()) > 0)
     {

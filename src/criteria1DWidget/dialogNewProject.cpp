@@ -18,15 +18,12 @@ DialogNewProject::DialogNewProject()
     layoutDb->addWidget(createMeteoGroup(), 0, 1);
     layoutDb->addWidget(createCropGroup(), 1, 0);
 
-
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-
 
     connect(&buttonBox, &QDialogButtonBox::accepted, [=](){ this->done(true); });
     connect(&buttonBox, &QDialogButtonBox::rejected, [=](){ this->done(false); });
 
     layoutOk->addWidget(&buttonBox);
-
 
     mainLayout->addLayout(layoutProject);
     mainLayout->addLayout(layoutDb);
