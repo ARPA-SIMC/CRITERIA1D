@@ -251,10 +251,10 @@ bool Crit1DProject::readSettings()
         }
         else if (_isMonthlyStatistics || _isSeasonalForecast)
         {
-            _firstComputationMonth = projectSettings->value("firstComputationMonth", 0).toInt();
+            _firstComputationMonth = projectSettings->value("firstMonth", 0).toInt();
             if (_firstComputationMonth == 0)
             {
-                projectError = "Missing firstComputationMonth.";
+                projectError = "Missing firstMonth.";
                 return false;
             }
         }
