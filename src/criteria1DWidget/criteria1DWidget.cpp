@@ -575,7 +575,8 @@ void Criteria1DWidget::on_actionOpenProject()
     checkCropUpdate();
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open Criteria-1D project"), projectPath, tr("Settings files (*.ini)"));
 
-    if (projFileName == "") return;
+    if (projFileName.isEmpty())
+        return;
 
     myProject.initialize();
     int myResult = myProject.initializeProject(projFileName);
@@ -1074,7 +1075,7 @@ void Criteria1DWidget::on_actionChooseCase()
     }
 
     // METEO
-    if (myProject.myCase.unit.idMeteo != meteoListComboBox.currentText())
+    if (myProject.myCase.unit.idMeteo != meteoListComboBox.currentText() || firstYearListComboBox.currentText().isEmpty())
     {
         meteoListComboBox.setCurrentText(myProject.myCase.unit.idMeteo);
     }
