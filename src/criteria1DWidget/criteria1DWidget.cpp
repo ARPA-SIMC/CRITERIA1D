@@ -37,6 +37,7 @@
 #include "utilities.h"
 #include "basicMath.h"
 #include "root.h"
+#include "formInfo.h"
 
 #include <QFileInfo>
 #include <QFileDialog>
@@ -931,11 +932,14 @@ void Criteria1DWidget::openMeteoDB(QString dbMeteoName, bool isMenu)
         }
     }
 
+    // clear combo box
+    meteoListComboBox.clear();
+    firstYearListComboBox.clear();
+    lastYearListComboBox.clear();
     // show id_meteo list
-    this->meteoListComboBox.clear();
     for (int i = 0; i < idMeteoList.size(); i++)
     {
-        this->meteoListComboBox.addItem(idMeteoList[i]);
+        meteoListComboBox.addItem(idMeteoList[i]);
     }
 
     saveChanges->setEnabled(true);
@@ -958,7 +962,6 @@ void Criteria1DWidget::openMeteoDB(QString dbMeteoName, bool isMenu)
     {
         viewWeather->setEnabled(true);
     }
-
 }
 
 
@@ -1051,8 +1054,16 @@ void Criteria1DWidget::on_actionExecuteCase()
 void Criteria1DWidget::on_actionChooseCase()
 {
     isRedraw = false;
-    this->firstYearListComboBox.blockSignals(true);
-    this->lastYearListComboBox.blockSignals(true);
+    FormInfo formInfo;
+    formInfo.showInfo("Load case: " + caseListComboBox.currentText());
+
+    bool isFirstCase = true;
+    if (! firstYearListComboBox.currentText().isEmpty())
+    {
+        firstYearListComboBox.blockSignals(true);
+        lastYearListComboBox.blockSignals(true);
+        isFirstCase = false;
+    }
 
     int index = caseListComboBox.currentIndex();
     QString errorStr;
@@ -1075,9 +1086,22 @@ void Criteria1DWidget::on_actionChooseCase()
     }
 
     // METEO
-    if (myProject.myCase.unit.idMeteo != meteoListComboBox.currentText() || firstYearListComboBox.currentText().isEmpty())
+    if (myProject.myCase.unit.idMeteo != meteoListComboBox.currentText())
     {
-        meteoListComboBox.setCurrentText(myProject.myCase.unit.idMeteo);
+        if (meteoListComboBox.findText(myProject.myCase.unit.idMeteo) == -1)
+        {
+            errorStr = "Wrong ID_METEO: " + myProject.myCase.unit.idMeteo + "\nIn the ID_CASE: " + caseListComboBox.currentText();
+            QMessageBox::critical(nullptr, "Error!", errorStr);
+            return;
+        }
+        else
+        {
+            meteoListComboBox.setCurrentText(myProject.myCase.unit.idMeteo);
+        }
+    }
+    else if (isFirstCase)
+    {
+        on_actionChooseMeteo(myProject.myCase.unit.idMeteo);
     }
     else
     {
@@ -1097,7 +1121,8 @@ void Criteria1DWidget::on_actionChooseCase()
     }
     else
     {
-        QMessageBox::critical(nullptr, "Error!", "Missing crop: " + myProject.myCase.unit.idCropClass + "\n" + errorStr);
+        QMessageBox::critical(nullptr, "Error!", "Wrong ID_CROP: " + myProject.myCase.unit.idCropClass + "\n" + errorStr);
+        return;
     }
 
     // SOIL
@@ -1107,13 +1132,22 @@ void Criteria1DWidget::on_actionChooseCase()
     }
     if (myProject.myCase.unit.idSoil != "")
     {
-        if (myProject.myCase.unit.idSoil != soilListComboBox.currentText())
+        if (soilListComboBox.findText(myProject.myCase.unit.idSoil) == -1)
         {
-            soilListComboBox.setCurrentText(myProject.myCase.unit.idSoil);
+            errorStr = "Wrong ID_SOIL: " + myProject.myCase.unit.idSoil + "\nIn the ID_CASE: " + caseListComboBox.currentText();
+            QMessageBox::critical(nullptr, "Error!", errorStr);
+            return;
         }
         else
         {
-            on_actionChooseSoil(myProject.myCase.unit.idSoil);
+            if (myProject.myCase.unit.idSoil != soilListComboBox.currentText())
+            {
+                soilListComboBox.setCurrentText(myProject.myCase.unit.idSoil);
+            }
+            else
+            {
+                on_actionChooseSoil(myProject.myCase.unit.idSoil);
+            }
         }
     }
     else
@@ -1122,8 +1156,10 @@ void Criteria1DWidget::on_actionChooseCase()
         QMessageBox::critical(nullptr, "Error!", "Missing soil nr: " + soilNumber + "\n" + errorStr);
     }
 
-    this->firstYearListComboBox.blockSignals(false);
-    this->lastYearListComboBox.blockSignals(false);
+    firstYearListComboBox.blockSignals(false);
+    lastYearListComboBox.blockSignals(false);
+
+    formInfo.close();
 
     isRedraw = true;
     on_actionUpdate();
@@ -1272,9 +1308,7 @@ void Criteria1DWidget::updateCropParam(QString idCrop)
 void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
 {
     if (idMeteo.isEmpty())
-    {
         return;
-    }
 
     // clear prev year list
     this->firstYearListComboBox.blockSignals(true);
@@ -1298,7 +1332,7 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
         double lat;
         if (! myProject.observedMeteoGrid->meteoGrid()->getLatFromId(idMeteo.toStdString(), &lat))
         {
-            errorStr = "Missing observed meteo cell";
+            errorStr = "Missing  meteo cell: " + idMeteo;
             return;
         }
         myProject.myCase.meteoPoint.latitude = lat;
@@ -1379,10 +1413,15 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
         }
 
         meteoTableName = getTableNameFromIdMeteo(myProject.dbMeteo, idMeteo, errorStr);
+        if (meteoTableName.isEmpty())
+        {
+            errorStr = "Missing  table name for idMeteo: " + idMeteo;
+            return;
+        }
 
         if (! getYearList(myProject.dbMeteo, meteoTableName, yearList, errorStr))
         {
-            QMessageBox::critical(nullptr, "Error!", errorStr);
+            QMessageBox::critical(nullptr, "Error!", "Error loading meteo data: " + meteoTableName + "\n" + errorStr);
             return;
         }
 
