@@ -70,8 +70,8 @@ void Project::initializeProject()
     meteoGridDbHandler = nullptr;
     aggregationDbHandler = nullptr;
 
-    meteoPointsDbFirstTime.setTimeSpec(Qt::UTC);
-    meteoPointsDbLastTime.setTimeSpec(Qt::UTC);
+    meteoPointsDbFirstTime.setTimeZone(QTimeZone::utc());
+    meteoPointsDbLastTime.setTimeZone(QTimeZone::utc());
     meteoPointsDbFirstTime.setSecsSinceEpoch(0);
     meteoPointsDbLastTime.setSecsSinceEpoch(0);
 
@@ -974,7 +974,7 @@ QDateTime Project::getCurrentTime()
     QDateTime myDateTime;
     if (gisSettings.isUTC)
     {
-        myDateTime.setTimeSpec(Qt::UTC);
+        myDateTime.setTimeZone(QTimeZone::utc());
     }
 
     myDateTime.setDate(currentDate);
@@ -1796,10 +1796,10 @@ bool Project::loadMeteoGridMonthlyData(QDate firstDate, QDate lastDate, bool sho
 QDateTime Project::findDbPointLastTime()
 {
     QDateTime lastTime;
-    lastTime.setTimeSpec(Qt::UTC);
+    lastTime.setTimeZone(QTimeZone::utc());
 
     QDateTime lastDateD;
-    lastDateD.setTimeSpec(Qt::UTC);
+    lastDateD.setTimeZone(QTimeZone::utc());
     lastDateD = meteoPointsDbHandler->getLastDate(daily);
     if (! lastDateD.isNull())
     {
@@ -1807,7 +1807,7 @@ QDateTime Project::findDbPointLastTime()
     }
 
     QDateTime lastDateH;
-    lastDateH.setTimeSpec(Qt::UTC);
+    lastDateH.setTimeZone(QTimeZone::utc());
     lastDateH = meteoPointsDbHandler->getLastDate(hourly);
 
     if (! lastDateH.isNull())
@@ -1829,15 +1829,15 @@ QDateTime Project::findDbPointLastTime()
 QDateTime Project::findDbPointFirstTime()
 {
     QDateTime firstTime;
-    firstTime.setTimeSpec(Qt::UTC);
+    firstTime.setTimeZone(QTimeZone::utc());
 
     QDateTime firstDateD;
-    firstDateD.setTimeSpec(Qt::UTC);
+    firstDateD.setTimeZone(QTimeZone::utc());
     firstDateD = meteoPointsDbHandler->getFirstDate(daily);
     if (! firstDateD.isNull()) firstTime = firstDateD;
 
     QDateTime firstDateH;
-    firstDateH.setTimeSpec(Qt::UTC);
+    firstDateH.setTimeZone(QTimeZone::utc());
     firstDateH = meteoPointsDbHandler->getFirstDate(hourly);
 
     if (! firstDateH.isNull())
@@ -2834,7 +2834,7 @@ bool Project::interpolationCv(meteoVariable myVar, const Crit3DTime& myTime, QSt
             return false;
         }
 
-        if (! computeResidualsAndStatisticsGlocalDetrending(myVar, myTime, interpolationPoints))
+        if (! computeResidualsAndStatisticsGlocalDetrending(myVar, interpolationPoints))
         {
             return false;
         }
@@ -6006,13 +6006,13 @@ bool Project::readVmArkimetData(const QList<QString> &vmFileList, frequencyType 
 }
 
 
-bool Project::computeResidualsAndStatisticsGlocalDetrending(meteoVariable myVar, Crit3DTime myTime, std::vector<Crit3DInterpolationDataPoint> &interpolationPoints)
+bool Project::computeResidualsAndStatisticsGlocalDetrending(meteoVariable myVar, std::vector<Crit3DInterpolationDataPoint> &interpolationPoints)
 {
     //TODO: glocal cv with grid ONLY (no DEM)
 
-    if (myVar == noMeteoVar) return false;
+    if (myVar == noMeteoVar)
+        return false;
 
-    std::string errorStdString;
     std::vector <Crit3DMacroArea> macroAreas = interpolationSettings.getMacroAreas();
 
     int elevationPos = NODATA;
@@ -6030,24 +6030,21 @@ bool Project::computeResidualsAndStatisticsGlocalDetrending(meteoVariable myVar,
     //ciclo sulle aree
     for (int k = 0; k < macroAreas.size(); k++)
     {
-
         Crit3DMacroArea myArea = macroAreas[k];
         std::vector<int> meteoPointsList = myArea.getMeteoPoints();
-        std::vector<float> areaCells;
 
         //if (! myArea.getAreaCellsGrid().empty() || ! myArea.getAreaCellsDEM().empty() )
         if (! myArea.getAreaCellsDEM().empty() && ! meteoPointsList.empty())
         {
             interpolationSettings.pushMacroAreaNumber(k);
 
-            if (! ::computeResidualsGlocalDetrending(myVar, myTime, myArea, elevationPos, meteoPoints, nrMeteoPoints, interpolationPoints,
-                                                     &interpolationSettings, meteoSettings, &climateParameters, true, true))
+            if (! computeResidualsGlocalDetrending(myVar, myArea, elevationPos, meteoPoints, interpolationPoints,
+                                                     &interpolationSettings, meteoSettings, true, true))
                 return false;
 
             if (! computeStatisticsGlocalCrossValidation(myArea))
                 return false;
         }
-
     }
 
     return true;
