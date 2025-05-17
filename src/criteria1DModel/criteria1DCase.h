@@ -73,7 +73,7 @@
         Crit3DCrop crop;
 
         // WATERTABLE
-        Crit1DWaterTableParameters waterTableParameters;
+        WaterTableParameters waterTableParameters;
 
         // WHEATER
         Crit3DMeteoPoint meteoPoint;
