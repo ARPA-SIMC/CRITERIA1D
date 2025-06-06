@@ -120,8 +120,8 @@ public:
 };
 
 void setColorScale(Crit3DColorScale* myColorScale, outputGroup outGroup, Crit3DOut *myOut, bool *graphLinear);
-QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVALUE, float* MAXVALUE);
-QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layerIndex, float* MINVALUE, float* MAXVALUE);
+QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* minSeries, float* maxSeries);
+QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layerIndex, float* minSeries, float* maxSeries);
 
 
 

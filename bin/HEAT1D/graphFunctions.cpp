@@ -64,14 +64,14 @@ void setColorScale(Crit3DColorScale* myColorScale, outputGroup outGroup, Crit3DO
 }
 
 
-QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVALUE, float* MAXVALUE)
+QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* minSeries, float* maxSeries)
 {
     QVector<QPointF> mySeries;
     QPointF myPoint;
     qreal myVal;
 
-    *MINVALUE = NODATA;
-    *MAXVALUE = NODATA;
+    *minSeries = NODATA;
+    *maxSeries = NODATA;
 
     for (int i=0; i<myOut->nrValues; i++)
     {        
@@ -117,24 +117,27 @@ QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* MINVA
         myPoint.setX(myOut->landSurfaceOutput[i].netRadiation.x());
         myPoint.setY(myVal);
         mySeries.push_back(myPoint);
-        *MINVALUE = (*MINVALUE == NODATA) ? myVal : ((myVal < *MINVALUE) ? myVal : *MINVALUE);
-        *MAXVALUE = (*MAXVALUE == NODATA) ? myVal : ((myVal > *MAXVALUE) ? myVal : *MAXVALUE);
+        *minSeries = (*minSeries == NODATA) ? myVal : ((myVal < *minSeries) ? myVal : *minSeries);
+        *maxSeries = (*maxSeries == NODATA) ? myVal : ((myVal > *maxSeries) ? myVal : *maxSeries);
     }
 
     return mySeries;
 }
 
-QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layerIndex, float* MINVALUE, float* MAXVALUE)
+QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layerIndex, float* minSeries, float* maxSeries)
 {
     QVector<QPointF> mySeries;
     QPointF myPoint;
     qreal myVal, myX;
 
-    *MINVALUE = NODATA;
-    *MAXVALUE = NODATA;
+    *minSeries = NODATA;
+    *maxSeries = NODATA;
 
     for (int i=0; i<myOut->nrValues; i++)
     {
+        myX = NODATA;
+        myVal = NODATA;
+
         switch (myVar)
         {
             case outputGroup::soilTemperature :
@@ -196,8 +199,8 @@ QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layer
         myPoint.setX(myX);
         myPoint.setY(myVal);
         mySeries.push_back(myPoint);
-        *MINVALUE = (*MINVALUE == NODATA) ? myVal : ((myVal < *MINVALUE) ? myVal : *MINVALUE);
-        *MAXVALUE = (*MAXVALUE == NODATA) ? myVal : ((myVal > *MAXVALUE) ? myVal : *MAXVALUE);
+        *minSeries = (*minSeries == NODATA) ? myVal : ((myVal < *minSeries) ? myVal : *minSeries);
+        *maxSeries = (*maxSeries == NODATA) ? myVal : ((myVal > *maxSeries) ? myVal : *maxSeries);
     }
 
     return mySeries;
