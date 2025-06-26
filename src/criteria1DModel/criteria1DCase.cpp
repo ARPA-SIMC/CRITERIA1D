@@ -161,7 +161,7 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &error)
     {
         soilFluxes3D::setNumericalParameters(30, 3600, 200, 10, 12, 3);
     }
-    soilFluxes3D::setThreads(1);
+    soilFluxes3D::setThreadsNumber(1);
 
     // set soil properties (units of measurement: MKS)
     int soilIndex = 0;
