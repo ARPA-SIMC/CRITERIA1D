@@ -17,7 +17,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TEMPLATE = app
 
-VERSION = 1.8.7
+VERSION = 1.9.0
 
 unix:{
     CONFIG(debug, debug|release) {
