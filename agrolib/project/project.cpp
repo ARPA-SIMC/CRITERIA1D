@@ -882,9 +882,8 @@ void Project::setApplicationPath(QString myPath)
 
 QString Project::getApplicationPath()
 {
-    char* appImagePath;
-    appImagePath = getenv ("APPIMAGE");
-    if (appImagePath!=nullptr)
+    char* appImagePath = getenv("APPIMAGE");
+    if (appImagePath != nullptr)
     {
         QDir d = QFileInfo(appImagePath).absoluteDir();
         QString absolute = d.absolutePath()+"/";
@@ -1220,7 +1219,7 @@ bool Project::loadMeteoPointsDB(QString fileName)
     listMeteoPoints.clear();
 
     // find dates
-    logInfoGUI("Check meteopoints dates...");
+    logInfoGUI("Check meteopoints last date...");
     meteoPointsDbLastTime = findDbPointLastTime();
     meteoPointsDbFirstTime.setSecsSinceEpoch(0);
 
@@ -5598,7 +5597,8 @@ void Project::waterTableShowSingleWell(const WaterTable &waterTable, const QStri
 bool Project::waterTableAssignNearestMeteoPoint(bool isMeteoGridLoaded, double wellUtmX, double wellUtmY, QDate firstMeteoDate, Crit3DMeteoPoint* linkedMeteoPoint)
 {
     float minimumDistance = NODATA;
-    bool isFound = false;
+    bool isMeteoPointFound = false;
+
     if (isMeteoGridLoaded)
     {
         std::string assignNearestId;
@@ -5630,13 +5630,13 @@ bool Project::waterTableAssignNearestMeteoPoint(bool isMeteoGridLoaded, double w
                             assignNearestId = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id;
                             assignNearestRow = row;
                             assignNearestCol = col;
-                            isFound = true;
+                            isMeteoPointFound = true;
                         }
                     }
                 }
             }
         }
-        if (isFound)
+        if (isMeteoPointFound)
         {
             meteoGridDbHandler->loadGridDailyMeteoPrec(errorString, QString::fromStdString(assignNearestId), firstDate, lastDate);
             if (! waterTableAssignMeteoData(meteoGridDbHandler->meteoGrid()->meteoPointPointer(assignNearestRow, assignNearestCol), firstDate))
@@ -5671,13 +5671,13 @@ bool Project::waterTableAssignNearestMeteoPoint(bool isMeteoGridLoaded, double w
                     if (waterTableAssignMeteoData(&meteoPoints[i], firstMeteoDate))
                     {
                         minimumDistance = myDistance;
-                        isFound = true;
+                        isMeteoPointFound = true;
                         assignNearestIndex = i;
                     }
                 }
             }
         }
-        if (isFound)
+        if (isMeteoPointFound)
         {
             linkedMeteoPoint->id = meteoPoints[assignNearestIndex].id;
             linkedMeteoPoint->name = meteoPoints[assignNearestIndex].name;
@@ -5687,7 +5687,7 @@ bool Project::waterTableAssignNearestMeteoPoint(bool isMeteoGridLoaded, double w
         }
     }
 
-    return isFound;
+    return isMeteoPointFound;
 }
 
 
