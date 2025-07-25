@@ -2272,7 +2272,15 @@ void Criteria1DWidget::on_actionViewWeather()
 
 void Criteria1DWidget::on_actionViewSoil()
 {
-    Crit3DSoilWidget* soilWidget = new Crit3DSoilWidget();
+    QString docPath;
+    if (! searchDocPath(&docPath))
+    {
+        QMessageBox::critical(nullptr, "", "Missing DOC/img/ directory");
+        return;
+    }
+
+    QString imgPath = docPath + "/img/";
+    Crit3DSoilWidget* soilWidget = new Crit3DSoilWidget(imgPath);
     soilWidget->setDbSoil(myProject.dbSoil, soilListComboBox.currentText());
 }
 
