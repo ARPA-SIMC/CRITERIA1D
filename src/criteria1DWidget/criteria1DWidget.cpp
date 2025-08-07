@@ -79,7 +79,7 @@ Criteria1DWidget::Criteria1DWidget()
 
     // check save button pic
     QString docPath, saveButtonPath, updateButtonPath;
-    if (searchDocPath(&docPath))
+    if (searchDocPath(docPath))
     {
         saveButtonPath = docPath + "img/saveButton.png";
         updateButtonPath = docPath + "img/updateButton.png";
@@ -2273,9 +2273,9 @@ void Criteria1DWidget::on_actionViewWeather()
 void Criteria1DWidget::on_actionViewSoil()
 {
     QString docPath;
-    if (! searchDocPath(&docPath))
+    if (! searchDocPath(docPath))
     {
-        QMessageBox::critical(nullptr, "", "Missing DOC/img/ directory");
+        QMessageBox::critical(nullptr, "", "/DOC/img/ directory is missing.");
         return;
     }
 
