@@ -27,6 +27,8 @@ win32:{
 }
 
 TEMPLATE = app
+VERSION = 1.0
+QMAKE_TARGET_COPYRIGHT = "\\251 2025 ARPAE ER - Climate Observatory"
 
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis \
                 ../../agrolib/soilFluxes3D/header ../../agrolib/qcustomplot
