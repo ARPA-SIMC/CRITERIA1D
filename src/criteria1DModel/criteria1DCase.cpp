@@ -290,7 +290,7 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
     // use previous waterPotential when saturated
     for (unsigned long i=1; i < nrLayers; i++)
     {
-        double currentPsi = soilLayers[i].getWaterPotential();           // [kPa]
+        double currentPsi = soilLayers[i].getWaterPotential();                  // [kPa]
 
         if ( (currentPsi < soilLayers[i].horizonPtr->vanGenuchten.he
              || isEqual(currentPsi, soilLayers[i].horizonPtr->vanGenuchten.he))
@@ -300,32 +300,33 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
         }
         else
         {
-            soilFluxes3D::setMatricPotential(i, -currentPsi / GRAVITY);      // [m]
+            soilFluxes3D::setMatricPotential(i, -currentPsi / GRAVITY);         // [m]
         }
     }
 
     soilFluxes3D::initializeBalance();
 
     // precipitation
-    int precDuration = 24;                              // [hours] winter
-    if ( (meteoPoint.latitude > 0 && (myDate.month >= 5 && myDate.month <= 9))
+    int precDuration = 24;                                                      // [hours] winter
+    if ( (meteoPoint.latitude > 0 && myDate.month >= 5 && myDate.month <= 9)
         || (meteoPoint.latitude <= 0 && (myDate.month <= 3 || myDate.month >= 11)) )
     {
-        precDuration = 12;                              // [hours] summer
+        precDuration = 9;                                                       // [hours] summer
     }
 
-    int precH0 = 13 - precDuration/2;
+    // first and last precipitation hour
+    int precH0 = int(13 - precDuration * 0.5);
     int precH1 = precH0 + precDuration - 1;
     double precFlux = (_area * output.dailyPrec * 0.001) / (HOUR_SECONDS * precDuration);   // [m3 s-1]
 
-    // irrigation
+    // assign irrigation to the early morning hours
     int irrH0 = 0;
     int irrH1 = 0;
     double irrFlux = 0;
-    if (! unit.isOptimalIrrigation && output.dailyIrrigation > 0)
+    if (output.dailyIrrigation > 0 && !unit.isOptimalIrrigation)
     {
-        irrH0 = 6;                                      // morning
-        int maxDuration = 24 - irrH0 + 1;               // [hours]
+        irrH0 = 5;                                                              // morning
+        int maxDuration = 24 - irrH0 + 1;                                       // [hours]
         float mmHour = 3;
         if (output.dailyIrrigation >= 10)
         {
@@ -340,7 +341,7 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
     // daily cycle
     for (int hour=1; hour <= 24; hour++)
     {
-        double flux = 0;                            // [m3 s-1]
+        double flux = 0;                                                        // [m3 s-1]
         if (hour >= precH0 && hour <= precH1 && precFlux > 0)
             flux += precFlux;
 
