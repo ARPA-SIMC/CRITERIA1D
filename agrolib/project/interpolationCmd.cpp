@@ -1,6 +1,7 @@
 #include <QDate>
 #include <QString>
 #include <math.h>
+#include <omp.h>
 
 #include "basicMath.h"
 #include "gis.h"
@@ -222,18 +223,18 @@ bool interpolateProxyGridSeries(const Crit3DProxyGridSeries& mySeries, QDate myD
 }
 
 
-bool checkProxyGridSeries(Crit3DInterpolationSettings* mySettings, const gis::Crit3DRasterGrid& gridBase,
+bool checkProxyGridSeries(Crit3DInterpolationSettings &interpolationSettings, const gis::Crit3DRasterGrid& gridBase,
                           std::vector <Crit3DProxyGridSeries> myProxySeries, QDate myDate, QString &errorStr)
 {
     unsigned i,j;
     gis::Crit3DRasterGrid* gridOut;
     errorStr = "";
 
-    for (i=0; i < mySettings->getProxyNr(); i++)
+    for (i=0; i < interpolationSettings.getProxyNr(); i++)
     {
         for (j=0; j < myProxySeries.size(); j++)
         {
-            if (myProxySeries[j].getProxyName() == QString::fromStdString(mySettings->getProxyName(i)))
+            if (myProxySeries[j].getProxyName() == QString::fromStdString(interpolationSettings.getProxyName(i)))
             {
                 if (myProxySeries[j].getGridName().size() > 0)
                 {
@@ -241,10 +242,11 @@ bool checkProxyGridSeries(Crit3DInterpolationSettings* mySettings, const gis::Cr
                     if (! interpolateProxyGridSeries(myProxySeries[j], myDate, gridBase, gridOut, errorStr))
                     {
                         errorStr = "Error in interpolate proxy gris series: " + errorStr;
+                        gridOut->clear();
                         return false;
                     }
 
-                    mySettings->getProxy(i)->setGrid(gridOut);
+                    interpolationSettings.getProxy(i)->setGrid(gridOut);
                     return true;
                 }
 
@@ -256,43 +258,48 @@ bool checkProxyGridSeries(Crit3DInterpolationSettings* mySettings, const gis::Cr
 }
 
 
-bool interpolationRaster(std::vector <Crit3DInterpolationDataPoint> &myPoints, Crit3DInterpolationSettings* mySettings,
+bool interpolationRaster(std::vector <Crit3DInterpolationDataPoint> &dataPoints, Crit3DInterpolationSettings &interpolationSettings,
                          Crit3DMeteoSettings* meteoSettings, gis::Crit3DRasterGrid* outputGrid,
-                         gis::Crit3DRasterGrid& raster, meteoVariable myVar)
+                         gis::Crit3DRasterGrid& raster, meteoVariable variable)
 {
     if (! outputGrid->initializeGrid(raster))
     {
         return false;
     }
 
-    float myX, myY;
-    std::vector <double> proxyValues;
-    proxyValues.resize(unsigned(mySettings->getProxyNr()));
+    /******* parallel computing *******/
+    unsigned int maxThreads = omp_get_max_threads();
+    omp_set_num_threads(static_cast<int>(maxThreads));
 
-    for (long myRow = 0; myRow < outputGrid->header->nrRows ; myRow++)
+    #pragma omp parallel
     {
-        for (long myCol = 0; myCol < outputGrid->header->nrCols; myCol++)
+        std::vector<double> proxyValues(interpolationSettings.getProxyNr());
+        #pragma omp for
+        for (long row = 0; row < outputGrid->header->nrRows ; row++)
         {
-            gis::getUtmXYFromRowColSinglePrecision(*outputGrid, myRow, myCol, &myX, &myY);
-            float myZ = raster.value[myRow][myCol];
-            if (! isEqual(myZ, outputGrid->header->flag))
+            for (long col = 0; col < outputGrid->header->nrCols; col++)
             {
-                if (getUseDetrendingVar(myVar))
+                float z = raster.value[row][col];
+                if (! isEqual(z, outputGrid->header->flag))
                 {
-                    getProxyValuesXY(myX, myY, mySettings, proxyValues);
-                }
+                    float x, y;
+                    gis::getUtmXYFromRowColSinglePrecision(*(outputGrid->header), row, col, &x, &y);
 
-                outputGrid->value[myRow][myCol] = interpolate(myPoints, mySettings, meteoSettings,
-                                                              myVar, myX, myY, myZ, proxyValues, true);
+                    if (getUseDetrendingVar(variable))
+                    {
+                        getProxyValuesXY(x, y, interpolationSettings, proxyValues);
+                    }
+
+                    outputGrid->value[row][col] = interpolate(dataPoints, interpolationSettings, meteoSettings,
+                                                              variable, x, y, z, proxyValues, true);
+                }
             }
         }
     }
 
-    if (! gis::updateMinMaxRasterGrid(outputGrid))
-        return false;
-
-    return true;
+    return gis::updateMinMaxRasterGrid(outputGrid);
 }
+
 
 bool topographicIndex(const gis::Crit3DRasterGrid& DEM, std::vector <float> windowWidths, gis::Crit3DRasterGrid& outGrid)
 {
