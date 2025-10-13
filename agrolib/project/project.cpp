@@ -110,6 +110,16 @@ void Project::initializeProject()
 
     proxyGridSeries.clear();
     proxyWidget = nullptr;
+
+    if (_isParallelComputing)
+    {
+        omp_set_num_threads(omp_get_max_threads());
+    }
+    else
+    {
+        omp_set_num_threads(1);
+    }
+
 }
 
 
@@ -1485,47 +1495,58 @@ bool Project::loadMeteoPointsData(const QDate& firstDate, const QDate& lastDate,
     if (firstDate == QDate(1800,1,1) || lastDate == QDate(1800,1,1))
         return false;
 
-    QString infoStr = "Load meteo points data: " + firstDate.toString();
-
-    if (firstDate != lastDate)
-    {
-        infoStr += " - " + lastDate.toString();
-    }
-
     int step = 0;
     if (showInfo)
     {
+        QString infoStr = "Load meteo points data: " + firstDate.toString();
+        if (firstDate != lastDate)
+            infoStr += " - " + lastDate.toString();
+
         step = setProgressBar(infoStr, nrMeteoPoints);
     }
 
     Crit3DDate myFirstDate = getCrit3DDate(firstDate);
     Crit3DDate myLastDate = getCrit3DDate(lastDate);
-    bool isDataOk = false;
 
-    for (int i=0; i < nrMeteoPoints; i++)
+    int nrDataOk = 0;
+    QString dbName = meteoPointsDbHandler->getDbName();
+    #pragma omp parallel if(_isParallelComputing)
     {
-        if (showInfo)
+        QSqlDatabase myDb;
+        meteoPointsDbHandler->openNewConnection(myDb, dbName, QString::number(omp_get_thread_num()));
+
+        #pragma omp for schedule(dynamic)
+        for (int i=0; i < nrMeteoPoints; ++i)
         {
-            if ((i % step) == 0)
+            bool localOk = false;
+
+            if (loadHourly)
+                localOk |= meteoPointsDbHandler->loadHourlyData(myDb, myFirstDate, myLastDate, meteoPoints[i]);
+
+            if (loadDaily)
+                localOk |= meteoPointsDbHandler->loadDailyData(myDb, myFirstDate, myLastDate, meteoPoints[i]);
+
+            if (localOk)
+            {
+                #pragma omp atomic
+                nrDataOk++;
+            }
+
+            // safe update
+            if (showInfo && omp_get_thread_num() == 0 && (i%step) == 0)
+            {
                 updateProgressBar(i);
+            }
         }
 
-        if (loadHourly)
-        {
-            if (meteoPointsDbHandler->loadHourlyData(myFirstDate, myLastDate, meteoPoints[i]))
-                isDataOk = true;
-        }
-
-        if (loadDaily)
-        {
-            if (meteoPointsDbHandler->loadDailyData(myFirstDate, myLastDate, meteoPoints[i]))
-                isDataOk = true;
-        }
+        myDb.close();
+        QSqlDatabase::removeDatabase(QString::number(omp_get_thread_num()));
     }
 
-    if (showInfo) closeProgressBar();
+    if (showInfo)
+        closeProgressBar();
 
-    return isDataOk;
+    return (nrDataOk > 0);
 }
 
 
@@ -1533,40 +1554,67 @@ bool Project::loadMeteoPointsData(const QDate &firstDate, const QDate &lastDate,
                                   bool loadHourly, bool loadDaily, const QString &dataset, bool showInfo)
 {
     //check
-    if (firstDate == QDate(1800,1,1) || lastDate == QDate(1800,1,1)) return false;
+    if (firstDate == QDate(1800,1,1) || lastDate == QDate(1800,1,1))
+        return false;
 
-    bool isData = false;
     int step = 0;
-
-    QString infoStr = "Load meteo points data: " + firstDate.toString();
-
-    if (firstDate != lastDate)
-        infoStr += " - " + lastDate.toString();
-
     if (showInfo)
     {
+        QString infoStr = "Load meteo points data: " + firstDate.toString();
+        if (firstDate != lastDate)
+            infoStr += " - " + lastDate.toString();
+
         step = setProgressBar(infoStr, nrMeteoPoints);
     }
 
-    for (int i=0; i < nrMeteoPoints; i++)
+    Crit3DDate myFirstDate = getCrit3DDate(firstDate);
+    Crit3DDate myLastDate = getCrit3DDate(lastDate);
+
+    int nrDataOk = 0;
+    QString dbName = meteoPointsDbHandler->getDbName();
+    #pragma omp parallel if(_isParallelComputing)
     {
-        if (showInfo)
+        QSqlDatabase myDb;
+        meteoPointsDbHandler->openNewConnection(myDb, dbName, QString::number(omp_get_thread_num()));
+
+        #pragma omp for schedule(dynamic)
+        for (int i=0; i < nrMeteoPoints; ++i)
         {
-            if ((i % step) == 0) updateProgressBar(i);
+            if (meteoPoints[i].dataset == dataset.toStdString())
+            {
+                bool localOk = false;
+
+                if (loadHourly)
+                    localOk |= meteoPointsDbHandler->loadHourlyData(myDb, myFirstDate, myLastDate, meteoPoints[i]);
+
+                if (loadDaily)
+                    localOk |= meteoPointsDbHandler->loadDailyData(myDb, myFirstDate, myLastDate, meteoPoints[i]);
+
+                if (localOk)
+                {
+                    #pragma omp atomic
+                    nrDataOk++;
+                }
+            }
+
+            // safe update
+            if (showInfo && omp_get_thread_num() == 0 && (i%step) == 0)
+            {
+                #pragma omp critical
+                {
+                    updateProgressBar(i);
+                }
+            }
         }
 
-        if (meteoPoints[i].dataset == dataset.toStdString())
-        {
-            if (loadHourly)
-                if (meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), meteoPoints[i])) isData = true;
-
-            if (loadDaily)
-                if (meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), meteoPoints[i])) isData = true;
-        }
+        myDb.close();
+        QSqlDatabase::removeDatabase(QString::number(omp_get_thread_num()));
     }
 
-    if (showInfo) closeProgressBar();
-    return isData;
+    if (showInfo)
+        closeProgressBar();
+
+    return (nrDataOk > 0);
 }
 
 
@@ -1597,15 +1645,10 @@ bool Project::loadMeteoGridDailyData(const QDate &firstDate, const QDate &lastDa
 
     const auto &gridStructure = meteoGridDbHandler->gridStructure();
 
-    unsigned int maxThreads = 1;
-    if (_isParallelComputing)
-    {
-        maxThreads = omp_get_max_threads();
-    }
-    omp_set_num_threads(static_cast<int>(maxThreads));
-
     int count = 0;
-    #pragma omp parallel
+    int nrThreads = (_isParallelComputing ? omp_get_max_threads(): 1);
+
+    #pragma omp parallel if(_isParallelComputing)
     {
         std::string id;
         QString errorStr;
@@ -1615,11 +1658,6 @@ bool Project::loadMeteoGridDailyData(const QDate &firstDate, const QDate &lastDa
         #pragma omp for schedule(dynamic) reduction(+:count)
         for (int row = 0; row < gridStructure.header().nrRows; row++)
         {
-            if (showInfo && omp_get_thread_num() == 0)
-            {
-                updateProgressBar(count * maxThreads);
-            }
-
             for (int col = 0; col < gridStructure.header().nrCols; col++)
             {
                 if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, id))
@@ -1646,6 +1684,15 @@ bool Project::loadMeteoGridDailyData(const QDate &firstDate, const QDate &lastDa
                                                                                    firstDate, lastDate))
                             ++count;
                     }
+                }
+            }
+
+            // safe update
+            if (showInfo && omp_get_thread_num() == 0)
+            {
+                #pragma omp critical
+                {
+                    updateProgressBar(count * nrThreads);
                 }
             }
         }
@@ -1682,15 +1729,10 @@ bool Project::loadMeteoGridHourlyData(QDateTime firstDateTime, QDateTime lastDat
 
     const auto &gridStructure = meteoGridDbHandler->gridStructure();
 
-    unsigned int maxThreads = 1;
-    if (_isParallelComputing)
-    {
-        maxThreads = omp_get_max_threads();
-    }
-    omp_set_num_threads(static_cast<int>(maxThreads));
-
     int count = 0;
-    #pragma omp parallel
+    int nrThreads = (_isParallelComputing ? omp_get_max_threads(): 1);
+
+    #pragma omp parallel if(_isParallelComputing)
     {
         std::string id;
         QString myErrorStr;
@@ -1700,11 +1742,6 @@ bool Project::loadMeteoGridHourlyData(QDateTime firstDateTime, QDateTime lastDat
         #pragma omp for schedule(dynamic) reduction(+:count)
         for (int row = 0; row < gridStructure.header().nrRows; row++)
         {
-            if (showInfo && omp_get_thread_num() == 0)
-            {
-                updateProgressBar(count * maxThreads);
-            }
-
             for (int col = 0; col < gridStructure.header().nrCols; col++)
             {
                 if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, id))
@@ -1719,6 +1756,15 @@ bool Project::loadMeteoGridHourlyData(QDateTime firstDateTime, QDateTime lastDat
                         if (meteoGridDbHandler->loadGridHourlyDataFixedFields(myErrorStr, QString::fromStdString(id), firstDateTime, lastDateTime))
                             ++count;
                     }
+                }
+            }
+
+            // safe update
+            if (showInfo && omp_get_thread_num() == 0)
+            {
+                #pragma omp critical
+                {
+                    updateProgressBar(count * nrThreads);
                 }
             }
         }
@@ -1755,15 +1801,10 @@ bool Project::loadMeteoGridMonthlyData(const QDate &firstDate, const QDate &last
 
     const auto &gridStructure = meteoGridDbHandler->gridStructure();
 
-    unsigned int maxThreads = 1;
-    if (_isParallelComputing)
-    {
-        maxThreads = omp_get_max_threads();
-    }
-    omp_set_num_threads(static_cast<int>(maxThreads));
-
     int count = 0;
-    #pragma omp parallel
+    int nrThreads = (_isParallelComputing ? omp_get_max_threads(): 1);
+
+    #pragma omp parallel if (_isParallelComputing)
     {
         std::string id;
         QString myErrorStr;
@@ -1773,11 +1814,6 @@ bool Project::loadMeteoGridMonthlyData(const QDate &firstDate, const QDate &last
         #pragma omp for schedule(dynamic) reduction(+:count)
         for (int row = 0; row < gridStructure.header().nrRows; row++)
         {
-            if (showInfo && omp_get_thread_num() == 0)
-            {
-                updateProgressBar(count * maxThreads);
-            }
-
             for (int col = 0; col < this->meteoGridDbHandler->gridStructure().header().nrCols; col++)
             {
                 if (this->meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, id))
@@ -1794,6 +1830,15 @@ bool Project::loadMeteoGridMonthlyData(const QDate &firstDate, const QDate &last
 
                     if (isOk)
                         ++count;
+                }
+            }
+
+            // safe update
+            if (showInfo && omp_get_thread_num() == 0)
+            {
+                #pragma omp critical
+                {
+                    updateProgressBar(count * nrThreads);
                 }
             }
         }
@@ -3002,47 +3047,37 @@ bool Project::interpolationDemLocalDetrending(meteoVariable myVar, const Crit3DT
             return false;
         }
 
-        unsigned int maxThreads = 1;
-        if (_isParallelComputing)
-        {
-            maxThreads = omp_get_max_threads();
-        }
-        omp_set_num_threads(static_cast<int>(maxThreads));
+        Crit3DInterpolationSettings myInterpolationSettings = interpolationSettings;
+        std::vector<double> proxyValues(myInterpolationSettings.getProxyNr());
 
-        #pragma omp parallel
+        #pragma omp parallel for if(_isParallelComputing) firstprivate(myInterpolationSettings, proxyValues)
+        for (long row = 0; row < myHeader.nrRows ; row++)
         {
-            Crit3DInterpolationSettings myInterpolationSettings = interpolationSettings;
-            std::vector<double> proxyValues(myInterpolationSettings.getProxyNr());
-
-            #pragma omp for
-            for (long row = 0; row < myHeader.nrRows ; row++)
+            for (long col = 0; col < myHeader.nrCols; col++)
             {
-                for (long col = 0; col < myHeader.nrCols; col++)
+                float z = DEM.value[row][col];
+                if (! isEqual(z, myHeader.flag))
                 {
-                    float z = DEM.value[row][col];
-                    if (! isEqual(z, myHeader.flag))
+                    double x, y;
+                    gis::getUtmXYFromRowCol(myHeader, row, col, &x, &y);
+
+                    if (getUseDetrendingVar(myVar))
                     {
-                        double x, y;
-                        gis::getUtmXYFromRowCol(myHeader, row, col, &x, &y);
-
-                        if (getUseDetrendingVar(myVar))
-                        {
-                            getProxyValuesXY(x, y, myInterpolationSettings, proxyValues);
-                        }
-
-                        std::vector <Crit3DInterpolationDataPoint> subsetInterpolationPoints;
-                        localSelection(interpolationPoints, subsetInterpolationPoints, x, y, myInterpolationSettings, false);
-
-                        preInterpolation(subsetInterpolationPoints, myInterpolationSettings, meteoSettings, &climateParameters,
-                                         meteoPoints, nrMeteoPoints, myVar, myTime, errorStdStr);
-
-                        myRaster->value[row][col] = interpolate(subsetInterpolationPoints, myInterpolationSettings, meteoSettings,
-                                                                myVar, x, y, z, proxyValues, true);
-                        myInterpolationSettings.clearFitting();
-                        myInterpolationSettings.setCurrentCombination(myInterpolationSettings.getSelectedCombination());
-
-                        subsetInterpolationPoints.clear();
+                        getProxyValuesXY(x, y, myInterpolationSettings, proxyValues);
                     }
+
+                    std::vector <Crit3DInterpolationDataPoint> subsetInterpolationPoints;
+                    localSelection(interpolationPoints, subsetInterpolationPoints, x, y, myInterpolationSettings, false);
+
+                    preInterpolation(subsetInterpolationPoints, myInterpolationSettings, meteoSettings, &climateParameters,
+                                     meteoPoints, nrMeteoPoints, myVar, myTime, errorStdStr);
+
+                    myRaster->value[row][col] = interpolate(subsetInterpolationPoints, myInterpolationSettings, meteoSettings,
+                                                            myVar, x, y, z, proxyValues, true);
+                    myInterpolationSettings.clearFitting();
+                    myInterpolationSettings.setCurrentCombination(myInterpolationSettings.getSelectedCombination());
+
+                    subsetInterpolationPoints.clear();
                 }
             }
         }
@@ -3111,74 +3146,64 @@ bool Project::interpolationDemGlocalDetrending(meteoVariable myVar, const Crit3D
                 elevationPos = pos;
         }
 
-        unsigned int maxThreads = 1;
-        if (_isParallelComputing)
-        {
-            maxThreads = omp_get_max_threads();
-        }
-        omp_set_num_threads(static_cast<int>(maxThreads));
+        Crit3DInterpolationSettings myInterpolationSettings = interpolationSettings;
+        std::vector<double> proxyValues(myInterpolationSettings.getProxyNr());
 
-        #pragma omp parallel
+        #pragma omp parallel for if (_isParallelComputing) firstprivate(myInterpolationSettings, proxyValues) shared(isOk)
+        for (int areaIndex = 0; areaIndex < myInterpolationSettings.getMacroAreasSize(); areaIndex++)
         {
-            Crit3DInterpolationSettings myInterpolationSettings = interpolationSettings;
-            std::vector<double> proxyValues(myInterpolationSettings.getProxyNr());
+            if (! isOk) continue;   // early skip if already failed
 
-            #pragma omp for
-            for (int areaIndex = 0; areaIndex < myInterpolationSettings.getMacroAreasSize(); areaIndex++)
+            // load macro area and its cells
+            Crit3DMacroArea macroArea = myInterpolationSettings.getMacroArea(areaIndex);
+            std::vector<float> areaCells = macroArea.getAreaCellsDEM();
+            std::vector<Crit3DInterpolationDataPoint> subsetInterpolationPoints;
+            double interpolatedValue = NODATA;
+
+            if (! areaCells.empty())
             {
-                if (! isOk) continue;   // early skip if already failed
+                macroAreaDetrending(macroArea, myVar, myInterpolationSettings, meteoSettings,
+                                    meteoPoints, interpolationPoints, subsetInterpolationPoints, elevationPos);
 
-                // load macro area and its cells
-                Crit3DMacroArea macroArea = myInterpolationSettings.getMacroArea(areaIndex);
-                std::vector<float> areaCells = macroArea.getAreaCellsDEM();
-                std::vector<Crit3DInterpolationDataPoint> subsetInterpolationPoints;
-                double interpolatedValue = NODATA;
-
-                if (! areaCells.empty())
+                // calculate value for every cell
+                for (std::size_t cellIndex = 0; cellIndex < areaCells.size(); cellIndex = cellIndex + 2)
                 {
-                    macroAreaDetrending(macroArea, myVar, myInterpolationSettings, meteoSettings,
-                                        meteoPoints, interpolationPoints, subsetInterpolationPoints, elevationPos);
+                    if (! isOk) break;   // early skip if already failed
 
-                    // calculate value for every cell
-                    for (std::size_t cellIndex = 0; cellIndex < areaCells.size(); cellIndex = cellIndex + 2)
+                    int row = int(areaCells[cellIndex] / DEM.header->nrCols);
+                    int col = int(areaCells[cellIndex]) % DEM.header->nrCols;
+
+                    float z = DEM.value[row][col];
+
+                    if (! isEqual(z, myHeader.flag))
                     {
-                        if (! isOk) break;   // early skip if already failed
+                        double x, y;
+                        gis::getUtmXYFromRowCol(myHeader, row, col, &x, &y);
 
-                        int row = int(areaCells[cellIndex] / DEM.header->nrCols);
-                        int col = int(areaCells[cellIndex]) % DEM.header->nrCols;
-
-                        float z = DEM.value[row][col];
-
-                        if (! isEqual(z, myHeader.flag))
+                        if (! getSignificantProxyValuesXY(x, y, myInterpolationSettings, proxyValues))
                         {
-                            double x, y;
-                            gis::getUtmXYFromRowCol(myHeader, row, col, &x, &y);
+                            myRaster->value[row][col] = NODATA;
+                            continue;
+                        }
 
-                            if (! getSignificantProxyValuesXY(x, y, myInterpolationSettings, proxyValues))
-                            {
-                                myRaster->value[row][col] = NODATA;
-                                continue;
-                            }
+                        interpolatedValue = interpolate(subsetInterpolationPoints, myInterpolationSettings, meteoSettings,
+                                                        myVar, x, y, z, proxyValues, true);
 
-                            interpolatedValue = interpolate(subsetInterpolationPoints, myInterpolationSettings, meteoSettings,
-                                                            myVar, x, y, z, proxyValues, true);
-
-                            if (! isEqual(interpolatedValue, NODATA))
+                        if (! isEqual(interpolatedValue, NODATA))
+                        {
+                            // protect writes if same cell could be touched by multiple threads
+                            #pragma omp critical
                             {
-                                // protect writes if same cell could be touched by multiple threads
-                                #pragma omp critical
-                                {
-                                    if (isEqual(myRaster->value[row][col], NODATA))
-                                        myRaster->value[row][col] = interpolatedValue * areaCells[cellIndex + 1];
-                                    else
-                                        myRaster->value[row][col] += interpolatedValue * areaCells[cellIndex + 1];
-                                }
+                                if (isEqual(myRaster->value[row][col], NODATA))
+                                    myRaster->value[row][col] = interpolatedValue * areaCells[cellIndex + 1];
+                                else
+                                    myRaster->value[row][col] += interpolatedValue * areaCells[cellIndex + 1];
                             }
-                            else
-                            {
-                                // cannot return directly; set flag instead
-                                isOk = false;
-                            }
+                        }
+                        else
+                        {
+                            // cannot return directly; set flag instead
+                            isOk = false;
                         }
                     }
                 }
@@ -4309,11 +4334,12 @@ void Project::showMeteoWidgetPoint(std::string idMeteoPoint, std::string namePoi
     mp.setLapseRateCode(lapseRateCode);
     mp.setDataset(dataset);
     mp.point.z = altitude;
+    QSqlDatabase db = meteoPointsDbHandler->getDb();
 
     if (isAppend)
     {
-        meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
-        meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
+        meteoPointsDbHandler->loadDailyData(db, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+        meteoPointsDbHandler->loadHourlyData(db, getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
         meteoWidgetPointList[meteoWidgetPointList.size()-1]->drawMeteoPoint(mp, isAppend);
     }
     else
@@ -4333,8 +4359,8 @@ void Project::showMeteoWidgetPoint(std::string idMeteoPoint, std::string namePoi
         meteoWidgetPoint->setAllMeteoPointsPointer(meteoPoints, nrMeteoPoints);
         meteoWidgetPointList.append(meteoWidgetPoint);
         QObject::connect(meteoWidgetPoint, SIGNAL(closeWidgetPoint(int)), this, SLOT(deleteMeteoWidgetPoint(int)));
-        meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
-        meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
+        meteoPointsDbHandler->loadDailyData(db, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+        meteoPointsDbHandler->loadHourlyData(db, getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
 
         if (hasDailyData)
         {
@@ -5255,6 +5281,8 @@ bool Project::exportMeteoPointsDailyDataCsv(bool isTPrec, QDate firstDate, QDate
         }
     }
 
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+
     for (int i = 0; i < nrMeteoPoints; i++)
     {
         QString id = QString::fromStdString(meteoPoints[i].id);
@@ -5267,7 +5295,7 @@ bool Project::exportMeteoPointsDailyDataCsv(bool isTPrec, QDate firstDate, QDate
         if (checkId)
         {
             // read data
-            if (! meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), meteoPoints[i]))
+            if (! meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDate), getCrit3DDate(lastDate), meteoPoints[i]))
             {
                 errorString = "Error in reading point id: " + id;
                 return false;
@@ -5745,9 +5773,10 @@ bool Project::waterTableAssignNearestMeteoPoint(bool isMeteoGridLoaded, double w
     {
         int assignNearestIndex;
         QDate lastDate = meteoPointsDbHandler->getLastDate(daily).date();
+        QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+
         for (int i = 0; i < nrMeteoPoints; i++)
         {
-
             double utmX = meteoPoints[i].point.utm.x;
             double utmY = meteoPoints[i].point.utm.y;
             float myDistance = gis::computeDistance(wellUtmX, wellUtmY, utmX, utmY);
@@ -5755,7 +5784,7 @@ bool Project::waterTableAssignNearestMeteoPoint(bool isMeteoGridLoaded, double w
             {
                 if (myDistance < minimumDistance || minimumDistance == NODATA)
                 {
-                    meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstMeteoDate), getCrit3DDate(lastDate), meteoPoints[i]);
+                    meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstMeteoDate), getCrit3DDate(lastDate), meteoPoints[i]);
                     if (waterTableAssignMeteoData(&meteoPoints[i], firstMeteoDate))
                     {
                         minimumDistance = myDistance;
@@ -5765,6 +5794,7 @@ bool Project::waterTableAssignNearestMeteoPoint(bool isMeteoGridLoaded, double w
                 }
             }
         }
+
         if (isMeteoPointFound)
         {
             linkedMeteoPoint->id = meteoPoints[assignNearestIndex].id;
