@@ -7,8 +7,6 @@
     #include "callout.h"
     #include "criteria1DProject.h"
 
-    class Crit3DMeteoPoint;
-
     class TabRootDensity : public QWidget
     {
         Q_OBJECT

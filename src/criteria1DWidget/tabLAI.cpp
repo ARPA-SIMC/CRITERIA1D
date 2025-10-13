@@ -5,7 +5,6 @@
 #include "commonConstants.h"
 #include "formInfo.h"
 #include "meteoPoint.h"
-//#include "qdebug.h"
 #include "crop.h"
 
 
@@ -40,7 +39,7 @@ TabLAI::TabLAI()
 
     axisX = new QDateTimeAxis();
     axisY = new QValueAxis();
-    axisYdx = new QValueAxis();
+    axisY_dx = new QValueAxis();
 
     chart->addSeries(seriesLAI);
     chart->addSeries(seriesETP);
@@ -68,17 +67,17 @@ TabLAI::TabLAI()
     axisY->setRange(0, maximum);
     axisY->setTickCount(maximum+1);
 
-    axisYdx->setTitleText("Evapotranspiration [mm]");
-    axisYdx->setTitleFont(font);
-    axisYdx->setRange(0, maximum);
-    axisYdx->setTickCount(maximum+1);
+    axisY_dx->setTitleText("Evapotranspiration [mm]");
+    axisY_dx->setTitleFont(font);
+    axisY_dx->setRange(0, maximum);
+    axisY_dx->setTickCount(maximum+1);
 
     chart->addAxis(axisY, Qt::AlignLeft);
-    chart->addAxis(axisYdx, Qt::AlignRight);
+    chart->addAxis(axisY_dx, Qt::AlignRight);
     seriesLAI->attachAxis(axisY);
-    seriesETP->attachAxis(axisYdx);
-    seriesMaxEvap->attachAxis(axisYdx);
-    seriesMaxTransp->attachAxis(axisYdx);
+    seriesETP->attachAxis(axisY_dx);
+    seriesMaxEvap->attachAxis(axisY_dx);
+    seriesMaxTransp->attachAxis(axisY_dx);
 
     chart->legend()->setVisible(true);
     QFont legendFont = chart->legend()->font();
@@ -185,9 +184,9 @@ void TabLAI::computeLAI(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int fi
     chart->addSeries(seriesMaxTransp);
 
     seriesLAI->attachAxis(axisY);
-    seriesETP->attachAxis(axisYdx);
-    seriesMaxEvap->attachAxis(axisYdx);
-    seriesMaxTransp->attachAxis(axisYdx);
+    seriesETP->attachAxis(axisY_dx);
+    seriesMaxEvap->attachAxis(axisY_dx);
+    seriesMaxTransp->attachAxis(axisY_dx);
 
     foreach(QLegendMarker* marker, chart->legend()->markers())
     {
@@ -244,9 +243,9 @@ void TabLAI::tooltipME(QPointF point, bool state)
     }
 }
 
+
 void TabLAI::tooltipMaxTranspiration(QPointF point, bool state)
 {
-
     if (state)
     {
         QDateTime xDate;
@@ -256,50 +255,51 @@ void TabLAI::tooltipMaxTranspiration(QPointF point, bool state)
         m_tooltip->setZValue(11);
         m_tooltip->updateGeometry();
         m_tooltip->show();
-    } else {
+    } else
+    {
         m_tooltip->hide();
     }
 }
+
 
 void TabLAI::handleMarkerClicked()
 {
     QLegendMarker* marker = qobject_cast<QLegendMarker*> (sender());
 
-    if(marker->type() == QLegendMarker::LegendMarkerTypeXY)
-    {
-        // Toggle visibility of series
-        marker->series()->setVisible(!marker->series()->isVisible());
+    if(marker->type() != QLegendMarker::LegendMarkerTypeXY)
+        return;
 
-        // Turn legend marker back to visible, since otherwise hiding series also hides the marker
-        marker->setVisible(true);
+    // Toggle visibility of series
+    marker->series()->setVisible(!marker->series()->isVisible());
 
-        // change marker alpha, if series is not visible
-        qreal alpha = 1.0;
+    // Turn legend marker back to visible, since otherwise hiding series also hides the marker
+    marker->setVisible(true);
 
-        if (!marker->series()->isVisible()) {
-            alpha = 0.5;
-        }
+    // change marker alpha, if series is not visible
+    qreal alpha = 1.0;
 
-        QColor color;
-        QBrush brush = marker->labelBrush();
-        color = brush.color();
-        color.setAlphaF(alpha);
-        brush.setColor(color);
-        marker->setLabelBrush(brush);
-
-        brush = marker->brush();
-        color = brush.color();
-        color.setAlphaF(alpha);
-        brush.setColor(color);
-        marker->setBrush(brush);
-
-        QPen pen = marker->pen();
-        color = pen.color();
-        color.setAlphaF(alpha);
-        pen.setColor(color);
-        marker->setPen(pen);
+    if (!marker->series()->isVisible()) {
+        alpha = 0.5;
     }
 
+    QColor color;
+    QBrush brush = marker->labelBrush();
+    color = brush.color();
+    color.setAlphaF(alpha);
+    brush.setColor(color);
+    marker->setLabelBrush(brush);
+
+    brush = marker->brush();
+    color = brush.color();
+    color.setAlphaF(alpha);
+    brush.setColor(color);
+    marker->setBrush(brush);
+
+    QPen pen = marker->pen();
+    color = pen.color();
+    color.setAlphaF(alpha);
+    pen.setColor(color);
+    marker->setPen(pen);
 }
 
 

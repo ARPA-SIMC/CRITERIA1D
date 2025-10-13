@@ -6,7 +6,7 @@
 #   algorithms for soil water infiltration, redistribution,
 #   capillary rise, crop water demand and irrigation.
 #
-#   This library is part of CRITERIA3D distribution
+#   This library is part of CRITERIA-1D distribution
 #
 #----------------------------------------------------------------
 

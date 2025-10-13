@@ -48,7 +48,7 @@ TabIrrigation::TabIrrigation()
     axisX = new QBarCategoryAxis();
     axisXvirtual = new QDateTimeAxis();
     axisY = new QValueAxis();
-    axisYdx = new QValueAxis();
+    axisY_dx = new QValueAxis();
 
     QDate first(QDate::currentDate().year(), 1, 1);
     QDate last(QDate::currentDate().year(), 12, 31);
@@ -66,15 +66,15 @@ TabIrrigation::TabIrrigation()
     axisY->setRange(0,8);
     axisY->setTickCount(9);
 
-    axisYdx->setTitleText("Precipitation - Irrigation [mm]");
-    axisYdx->setTitleFont(font);
-    axisYdx->setRange(0,40);
-    axisYdx->setTickCount(9);
+    axisY_dx->setTitleText("Precipitation - Irrigation [mm]");
+    axisY_dx->setTitleFont(font);
+    axisY_dx->setRange(0,40);
+    axisY_dx->setTickCount(9);
 
     chart->addAxis(axisX, Qt::AlignBottom);
     chart->addAxis(axisXvirtual, Qt::AlignBottom);
     chart->addAxis(axisY, Qt::AlignLeft);
-    chart->addAxis(axisYdx, Qt::AlignRight);
+    chart->addAxis(axisY_dx, Qt::AlignRight);
 
     chart->addSeries(seriesLAI);
     chart->addSeries(seriesMaxTransp);
@@ -95,7 +95,7 @@ TabIrrigation::TabIrrigation()
     seriesActualTransp->attachAxis(axisY);
     seriesMaxEvap->attachAxis(axisY);
     seriesActualEvap->attachAxis(axisY);
-    seriesPrecIrr->attachAxis(axisYdx);
+    seriesPrecIrr->attachAxis(axisY_dx);
 
     chart->legend()->setVisible(true);
     chart->legend()->setAlignment(Qt::AlignBottom);
@@ -286,7 +286,7 @@ void TabIrrigation::tooltipPrecIrr(bool isShow, int index, QBarSet *barset)
         QPoint point = QCursor::pos();
         QPoint mapPoint = chartView->mapFromGlobal(point);
         QPointF pointF = chart->mapToValue(mapPoint,seriesPrecIrr);
-        double ratio = axisYdx->max() / axisY->max();
+        double ratio = axisY_dx->max() / axisY->max();
         pointF.setY(pointF.y() / ratio);
 
         QDate xDate(_firstYear, 1, 1);
@@ -391,7 +391,5 @@ void TabIrrigation::handleMarkerClicked()
             pen.setColor(color);
             marker->setPen(pen);
         }
-
     }
-
 }

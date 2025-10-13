@@ -145,7 +145,9 @@ void TabWaterContent::computeWaterContent(Crit1DCase &myCase, int firstYear, int
             QMessageBox::critical(nullptr, "Error!", QString::fromStdString(errorString));
             return;
         }
-        if ( (cont % step) == 0) formInfo.setValue(cont);
+        if ((cont % step) == 0)
+            formInfo.setValue(cont);
+
         // display only interval firstYear lastYear
         if (myDate.year >= firstYear)
         {

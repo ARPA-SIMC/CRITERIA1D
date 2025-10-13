@@ -16,6 +16,7 @@
 
     #include "criteria1DProject.h"
     #include "tabLAI.h"
+    #include "tabDegreeDays.h"
     #include "tabRootDepth.h"
     #include "tabRootDensity.h"
     #include "tabIrrigation.h"
@@ -53,6 +54,7 @@
             void updateCropParam(QString idCrop);
             bool updateCrop();
             void updateTabLAI();
+            void updateTabDegreeDays();
             void updateTabRootDepth();
             void updateTabRootDensity();
             void updateTabIrrigation();
@@ -65,15 +67,14 @@
 
         private:
             Crit1DProject myProject;
+            Crit3DCrop myCropFromDB;
 
-            Crit3DCrop cropFromDB;
+            QString _meteoTableName;
+            bool _isCropChanged;
 
-            QString meteoTableName;
-            bool isCropChanged;
-            QList<QString> yearList;
-            bool isOnlyOneYear;
-
-            Crit3DMeteoSettings meteoSettings;
+            QList<QString> _yearList;
+            bool _isOnlyOneYear;
+            bool _isRedraw;
 
             QGroupBox *infoCaseGroup;
             QGroupBox *infoCropGroup;
@@ -143,13 +144,12 @@
             QAction* viewSoil;
 
             TabLAI* tabLAI;
+            TabDegreeDays* tabDegreeDays;
             TabRootDepth* tabRootDepth;
             TabRootDensity* tabRootDensity;
             TabIrrigation* tabIrrigation;
             TabWaterContent* tabWaterContent;
             TabCarbonNitrogen* tabCarbonNitrogen;
-
-            bool isRedraw;
 
             void clearCrop();
             void checkCropUpdate();

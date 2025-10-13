@@ -29,7 +29,7 @@
         QBarCategoryAxis *axisX;
         QDateTimeAxis *axisXvirtual;
         QValueAxis *axisY;
-        QValueAxis *axisYdx;
+        QValueAxis *axisY_dx;
         QList<QString> categories;
         QLineSeries* seriesLAI;
         QLineSeries* seriesMaxTransp;

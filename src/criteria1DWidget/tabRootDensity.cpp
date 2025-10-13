@@ -223,12 +223,9 @@ void TabRootDensity::updateRootDensity()
                     {
                         rootDensity = m_crop.roots.rootDensity[layerIndex]*100;
                         rootDensityAdj = rootDensity / m_layers[layerIndex].thickness*0.02;
-                        *set << rootDensityAdj;
+                        *set << rootDensity;
 
-                        if (rootDensityAdj > maxRootDensity)
-                        {
-                            maxRootDensity = rootDensityAdj;
-                        }
+                        maxRootDensity = std::max(maxRootDensity, rootDensity);
                     }
                 }
             }
@@ -245,8 +242,8 @@ void TabRootDensity::tooltip(bool state, int index, QBarSet *barset)
 {
     if (state && barset!=nullptr && index < barset->count())
     {
-        QString valueStr = QString::number(barset->at(index));
-        m_tooltip->setText(valueStr);
+        QString valueStr = QString::number(barset->at(index), 'f', 2);
+        m_tooltip->setText(valueStr + " %");
 
         QPoint point = QCursor::pos();
         QPoint mapPoint = chartView->mapFromGlobal(point);

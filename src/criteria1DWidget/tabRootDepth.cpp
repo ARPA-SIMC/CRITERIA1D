@@ -4,6 +4,7 @@
 #include "commonConstants.h"
 #include "utilities.h"
 #include "meteo.h"
+#include "criteria1DCase.h"
 
 
 TabRootDepth::TabRootDepth()
@@ -64,25 +65,26 @@ TabRootDepth::TabRootDepth()
 }
 
 
-void TabRootDepth::computeRootDepth(Crit3DCrop &myCrop, const Crit3DMeteoPoint &meteoPoint, int firstYear, int lastYear,
-                                    const QDate &lastSimulationDate, const std::vector<soil::Crit1DLayer> &soilLayers)
+void TabRootDepth::computeRootDepth(Crit1DCase &myCase, int firstYear, int lastYear, const QDate &lastDBMeteoDate)
 {
-    unsigned int nrLayers = unsigned(soilLayers.size());
+    unsigned int nrLayers = unsigned(myCase.soilLayers.size());
     double totalSoilDepth = 0;
-    if (nrLayers > 0) totalSoilDepth = soilLayers[nrLayers-1].depth + soilLayers[nrLayers-1].thickness / 2;
+    if (nrLayers > 0) {
+        totalSoilDepth = myCase.soilLayers[nrLayers-1].depth + myCase.soilLayers[nrLayers-1].thickness / 2;
+    }
 
     int prevYear = firstYear - 1;
     std::string error;
 
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
     Crit3DDate lastDate;
-    if (lastYear != lastSimulationDate.year())
+    if (lastYear != lastDBMeteoDate.year())
     {
         lastDate = Crit3DDate(31, 12, lastYear);
     }
     else
     {
-        lastDate = Crit3DDate(lastSimulationDate.day(), lastSimulationDate.month(), lastYear);
+        lastDate = Crit3DDate(lastDBMeteoDate.day(), lastDBMeteoDate.month(), lastYear);
     }
     float tmin, tmax, waterTableDepth;
     QDateTime x;
@@ -93,15 +95,15 @@ void TabRootDepth::computeRootDepth(Crit3DCrop &myCrop, const Crit3DMeteoPoint &
     seriesRootDepthMin->clear();
 
     int currentDoy = 1;
-    myCrop.initialize(meteoPoint.latitude, nrLayers, totalSoilDepth, currentDoy);
+    myCase.crop.initialize(myCase.meteoPoint.latitude, nrLayers, totalSoilDepth, currentDoy);
 
     for (Crit3DDate myDate = firstDate; myDate <= lastDate; ++myDate)
     {
-        tmin = meteoPoint.getMeteoPointValueD(myDate, dailyAirTemperatureMin);
-        tmax = meteoPoint.getMeteoPointValueD(myDate, dailyAirTemperatureMax);
-        waterTableDepth = meteoPoint.getMeteoPointValueD(myDate, dailyWaterTableDepth);
+        tmin = myCase.meteoPoint.getMeteoPointValueD(myDate, dailyAirTemperatureMin);
+        tmax = myCase.meteoPoint.getMeteoPointValueD(myDate, dailyAirTemperatureMax);
+        waterTableDepth = myCase.meteoPoint.getMeteoPointValueD(myDate, dailyWaterTableDepth);
 
-        if (! myCrop.dailyUpdate(myDate, meteoPoint.latitude, soilLayers, tmin, tmax, waterTableDepth, error))
+        if (! myCase.crop.dailyUpdate(myDate, myCase.meteoPoint.latitude, myCase.soilLayers, tmin, tmax, waterTableDepth, error))
         {
             QMessageBox::critical(nullptr, "Error!", QString::fromStdString(error));
             return;
@@ -111,14 +113,14 @@ void TabRootDepth::computeRootDepth(Crit3DCrop &myCrop, const Crit3DMeteoPoint &
         if (myDate.year >= firstYear)
         {
             x.setDate(QDate(myDate.year, myDate.month, myDate.day));
-            seriesRootDepthMin->append(x.toMSecsSinceEpoch(), myCrop.roots.rootDepthMin);
-            if (myCrop.roots.rootDepth!= NODATA)
+            seriesRootDepthMin->append(x.toMSecsSinceEpoch(), myCase.crop.roots.rootDepthMin);
+            if (myCase.crop.roots.rootDepth!= NODATA)
             {
-                seriesRootDepth->append(x.toMSecsSinceEpoch(), myCrop.roots.rootDepth);
+                seriesRootDepth->append(x.toMSecsSinceEpoch(), myCase.crop.roots.rootDepth);
             }
             else
             {
-                seriesRootDepth->append(x.toMSecsSinceEpoch(), myCrop.roots.rootDepthMin);
+                seriesRootDepth->append(x.toMSecsSinceEpoch(), myCase.crop.roots.rootDepthMin);
             }
         }
     }
@@ -142,7 +144,7 @@ void TabRootDepth::tooltipRDM(QPointF point, bool state)
     {
         QDateTime xDate;
         xDate.setMSecsSinceEpoch(point.x());
-        m_tooltip->setText(QString("%1 \nroot ini %2 ").arg(xDate.date().toString("yyyy-MM-dd")).arg(point.y()));
+        m_tooltip->setText(QString("%1 \nroot ini %2 ").arg(xDate.date().toString("yyyy-MM-dd")).arg(point.y(), 0, 'f', 2));
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);
         m_tooltip->updateGeometry();
@@ -158,7 +160,7 @@ void TabRootDepth::tooltipRD(QPointF point, bool state)
     {
         QDateTime xDate;
         xDate.setMSecsSinceEpoch(point.x());
-        m_tooltip->setText(QString("%1 \nroot depth %2 ").arg(xDate.date().toString("yyyy-MM-dd")).arg(point.y()));
+        m_tooltip->setText(QString("%1 \nroot depth %2 ").arg(xDate.date().toString("yyyy-MM-dd")).arg(point.y(), 0, 'f', 2));
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);
         m_tooltip->updateGeometry();

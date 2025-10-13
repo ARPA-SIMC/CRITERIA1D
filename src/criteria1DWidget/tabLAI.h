@@ -1,8 +1,8 @@
 #ifndef TABLAI_H
 #define TABLAI_H
 
-    #include <QtWidgets>
     #include <QtCharts>
+    #include <QWidget>
     #include "callout.h"
     #include "soil.h"
 
@@ -22,6 +22,7 @@
         void tooltipME(QPointF point, bool state);
         void tooltipMaxTranspiration(QPointF point, bool state);
         void handleMarkerClicked();
+
     private:
         QChartView *chartView;
         QChart *chart;
@@ -31,7 +32,7 @@
         QLineSeries *seriesMaxTransp;
         QDateTimeAxis *axisX;
         QValueAxis *axisY;
-        QValueAxis *axisYdx;
+        QValueAxis *axisY_dx;
         Callout *m_tooltip;
     };
 

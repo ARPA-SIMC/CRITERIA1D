@@ -1,7 +1,7 @@
 #-----------------------------------------------------------
 #
 #   CRITERIA1D PRO
-#   This project is part of CRITERIA3D distribution
+#   This project is part of CRITERIA-1D distribution
 #
 #-----------------------------------------------------------
 

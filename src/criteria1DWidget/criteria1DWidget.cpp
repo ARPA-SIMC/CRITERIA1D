@@ -53,7 +53,7 @@
 
 Criteria1DWidget::Criteria1DWidget()
 {
-    resize(1000, 800);
+    resize(1200, 800);
     setWindowState(Qt::WindowMaximized);
 
     // font
@@ -459,6 +459,7 @@ Criteria1DWidget::Criteria1DWidget()
     WidgetLayout->addLayout(infoLayout);
     tabWidget = new QTabWidget;
     tabLAI = new TabLAI();
+    tabDegreeDays = new TabDegreeDays();
     tabRootDepth = new TabRootDepth();
     tabRootDensity = new TabRootDensity();
     tabIrrigation = new TabIrrigation();
@@ -466,6 +467,7 @@ Criteria1DWidget::Criteria1DWidget()
     tabCarbonNitrogen = new TabCarbonNitrogen();
 
     tabWidget->addTab(tabLAI, tr("LAI development"));
+    tabWidget->addTab(tabDegreeDays, tr("Degree days"));
     tabWidget->addTab(tabRootDepth, tr("Root depth"));
     tabWidget->addTab(tabRootDensity, tr("Root density"));
     tabWidget->addTab(tabIrrigation, tr("Irrigation"));
@@ -521,9 +523,6 @@ Criteria1DWidget::Criteria1DWidget()
     viewMenu->addAction(viewWeather);
     viewMenu->addAction(viewSoil);
 
-    isCropChanged = false;
-    isOnlyOneYear = false;
-
     connect(openProject, &QAction::triggered, this, &Criteria1DWidget::on_actionOpenProject);
     connect(newProject, &QAction::triggered, this, &Criteria1DWidget::on_actionNewProject);
     connect(&caseListComboBox, &QComboBox::currentTextChanged, this, &Criteria1DWidget::on_actionChooseCase);
@@ -556,16 +555,18 @@ Criteria1DWidget::Criteria1DWidget()
 
     connect(executeCase, &QAction::triggered, this, &Criteria1DWidget::on_actionExecuteCase);
 
-    //set current tab
+    // set current tab
     tabChanged(0);
 
-    isRedraw = true;
+    _isCropChanged = false;
+    _isOnlyOneYear = false;
+    _isRedraw = true;
 }
 
 
 void Criteria1DWidget::on_actionOpenProject()
 {
-    isRedraw = false;
+    _isRedraw = false;
     QString dataPath, projectPath;
 
     if (searchDataPath(&dataPath))
@@ -623,7 +624,7 @@ void Criteria1DWidget::on_actionOpenProject()
         viewWeather->setEnabled(true);
     }
 
-    isRedraw = true;
+    _isRedraw = true;
 }
 
 
@@ -802,7 +803,7 @@ void Criteria1DWidget::checkCropUpdate()
                     if (saveCrop())
                     {
                         // already saved
-                        isCropChanged = false;
+                        _isCropChanged = false;
                     }
                 }
             }
@@ -835,7 +836,7 @@ void Criteria1DWidget::openComputationUnitsDB(QString dbComputationUnitsName)
 void Criteria1DWidget::clearCrop()
 {
         myProject.myCase.crop.clear();
-        cropFromDB.clear();
+        myCropFromDB.clear();
 }
 
 
@@ -1053,7 +1054,7 @@ void Criteria1DWidget::on_actionExecuteCase()
 
 void Criteria1DWidget::on_actionChooseCase()
 {
-    isRedraw = false;
+    _isRedraw = false;
     FormInfo formInfo;
     formInfo.showInfo("Load case: " + caseListComboBox.currentText());
 
@@ -1161,7 +1162,7 @@ void Criteria1DWidget::on_actionChooseCase()
 
     formInfo.close();
 
-    isRedraw = true;
+    _isRedraw = true;
     on_actionUpdate();
 }
 
@@ -1186,7 +1187,7 @@ void Criteria1DWidget::on_actionChooseCrop(QString idCrop)
             {
                 if (saveCrop())
                 {
-                    isCropChanged = false; //already saved
+                    _isCropChanged = false; //already saved
                 }
             }
         }
@@ -1196,7 +1197,7 @@ void Criteria1DWidget::on_actionChooseCrop(QString idCrop)
     clearCrop();
     updateCropParam(idCrop);
 
-    if (isRedraw) on_actionUpdate();
+    if (_isRedraw) on_actionUpdate();
 }
 
 
@@ -1301,7 +1302,7 @@ void Criteria1DWidget::updateCropParam(QString idCrop)
     rawFractionValue->setValue(myProject.myCase.crop.fRAW);
     stressToleranceValue->setValue(myProject.myCase.crop.stressTolerance);
 
-    cropFromDB = myProject.myCase.crop;
+    myCropFromDB = myProject.myCase.crop;
 }
 
 
@@ -1315,7 +1316,7 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
     this->lastYearListComboBox.blockSignals(true);
     this->firstYearListComboBox.clear();
     this->lastYearListComboBox.clear();
-    this->yearList.clear();
+    this->_yearList.clear();
     this->firstYearListComboBox.blockSignals(false);
 
     myProject.myCase.meteoPoint.setId(idMeteo.toStdString());
@@ -1337,8 +1338,8 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
         }
         myProject.myCase.meteoPoint.latitude = lat;
 
-        meteoTableName = myProject.observedMeteoGrid->tableDaily().prefix + idMeteo + myProject.observedMeteoGrid->tableDaily().postFix;
-        if (!myProject.observedMeteoGrid->getYearList(errorStr, idMeteo, &yearList))
+        _meteoTableName = myProject.observedMeteoGrid->tableDaily().prefix + idMeteo + myProject.observedMeteoGrid->tableDaily().postFix;
+        if (!myProject.observedMeteoGrid->getYearList(errorStr, idMeteo, &_yearList))
         {
             QMessageBox::critical(nullptr, "Error!", errorStr);
             return;
@@ -1352,13 +1353,13 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
             QString fieldPrec = myProject.observedMeteoGrid->getDailyVarField(dailyPrecipitation);
 
             // last year can be incomplete
-            for (int i = 0; i<yearList.size()-1; i++)
+            for (int i = 0; i < _yearList.size()-1; i++)
             {
-                if (! checkYearMeteoGridFixedFields(myProject.dbMeteo, meteoTableName,
+                if (! checkYearMeteoGridFixedFields(myProject.dbMeteo, _meteoTableName,
                                                    myProject.observedMeteoGrid->tableDaily().fieldTime,
-                                                   fieldTmin, fieldTmax, fieldPrec, yearList[i], errorStr))
+                                                   fieldTmin, fieldTmax, fieldPrec, _yearList[i], errorStr))
                 {
-                    yearList.removeAt(pos);
+                    _yearList.removeAt(pos);
                     i--;
                 }
                 else
@@ -1368,8 +1369,8 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
             }
 
             // store last Date
-            getLastDateGrid(myProject.dbMeteo, meteoTableName, myProject.observedMeteoGrid->tableDaily().fieldTime,
-                            yearList[yearList.size()-1], myProject.lastSimulationDate, errorStr);
+            getLastDateGrid(myProject.dbMeteo, _meteoTableName, myProject.observedMeteoGrid->tableDaily().fieldTime,
+                            _yearList[_yearList.size()-1], myProject.lastSimulationDate, errorStr);
         }
         else
         {
@@ -1384,13 +1385,13 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
             }
 
             // last year can be incomplete
-            for (int i = 0; i < yearList.size()-1; i++)
+            for (int i = 0; i < _yearList.size()-1; i++)
             {
-                    if (! checkYearMeteoGrid(myProject.observedMeteoGrid->db(), meteoTableName,
+                    if (! checkYearMeteoGrid(myProject.observedMeteoGrid->db(), _meteoTableName,
                                         myProject.observedMeteoGrid->tableDaily().fieldTime,
-                                        varCodeTmin, varCodeTmax, varCodePrec, yearList[i], errorStr))
+                                        varCodeTmin, varCodeTmax, varCodePrec, _yearList[i], errorStr))
                     {
-                        yearList.removeAt(pos);
+                        _yearList.removeAt(pos);
                         i--;
                     }
                     else
@@ -1400,8 +1401,8 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
              }
 
             // store last Date
-            getLastDateGrid(myProject.dbMeteo, meteoTableName, myProject.observedMeteoGrid->tableDaily().fieldTime,
-                             yearList[yearList.size()-1], myProject.lastSimulationDate, errorStr);
+            getLastDateGrid(myProject.dbMeteo, _meteoTableName, myProject.observedMeteoGrid->tableDaily().fieldTime,
+                             _yearList[_yearList.size()-1], myProject.lastSimulationDate, errorStr);
         }
     }
     else
@@ -1412,27 +1413,27 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
             myProject.myCase.meteoPoint.latitude = lat.toDouble();
         }
 
-        meteoTableName = getTableNameFromIdMeteo(myProject.dbMeteo, idMeteo, errorStr);
-        if (meteoTableName.isEmpty())
+        _meteoTableName = getTableNameFromIdMeteo(myProject.dbMeteo, idMeteo, errorStr);
+        if (_meteoTableName.isEmpty())
         {
             errorStr = "Missing  table name for idMeteo: " + idMeteo;
             return;
         }
 
-        if (! getYearList(myProject.dbMeteo, meteoTableName, yearList, errorStr))
+        if (! getYearList(myProject.dbMeteo, _meteoTableName, _yearList, errorStr))
         {
-            QMessageBox::critical(nullptr, "Error!", "Error loading meteo data: " + meteoTableName + "\n" + errorStr);
+            QMessageBox::critical(nullptr, "Error!", "Error loading meteo data: " + _meteoTableName + "\n" + errorStr);
             return;
         }
 
         int pos = 0;
 
         // last year can be incomplete
-        for (int i = 0; i < yearList.size()-1; i++)
+        for (int i = 0; i < _yearList.size()-1; i++)
         {
-            if (! checkYearDbMeteo(myProject.dbMeteo, meteoTableName, yearList[i], errorStr))
+            if (! checkYearDbMeteo(myProject.dbMeteo, _meteoTableName, _yearList[i], errorStr))
             {
-                yearList.removeAt(pos);
+                _yearList.removeAt(pos);
                 i--;
             }
             else
@@ -1441,25 +1442,25 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
             }
         }
         // store last Date
-        getLastDateDbMeteo(myProject.dbMeteo, meteoTableName, yearList[yearList.size()-1], myProject.lastSimulationDate, errorStr);
+        getLastDateDbMeteo(myProject.dbMeteo, _meteoTableName, _yearList[_yearList.size()-1], myProject.lastSimulationDate, errorStr);
     }
 
-    if (yearList.size() == 1)
+    if (_yearList.size() == 1)
     {
-        isOnlyOneYear = true;
-        yearList.insert(0, QString::number(yearList[0].toInt()-1));
+        _isOnlyOneYear = true;
+        _yearList.insert(0, QString::number(_yearList[0].toInt()-1));
     }
     else
     {
-        isOnlyOneYear = false;
+        _isOnlyOneYear = false;
     }
 
     // add year if exists previous year
-    for (int i = 1; i < yearList.size(); i++)
+    for (int i = 1; i < _yearList.size(); i++)
     {
-        if (yearList[i].toInt() == yearList[i-1].toInt()+1)
+        if (_yearList[i].toInt() == _yearList[i-1].toInt()+1)
         {
-            firstYearListComboBox.addItem(yearList[i]);
+            firstYearListComboBox.addItem(_yearList[i]);
         }
     }
 
@@ -1474,14 +1475,14 @@ void Criteria1DWidget::on_actionChooseFirstYear(QString year)
 
     // add first year
     this->lastYearListComboBox.addItem(year);
-    int index = yearList.indexOf(year);
+    int index = _yearList.indexOf(year);
 
     // add consecutive valid years
-    for (int i = index+1; i<yearList.size(); i++)
+    for (int i = index+1; i<_yearList.size(); i++)
     {
-        if (yearList[i].toInt() == yearList[i-1].toInt()+1)
+        if (_yearList[i].toInt() == _yearList[i-1].toInt()+1)
         {
-            this->lastYearListComboBox.addItem(yearList[i]);
+            this->lastYearListComboBox.addItem(_yearList[i]);
         }
         else
         {
@@ -1585,7 +1586,7 @@ bool Criteria1DWidget::updateMeteoPointData()
             myProject.myCase.meteoPoint.setMeteoPointValueD(myDate, dailyWaterTableDepth, waterDepth);
         }
 
-        if (isOnlyOneYear)
+        if (_isOnlyOneYear)
         {
             // copy values to previous year
             Crit3DDate myDate = Crit3DDate(lastYear, 1, 1);
@@ -1605,9 +1606,9 @@ bool Criteria1DWidget::updateMeteoPointData()
     }
     else
     {
-        if (isOnlyOneYear)
+        if (_isOnlyOneYear)
         {
-            if (! fillDailyTempPrecCriteria1D(myProject.dbMeteo, meteoTableName, myProject.myCase.meteoPoint, lastYear, errorStr))
+            if (! fillDailyTempPrecCriteria1D(myProject.dbMeteo, _meteoTableName, myProject.myCase.meteoPoint, lastYear, errorStr))
             {
                 QMessageBox::critical(nullptr, "Error! ", errorStr + " year: " + QString::number(lastYear));
                 return false;
@@ -1631,7 +1632,7 @@ bool Criteria1DWidget::updateMeteoPointData()
         {
             for (int year = firstYear; year <= lastYear; year++)
             {
-                if (! fillDailyTempPrecCriteria1D(myProject.dbMeteo, meteoTableName, myProject.myCase.meteoPoint, year, errorStr))
+                if (! fillDailyTempPrecCriteria1D(myProject.dbMeteo, _meteoTableName, myProject.myCase.meteoPoint, year, errorStr))
                 {
                     QMessageBox::critical(nullptr, "Error! ", errorStr + " year: " + QString::number(year));
                     return false;
@@ -1672,7 +1673,7 @@ void Criteria1DWidget::on_actionChooseSoil(QString soilCode)
 
     if (tabWidget->currentIndex() != 0)
     {
-        if (isRedraw) on_actionUpdate();
+        if (_isRedraw) on_actionUpdate();
     }
 }
 
@@ -1705,7 +1706,7 @@ void Criteria1DWidget::on_actionRestoreData()
 {
     if (checkCropIsChanged())
     {
-        myProject.myCase.crop = cropFromDB;
+        myProject.myCase.crop = myCropFromDB;
         updateCropParam(QString::fromStdString(myProject.myCase.crop.idCrop));
     }
 }
@@ -1723,7 +1724,7 @@ void Criteria1DWidget::on_actionSave()
         {
             if (saveCrop())
             {
-                isCropChanged = false;
+                _isCropChanged = false;
             }
         }
     }
@@ -1741,7 +1742,7 @@ bool Criteria1DWidget::saveCrop()
         return false;
     }
 
-    cropFromDB = myProject.myCase.crop;
+    myCropFromDB = myProject.myCase.crop;
 
     return true;
 }
@@ -1760,27 +1761,31 @@ void Criteria1DWidget::on_actionUpdate()
         {
             updateTabLAI();
         }
+        else if (tabWidget->currentIndex() == 1)
+        {
+            updateTabDegreeDays();
+        }
         else
         {
-            if ((! myProject.myCase.mySoil.code.empty()) && isRedraw)
+            if ((! myProject.myCase.mySoil.code.empty()) && _isRedraw)
             {
-                if (tabWidget->currentIndex() == 1)
+                if (tabWidget->currentIndex() == 2)
                 {
                     updateTabRootDepth();
                 }
-                if (tabWidget->currentIndex() == 2)
+                if (tabWidget->currentIndex() == 3)
                 {
                     updateTabRootDensity();
                 }
-                if (tabWidget->currentIndex() == 3)
+                if (tabWidget->currentIndex() == 4)
                 {
                     updateTabIrrigation();
                 }
-                if (tabWidget->currentIndex() == 4)
+                if (tabWidget->currentIndex() == 5)
                 {
                     updateTabWaterContent();
                 }
-                if (tabWidget->currentIndex() == 5)
+                if (tabWidget->currentIndex() == 6)
                 {
                     updateTabCarbonNitrogen();
                 }
@@ -1886,7 +1891,7 @@ bool Criteria1DWidget::updateCrop()
     myProject.myCase.crop.fRAW = rawFractionValue->value();
     myProject.myCase.crop.stressTolerance = stressToleranceValue->value();
 
-    isCropChanged = true;
+    _isCropChanged = true;
 
     return true;
 }
@@ -1914,7 +1919,7 @@ void Criteria1DWidget::on_actionNewCrop()
 
 void Criteria1DWidget::updateTabLAI()
 {
-    if (!myProject.myCase.crop.idCrop.empty() && !myProject.myCase.meteoPoint.id.empty())
+    if (myProject.isProjectLoaded)
     {
         tabLAI->computeLAI(&(myProject.myCase.crop), &(myProject.myCase.meteoPoint),
                            firstYearListComboBox.currentText().toInt(),
@@ -1924,14 +1929,26 @@ void Criteria1DWidget::updateTabLAI()
 }
 
 
+void Criteria1DWidget::updateTabDegreeDays()
+{
+    if (myProject.isProjectLoaded)
+    {
+        tabDegreeDays->computeDegreeDays(myProject.myCase,
+                           firstYearListComboBox.currentText().toInt(),
+                           lastYearListComboBox.currentText().toInt(),
+                           myProject.lastSimulationDate);
+    }
+}
+
+
 void Criteria1DWidget::updateTabRootDepth()
 {
     if (myProject.isProjectLoaded)
     {
-        tabRootDepth->computeRootDepth(myProject.myCase.crop, myProject.myCase.meteoPoint,
+        tabRootDepth->computeRootDepth(myProject.myCase,
                                        firstYearListComboBox.currentText().toInt(),
                                        lastYearListComboBox.currentText().toInt(),
-                                       myProject.lastSimulationDate, myProject.myCase.soilLayers);
+                                       myProject.lastSimulationDate);
     }
 }
 
@@ -1994,11 +2011,22 @@ void Criteria1DWidget::tabChanged(int index)
         waterStressParametersGroup->hide();
         waterContentGroup->hide();
         carbonNitrogenGroup->hide();
+
         laiParametersGroup->setVisible(true);
         updateTabLAI();
-
     }
-    else if(index == 1) //root depth tab
+    else if (index == 1) //degree days tab
+    {
+        rootParametersGroup->hide();
+        irrigationParametersGroup->hide();
+        waterStressParametersGroup->hide();
+        waterContentGroup->hide();
+        carbonNitrogenGroup->hide();
+
+        laiParametersGroup->setVisible(true);
+        updateTabDegreeDays();
+    }
+    else if(index == 2) //root depth tab
     {
         laiParametersGroup->hide();
         irrigationParametersGroup->hide();
@@ -2007,15 +2035,9 @@ void Criteria1DWidget::tabChanged(int index)
         carbonNitrogenGroup->hide();
 
         rootParametersGroup->setVisible(true);
-        if (! myProject.isProjectLoaded)
-        {
-            QString msg = "Open a project before";
-            QMessageBox::information(nullptr, "Warning", msg);
-            return;
-        }
         updateTabRootDepth();
     }
-    else if(index == 2) //root density tab
+    else if(index == 3) //root density tab
     {
         laiParametersGroup->hide();
         irrigationParametersGroup->hide();
@@ -2024,15 +2046,9 @@ void Criteria1DWidget::tabChanged(int index)
         carbonNitrogenGroup->hide();
 
         rootParametersGroup->setVisible(true);
-        if (! myProject.isProjectLoaded)
-        {
-            QString msg = "Open a project before";
-            QMessageBox::information(nullptr, "Warning", msg);
-            return;
-        }
         updateTabRootDensity();
     }
-    else if(index == 3) //irrigation tab
+    else if(index == 4) //irrigation tab
     {
         laiParametersGroup->hide();
         rootParametersGroup->hide();
@@ -2041,16 +2057,9 @@ void Criteria1DWidget::tabChanged(int index)
 
         irrigationParametersGroup->setVisible(true);
         waterStressParametersGroup->setVisible(true);
-
-        if (! myProject.isProjectLoaded)
-        {
-            QString msg = "Open a project before";
-            QMessageBox::information(nullptr, "Warning", msg);
-            return;
-        }
         updateTabIrrigation();
     }
-    else if(index == 4) //water content tab
+    else if(index == 5) //water content tab
     {
         laiParametersGroup->hide();
         rootParametersGroup->hide();
@@ -2059,16 +2068,9 @@ void Criteria1DWidget::tabChanged(int index)
         carbonNitrogenGroup->hide();
 
         waterContentGroup->setVisible(true);
-
-        if (! myProject.isProjectLoaded)
-        {
-            QString msg = "Open a project before";
-            QMessageBox::information(nullptr, "Warning", msg);
-            return;
-        }
         updateTabWaterContent();
     }
-    else if(index == 5) // carbon nitrogen tab
+    else if(index == 6) // carbon nitrogen tab
     {
         laiParametersGroup->hide();
         rootParametersGroup->hide();
@@ -2077,12 +2079,6 @@ void Criteria1DWidget::tabChanged(int index)
         waterContentGroup->hide();
 
         carbonNitrogenGroup->setVisible(true);
-        if (! myProject.isProjectLoaded)
-        {
-            QString msg = "Open a project before";
-            QMessageBox::information(nullptr, "Warning", msg);
-            return;
-        }
         updateTabCarbonNitrogen();
     }
 }
@@ -2093,94 +2089,94 @@ bool Criteria1DWidget::checkCropIsChanged()
     // check all editable fields
     if (myProject.myCase.crop.idCrop.empty())
     {
-        isCropChanged = false;
-        return isCropChanged;
+        _isCropChanged = false;
+        return _isCropChanged;
     }
 
     if(cropSowingValue->isVisible())
     {
-        if (cropFromDB.sowingDoy != cropSowingValue->value() || cropFromDB.plantCycle != cropCycleMaxValue->value())
+        if (myCropFromDB.sowingDoy != cropSowingValue->value() || myCropFromDB.plantCycle != cropCycleMaxValue->value())
         {
-            isCropChanged = true;
-            return isCropChanged;
+            _isCropChanged = true;
+            return _isCropChanged;
         }
     }
     // LAI
-    if (cropFromDB.LAImin != LAIminValue->value() || cropFromDB.LAImax != LAImaxValue->value())
+    if (myCropFromDB.LAImin != LAIminValue->value() || myCropFromDB.LAImax != LAImaxValue->value())
     {
-        isCropChanged = true;
-        return isCropChanged;
+        _isCropChanged = true;
+        return _isCropChanged;
 
     }
-    if (cropFromDB.type == TREE && cropFromDB.LAIgrass != QLocale().toDouble(LAIgrassValue->text()))
+    if (myCropFromDB.type == TREE && myCropFromDB.LAIgrass != QLocale().toDouble(LAIgrassValue->text()))
     {
-        isCropChanged = true;
-        return isCropChanged;
+        _isCropChanged = true;
+        return _isCropChanged;
     }
 
     // degree days
-    if ( ! isEqual(cropFromDB.thermalThreshold, QLocale().toDouble(thermalThresholdValue->text()))
-            || ! isEqual(cropFromDB.upperThermalThreshold, QLocale().toDouble(upperThermalThresholdValue->text()))
-            || ! isEqual(cropFromDB.LAIcurve_a, QLocale().toDouble(LAIcurveAValue->text()))
-            || ! isEqual(cropFromDB.LAIcurve_b, QLocale().toDouble(LAIcurveBValue->text()))
-            || cropFromDB.degreeDaysEmergence != degreeDaysEmergenceValue->text().toDouble()
-            || cropFromDB.degreeDaysIncrease != degreeDaysLaiIncreaseValue->text().toDouble()
-            || cropFromDB.degreeDaysDecrease != degreeDaysLaiDecreaseValue->text().toDouble() )
+    if ( ! isEqual(myCropFromDB.thermalThreshold, QLocale().toDouble(thermalThresholdValue->text()))
+            || ! isEqual(myCropFromDB.upperThermalThreshold, QLocale().toDouble(upperThermalThresholdValue->text()))
+            || ! isEqual(myCropFromDB.LAIcurve_a, QLocale().toDouble(LAIcurveAValue->text()))
+            || ! isEqual(myCropFromDB.LAIcurve_b, QLocale().toDouble(LAIcurveBValue->text()))
+            || myCropFromDB.degreeDaysEmergence != degreeDaysEmergenceValue->text().toDouble()
+            || myCropFromDB.degreeDaysIncrease != degreeDaysLaiIncreaseValue->text().toDouble()
+            || myCropFromDB.degreeDaysDecrease != degreeDaysLaiDecreaseValue->text().toDouble() )
     {
-        isCropChanged = true;
-        return isCropChanged;
+        _isCropChanged = true;
+        return _isCropChanged;
     }
 
     // roots
-    if(! isEqual(cropFromDB.roots.rootDepthMin, QLocale().toDouble(rootDepthZeroValue->text()))
-            || ! isEqual(cropFromDB.roots.rootDepthMax, QLocale().toDouble(rootDepthMaxValue->text()))
-            || ! isEqual(cropFromDB.roots.shapeDeformation, shapeDeformationValue->value())
-            || cropFromDB.roots.rootShape != root::getRootDistributionTypeFromString(rootShapeComboBox->currentText().toStdString()))
+    if(! isEqual(myCropFromDB.roots.rootDepthMin, QLocale().toDouble(rootDepthZeroValue->text()))
+            || ! isEqual(myCropFromDB.roots.rootDepthMax, QLocale().toDouble(rootDepthMaxValue->text()))
+            || ! isEqual(myCropFromDB.roots.shapeDeformation, shapeDeformationValue->value())
+            || myCropFromDB.roots.rootShape != root::getRootDistributionTypeFromString(rootShapeComboBox->currentText().toStdString()))
     {
-        isCropChanged = true;
-        return isCropChanged;
+        _isCropChanged = true;
+        return _isCropChanged;
     }
-    if (! cropFromDB.isRootStatic())
+    if (! myCropFromDB.isRootStatic())
     {
-        if ( cropFromDB.roots.degreeDaysRootGrowth != rootDegreeDaysGrowthValue->text().toInt() )
+        if ( myCropFromDB.roots.degreeDaysRootGrowth != rootDegreeDaysGrowthValue->text().toInt() )
         {
-            isCropChanged = true;
-            return isCropChanged;
+            _isCropChanged = true;
+            return _isCropChanged;
         }
     }
 
     // water needs
-    if( ! isEqual(cropFromDB.kcMax, QLocale().toDouble(maxKcValue->text()))
-       || ! (cropFromDB.psiLeaf == psiLeafValue->text().toInt())
-       || ! isEqual(cropFromDB.fRAW, rawFractionValue->value())
-       || ! isEqual(cropFromDB.stressTolerance, stressToleranceValue->value()) )
+    if( ! isEqual(myCropFromDB.kcMax, QLocale().toDouble(maxKcValue->text()))
+       || ! (myCropFromDB.psiLeaf == psiLeafValue->text().toInt())
+       || ! isEqual(myCropFromDB.fRAW, rawFractionValue->value())
+       || ! isEqual(myCropFromDB.stressTolerance, stressToleranceValue->value()) )
     {
-        isCropChanged = true;
-        return isCropChanged;
+        _isCropChanged = true;
+        return _isCropChanged;
     }
 
     // irrigation parameters
     if(irrigationShiftValue->isVisible())
     {
-        if(! isEqual(cropFromDB.irrigationVolume, QLocale().toDouble(irrigationVolumeValue->text())) )
+        if(! isEqual(myCropFromDB.irrigationVolume, QLocale().toDouble(irrigationVolumeValue->text())) )
         {
-            isCropChanged = true;
-            return isCropChanged;
+            _isCropChanged = true;
+            return _isCropChanged;
         }
         if (QLocale().toDouble(irrigationVolumeValue->text()) > 0)
         {
-            if ( cropFromDB.irrigationShift != irrigationShiftValue->value()
-                || cropFromDB.degreeDaysStartIrrigation != degreeDaysStartValue->text().toInt()
-                || cropFromDB.degreeDaysEndIrrigation != degreeDaysEndValue->text().toInt() )
+            if ( myCropFromDB.irrigationShift != irrigationShiftValue->value()
+                || myCropFromDB.degreeDaysStartIrrigation != degreeDaysStartValue->text().toInt()
+                || myCropFromDB.degreeDaysEndIrrigation != degreeDaysEndValue->text().toInt() )
             {
-                isCropChanged = true;
-                return isCropChanged;
+                _isCropChanged = true;
+                return _isCropChanged;
             }
         }
     }
 
-    isCropChanged = false;
-    return isCropChanged;
+    _isCropChanged = false;
+    return _isCropChanged;
 }
 
 
@@ -2208,7 +2204,7 @@ bool Criteria1DWidget::setMeteoSqlite(QString& errorStr)
     if (myProject.myCase.meteoPoint.id.empty())
         return false;
 
-    QString queryString = "SELECT * FROM '" + meteoTableName + "' ORDER BY [date]";
+    QString queryString = "SELECT * FROM '" + _meteoTableName + "' ORDER BY [date]";
     QSqlQuery query = myProject.dbMeteo.exec(queryString);
     query.last();
 
@@ -2217,7 +2213,7 @@ bool Criteria1DWidget::setMeteoSqlite(QString& errorStr)
         if (query.lastError().text() != "")
             errorStr = "dbMeteo errorStr: " + query.lastError().text();
         else
-            errorStr = "Missing meteo table: " + meteoTableName;
+            errorStr = "Missing meteo table: " + _meteoTableName;
         return false;
     }
 
@@ -2261,7 +2257,8 @@ void Criteria1DWidget::on_actionViewWeather()
         }
     }
 
-    Crit3DMeteoWidget* meteoWidgetPoint = new Crit3DMeteoWidget(myProject.isXmlMeteoGrid(), myProject.path, &meteoSettings);
+    Crit3DMeteoSettings* meteoSettings = new Crit3DMeteoSettings();
+    Crit3DMeteoWidget* meteoWidgetPoint = new Crit3DMeteoWidget(myProject.isXmlMeteoGrid(), myProject.path, meteoSettings);
 
     QDate lastDate = getQDate(myProject.myCase.meteoPoint.getLastDailyData());
     meteoWidgetPoint->setCurrentDate(lastDate);

@@ -1,7 +1,7 @@
 #----------------------------------------------------
 #
-#   criteria1DWidget library
-#   This project is part of CRITERIA-3D distribution
+#   criteria1DWidget
+#   This project is part of CRITERIA-1D distribution
 #
 #----------------------------------------------------
 
@@ -42,6 +42,7 @@ SOURCES += \
     dialogNewCrop.cpp \
     dialogNewProject.cpp \
     tabCarbonNitrogen.cpp \
+    tabDegreeDays.cpp \
     tabIrrigation.cpp \
     tabLAI.cpp \
     tabRootDensity.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     dialogNewCrop.h \
     dialogNewProject.h \
     tabCarbonNitrogen.h \
+    tabDegreeDays.h \
     tabIrrigation.h \
     tabLAI.h \
     tabRootDensity.h \
