@@ -55,7 +55,6 @@ ColorMapGraph::ColorMapGraph()
 
 void ColorMapGraph::draw(Crit3DOut* out, outputGroup graphType)
 {
-
     myOut = out;
     setProperties(graphType);
 
@@ -69,7 +68,7 @@ void ColorMapGraph::draw(Crit3DOut* out, outputGroup graphType)
     for (int y = 1; y <= ny; y++)
     {
         mySeries.clear();
-        mySeries = getProfileSeries(myOut, graphType, y, &minSeries, &maxSeries);
+        mySeries = getProfileSeries(myOut, graphType, y, minSeries, maxSeries);
 
         if (y == 1)
         {
@@ -77,7 +76,7 @@ void ColorMapGraph::draw(Crit3DOut* out, outputGroup graphType)
             colorMap->data()->setRange(QCPRange(0, mySeries[mySeries.size()-1].x()), QCPRange(maxDepth,0));
         }
 
-        for (unsigned int j = 0; j < mySeries.size(); j++)
+        for (int j = 0; j < mySeries.size(); j++)
         {
             colorMap->data()->setCell(j, y-1, mySeries[j].y());
         }
@@ -98,9 +97,9 @@ void ColorMapGraph::draw(Crit3DOut* out, outputGroup graphType)
     graphic->replot();
 }
 
+
 void ColorMapGraph::setProperties(outputGroup graphType)
 {
-
     nx = myOut->nrValues;
     ny = myOut->nrLayers;
 

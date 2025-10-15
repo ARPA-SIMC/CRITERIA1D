@@ -42,6 +42,7 @@ enum outputVar
     storedWater = 8
 };
 
+/*
 static const char * outputVarString[] =
 {
   "net irradiance",
@@ -52,7 +53,7 @@ static const char * outputVarString[] =
   "MBR heat",
   "MBE heat",
   "MBR water"
-};
+};*/
 
 enum outputType
 {
@@ -120,8 +121,8 @@ public:
 };
 
 void setColorScale(Crit3DColorScale* myColorScale, outputGroup outGroup, Crit3DOut *myOut, bool *graphLinear);
-QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* minSeries, float* maxSeries);
-QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layerIndex, float* minSeries, float* maxSeries);
+QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float &minSeries, float &maxSeries);
+QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layerIndex, float &minSeries, float &maxSeries);
 
 
 

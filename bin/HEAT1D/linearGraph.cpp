@@ -67,7 +67,6 @@ void LinearGraph::resetAll()
 
 void LinearGraph::draw(Crit3DColorScale colorScale, Crit3DOut* out, outputGroup graphType)
 {
-
     resetAll();
 
     myColorScale = colorScale;
@@ -80,7 +79,7 @@ void LinearGraph::draw(Crit3DColorScale colorScale, Crit3DOut* out, outputGroup 
     float minGraph, maxGraph, minSeries, maxSeries;
     minGraph = maxGraph = minSeries = maxSeries = NODATA;
 
-    for (unsigned int i = 0; i < myCurveNames.size(); i++)
+    for (int i = 0; i < myCurveNames.size(); i++)
     {
         mySeries.clear();
         myColor = myColorScale.getColor(i);
@@ -88,9 +87,9 @@ void LinearGraph::draw(Crit3DColorScale colorScale, Crit3DOut* out, outputGroup 
         QLineSeries* curve = new QLineSeries();
         curve->setColor(color);
         curve->setName(myCurveNames[i]);
-        mySeries = getSingleSeries(myOut, outputVar(i+startIndex), &minSeries, &maxSeries);
+        mySeries = getSingleSeries(myOut, outputVar(i+startIndex), minSeries, maxSeries);
         axisX->setRange(0, mySeries[mySeries.size()-1].x());
-        for (unsigned int j = 0; j < mySeries.size(); j++)
+        for (int j = 0; j < mySeries.size(); j++)
         {
             curve->append(mySeries[j]);
         }

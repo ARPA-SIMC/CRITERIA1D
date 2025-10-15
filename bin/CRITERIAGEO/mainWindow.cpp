@@ -1492,7 +1492,7 @@ gis::Crit3DRasterGrid* MainWindow::selectRaster(const QString &title, QString &r
 
     // raster list
     QList<QString> rasterList;
-    for (int i = 0; i < myProject.objectList.size(); i++)
+    for (std::size_t i = 0; i < myProject.objectList.size(); i++)
     {
         if (myProject.objectList[i]->type == gisObjectRaster)
             rasterList.append(myProject.objectList[i]->fileName);
@@ -1509,7 +1509,7 @@ gis::Crit3DRasterGrid* MainWindow::selectRaster(const QString &title, QString &r
         return nullptr;
 
     rasterFileName = rasterSelection.getSelection();
-    for (int i = 0; i < myProject.objectList.size(); i++)
+    for (std::size_t i = 0; i < myProject.objectList.size(); i++)
     {
         if (myProject.objectList[i]->fileName == rasterFileName)
         {

@@ -64,16 +64,16 @@ void setColorScale(Crit3DColorScale* myColorScale, outputGroup outGroup, Crit3DO
 }
 
 
-QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* minSeries, float* maxSeries)
+QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float &minSeries, float &maxSeries)
 {
     QVector<QPointF> mySeries;
     QPointF myPoint;
     qreal myVal;
 
-    *minSeries = NODATA;
-    *maxSeries = NODATA;
+    minSeries = NODATA;
+    maxSeries = NODATA;
 
-    for (int i=0; i<myOut->nrValues; i++)
+    for (int i=0; i < myOut->nrValues; i++)
     {        
         switch (myVar)
         {
@@ -112,26 +112,32 @@ QVector<QPointF> getSingleSeries(Crit3DOut* myOut, outputVar myVar, float* minSe
             case outputVar::storedWater :
                 myVal = myOut->waterStorageOutput[i].waterStord.y();
                 break;
+
+            default:
+                myVal = NODATA;
         }
 
-        myPoint.setX(myOut->landSurfaceOutput[i].netRadiation.x());
-        myPoint.setY(myVal);
-        mySeries.push_back(myPoint);
-        *minSeries = (*minSeries == NODATA) ? myVal : ((myVal < *minSeries) ? myVal : *minSeries);
-        *maxSeries = (*maxSeries == NODATA) ? myVal : ((myVal > *maxSeries) ? myVal : *maxSeries);
+        if (myVal != NODATA)
+        {
+            myPoint.setX(myOut->landSurfaceOutput[i].netRadiation.x());
+            myPoint.setY(myVal);
+            mySeries.push_back(myPoint);
+            minSeries = (minSeries == NODATA) ? myVal : ((myVal < minSeries) ? myVal : minSeries);
+            maxSeries = (maxSeries == NODATA) ? myVal : ((myVal > maxSeries) ? myVal : maxSeries);
+        }
     }
 
     return mySeries;
 }
 
-QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layerIndex, float* minSeries, float* maxSeries)
+QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layerIndex, float &minSeries, float &maxSeries)
 {
     QVector<QPointF> mySeries;
     QPointF myPoint;
     qreal myVal, myX;
 
-    *minSeries = NODATA;
-    *maxSeries = NODATA;
+    minSeries = NODATA;
+    maxSeries = NODATA;
 
     for (int i=0; i<myOut->nrValues; i++)
     {
@@ -194,13 +200,16 @@ QVector<QPointF> getProfileSeries(Crit3DOut* myOut, outputGroup myVar, int layer
                 myX = myOut->profileOutput[i].waterThermalVaporFlux[layerIndex].x();
                 myVal = myOut->profileOutput[i].waterThermalVaporFlux[layerIndex].y();
                 break;
+
+            default:
+                break;
         }
 
         myPoint.setX(myX);
         myPoint.setY(myVal);
         mySeries.push_back(myPoint);
-        *minSeries = (*minSeries == NODATA) ? myVal : ((myVal < *minSeries) ? myVal : *minSeries);
-        *maxSeries = (*maxSeries == NODATA) ? myVal : ((myVal > *maxSeries) ? myVal : *maxSeries);
+        minSeries = (minSeries == NODATA) ? myVal : ((myVal < minSeries) ? myVal : minSeries);
+        maxSeries = (maxSeries == NODATA) ? myVal : ((myVal > maxSeries) ? myVal : maxSeries);
     }
 
     return mySeries;
