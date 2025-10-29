@@ -3,6 +3,8 @@
 
     struct Tsoil;
 
+    #include "old_macro.h"
+
     double computeWaterConductivity(double Se, Tsoil *mySoil);
     double computeSefromPsi_unsat(double psi, Tsoil *mySoil);
     double theta_from_Se(unsigned long index);

@@ -1,28 +1,19 @@
 #ifndef SOILFLUXES3D
 #define SOILFLUXES3D
 
-    // Uncomment to compile as win32 dll
-    // #define BUILD_DLL 1
+    #include "old_macro.h"
 
-    #ifdef BUILD_DLL
-        #define DLL_EXPORT __declspec(dllexport)
-        #define __EXTERN extern "C"
-	    #define __STDCALL __stdcall
-    #else
-        #define DLL_EXPORT
-        #define __EXTERN
-        #define __STDCALL
-    #endif
-	
-    namespace soilFluxes3D {
+    #include <QString>
+
+    namespace soilFluxes3D::v1 {
 
     // TEST
-    __EXTERN int DLL_EXPORT __STDCALL test();
+    __EXTERN  int DLL_EXPORT __STDCALL test();
 
     // INITIALIZATION
-    __EXTERN void DLL_EXPORT __STDCALL cleanMemory();
+    __EXTERN  void DLL_EXPORT __STDCALL cleanMemory();
     __EXTERN int DLL_EXPORT __STDCALL initializeFluxes(long nrNodes, int nrLayers, int nrLateralLinks, bool isComputeWater, bool isComputeHeat, bool isComputeSolutes);
-    __EXTERN void DLL_EXPORT __STDCALL initializeHeat(short saveHeatFluxes_, bool computeAdvectiveHeat, bool computeLatentHeat);
+    __EXTERN  void DLL_EXPORT __STDCALL initializeHeat(short saveHeatFluxes_, bool computeAdvectiveHeat, bool computeLatentHeat);
 
     __EXTERN int DLL_EXPORT __STDCALL setNumericalParameters(double minDeltaT, double maxDeltaT, int maxIterationNumber,
                                                              int maxApproximationsNumber, int ResidualTolerance, double MBRThreshold);
@@ -69,13 +60,13 @@
     __EXTERN double DLL_EXPORT __STDCALL getBoundaryWaterSumFlow(int boundaryType);
     __EXTERN double DLL_EXPORT __STDCALL getMatricPotential(long nodeIndex);
     __EXTERN double DLL_EXPORT __STDCALL getTotalPotential(long nodeIndex);
-    __EXTERN double DLL_EXPORT __STDCALL getWaterMBR();
+    __EXTERN  double DLL_EXPORT __STDCALL getWaterMBR();
     __EXTERN double DLL_EXPORT __STDCALL getWaterConductivity(long nodeIndex);
     __EXTERN double DLL_EXPORT __STDCALL getWaterFlow(long nodeIndex, short direction);
     __EXTERN double DLL_EXPORT __STDCALL getSumLateralWaterFlow(long nodeIndex);
     __EXTERN double DLL_EXPORT __STDCALL getSumLateralWaterFlowIn(long nodeIndex);
     __EXTERN double DLL_EXPORT __STDCALL getSumLateralWaterFlowOut(long nodeIndex);
-    __EXTERN double DLL_EXPORT __STDCALL getWaterStorage();
+    __EXTERN  double DLL_EXPORT __STDCALL getWaterStorage();
     __EXTERN double getPond(long nodeIndex);
 
     // HEAT
@@ -101,8 +92,8 @@
     __EXTERN double DLL_EXPORT __STDCALL getBoundaryRadiativeFlux(long nodeIndex);
     __EXTERN double DLL_EXPORT __STDCALL getBoundaryAerodynamicConductance(long nodeIndex);
     __EXTERN double DLL_EXPORT __STDCALL getBoundarySoilConductance(long nodeIndex);
-    __EXTERN double DLL_EXPORT __STDCALL getHeatMBR();
-    __EXTERN double DLL_EXPORT __STDCALL getHeatMBE();
+    __EXTERN  double DLL_EXPORT __STDCALL getHeatMBR();
+    __EXTERN  double DLL_EXPORT __STDCALL getHeatMBE();
 
     // SOLUTES
     // ...
@@ -112,6 +103,11 @@
     __EXTERN void DLL_EXPORT __STDCALL computePeriod(double timePeriod);
 	__EXTERN double DLL_EXPORT __STDCALL computeStep(double maxTime);
 
+    // LOG TEMP
+    __EXTERN QString getMatrixLog();
+    __EXTERN QString getVectorLog();
+    __EXTERN QString getLinSystLog();
+    //__EXTERN QString getCUDArun(int x);
 }
 
 #endif

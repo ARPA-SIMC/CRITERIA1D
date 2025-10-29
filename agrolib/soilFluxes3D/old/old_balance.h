@@ -1,6 +1,8 @@
 #ifndef BALANCE_H
 #define BALANCE_H
 
+    #include "old_macro.h"
+
     struct TlinkedNode;
 
     void halveTimeStep();

@@ -1,14 +1,13 @@
 #ifndef SOILFLUXES3DTYPES
 #define SOILFLUXES3DTYPES
 
-    #ifndef PARAMETERS_H
-        #include "parameters.h"
-    #endif
-    #ifndef TYPESEXTRA_H
-        #include "extra.h"
-    #endif
+    #include "old_parameters.h"
+    #include "old_extra.h"
 
     #include "commonConstants.h"
+    #include <stdlib.h>
+    #include <vector>
+    #include <iostream>
 
     struct Tboundary
     {
@@ -150,5 +149,18 @@
     extern double CourantWater;
 
     extern Tbalance balanceCurrentTimeStep, balancePreviousTimeStep, balanceCurrentPeriod, balanceWholePeriod;
+
+    //logData types
+    enum typeSolver {Jacobi_thread, GaussSeidel_thread, Jacobi_openMP, GaussSeidel_openMP, Jacobi_cusparse};
+
+    struct linSystData
+    {
+        int numberApprox;
+        std::vector<int> numberIterations;
+        std::vector<int> maxNumberIterations;
+        typeSolver solver;
+    };
+
+    extern linSystData logLinSyst;
 
 #endif // SOILFLUXES3DTYPES

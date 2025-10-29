@@ -100,6 +100,7 @@
         int errorType;
 
         QString logFileName;
+        QString dataFileName;
         QString demFileName;
         QString dbPointsFileName;
         QString dbAggregationFileName;
@@ -109,6 +110,7 @@
         QString glocalMapName;
         QString glocalPointsName;
         std::ofstream logFile;
+        std::ofstream dataFile;
 
         // output points
         QString outputPointsFileName;
@@ -235,6 +237,8 @@
         void logInfoGUI(QString myStr);
         void closeLogInfo();
 
+        void logData(QString typeData, QString data);
+
         void logError(QString myStr);
         void logError();
 
@@ -255,7 +259,7 @@
         bool loadDEM(const QString & fileName);
         void closeDEM();
         bool loadMeteoPointsData(const QDate &firstDate, const QDate &lastDate, bool loadHourly, bool loadDaily, bool showInfo);
-        bool loadMeteoPointsData(const QDate &firstDate, const QDate &lastDate, bool loadHourly, bool loadDaily, const QString &dataset, bool showInfo);
+        bool loadMeteoPointsData_singleDataset(const QDate &firstDate, const QDate &lastDate, bool loadHourly, bool loadDaily, const QString &dataset, bool showInfo);
         bool loadMeteoPointsDB(QString dbName);
         bool loadMeteoGridDB(QString xmlName);
         bool newMeteoGridDB(QString xmlName);
