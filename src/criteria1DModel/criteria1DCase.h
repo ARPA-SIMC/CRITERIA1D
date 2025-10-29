@@ -111,7 +111,7 @@
         double _lx, _ly;                 // [m]
         double _area;                    // [m2]
 
-        bool initializeNumericalFluxes(std::string &error);
+        bool initializeNumericalFluxes(std::string &errorStr);
         bool computeNumericalFluxes(const Crit3DDate &myDate, std::string &error);
 
         bool computeWaterFluxes(const Crit3DDate &myDate, std::string &error);

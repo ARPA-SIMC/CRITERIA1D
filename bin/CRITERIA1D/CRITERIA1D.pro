@@ -2,7 +2,7 @@
 #
 #   CRITERIA1D
 #   1D model for soil water balance and crop development
-
+#
 #   This project is part of CRITERIA-1D distribution
 #
 #---------------------------------------------------------
@@ -11,8 +11,12 @@
 QT -= gui
 QT += sql xml
 
-CONFIG += console
 TEMPLATE = app
+CONFIG += console
+CONFIG += c++17
+
+# parallel computing settings
+include($$absolute_path(../../agrolib/parallel.pri))
 
 unix:{
     CONFIG(debug, debug|release) {
@@ -38,6 +42,7 @@ win32:{
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += _CRT_SECURE_NO_WARNINGS
+
 
 SOURCES += \
     main.cpp

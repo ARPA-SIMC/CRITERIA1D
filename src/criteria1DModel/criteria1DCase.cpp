@@ -129,47 +129,50 @@ bool Crit1DCase::initializeWaterContent(const Crit3DDate &myDate)
 
 
 /*!
- * \brief initalize structures for numerical solution of water fluxes
+ * \brief initializeNumericalFluxes
+ * initalize structures for numerical solution of water fluxes
  * (soilFluxes3D library)
  */
-bool Crit1DCase::initializeNumericalFluxes(std::string &error)
+bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
 {
     int nrLayers = int(soilLayers.size());
     if (nrLayers < 1)
     {
-        error = "Missing soil layers";
+        errorStr = "Missing soil layers";
         return false;
     }
 
     int lastLayer = nrLayers-1;
     int nrlateralLinks = 0;
 
-    int result = soilFluxes3D::initializeFluxes(nrLayers, nrLayers, nrlateralLinks, true, false, false);
-    if (result != CRIT3D_OK)
+    auto result = soilFluxes3D::initializeSF3D(nrLayers, nrLayers, nrlateralLinks, true, false, false);
+    std::string errorName = "";
+    if(soilFluxes3D::getSF3DerrorName(result, errorName))
     {
-        error = "Error in initialize numerical fluxes";
+        errorStr = "Error in initialize numerical fluxes: " + errorName;
         return false;
     }
 
-    float horizontalConductivityRatio = 10.0;
-    soilFluxes3D::setHydraulicProperties(fittingOptions.waterRetentionCurve, MEAN_LOGARITHMIC, horizontalConductivityRatio);
+    // default ratio (derive from Montue case study)
+    float horizontalConductivityRatio = 4.0;
+    soilFluxes3D::setHydraulicProperties(soilFluxes3D::WRCModel::ModifiedVanGenuchten, soilFluxes3D::meanType_t::Logarithmic, horizontalConductivityRatio);
     if (unit.useWaterTableData)
     {
-        soilFluxes3D::setNumericalParameters(60, 3600, 200, 10, 12, 2);
+        soilFluxes3D::setNumericalParameters(60, 3600, 200, 10, 10, 2);
     }
     else
     {
-        soilFluxes3D::setNumericalParameters(30, 3600, 200, 10, 12, 3);
+        soilFluxes3D::setNumericalParameters(30, 3600, 200, 10, 10, 3);
     }
     soilFluxes3D::setThreadsNumber(1);
 
-    // set soil properties (units of measurement: MKS)
+    // soil properties (units of measurement: MKS)
     int soilIndex = 0;
     for (unsigned int horizonIndex = 0; horizonIndex < mySoil.nrHorizons; horizonIndex++)
     {
         soil::Crit3DHorizon horizon = mySoil.horizon[horizonIndex];
 
-        result = soilFluxes3D::setSoilProperties(soilIndex, int(horizonIndex),
+        result = soilFluxes3D::setSoilProperties(soilIndex, horizonIndex,
                             horizon.vanGenuchten.alpha * GRAVITY,
                             horizon.vanGenuchten.n, horizon.vanGenuchten.m,
                             horizon.vanGenuchten.he / GRAVITY,
@@ -179,14 +182,14 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &error)
                             horizon.waterConductivity.l,
                             horizon.organicMatter, horizon.texture.clay * 0.01);
 
-        if (result != CRIT3D_OK)
+        if(soilFluxes3D::getSF3DerrorName(result, errorName))
         {
-            error = "Error in setSoilProperties, horizon nr: " + std::to_string(horizonIndex + 1);
+            errorStr = "Error in setSoilProperties: " + errorName + "\nhorizon nr: " + std::to_string(horizonIndex + 1) ;
             return false;
         }
     }
 
-    // set surface properties
+    // surface properties
     double maxSurfaceWater = crop.getSurfaceWaterPonding() * 0.001;     // [m]
     double roughnessManning = 0.024;                                    // [s m-0.33]
     int surfaceIndex = 0;
@@ -197,15 +200,15 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &error)
     float y0 = 0;
     double z0 = 0;
 
-    // set surface (node 0)
-    bool isSurface = true;
+    // first node (surface)
     int nodeIndex = 0;
-    soilFluxes3D::setNode(nodeIndex, x0, y0, z0, _area, isSurface, true, BOUNDARY_RUNOFF, float(unit.slope), float(_ly));
+    bool isSurface = true;
+    soilFluxes3D::setNode(nodeIndex, x0, y0, z0, _area, isSurface, soilFluxes3D::boundaryType_t::Runoff, unit.slope, _ly);
     soilFluxes3D::setNodeSurface(nodeIndex, surfaceIndex);
     soilFluxes3D::setNodePond(nodeIndex, maxSurfaceWater);
-    soilFluxes3D::setNodeLink(nodeIndex, nodeIndex + 1, DOWN, float(_area));
+    soilFluxes3D::setNodeLink(nodeIndex, nodeIndex + 1, soilFluxes3D::linkType_t::Down, _area);
 
-    // set soil nodes
+    // soil nodes
     isSurface = false;
     for (int i = 1; i < nrLayers; i++)
     {
@@ -213,12 +216,12 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &error)
         double z = z0 - soilLayers[unsigned(i)].depth;                          // [m]
         if (i == lastLayer)
         {
+            // last node
             if (unit.useWaterTableData)
-                soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface, true,
-                                      BOUNDARY_PRESCRIBEDTOTALPOTENTIAL, float(unit.slope), float(_area));
+                soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface,
+                                      soilFluxes3D::boundaryType_t::PrescribedTotalWaterPotential, unit.slope, _area);
             else
-                soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface, true,
-                                      BOUNDARY_FREEDRAINAGE, float(unit.slope), float(_area));
+                soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface, soilFluxes3D::boundaryType_t::FreeDrainage, unit.slope, _area);
         }
         else
         {
@@ -226,25 +229,24 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &error)
 
             if (unit.isComputeLateralDrainage)
             {
-                soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface, true,
-                            BOUNDARY_FREELATERALDRAINAGE, float(unit.slope), float(boundaryArea));
+                soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface,
+                                      soilFluxes3D::boundaryType_t::FreeLateraleDrainage, unit.slope, boundaryArea);
             }
             else
             {
-                soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface, false,
-                            BOUNDARY_NONE, float(unit.slope), float(boundaryArea));
+                soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface, soilFluxes3D::boundaryType_t::NoBoundary, unit.slope, boundaryArea);
             }
         }
 
-        // set soil
+        // set node soil
         int horizonIndex = mySoil.getHorizonIndex(soilLayers[unsigned(i)].depth);
         soilFluxes3D::setNodeSoil(i, soilIndex, horizonIndex);
 
-        // set links
-        soilFluxes3D::setNodeLink(i, i-1, UP, float(_area));
+        // set node links (only up and down)
+        soilFluxes3D::setNodeLink(i, i-1, soilFluxes3D::linkType_t::Up, float(_area));
         if (i != lastLayer)
         {
-            soilFluxes3D::setNodeLink(i, i+1, DOWN, float(_area));
+            soilFluxes3D::setNodeLink(i, i+1, soilFluxes3D::linkType_t::Down, float(_area));
         }
     }
 
@@ -279,12 +281,12 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
             totalPotential = soilLayers[lastLayer].depth + boundaryZ;                                           // [m]
             totalPotential += MINVALUE(fieldCapacity, waterPotential);
         }
-        soilFluxes3D::setPrescribedTotalPotential(long(lastLayer), -totalPotential);
+        soilFluxes3D::setNodePrescribedTotalPotential(long(lastLayer), -totalPotential);
     }
 
     // set surface
     unsigned int surfaceIndex = 0;
-    soilFluxes3D::setWaterContent(long(surfaceIndex), soilLayers[surfaceIndex].waterContent * 0.001);   // [m]
+    soilFluxes3D::setNodeWaterContent(long(surfaceIndex), soilLayers[surfaceIndex].waterContent * 0.001);   // [m]
 
     // set soil profile
     // use previous waterPotential when saturated
@@ -296,11 +298,11 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
              || isEqual(currentPsi, soilLayers[i].horizonPtr->vanGenuchten.he))
             && (! isEqual(soilLayers[i].waterPotential, NODATA)) )
         {
-            soilFluxes3D::setMatricPotential(i, -soilLayers[i].waterPotential / GRAVITY);
+            soilFluxes3D::setNodeMatricPotential(i, -soilLayers[i].waterPotential / GRAVITY);
         }
         else
         {
-            soilFluxes3D::setMatricPotential(i, -currentPsi / GRAVITY);         // [m]
+            soilFluxes3D::setNodeMatricPotential(i, -currentPsi / GRAVITY);         // [m]
         }
     }
 
@@ -335,36 +337,37 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
         int irrDuration = std::min(int(output.dailyIrrigation / mmHour), maxDuration);
 
         irrH1 = irrH0 + irrDuration - 1;
-        irrFlux = (_area * output.dailyIrrigation * 0.001) / (HOUR_SECONDS * irrDuration);  // [m3 s-1]
+        // [m3 s-1]
+        irrFlux = (_area * output.dailyIrrigation * 0.001) / (HOUR_SECONDS * irrDuration);
     }
 
     // daily cycle
     for (int hour=1; hour <= 24; hour++)
     {
-        double flux = 0;                                                        // [m3 s-1]
+        double flux = 0;       // [m3 s-1]
         if (hour >= precH0 && hour <= precH1 && precFlux > 0)
             flux += precFlux;
 
         if (hour >= irrH0 && hour <= irrH1 && irrFlux > 0)
             flux += irrFlux;
 
-        soilFluxes3D::setWaterSinkSource(long(surfaceIndex), flux);
+        soilFluxes3D::setNodeWaterSinkSource((long)surfaceIndex, flux);
         soilFluxes3D::computePeriod(HOUR_SECONDS);
     }
 
     // output (from [m] to [mm])
-    soilLayers[surfaceIndex].waterContent = soilFluxes3D::getWaterContent(long(surfaceIndex)) * 1000;
+    soilLayers[surfaceIndex].waterContent = soilFluxes3D::getNodeWaterContent(long(surfaceIndex)) * 1000;
     for (unsigned long i=1; i < nrLayers; i++)
     {
-        soilLayers[i].waterContent = soilFluxes3D::getWaterContent(i) * soilLayers[i].thickness * 1000;
-        soilLayers[i].waterPotential = -soilFluxes3D::getMatricPotential(i) * GRAVITY;                       // [kPa]
+        soilLayers[i].waterContent = soilFluxes3D::getNodeWaterContent(i) * soilLayers[i].thickness * 1000;
+        soilLayers[i].waterPotential = -soilFluxes3D::getNodeMatricPotential(i) * GRAVITY;                       // [kPa]
     }
 
-    output.dailySurfaceRunoff = -(soilFluxes3D::getBoundaryWaterFlow(long(surfaceIndex)) / _area) * 1000;
-    output.dailyLateralDrainage = -(soilFluxes3D::getBoundaryWaterSumFlow(BOUNDARY_FREELATERALDRAINAGE) / _area) * 1000;
+    output.dailySurfaceRunoff = -(soilFluxes3D::getNodeBoundaryWaterFlow(long(surfaceIndex)) / _area) * 1000;
+    output.dailyLateralDrainage = -(soilFluxes3D::getTotalBoundaryWaterFlow(soilFluxes3D::boundaryType_t::FreeLateraleDrainage) / _area) * 1000;
 
     // drainage / capillary rise
-    double fluxBottom = (soilFluxes3D::getBoundaryWaterFlow(long(lastLayer)) / _area) * 1000;
+    double fluxBottom = (soilFluxes3D::getNodeBoundaryWaterFlow(long(lastLayer)) / _area) * 1000;
     if (fluxBottom > 0)
     {
         output.dailyCapillaryRise = fluxBottom;
