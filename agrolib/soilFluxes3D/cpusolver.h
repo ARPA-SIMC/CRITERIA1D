@@ -18,7 +18,6 @@ namespace soilFluxes3D::v2
 
             void heatLoop(double timeStepHeat, double timeStepWater);
 
-
             bool solveLinearSystem(u8_t approximationNumber, processType computationType) override;
 
         public:
@@ -28,6 +27,7 @@ namespace soilFluxes3D::v2
             SF3Derror_t initialize() override;
             SF3Derror_t run(double maxTimeStep, double &acceptedTimeStep, processType process) override;
             SF3Derror_t clean() override;
+            void setThreads();
     };
 
     inline __cudaSpec double CPUSolver::getMatrixElementValue(SF3Duint_t rowIndex, SF3Duint_t colIndex) const noexcept
@@ -35,8 +35,8 @@ namespace soilFluxes3D::v2
         assert(rowIndex != colIndex);
         //assert(matrixA.values != nullptr);
         u8_t cpuColIdx;
-        for(cpuColIdx = 1; cpuColIdx < matrixA.numColumns[rowIndex]; ++cpuColIdx)
-            if(matrixA.colIndeces[rowIndex][cpuColIdx] == colIndex)
+        for(cpuColIdx = 1; cpuColIdx < matrixA.numColsInRow[rowIndex]; ++cpuColIdx)
+            if(matrixA.columnIndeces[rowIndex][cpuColIdx] == colIndex)
                 break;
 
         return matrixA.values[rowIndex][cpuColIdx] * matrixA.values[rowIndex][0];

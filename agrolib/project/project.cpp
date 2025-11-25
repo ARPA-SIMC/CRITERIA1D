@@ -744,14 +744,6 @@ bool Project::loadParameters(QString parametersFileName)
             {
                 quality->setReferenceHeight(parametersSettings->value("reference_height").toFloat());
             }
-            if (parametersSettings->contains("delta_temperature_suspect") && !parametersSettings->value("delta_temperature_suspect").toString().isEmpty())
-            {
-                quality->setDeltaTSuspect(parametersSettings->value("delta_temperature_suspect").toFloat());
-            }
-            if (parametersSettings->contains("delta_temperature_wrong") && !parametersSettings->value("delta_temperature_wrong").toString().isEmpty())
-            {
-                quality->setDeltaTWrong(parametersSettings->value("delta_temperature_wrong").toFloat());
-            }
             if (parametersSettings->contains("relhum_tolerance") && !parametersSettings->value("relhum_tolerance").toString().isEmpty())
             {
                 quality->setRelHumTolerance(parametersSettings->value("relhum_tolerance").toFloat());
@@ -1413,7 +1405,7 @@ bool Project::newMeteoGridDB(QString xmlName)
 
     Crit3DMeteoGridStructure structure = this->meteoGridDbHandler->meteoGrid()->gridStructure();
 
-    if (! this->meteoGridDbHandler->writeCellProperties(structure.nrRow(), structure.nrCol(), errorString))
+    if (! this->meteoGridDbHandler->writeCellProperties(structure, errorString))
         return false;
 
     if (! this->meteoGridDbHandler->meteoGrid()->createRasterGrid())
@@ -1807,7 +1799,8 @@ bool Project::loadMeteoGridMonthlyData(const QDate &firstDate, const QDate &last
         std::string id;
         QString myErrorStr;
         QSqlDatabase myDb;
-        meteoGridDbHandler->openNewConnection(myDb, QString::number(omp_get_thread_num()), myErrorStr);
+        QString connectionName = QString::number(omp_get_thread_num());
+        meteoGridDbHandler->openNewConnection(myDb, connectionName, myErrorStr);
 
         #pragma omp for schedule(dynamic) reduction(+:count)
         for (int row = 0; row < gridStructure.header().nrRows; row++)
@@ -1842,6 +1835,13 @@ bool Project::loadMeteoGridMonthlyData(const QDate &firstDate, const QDate &last
         }
 
         myDb.close();
+    }
+
+    // close connections
+    for (int i=0; i < nrThreads; ++i)
+    {
+        QString connectionName = QString::number(i);
+        QSqlDatabase::removeDatabase(connectionName);
     }
 
     if(showInfo)
@@ -2127,10 +2127,6 @@ bool Project::writeTopographicDistanceMaps(bool onlyWithData, bool showInfo)
         infoStep = setProgressBar(infoStr, nrMeteoPoints);
     }
 
-    std::string myError;
-    std::string fileName;
-    gis::Crit3DRasterGrid myMap;
-
     for (int i=0; i < nrMeteoPoints; i++)
     {
         if (showInfo && (i % infoStep == 0))
@@ -2139,8 +2135,8 @@ bool Project::writeTopographicDistanceMaps(bool onlyWithData, bool showInfo)
         if (!meteoPoints[i].active)
             continue;
 
-        bool isSelected = onlyWithData ? (meteoPointsDbHandler->existData(meteoPoints[i], daily)
-                                            || meteoPointsDbHandler->existData(meteoPoints[i], hourly))
+        bool isSelected = onlyWithData ? (meteoPointsDbHandler->existTable(meteoPoints[i], daily)
+                                            || meteoPointsDbHandler->existTable(meteoPoints[i], hourly))
                                        : true;
 
         if (isSelected && !writeTopographicDistanceMap(i, DEM, mapsFolder))
@@ -2218,8 +2214,8 @@ bool Project::loadTopographicDistanceMaps(bool onlyWithData, bool showInfo)
         if (!meteoPoints[i].active)
             continue;
 
-        bool isSelected = onlyWithData ? (meteoPointsDbHandler->existData(meteoPoints[i], daily)
-                                          || meteoPointsDbHandler->existData(meteoPoints[i], hourly))
+        bool isSelected = onlyWithData ? (meteoPointsDbHandler->existTable(meteoPoints[i], daily)
+                                          || meteoPointsDbHandler->existTable(meteoPoints[i], hourly))
                                        : true;
 
         if(!isSelected)
@@ -3918,6 +3914,8 @@ void Project::saveInterpolationParameters()
         parametersSettings->setValue("thermalInversion", interpolationSettings.getUseThermalInversion());
         parametersSettings->setValue("minRegressionR2", QString::number(double(interpolationSettings.getMinRegressionR2())));
         parametersSettings->setValue("min_points_local_detrending", QString::number(int(interpolationSettings.getMinPointsLocalDetrending())));
+        parametersSettings->setValue("glocalMapName", glocalMapName);
+        parametersSettings->setValue("glocalPointsName", glocalPointsName);
     parametersSettings->endGroup();
 
 
@@ -3970,8 +3968,6 @@ void Project::saveGenericParameters()
 
     parametersSettings->beginGroup("quality");
         parametersSettings->setValue("reference_height", QString::number(quality->getReferenceHeight()));
-        parametersSettings->setValue("delta_temperature_suspect", QString::number(quality->getDeltaTSuspect()));
-        parametersSettings->setValue("delta_temperature_wrong", QString::number(quality->getDeltaTWrong()));
         parametersSettings->setValue("relhum_tolerance", QString::number(quality->getRelHumTolerance()));
         parametersSettings->setValue("water_table_maximum_depth", QString::number(quality->getWaterTableMaximumDepth()));
     parametersSettings->endGroup();
@@ -5364,6 +5360,152 @@ bool Project::exportMeteoPointsDailyDataCsv(bool isTPrec, QDate firstDate, QDate
     return true;
 }
 
+/*!
+ * \brief ExportHourlyDataCsv
+ * export hourly meteo data to csv files
+ * \param isTPrec           save only variables: Tmin, Tmax, Tavg, Prec
+ * \param idListFileName    filename of ID point list (list by columns)
+ * if idListFile == ""      save ALL active meteo points
+ * \param outputPath        path for output files
+ * \return true on success, false otherwise
+ */
+bool Project::exportMeteoPointsHourlyDataCsv(bool isTPrec, QDate firstDate, QDate lastDate, QString idListFileName, QString outputPath)
+{
+    errorString = "";
+    if (! meteoPointsLoaded)
+    {
+        errorString = "No meteo points loaded.";
+        return false;
+    }
+
+    // check output path
+    QDir outDir(outputPath);
+    if (! outDir.exists())
+    {
+        if (! outDir.mkpath(outputPath))
+        {
+            errorString = "Wrong outputPath, unable to create this directory: " + outputPath;
+            return false;
+        }
+    }
+    outputPath = outDir.absolutePath();
+
+    // check ID list
+    bool isList = (idListFileName != "");
+    QList<QString> idList;
+    if (isList)
+    {
+        if (! QFile::exists(idListFileName))
+        {
+            errorString = "The ID list file does not exist: " + idListFileName;
+            return false;
+        }
+
+        idList = readListSingleColumn(idListFileName, errorString);
+        if (errorString != "")
+            return false;
+
+        if (idList.size() == 0)
+        {
+            errorString = "The ID list file is empty: " + idListFileName;
+            return false;
+        }
+    }
+
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        QString id = QString::fromStdString(meteoPoints[i].id);
+        bool checkId = false;
+        if (! isList && meteoPoints[i].active)
+            checkId = true;
+        if ( isList && idList.contains(id))
+            checkId = true;
+
+        if (checkId)
+        {
+            // read data
+            if (! meteoPointsDbHandler->loadHourlyData(myDb, getCrit3DDate(firstDate), getCrit3DDate(lastDate), meteoPoints[i]))
+            {
+                errorString = "Error in reading point id: " + id;
+                return false;
+            }
+
+            // create csv file
+            QString csvFileName = outputPath + "/" + id + ".csv";
+            QFile outputFile(csvFileName);
+            bool isOk = outputFile.open(QIODevice::WriteOnly | QFile::Truncate);
+            if (! isOk)
+            {
+                errorString = "Open output CSV failed: " + csvFileName;
+                return false;
+            }
+
+            // set header
+            QTextStream out(&outputFile);
+            out << "Date-hour, Tmin (C), Tmax (C), Tavg (C), Prec (mm)";
+            if (isTPrec)
+                out << "\n";
+            else
+                out << "RHmin (%), RHmax (%), RHavg (%), Windspeed (m/s), Rad (MJ)\n";
+
+            // save data
+            QDate currentDate = firstDate;
+            while (currentDate <= lastDate)
+            {
+                Crit3DDate myDate = getCrit3DDate(currentDate);
+
+                for (int myHour = 1; myHour < 25; myHour++)
+                {
+                    QString min = ":00:00";
+                    QString hourString = QString::number(myHour);
+                    out << currentDate.toString("yyyy-MM-dd") << " " << hourString << min;
+
+                    float tavg = meteoPoints[i].getMeteoPointValueH(myDate, myHour, 0, airTemperature);
+                    QString tavgStr = "";
+                    if (tavg != NODATA)
+                        tavgStr = QString::number(tavg);
+
+                    float prec = meteoPoints[i].getMeteoPointValueH(myDate, myHour, 0, precipitation);
+                    QString precStr = "";
+                    if (prec != NODATA)
+                        precStr = QString::number(prec);
+
+                    out << "," << tavgStr << "," << precStr;
+
+                    if (isTPrec)
+                        out << "\n";
+                    else
+                    {
+                        float rhavg = meteoPoints[i].getMeteoPointValueD(myDate, airRelHumidity);
+                        QString rhavgStr = "";
+                        if (rhavg != NODATA)
+                            rhavgStr = QString::number(rhavg);
+
+                        float w_scal_int = meteoPoints[i].getMeteoPointValueD(myDate, windScalarIntensity);
+                        QString w_scal_intStr = "";
+                        if (w_scal_int != NODATA)
+                            w_scal_intStr = QString::number(w_scal_int);
+
+                        float rad = meteoPoints[i].getMeteoPointValueD(myDate, globalIrradiance);
+                        QString radStr = "";
+                        if (rad != NODATA)
+                            radStr = QString::number(rad);
+
+                        out << "," << rhavgStr << "," << w_scal_intStr << "," << radStr << "\n";
+                    }
+
+                }
+                currentDate = currentDate.addDays(1);
+            }
+
+            outputFile.close();
+        }
+    }
+
+    return true;
+}
 
 /* ---------------------------------------------
  * LOG functions

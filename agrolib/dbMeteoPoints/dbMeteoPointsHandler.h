@@ -53,7 +53,9 @@
         QDateTime getFirstDate(frequencyType frequency, const std::string& idMeteoPoint);
         QDateTime getLastDate(frequencyType frequency, const std::string& idMeteoPoint);
 
-        bool existData(const Crit3DMeteoPoint &meteoPoint, frequencyType myFreq);
+        bool existTable(const Crit3DMeteoPoint &meteoPoint, frequencyType myFrequency);
+        bool existTable(const QSqlDatabase &myDb, const Crit3DMeteoPoint &meteoPoint, frequencyType myFrequency);
+
         bool deleteData(const QString& pointCode, frequencyType frequency, const QDate& firstDate, const QDate& lastDate);
         bool deleteData(const QString& pointCode, frequencyType frequency, const QList<meteoVariable>& varList,
                         const QDate& firstDate, const QDate& lastDate);
@@ -104,6 +106,7 @@
         bool setAllPointsActive();
         bool setAllPointsNotActive();
         bool setActiveStatePointList(const QList<QString> &pointList, bool activeState);
+        bool isActivePoint(const QString &pointId);
 
         bool deleteAllPointsFromIdList(const QList<QString> &pointList);
         bool deleteAllPointsFromGeoPointList(const QList<gis::Crit3DGeoPoint>& pointList);

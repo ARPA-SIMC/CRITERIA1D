@@ -29,10 +29,12 @@
 
 #include "commonConstants.h"
 #include "basicMath.h"
+#include "crit3dDate.h"
 #include "quality.h"
 #include "physics.h"
 #include "meteo.h"
 #include "color.h"
+
 
 Crit3DMeteoSettings::Crit3DMeteoSettings()
 {
@@ -178,7 +180,7 @@ float computeTminHourlyWeight(int myHour)
 }
 
 
-float Crit3DClimateParameters::getClimateLapseRate(meteoVariable myVar, Crit3DTime myTime)
+float Crit3DClimateParameters::getClimateLapseRate(meteoVariable myVar, const Crit3DTime &myTime)
 {
     const float DEFAULT_LAPSERATE = -0.006f;
 
@@ -351,53 +353,50 @@ double dailyExtrRadiation(double myLat, int myDoy)
     return SOLAR_CONSTANT * DAY_SECONDS / 1000000. * dr / PI * (OmegaS * sin(Phi) * sin(delta) + cos(Phi) * cos(delta) * sin(OmegaS));
 }
 
+
 float computeDailyBIC(float prec, float etp)
 {
-
     Crit3DQuality qualityCheck;
 
-    // TODO nella versione vb ammessi anche i qualitySuspectData, questo tipo per ora non è stato implementato
     quality::qualityType qualityPrec = qualityCheck.syntacticQualitySingleValue(dailyPrecipitation, prec);
     quality::qualityType qualityETP = qualityCheck.syntacticQualitySingleValue(dailyReferenceEvapotranspirationHS, etp);
+
     if (qualityPrec == quality::accepted && qualityETP == quality::accepted)
-    {
-            return (prec - etp);
-    }
+        return (prec - etp);
     else
         return NODATA;
-
 }
 
-float dailyThermalRange(float Tmin, float Tmax)
-{
 
+float dailyThermalRange(float tMin, float tMax)
+{
     Crit3DQuality qualityCheck;
 
-    // TODO nella versione vb ammessi anche i qualitySuspectData, questo tipo per ora non è stato implementato
-    quality::qualityType qualityTmin = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMin, Tmin);
-    quality::qualityType qualityTmax = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMax, Tmax);
+    quality::qualityType qualityTmin = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMin, tMin);
+    quality::qualityType qualityTmax = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMax, tMax);
+
     if (qualityTmin  == quality::accepted && qualityTmax == quality::accepted)
-        return (Tmax - Tmin);
+        return (tMax - tMin);
     else
         return NODATA;
-
 }
 
-float dailyAverageT(float Tmin, float Tmax)
+
+float dailyAverageT(float tMin, float tMax)
 {
         Crit3DQuality qualityCheck;
 
-        // TODO nella versione vb ammessi anche i qualitySuspectData, questo tipo per ora non è stato implementato
-        quality::qualityType qualityTmin = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMin, Tmin);
-        quality::qualityType qualityTmax = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMax, Tmax);
+        quality::qualityType qualityTmin = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMin, tMin);
+        quality::qualityType qualityTmax = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMax, tMax);
+
         if (qualityTmin  == quality::accepted && qualityTmax == quality::accepted)
-            return ( (Tmin + Tmax) / 2) ;
+            return (tMin + tMax) * 0.5f;
         else
             return NODATA;
 }
 
 
-float dailyEtpHargreaves(float Tmin, float Tmax, Crit3DDate date, double latitude, Crit3DMeteoSettings* meteoSettings)
+float dailyEtpHargreaves(float Tmin, float Tmax, const Crit3DDate &date, double latitude, Crit3DMeteoSettings* meteoSettings)
 {
     Crit3DQuality qualityCheck;
 
@@ -691,7 +690,7 @@ double ET0_Hargreaves(double KT, double myLat, int myDoy, double tmax, double tm
 
     tavg = (tmax + tmin) * 0.5;
 
-    return 0.0135 * (tavg + 17.78) * KT * (extraTerrRadiation / 2.456) * sqrt(deltaT);
+    return std::max(0., 0.0135 * (tavg + 17.78) * KT * (extraTerrRadiation / 2.456) * sqrt(deltaT));
     
     // 2.456 MJ kg-1 latent heat of vaporization
 }
@@ -945,7 +944,7 @@ std::string getVariableString(meteoVariable myVar)
 }
 
 
-std::string getKeyStringMeteoMap(std::map<std::string, meteoVariable> map, meteoVariable value)
+std::string getKeyStringMeteoMap(const std::map<std::string, meteoVariable> &map, meteoVariable value)
 {
     std::map<std::string, meteoVariable>::const_iterator it;
     std::string key = "";
@@ -984,7 +983,7 @@ std::string getUnitFromVariable(meteoVariable var)
 }
 
 
-meteoVariable getKeyMeteoVarMeteoMap(std::map<meteoVariable,std::string> map, const std::string& value)
+meteoVariable getKeyMeteoVarMeteoMap(const std::map<meteoVariable, std::string> &map, const std::string& value)
 {
     std::map<meteoVariable, std::string>::const_iterator it;
     meteoVariable key = noMeteoVar;
@@ -1002,7 +1001,7 @@ meteoVariable getKeyMeteoVarMeteoMap(std::map<meteoVariable,std::string> map, co
 }
 
 
-meteoVariable getKeyMeteoVarMeteoMapWithoutUnderscore(std::map<meteoVariable,std::string> map, const std::string& value)
+meteoVariable getKeyMeteoVarMeteoMapWithoutUnderscore(const std::map<meteoVariable, std::string> &map, const std::string& value)
 {
     std::map<meteoVariable, std::string>::const_iterator it;
     meteoVariable key = noMeteoVar;
@@ -1020,6 +1019,7 @@ meteoVariable getKeyMeteoVarMeteoMapWithoutUnderscore(std::map<meteoVariable,std
     return key;
 }
 
+
 frequencyType getVarFrequency(meteoVariable myVar)
 {
     if (MapDailyMeteoVarToString.find(myVar) != MapDailyMeteoVarToString.end())
@@ -1033,7 +1033,7 @@ frequencyType getVarFrequency(meteoVariable myVar)
 }
 
 
-meteoVariable getMeteoVar(std::string varString)
+meteoVariable getMeteoVar(const std::string& varString)
 {
     auto search = MapDailyMeteoVar.find(varString);
 
@@ -1086,15 +1086,10 @@ std::string getMeteoVarName(meteoVariable var)
 std::string getCriteria3DVarName(criteria3DVariable var)
 {
     auto search = MapCriteria3DVarToString.find(var);
-
     if (search != MapCriteria3DVarToString.end())
-    {
         return search->second;
-    }
-    else
-    {
-        return "";
-    }
+
+    return "";
 }
 
 
@@ -1107,14 +1102,13 @@ std::string getLapseRateCodeName(lapseRateCodeType code)
     return "";
 }
 
-meteoVariable getHourlyMeteoVar(std::string varString)
+meteoVariable getHourlyMeteoVar(const std::string& varString)
 {
     auto search = MapHourlyMeteoVar.find(varString);
-
     if (search != MapHourlyMeteoVar.end())
         return search->second;
-    else
-        return noMeteoVar;
+
+    return noMeteoVar;
 }
 
 
@@ -1204,6 +1198,7 @@ meteoVariable getDailyMeteoVarFromHourly(meteoVariable myVar, aggregationMethod 
 
     return noMeteoVar;
 }
+
 
 meteoVariable updateMeteoVariable(meteoVariable myVar, frequencyType myFreq)
 {
