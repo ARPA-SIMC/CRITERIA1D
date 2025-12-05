@@ -2219,8 +2219,20 @@ bool Criteria1DWidget::setMeteoSqlite(QString& errorStr)
 
     query.first();
     QDate firstDate = query.value("date").toDate();
+    if (! firstDate.isValid())
+    {
+        errorStr = "Wrong first date: " + query.value("date").toString();
+        return false;
+    }
+
     query.last();
     QDate lastDate = query.value("date").toDate();
+    if (! lastDate.isValid())
+    {
+        errorStr = "Wrong date: " + query.value("date").toString();
+        return false;
+    }
+
     unsigned nrDays = unsigned(firstDate.daysTo(lastDate)) + 1;
 
     // Initialize data
