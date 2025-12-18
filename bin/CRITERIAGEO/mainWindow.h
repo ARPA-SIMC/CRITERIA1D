@@ -65,6 +65,8 @@
 
         void on_actionClipRaster_with_raster_triggered();
 
+        void on_actionDelete_a_range_of_values_raster_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

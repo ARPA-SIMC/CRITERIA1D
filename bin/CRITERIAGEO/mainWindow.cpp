@@ -39,6 +39,7 @@
 #include "shapeUtilities.h"
 #include "utilities.h"
 #include "formInfo.h"
+#include "formText.h"
 #include "gis.h"
 
 
@@ -845,9 +846,21 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
             submenu.addAction("Reverse color scale");
+            submenu.addAction("Disable color scale");
             submenu.addSeparator();
             submenu.addAction("Export to raster (gdal)");
             submenu.addAction("Export to NetCDF");
+            submenu.addSeparator();
+
+            if (myShapeObject->isSelectedRed())
+                submenu.addAction("Selected border black");
+            else
+                submenu.addAction("Selected border red");
+
+            if (myShapeObject->opacity() < 1)
+                submenu.addAction("Set opaque");
+            else
+                submenu.addAction("Set transparent");
         }
     }
     if (myObject->type == gisObjectRaster)
@@ -991,6 +1004,14 @@ void MainWindow::itemMenuRequested(const QPoint point)
                 emit myShapeObject->redrawRequested();
             }
         }
+        else if (rightClickItem->text().contains("Disable color scale"))
+        {
+            if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setFill(false);
+                emit myShapeObject->redrawRequested();
+            }
+        }
         else if (rightClickItem->text().contains("Statistical summary"))
         {
             if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
@@ -1005,14 +1026,40 @@ void MainWindow::itemMenuRequested(const QPoint point)
                 myRasterObject->setOpacity(1.0);
                 emit myRasterObject->redrawRequested();
             }
+            else if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setOpacity(1.0);
+                emit myShapeObject->redrawRequested();
+            }
         }
         else if (rightClickItem->text().contains("Set transparent"))
         {
             if (myObject->type == gisObjectRaster)
             {
                 // TODO choose value
-                myRasterObject->setOpacity(0.66);
+                myRasterObject->setOpacity(0.5);
                 emit myRasterObject->redrawRequested();
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setOpacity(0.5);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Selected border black"))
+        {
+            if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setSelectedRed(false);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Selected border red"))
+        {
+            if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setSelectedRed(true);
+                emit myShapeObject->redrawRequested();
             }
         }
     }
@@ -1586,6 +1633,49 @@ void MainWindow::on_actionClipRaster_with_raster_triggered()
 
     setDefaultScale(outputRaster->colorScale);
     myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.gisSettings.utmZone);
+
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
+}
+
+
+void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
+{
+    // select raster
+    QString refRasterFileName;
+    bool isOk;
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Reference raster", refRasterFileName, isOk);
+    if (! isOk)
+        return;
+
+    FormText formMinimum("Choose minimum value:", QString::number(refRaster->minimum));
+    formMinimum.show();
+    QString minStr = formMinimum.getText();
+    float minimum = minStr.toFloat(&isOk);
+    if (! isOk)
+    {
+        myProject.logWarning("Wrong number!");
+        return;
+    }
+    formMinimum.close();
+
+    FormText formMaximum("Choose maximum value:", QString::number(refRaster->maximum));
+    formMaximum.show();
+    QString maxStr = formMaximum.getText();
+    float maximum = maxStr.toFloat(&isOk);
+    if (! isOk)
+    {
+        myProject.logWarning("Wrong number!");
+        return;
+    }
+    formMaximum.close();
+
+    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
+    if (! gis::deleteRangeOfValuesRaster(refRaster, minimum, maximum, outputRaster))
+        return;
+
+    setDTMScale(outputRaster->colorScale);
+    myProject.addRaster(outputRaster, refRasterFileName + "_rangeDeleted", myProject.gisSettings.utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
