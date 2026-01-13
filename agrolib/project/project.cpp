@@ -19,6 +19,7 @@
 #include "dialogSummary.h"
 #include "waterTableWidget.h"
 #include "utilities.h"
+#include "dialogNewPoint.h"
 
 #include <iostream>
 #include <QDir>
@@ -284,6 +285,45 @@ void Project::checkProxyForMultipleDetrending(Crit3DProxy &myProxy, bool isHeigh
     }
 
     return;
+}
+
+
+bool Project::addOutputPoint(double myLat, double myLon)
+{
+    if (! DEM.isLoaded)
+    {
+        logError(ERROR_STR_MISSING_DEM);
+        return false;
+    }
+
+    if (outputPointsFileName.isEmpty())
+    {
+        logError("Load an output point list before");
+        return false;
+    }
+
+    // initialize idList
+    QList<QString> idPoints;
+    for (unsigned int i = 0; i < outputPoints.size(); i++)
+    {
+        idPoints.append(QString::fromStdString(outputPoints[i].id));
+    }
+
+    // set new point dialog
+    DialogNewPoint newPointDialog(idPoints, gisSettings, &(DEM), myLat, myLon);
+
+    if (newPointDialog.result() == QDialog::Accepted)
+    {
+        gis::Crit3DOutputPoint newPoint;
+        newPoint.initialize(newPointDialog.getId().toStdString(), true, newPointDialog.getLat(), newPointDialog.getLon(),
+                            newPointDialog.getHeight(), gisSettings.utmZone);
+        outputPoints.push_back(newPoint);
+
+        if (! writeOutputPointList(outputPointsFileName))
+            return false;
+    }
+
+    return true;
 }
 
 
@@ -1069,7 +1109,7 @@ bool Project::loadDEM(const QString &fileName)
     if (hourlyMeteoMaps != nullptr) hourlyMeteoMaps->clear();
     hourlyMeteoMaps = new Crit3DHourlyMeteoMaps(DEM);
 
-    //reset aggregationPoints meteoGrid
+    // reset aggregationPoints meteoGrid
     if (meteoGridDbHandler != nullptr)
     {
         meteoGridDbHandler->meteoGrid()->setIsAggregationDefined(false);
@@ -1082,11 +1122,11 @@ bool Project::loadDEM(const QString &fileName)
     if (! updateProxy())
         return false;
 
-    //set interpolation settings DEM
+    // set interpolation settings DEM
     interpolationSettings.setCurrentDEM(&DEM);
     qualityInterpolationSettings.setCurrentDEM(&DEM);
 
-    //check points position with respect to DEM
+    // check points position with respect to DEM
     checkMeteoPointsDEM();
 
     return true;
@@ -1309,7 +1349,8 @@ bool Project::newOutputPointsDB(QString dbName)
 
 bool Project::loadOutputPointsDB(QString dbName)
 {
-    if (dbName == "") return false;
+    if (dbName == "")
+        return false;
 
     closeOutputPointsDB();
 
@@ -1488,10 +1529,11 @@ bool Project::loadMeteoPointsData(const QDate& firstDate, const QDate& lastDate,
             if (loadHourly && isMeteoPointsHourly)
                 if (meteoPointsDbHandler->loadHourlyData(myDb, myFirstDate, myLastDate, meteoPoints[i]))
                     isDataOk[i] = true;
-
             if (loadDaily && isMeteoPointsDaily)
+            {
                 if (meteoPointsDbHandler->loadDailyData(myDb, myFirstDate, myLastDate, meteoPoints[i]))
                     isDataOk[i] = true;
+            }
 
             // safe update
             if (showInfo && omp_get_thread_num() == 0 && (i%step) == 0)
@@ -1514,6 +1556,7 @@ bool Project::loadMeteoPointsData(const QDate& firstDate, const QDate& lastDate,
         closeProgressBar();
 
     bool almostOneOk = std::any_of(isDataOk.begin(), isDataOk.end(), [](bool x){ return x; });
+
     return almostOneOk;
 }
 
@@ -2458,6 +2501,18 @@ bool Project::loadGlocalWeightMaps(std::vector<Crit3DMacroArea> &myAreas, bool i
             return false;
         }
 
+        //se  griglia, fai resampling del file
+        gis::Crit3DRasterGrid *newMacroAreasGrid = new gis::Crit3DRasterGrid();
+        if (isGrid)
+        {
+            float cellSize = computeDefaultCellSizeFromMeteoGrid(1);
+            gis::Crit3DRasterGrid meteoGridRaster;
+            if (! meteoGridDbHandler->MeteoGridToRasterFlt(cellSize, gisSettings, meteoGridRaster))
+                return false;
+
+            gis::resampleGrid(*macroAreasGrid, newMacroAreasGrid, meteoGridRaster.header, aggrAverage, 0);
+        }
+
         for (int row = 0; row < nrRows; row++)
         {
             for (int col = 0; col < nrCols; col++)
@@ -2466,13 +2521,16 @@ bool Project::loadGlocalWeightMaps(std::vector<Crit3DMacroArea> &myAreas, bool i
                 {
                     myX = meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->point.utm.x;
                     myY = meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->point.utm.y;
+                    myValue = gis::getValueFromXY(*newMacroAreasGrid, myX, myY);
+
                 }
                 else
+                {
                     DEM.getXY(row, col, myX, myY);
+                    myValue = macroAreasGrid->getValueFromXY(myX, myY); //solo per dem
+                }
 
-                myValue = macroAreasGrid->getValueFromXY(myX, myY);
-
-                if (!isEqual(myValue, NODATA) && !isEqual(myValue, 0))
+                if (! isEqual(myValue, NODATA) && ! isEqual(myValue, 0))
                 {
                     areaCells.push_back(row*nrCols+col);
                     areaCells.push_back(myValue);
@@ -3580,8 +3638,11 @@ bool Project::interpolationGrid(meteoVariable myVar, const Crit3DTime& myTime)
                                 proxyValues[i] = double(proxyValue);
                             else
                             {
-                                proxyFlag = false;
-                                break;
+                                // CT utilizza la quota letta dalla griglia se il proxy value relativo alla quota è NODATA (è corretto?)
+                                if (getProxyPragaName(interpolationSettings.getProxy(i)->getName()) == proxyHeight && ! isEqual(myZ, NODATA))
+                                    proxyValues[i] = myZ;
+                                else
+                                    proxyFlag = false;
                             }
                         }
 
@@ -3751,6 +3812,8 @@ bool Project::loadProjectSettings(QString settingsFileName)
         dbPointsFileName = projectSettings->value("meteo_points").toString();
 
         outputPointsFileName = projectSettings->value("output_points").toString();
+        currentDbOutputFileName = projectSettings->value("output_db").toString();
+
         dbAggregationFileName = projectSettings->value("aggregation_points").toString();
 
         dbGridXMLFileName = projectSettings->value("meteo_grid").toString();
@@ -5523,19 +5586,8 @@ bool Project::setLogFile(QString myFileName)
     }
     logInfo("LogFile = " + logFileName);
 
-    //File temporaneo per il confronto dei dati di ciascuna iterazione
-    dataFileName = logFilePath + myDate + "_data_" + endLogFileName;
-    dataFile.open(dataFileName.toStdString().c_str());
-    if (!dataFile.is_open())
-    {
-        logError("Unable to open data file: " + logFileName);
-        return false;
-    }
-    logInfo("DataFile = " + logFileName);
-
     return true;
 }
-
 
 
 void Project::logData(QString typeData, QString data)

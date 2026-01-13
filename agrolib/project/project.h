@@ -100,7 +100,6 @@
         int errorType;
 
         QString logFileName;
-        QString dataFileName;
         QString demFileName;
         QString dbPointsFileName;
         QString dbAggregationFileName;
@@ -372,6 +371,8 @@
         bool readVmArkimetData(const QList<QString> &vmFileList, frequencyType frequency, bool isPrec0024);
 
         bool getProjectList(QList<QString> &projectList);
+
+        bool addOutputPoint(double myLat = NODATA, double myLon = NODATA);
 
     private slots:
         void deleteMeteoWidgetPoint(int id);
