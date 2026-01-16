@@ -12,11 +12,15 @@ QT -= gui
 QT += sql xml
 
 TEMPLATE = app
+VERSION = 2.0.0
+QMAKE_TARGET_COPYRIGHT = "\\251 2026 ARPAE ER - Climate Observatory"
+
 CONFIG += console
 CONFIG += c++17
 
 # parallel computing settings
 include($$absolute_path(../../agrolib/parallel.pri))
+
 
 unix:{
     CONFIG(debug, debug|release) {
@@ -44,13 +48,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += _CRT_SECURE_NO_WARNINGS
 
 
-SOURCES += \
-    main.cpp
-
-HEADERS +=
-
-INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo   \
-                ../../agrolib/soil ../../agrolib/crop ../../agrolib/utilities ../../agrolib/dbMeteoGrid   \
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions    \
+                ../../agrolib/gis ../../agrolib/soil ../../agrolib/crop   \
+                ../../agrolib/meteo ../../agrolib/dbMeteoGrid ../../agrolib/utilities \
                 ../../src/carbonNitrogen  ../../src/criteria1DModel
 
 CONFIG(debug, debug|release) {
@@ -82,4 +82,10 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/soilFluxes3D/release -lsoilFluxes3D
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
 }
+
+
+SOURCES += \
+    main.cpp
+
+HEADERS +=
 

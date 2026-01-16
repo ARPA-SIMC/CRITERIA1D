@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <QString>
 #include <qglobal.h>
-#include <qlist.h>
+//#include <qlist.h>
 
-#include "heat1D.h"
-#include "soilFluxes3D.h"
 #include "commonConstants.h"
+#include "soilFluxes3D.h"
+#include "heat1D.h"
 
 Crit3DOut output;
 Heat1DSimulation myHeat1D;
@@ -24,7 +24,7 @@ meteo::meteo()
 void Heat1DSimulation::cleanMeteo()
 {
     meteoValues.clear();
-};
+}
 
 
 void setSoil(double thetaS_, double thetaR_, double clay_, double organicMatter_)
@@ -83,6 +83,8 @@ void setSoilHorizonNumber(int myNumber)
 {   myHeat1D.myHorizonNumber = myNumber;}
 
 
+using namespace soilFluxes3D;
+
 void setSurface(double myArea, double myRoughness, double minWaterRunoff, double myRoughnessHeat)
 {
     myHeat1D.surfaceArea = myArea;
@@ -90,26 +92,20 @@ void setSurface(double myArea, double myRoughness, double minWaterRunoff, double
     myHeat1D.Plough = minWaterRunoff;
     myHeat1D.RoughnessHeat = myRoughnessHeat;
 
-    int result = soilFluxes3D::setSurfaceProperties(0, myHeat1D.Roughness);
-    if (result != CRIT3D_OK) printf("\nError in SetSurfaceProperties!");
+    SF3Derror_t result = soilFluxes3D::setSurfaceProperties(0, myHeat1D.Roughness);
+    if (result != SF3Derror_t::SF3Dok)
+        printf("\n Error in SetSurfaceProperties!");
 }
 
 
 bool initializeSoil(bool useInputSoils)
 {
-    int result = CRIT3D_OK;
-
-    // loam
-    double VG_he        = 0.23;     // m
-    double VG_alpha     = 1.60;     // m-1
-    double VG_n         = 1.25;
-    double mualemTort   = 0.5;
-    double KSat         = 0.4 / (HOUR_SECONDS * 100.);  // [cm h-1] -> [m s-1]
+    SF3Derror_t result = SF3Derror_t::SF3Dok;
 
     if (useInputSoils)
     {
         for (int mySoilIndex = 0; mySoilIndex < myHeat1D.myHorizonNumber; mySoilIndex++)
-            result = soilFluxes3D::setSoilProperties(0,mySoilIndex,
+            result = soilFluxes3D::setSoilProperties(0, mySoilIndex,
                                           myInputSoils[mySoilIndex].VG_alfa,
                                           myInputSoils[mySoilIndex].VG_n,
                                           myInputSoils[mySoilIndex].VG_m,
@@ -122,21 +118,31 @@ bool initializeSoil(bool useInputSoils)
                                           myInputSoils[mySoilIndex].Clay);
     }
     else
-        result = soilFluxes3D::setSoilProperties(0, 1, VG_alpha, VG_n, (1. - 1. / VG_n), VG_he, myHeat1D.ThetaR, myHeat1D.ThetaS, KSat, mualemTort, myHeat1D.OrganicMatter/100., myHeat1D.Clay/100.);
+    {
+        // default: loam
+        double VG_he        = 0.23;     // m
+        double VG_alpha     = 1.60;     // m-1
+        double VG_n         = 1.25;
+        double mualemTort   = 0.5;
+        double KSat         = 0.4 * 0.01 / HOUR_SECONDS;  // [cm h-1] -> [m s-1]
 
-    if (result != CRIT3D_OK) {
-        printf("\n error in SetSoilProperties");
-        return(false);
+        result = soilFluxes3D::setSoilProperties(0, 1, VG_alpha, VG_n, (1. - 1. / VG_n), VG_he,
+                                                 myHeat1D.ThetaR, myHeat1D.ThetaS, KSat, mualemTort,
+                                                 myHeat1D.OrganicMatter/100., myHeat1D.Clay/100.);
     }
-    else return true;
+
+    if (result != SF3Derror_t::SF3Dok)
+    {
+        printf("\n Error in SetSoilProperties");
+        return false;
+    }
+
+    return true;
 }
+
 
 bool initializeHeat1D(bool useInputSoils)
 {
-    int result = 0;
-    long indexNode;
-
-    int boundaryType;
     float x = 0.;
     float y = 0.;
     double myThetaS, myThetaR;
@@ -151,42 +157,52 @@ bool initializeHeat1D(bool useInputSoils)
     depth[0] = 0.;
 
     int nodeHorizon = 0;
-    for (indexNode = 1 ; indexNode < myHeat1D.NodesNumber ; indexNode++ )
+    for (long indexNode = 1 ; indexNode < myHeat1D.NodesNumber ; indexNode++ )
     {
         thickness[indexNode] = myHeat1D.Thickness;
         if (indexNode == 1) depth[indexNode] = depth[indexNode-1] - (myHeat1D.Thickness / 2) ;
         else  depth[indexNode] = depth[indexNode-1] - myHeat1D.Thickness ;
     }
 
-    result = soilFluxes3D::initializeFluxes(myHeat1D.NodesNumber, (short) myHeat1D.NodesNumber, 0,
-                                      myHeat1D.computeWater, myHeat1D.computeHeat, myHeat1D.computeSolutes);
-    if (result != CRIT3D_OK) printf("\n error in initialize");
+    SF3Derror_t result = soilFluxes3D::initializeSF3D(myHeat1D.NodesNumber, (short)myHeat1D.NodesNumber, 0,
+                                      myHeat1D.computeWater, myHeat1D.computeHeat, myHeat1D.computeSolutes, heatFluxSaveMode_t::All);
+    if (result != SF3Derror_t::SF3Dok)
+        printf("\n error in initialize");
 
-    if (myHeat1D.computeHeat) soilFluxes3D::initializeHeat(SAVE_HEATFLUXES_ALL, myHeat1D.computeAdvection, myHeat1D.computeLatent);
+    if (myHeat1D.computeHeat)
+        soilFluxes3D::initializeHeatFlag(heatFluxSaveMode_t::All, myHeat1D.computeAdvection, myHeat1D.computeLatent);
 
-    if (! initializeSoil(useInputSoils)) printf("\n error in setSoilProperties");
-    soilFluxes3D::setHydraulicProperties(MODIFIEDVANGENUCHTEN, MEAN_LOGARITHMIC, 10.);
+    if (! initializeSoil(useInputSoils))
+        printf("\n error in setSoilProperties");
+
+    soilFluxes3D::setHydraulicProperties(WRCModel::VanGenuchten, meanType_t::Logarithmic, 4.);
     soilFluxes3D::setNumericalParameters(0.1, HOUR_SECONDS, 200, 10, 12, 5);
     soilFluxes3D::setThreadsNumber(1);
 
-    for (indexNode = 0 ; indexNode < myHeat1D.NodesNumber ; indexNode++ )
+    boundaryType_t boundaryType;
+    for (long indexNode = 0 ; indexNode < myHeat1D.NodesNumber ; indexNode++ )
     {
         // surface
         if (indexNode == 0)
         {
-            result = soilFluxes3D::setNode(indexNode, x, y, depth[indexNode], myHeat1D.surfaceArea, true, false, BOUNDARY_NONE, 0, 0);
-            if (result != CRIT3D_OK) printf("\n error in setNode!");
+            result = soilFluxes3D::setNode(indexNode, x, y, depth[indexNode], myHeat1D.surfaceArea,
+                                           true, boundaryType_t::NoBoundary, 0, 0);
+            if (result != SF3Derror_t::SF3Dok)
+                printf("\n error in setNode!");
 
             result = soilFluxes3D::setNodeSurface(0, 0) ;
-            if (result != CRIT3D_OK) printf("\n error in setNodeSurface!");
+            if (result != SF3Derror_t::SF3Dok)
+                printf("\n error in setNodeSurface!");
 
             result = soilFluxes3D::setNodePond(0, myHeat1D.Plough);
-            if (result != CRIT3D_OK) printf("\nError in setNodePond!");
+            if (result != SF3Derror_t::SF3Dok)
+                printf("\nError in setNodePond!");
 
             if (myHeat1D.computeWater)
             {
-                result = soilFluxes3D::setWaterContent(indexNode, 0.);
-                if (result != CRIT3D_OK) printf("\n error in setWaterContent!");
+                result = soilFluxes3D::setNodeWaterContent(indexNode, 0.);
+                if (result != SF3Derror_t::SF3Dok)
+                    printf("\n error in setWaterContent!");
             }
         }
 
@@ -196,13 +212,14 @@ bool initializeHeat1D(bool useInputSoils)
             if (indexNode == 1)
             {
                 if (myHeat1D.computeHeat)
-                    boundaryType = BOUNDARY_HEAT_SURFACE;
+                    boundaryType = boundaryType_t::HeatSurface;
                 else
-                    boundaryType = BOUNDARY_NONE;
+                    boundaryType = boundaryType_t::NoBoundary;
 
                 result = soilFluxes3D::setNode(indexNode, x, y, depth[indexNode], thickness[indexNode] * myHeat1D.surfaceArea,
-                                               false, true, boundaryType, 0, myHeat1D.surfaceArea);
-                if (result != CRIT3D_OK) printf("\n error in setNode!");
+                                               false, boundaryType, 0, myHeat1D.surfaceArea);
+                if (result != SF3Derror_t::SF3Dok)
+                    printf("\n error in setNode!");
             }
             else if (indexNode == myHeat1D.NodesNumber - 1)
             {
@@ -211,32 +228,38 @@ bool initializeHeat1D(bool useInputSoils)
                 {
                     // water table
                     result = soilFluxes3D::setNode(indexNode, x ,y, depth[indexNode], thickness[indexNode] * myHeat1D.surfaceArea,
-                                                   false, true, BOUNDARY_PRESCRIBEDTOTALPOTENTIAL, 0, myHeat1D.surfaceArea);
-                    soilFluxes3D::setPrescribedTotalPotential(indexNode, -myHeat1D.waterTableDepth);
+                                                   false, boundaryType_t::PrescribedTotalWaterPotential, 0, myHeat1D.surfaceArea);
+
+                    soilFluxes3D::setNodePrescribedTotalPotential(indexNode, -myHeat1D.waterTableDepth);
                 }
                 else
                 {
                     // free drainage
                     result = soilFluxes3D::setNode(indexNode, x ,y, depth[indexNode], thickness[indexNode] * myHeat1D.surfaceArea,
-                                               false, true, BOUNDARY_FREEDRAINAGE, 0, myHeat1D.surfaceArea);
+                                               false, boundaryType_t::FreeDrainage, 0, myHeat1D.surfaceArea);
                 }
-                if (result != CRIT3D_OK) printf("\n error in setNode!");
+                if (result != SF3Derror_t::SF3Dok)
+                    printf("\n error in setNode!");
 
                 if (myHeat1D.computeHeat)
                 {
-                    result = soilFluxes3D::setFixedTemperature(indexNode, 273.16 + myHeat1D.bottomTemperature, myHeat1D.bottomTemperatureDepth);
-                    if (result != CRIT3D_OK) printf("\n error in setFixedTemperature!");
+                    result = soilFluxes3D::setNodeBoundaryFixedTemperature(indexNode, 273.16 + myHeat1D.bottomTemperature,
+                                                                           myHeat1D.bottomTemperatureDepth);
+                    if (result != SF3Derror_t::SF3Dok)
+                        printf("\n error in setNodeBoundaryFixedTemperature!");
                 }
             }
             else
             {
                 result = soilFluxes3D::setNode(indexNode, x, y, depth[indexNode], thickness[indexNode] * myHeat1D.surfaceArea,
-                                               false, false, BOUNDARY_NONE, 0, 0);
-                if (result != CRIT3D_OK) printf("\n error in setNode!");
+                                               false, boundaryType_t::NoBoundary, 0, 0);
+                if (result != SF3Derror_t::SF3Dok)
+                    printf("\n error in setNode!");
 			}											  
 									  
-            result = soilFluxes3D::setNodeLink(indexNode, indexNode - 1 , UP, myHeat1D.surfaceArea);
-            if (result != CRIT3D_OK) printf("\n error in setNodeLink!");
+            result = soilFluxes3D::setNodeLink(indexNode, indexNode - 1 , linkType_t::Up, myHeat1D.surfaceArea);
+            if (result != SF3Derror_t::SF3Dok)
+                printf("\n error in setNodeLink!");
 
             if (useInputSoils)
             {
@@ -248,7 +271,8 @@ bool initializeHeat1D(bool useInputSoils)
                 nodeHorizon = 1;
 
             result = soilFluxes3D::setNodeSoil(indexNode, 0, nodeHorizon);
-            if (result != CRIT3D_OK) printf("\n error in setNodeSoil!");
+            if (result != SF3Derror_t::SF3Dok)
+                printf("\n error in setNodeSoil!");
 																																  
             if (useInputSoils)
             {
@@ -261,25 +285,26 @@ bool initializeHeat1D(bool useInputSoils)
                 myThetaR = myHeat1D.ThetaR;
             }
 
-            result = soilFluxes3D::setWaterContent(indexNode, ((indexNode-1)*(myHeat1D.initialSaturationBottom - myHeat1D.initialSaturationTop)
+            result = soilFluxes3D::setNodeWaterContent(indexNode, ((indexNode-1)*(myHeat1D.initialSaturationBottom - myHeat1D.initialSaturationTop)
                                                                    / (myHeat1D.NodesNumber-2)+myHeat1D.initialSaturationTop) * (myThetaS - myThetaR) + myThetaR);
-
-            if (result != CRIT3D_OK) printf("\n error in SetWaterContent!");
+            if (result != SF3Derror_t::SF3Dok)
+                printf("\n error in setNodeWaterContent!");
 
             if (myHeat1D.computeHeat)
 			{
-                result = soilFluxes3D::setTemperature(indexNode, 273.16 + ((indexNode-1) *(myHeat1D.initialTemperatureBottom - myHeat1D.initialTemperatureTop)
+                result = soilFluxes3D::setNodeTemperature(indexNode, 273.16 + ((indexNode-1) *(myHeat1D.initialTemperatureBottom - myHeat1D.initialTemperatureTop)
                                                                     / (myHeat1D.NodesNumber-2) + myHeat1D.initialTemperatureTop));
-
-                if (result != CRIT3D_OK) printf("\n error in SetTemperature!");
+                if (result != SF3Derror_t::SF3Dok)
+                    printf("\n error in setNodeTemperature!");
 			}
         }
 
         // all elements, except last, are connected with the one below
         if (indexNode < myHeat1D.NodesNumber - 1)
 		{
-            result = soilFluxes3D::setNodeLink(indexNode, indexNode + 1 , DOWN, myHeat1D.surfaceArea);
-            if (result != CRIT3D_OK) printf("\n error in setNodeLink down!");
+            result = soilFluxes3D::setNodeLink(indexNode, indexNode + 1 , linkType_t::Down, myHeat1D.surfaceArea);
+            if (result != SF3Derror_t::SF3Dok)
+                printf("\n error in setNodeLink down!");
 		}																 
     }
 
@@ -293,14 +318,20 @@ void setSinkSources(double myHourlyPrec)
 {
     for (long i=0; i < myHeat1D.NodesNumber; i++)
     {
-        if (myHeat1D.computeHeat && i > 0) soilFluxes3D::setHeatSinkSource(i, 0);
+        if (myHeat1D.computeHeat && i > 0)
+            soilFluxes3D::setNodeHeatSinkSource(i, 0);
 
         if (myHeat1D.computeWater)
         {
             if (i == 0)
-                soilFluxes3D::setWaterSinkSource(i, myHourlyPrec * myHeat1D.surfaceArea / (HOUR_SECONDS * 1000.));
+            {
+                double waterSinkSource = myHourlyPrec * 0.001 * myHeat1D.surfaceArea / HOUR_SECONDS;  // [m3 s-1]
+                soilFluxes3D::setNodeWaterSinkSource(i, waterSinkSource);
+            }
             else
-                soilFluxes3D::setWaterSinkSource(i, 0);
+            {
+                soilFluxes3D::setNodeWaterSinkSource(i, 0);
+            }
         }
     }
 }
@@ -353,18 +384,18 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
     {
         myPoint.setX(timeH);
 
-        myValue = soilFluxes3D::getTemperature(myIndex);
+        myValue = soilFluxes3D::getNodeTemperature(myIndex);
         if (isValid(myValue)) myValue -= 273.16;
         else myValue = NODATA;
         myPoint.setY(myValue);
         output->profileOutput[output->nrValues-1].temperature.push_back(myPoint);
 
-        myValue = soilFluxes3D::getWaterContent(myIndex);
+        myValue = soilFluxes3D::getNodeWaterContent(myIndex);
         if (! isValid(myValue)) myValue = NODATA;
         myPoint.setY(myValue);
         output->profileOutput[output->nrValues-1].waterContent.push_back(myPoint);
 
-        myValue = soilFluxes3D::getHeatConductivity(myIndex);
+        myValue = soilFluxes3D::getNodeHeatConductivity(myIndex);
         if (! isValid(myValue)) myValue = NODATA;
         myPoint.setY(myValue);
         output->profileOutput[output->nrValues-1].heatConductivity.push_back(myPoint);
@@ -435,27 +466,27 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
     myPoint.setX(timeH);
 
     // net radiation (positive downward)
-    myValue = soilFluxes3D::getBoundaryRadiativeFlux(1);
+    myValue = soilFluxes3D::getNodeBoundaryRadiativeFlux(1);
     if (isValid(myValue)) myPoint.setY(myValue);
     output->landSurfaceOutput[output->nrValues-1].netRadiation = myPoint;
 
     // sensible heat (positive upward)
-    myValue = soilFluxes3D::getBoundarySensibleFlux(1);
+    myValue = soilFluxes3D::getNodeBoundarySensibleFlux(1);
     if (isValid(myValue)) myPoint.setY(-myValue);
     output->landSurfaceOutput[output->nrValues-1].sensibleHeat = myPoint;
 
     // latent heat (positive upward)
-    myValue = soilFluxes3D::getBoundaryLatentFlux(1);
+    myValue = soilFluxes3D::getNodeBoundaryLatentFlux(1);
     if (isValid(myValue)) myPoint.setY(-myValue);
     output->landSurfaceOutput[output->nrValues-1].latentHeat = myPoint;
 
     //aerodynamic resistance
-    myValue = soilFluxes3D::getBoundaryAerodynamicConductance(1);
+    myValue = soilFluxes3D::getNodeBoundaryAerodynamicConductance(1);
     if (isValid(myValue)) myPoint.setY(1./myValue);
     output->landSurfaceOutput[output->nrValues-1].aeroResistance = myPoint;
 
     //soil surface resistance
-    myValue = soilFluxes3D::getBoundarySoilConductance(1);
+    myValue = soilFluxes3D::getNodeBoundarySoilConductance(1);
     if (isValid(myValue)) myPoint.setY(1./myValue);
     output->landSurfaceOutput[output->nrValues-1].soilResistance = myPoint;
 
@@ -469,7 +500,7 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
     output->errorOutput[output->nrValues-1].waterMBR = myPoint;
 
     //bottom fluxes
-    myValue = soilFluxes3D::getBoundaryWaterFlow(lastIndex);
+    myValue = soilFluxes3D::getNodeBoundaryWaterFlow(lastIndex);
     if (isValid(myValue)) myPoint.setY(myValue);
     output->bottomFluxes[output->nrValues-1].drainage = myPoint;
 
