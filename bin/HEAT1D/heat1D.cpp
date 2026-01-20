@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <QString>
+#include <iostream>
 #include <qglobal.h>
 
 #include "commonConstants.h"
@@ -176,6 +177,7 @@ bool initializeHeat1D(bool useInputSoils)
         printf("\n error in setSoilProperties");
 
     soilFluxes3D::setHydraulicProperties(WRCModel::VanGenuchten, meanType_t::Logarithmic, 4.);
+    soilFluxes3D::setSurfaceProperties(0, 0.05);
     soilFluxes3D::setNumericalParameters(0.1, HOUR_SECONDS, 200, 10, 12, 5);
     soilFluxes3D::setThreadsNumber(1);
 
@@ -309,6 +311,7 @@ bool initializeHeat1D(bool useInputSoils)
     }
 
     soilFluxes3D::initializeBalance();
+    std::cout << "Criteria3D model initialized." << std::endl;
 
     return true;
 }
