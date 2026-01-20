@@ -12,7 +12,7 @@ TEMPLATE = app
 VERSION = 1.0
 QMAKE_TARGET_COPYRIGHT = "\\251 2026 ARPAE ER - Climate Observatory"
 
-CONFIG += c++17
+CONFIG += c++11 c++14 c++17
 
 # parallel computing settings
 include($$absolute_path(../../agrolib/parallel.pri))

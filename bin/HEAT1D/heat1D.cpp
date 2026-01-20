@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <QString>
 #include <qglobal.h>
-//#include <qlist.h>
 
 #include "commonConstants.h"
+#include "basicMath.h"
 #include "soilFluxes3D.h"
 #include "heat1D.h"
 
@@ -356,13 +356,13 @@ Crit3DOut::Crit3DOut()
 
 bool isValid(double myValue)
 {
-    return (myValue != MEMORY_ERROR && myValue != MISSING_DATA_ERROR && myValue != INDEX_ERROR);
+    return ( !isEqual(myValue, MEMORY_ERROR)
+            && !isEqual(myValue, MISSING_DATA_ERROR)
+            && !isEqual(myValue, INDEX_ERROR) );
 }
 
 void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, double timeH)
 {
-    long myIndex;
-    double myValue;
     double fluxDiff, fluxLtntIso, fluxLtntTh, fluxAdv, fluxTot;
     double watFluxIsoLiq, watFluxThLiq, watFluxIsoVap, watFluxThVap;
 
@@ -380,46 +380,54 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
     output->bottomFluxes.push_back(myBottomFluxes);
     output->waterStorageOutput.push_back(myWaterStored);
 
-    for (myIndex = firstIndex ; myIndex <= lastIndex ; myIndex++ )
+    for (long myIndex = firstIndex ; myIndex <= lastIndex ; myIndex++ )
     {
         myPoint.setX(timeH);
 
-        myValue = soilFluxes3D::getNodeTemperature(myIndex);
-        if (isValid(myValue)) myValue -= 273.16;
+        double myValue = soilFluxes3D::getNodeTemperature(myIndex);
+        if (isValid(myValue))
+            myValue -= 273.16;
         else myValue = NODATA;
         myPoint.setY(myValue);
         output->profileOutput[output->nrValues-1].temperature.push_back(myPoint);
 
         myValue = soilFluxes3D::getNodeWaterContent(myIndex);
-        if (! isValid(myValue)) myValue = NODATA;
+        if (! isValid(myValue))
+            myValue = NODATA;
         myPoint.setY(myValue);
         output->profileOutput[output->nrValues-1].waterContent.push_back(myPoint);
 
         myValue = soilFluxes3D::getNodeHeatConductivity(myIndex);
-        if (! isValid(myValue)) myValue = NODATA;
+        if (! isValid(myValue))
+            myValue = NODATA;
         myPoint.setY(myValue);
         output->profileOutput[output->nrValues-1].heatConductivity.push_back(myPoint);
 
-        fluxTot = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_TOTAL);
-        if (isValid(fluxTot)) fluxTot /= myHeat1D.surfaceArea;
+        fluxTot = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::HeatTotal);
+        if (isValid(fluxTot))
+            fluxTot /= myHeat1D.surfaceArea;
         else fluxTot = NODATA;
         myPoint.setY(fluxTot);
         output->profileOutput[output->nrValues-1].totalHeatFlux.push_back(myPoint);
 
-        fluxDiff = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_DIFFUSIVE);
-        if (isValid(fluxDiff)) fluxDiff /= myHeat1D.surfaceArea;
+        fluxDiff = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::HeatDiffusive);
+        if (isValid(fluxDiff))
+            fluxDiff /= myHeat1D.surfaceArea;
         else fluxDiff = NODATA;
 
-        fluxLtntIso = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_LATENT_ISOTHERMAL);
-        if (isValid(fluxLtntIso)) fluxLtntIso /= myHeat1D.surfaceArea;
+        fluxLtntIso = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::HeatLatentIsothermal);
+        if (isValid(fluxLtntIso))
+            fluxLtntIso /= myHeat1D.surfaceArea;
         else fluxLtntIso = NODATA;
 
-        fluxLtntTh = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_LATENT_THERMAL);
-        if (isValid(fluxLtntTh)) fluxLtntTh /= myHeat1D.surfaceArea;
+        fluxLtntTh = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::HeatLatentThermal);
+        if (isValid(fluxLtntTh))
+            fluxLtntTh /= myHeat1D.surfaceArea;
         else fluxLtntTh = NODATA;
 
-        fluxAdv = soilFluxes3D::getHeatFlux(myIndex, DOWN, HEATFLUX_ADVECTIVE);
-        if (isValid(fluxAdv)) fluxAdv /= myHeat1D.surfaceArea;
+        fluxAdv = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::HeatAdvective);
+        if (isValid(fluxAdv))
+            fluxAdv /= myHeat1D.surfaceArea;
         else fluxAdv = NODATA;
 
         myPoint.setY(fluxDiff);
@@ -434,20 +442,24 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
         myPoint.setY(fluxAdv);
         output->profileOutput[output->nrValues-1].advectiveheatFlux.push_back(myPoint);
 
-        watFluxIsoLiq = soilFluxes3D::getHeatFlux(myIndex, DOWN, WATERFLUX_LIQUID_ISOTHERMAL);
-        if (isValid(watFluxIsoLiq)) watFluxIsoLiq *= 1000.;
+        watFluxIsoLiq = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::WaterLiquidIsothermal);
+        if (isValid(watFluxIsoLiq))
+            watFluxIsoLiq *= 1000.;
         else watFluxIsoLiq = NODATA;
 
-        watFluxThLiq  = soilFluxes3D::getHeatFlux(myIndex, DOWN, WATERFLUX_LIQUID_THERMAL);
-        if (isValid(watFluxThLiq)) watFluxThLiq *= 1000.;
+        watFluxThLiq  = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::WaterLiquidThermal);
+        if (isValid(watFluxThLiq))
+            watFluxThLiq *= 1000.;
         else watFluxThLiq = NODATA;
 
-        watFluxIsoVap = soilFluxes3D::getHeatFlux(myIndex, DOWN, WATERFLUX_VAPOR_ISOTHERMAL);
-        if (isValid(watFluxIsoVap)) watFluxIsoVap *= 1000. / WATER_DENSITY;
+        watFluxIsoVap = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::WaterVaporIsothermal);
+        if (isValid(watFluxIsoVap))
+            watFluxIsoVap *= 1000. / WATER_DENSITY;
         else watFluxIsoVap = NODATA;
 
-        watFluxThVap = soilFluxes3D::getHeatFlux(myIndex, DOWN, WATERFLUX_VAPOR_THERMAL);
-        if (isValid(watFluxThVap)) watFluxThVap *= 1000. / WATER_DENSITY;
+        watFluxThVap = soilFluxes3D::getNodeHeatMaxFlux(myIndex, linkType_t::Down, fluxTypes_t::WaterVaporThermal);
+        if (isValid(watFluxThVap))
+            watFluxThVap *= 1000. / WATER_DENSITY;
         else watFluxThVap = NODATA;
 
         myPoint.setY(watFluxIsoLiq);
@@ -466,51 +478,60 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
     myPoint.setX(timeH);
 
     // net radiation (positive downward)
-    myValue = soilFluxes3D::getNodeBoundaryRadiativeFlux(1);
-    if (isValid(myValue)) myPoint.setY(myValue);
+    double myValue = soilFluxes3D::getNodeBoundaryRadiativeFlux(1);
+    if (isValid(myValue))
+        myPoint.setY(myValue);
     output->landSurfaceOutput[output->nrValues-1].netRadiation = myPoint;
 
     // sensible heat (positive upward)
     myValue = soilFluxes3D::getNodeBoundarySensibleFlux(1);
-    if (isValid(myValue)) myPoint.setY(-myValue);
+    if (isValid(myValue))
+        myPoint.setY(-myValue);
     output->landSurfaceOutput[output->nrValues-1].sensibleHeat = myPoint;
 
     // latent heat (positive upward)
     myValue = soilFluxes3D::getNodeBoundaryLatentFlux(1);
-    if (isValid(myValue)) myPoint.setY(-myValue);
+    if (isValid(myValue))
+        myPoint.setY(-myValue);
     output->landSurfaceOutput[output->nrValues-1].latentHeat = myPoint;
 
     //aerodynamic resistance
     myValue = soilFluxes3D::getNodeBoundaryAerodynamicConductance(1);
-    if (isValid(myValue)) myPoint.setY(1./myValue);
+    if (isValid(myValue))
+        myPoint.setY(1./myValue);
     output->landSurfaceOutput[output->nrValues-1].aeroResistance = myPoint;
 
     //soil surface resistance
     myValue = soilFluxes3D::getNodeBoundarySoilConductance(1);
-    if (isValid(myValue)) myPoint.setY(1./myValue);
+    if (isValid(myValue))
+        myPoint.setY(1./myValue);
     output->landSurfaceOutput[output->nrValues-1].soilResistance = myPoint;
 
     //errors
     myValue = soilFluxes3D::getHeatMBR();
-    if (isValid(myValue)) myPoint.setY(myValue);
+    if (isValid(myValue))
+        myPoint.setY(myValue);
     output->errorOutput[output->nrValues-1].heatMBR = myPoint;
 
     myValue = soilFluxes3D::getWaterMBR();
-    if (isValid(myValue)) myPoint.setY(myValue);
+    if (isValid(myValue))
+        myPoint.setY(myValue);
     output->errorOutput[output->nrValues-1].waterMBR = myPoint;
 
     //bottom fluxes
     myValue = soilFluxes3D::getNodeBoundaryWaterFlow(lastIndex);
-    if (isValid(myValue)) myPoint.setY(myValue);
+    if (isValid(myValue))
+        myPoint.setY(myValue);
     output->bottomFluxes[output->nrValues-1].drainage = myPoint;
 
     //water storage
     myValue = soilFluxes3D::getWaterStorage();
-    if (isValid(myValue)) myPoint.setY(myValue);
+    if (isValid(myValue))
+        myPoint.setY(myValue);
     output->waterStorageOutput[output->nrValues-1].waterStord = myPoint;
 
-
 }
+
 
 QString Crit3DOut::getTextOutput(outputGroup outGroup)
 {
@@ -763,24 +784,24 @@ QString Crit3DOut::getTextOutput(outputGroup outGroup)
 }
 
 
-bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
-                 double myHourlyWindSpeed, double myHourlyNetIrradiance,
-                 double myHourlyPrec, int maxTimeStepSeconds)
+bool runHeat1D(double hourlyTemperature,  double hourlyRelativeHumidity,
+               double hourlyWindSpeed, double hourlyNetIrradiance,
+               double hourlyPrec, int maxTimeStepSeconds)
 {
     //double currentRoughness;
     //double surfaceWaterHeight;
     //double roughnessWater = 0.005;
 
-    setSinkSources(myHourlyPrec);
+    setSinkSources(hourlyPrec);
 
     if (myHeat1D.computeHeat)
     {
-        soilFluxes3D::setHeatBoundaryHeightWind(1, 2);
-        soilFluxes3D::setHeatBoundaryHeightTemperature(1, 1.5);
-        soilFluxes3D::setHeatBoundaryTemperature(1, myHourlyTemperature);
-        soilFluxes3D::setHeatBoundaryRelativeHumidity(1, myHourlyRelativeHumidity);
-        soilFluxes3D::setHeatBoundaryWindSpeed(1, myHourlyWindSpeed);
-        soilFluxes3D::setHeatBoundaryNetIrradiance(1, myHourlyNetIrradiance);
+        soilFluxes3D::setNodeBoundaryHeightWind(1, 2.0);
+        soilFluxes3D::setNodeBoundaryHeightTemperature(1, 1.5);
+        soilFluxes3D::setNodeBoundaryTemperature(1, hourlyTemperature);
+        soilFluxes3D::setNodeBoundaryRelativeHumidity(1, hourlyRelativeHumidity);
+        soilFluxes3D::setNodeBoundaryWindSpeed(1, hourlyWindSpeed);
+        soilFluxes3D::setNodeBoundaryNetIrradiance(1, hourlyNetIrradiance);
 
         /*
         surfaceWaterHeight = soilFluxes3D::getWaterContent(0);
@@ -792,7 +813,7 @@ bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
             currentRoughness = RoughnessHeat;
         */
 
-        soilFluxes3D::setHeatBoundaryRoughness(1, myHeat1D.RoughnessHeat);
+        soilFluxes3D::setNodeBoundaryRoughness(1, myHeat1D.RoughnessHeat);
     }
 
     soilFluxes3D::computePeriod(maxTimeStepSeconds);

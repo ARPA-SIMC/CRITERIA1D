@@ -99,8 +99,8 @@ void setSoilHorizonNumber(int myHorizonNumber);
 void setSinkSources(double myHourlyPrec);
 
 bool initializeHeat1D(bool useInputSoils);
-bool runHeat1D(double myHourlyTemperature,  double myHourlyRelativeHumidity,
-                 double myHourlyWindSpeed, double myHourlyNetIrradiance,
-                 double myHourlyPrec, int maxTimeStepSeconds);
+bool runHeat1D(double hourlyTemperature,  double hourlyRelativeHumidity,
+                 double hourlyWindSpeed, double hourlyNetIrradiance,
+                 double hourlyPrec, int maxTimeStepSeconds);
 
 
