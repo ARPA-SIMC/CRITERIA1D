@@ -44,9 +44,9 @@ then
     add-apt-repository -y ppa:ubuntu-toolchain-r/test
     add-apt-repository -y ppa:beineri/opt-qt-5.15.2-xenial
     apt-get -y update
-    apt-get install -y g++-8 gcc-8
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90
+    apt-get install -y g++-9 gcc-9
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90
     apt-get install -y qt515base
     apt-get install -y libx11-xcb-dev libglu1-mesa-dev
     update-alternatives --install /usr/bin/qmake qmake /opt/qt515/bin/qmake 90
