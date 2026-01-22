@@ -48,13 +48,12 @@ then
     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90
     apt-get install -y qt59base
-    apt-get install -y qt59-meta
     apt-get install -y libx11-xcb-dev libglu1-mesa-dev
     update-alternatives --install /usr/bin/qmake qmake /opt/qt59/bin/qmake 90
     export QT_DIR=/opt/qt59
     export QMAKE=$QT_DIR/bin/qmake
     apt-get install -y libnetcdf-dev libnetcdf11
-    apt-get install -y qt9charts-no-lgpl curl
+    apt-get install -y qt59charts-no-lgpl curl
     apt-get install -y libgeos-3.5.0 libgeos-dev
     add-apt-repository -y ppa:nextgis/ppa
     apt-get -y update
