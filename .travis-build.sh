@@ -51,7 +51,7 @@ then
     apt-get install -y libx11-xcb-dev libglu1-mesa-dev
     update-alternatives --install /usr/bin/qmake qmake /opt/qt515/bin/qmake 90
     export QT_DIR=/opt/qt515
-    export QMAKE=$QT_DIR/bin/qmake-qt5
+    export QMAKE=$QT_DIR/bin/qmake
     apt-get install -y libnetcdf-dev libnetcdf11
     apt-get install -y qt515charts-no-lgpl curl
     apt-get install -y libgeos-3.5.0 libgeos-dev
