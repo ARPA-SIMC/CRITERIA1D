@@ -61,8 +61,8 @@ then
     export CPLUS_INCLUDE_PATH=/usr/include/gdal
     export C_INCLUDE_PATH=/usr/include/gdal
     apt-get install -y libc++-dev libc++abi-dev
-    export g++=g++-8
-    export gcc=gcc-8
+    export CXX=g++-8
+    export CC=gcc-8
     gcc --version
     g++ --version
     qmake -v
