@@ -47,7 +47,7 @@ then
     apt-get install -y g++-9 gcc-9
     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90
-    apt-get install -y qt59base
+    apt-get install -y qt59-meta-minimal
     apt-get install -y libx11-xcb-dev libglu1-mesa-dev
     update-alternatives --install /usr/bin/qmake qmake /opt/qt59/bin/qmake 90
     export QT_DIR=/opt/qt59
