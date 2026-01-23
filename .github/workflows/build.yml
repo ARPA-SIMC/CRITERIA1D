@@ -1,4 +1,4 @@
-name: Build on centos 8
+name: Build on fedora 38
 on: [push]
 
 jobs:
@@ -7,7 +7,7 @@ jobs:
     
     strategy:
       matrix:
-        image: ["centos:8"]
+        image: ["fedora:38"]
     
     steps:
       - name: Clone repo
