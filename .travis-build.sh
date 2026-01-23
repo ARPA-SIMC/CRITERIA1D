@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# rendi sicura la directory del repo
+git config --global --add safe.directory /root/src
+
 set -exo pipefail
 
 image=$1
