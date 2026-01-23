@@ -15,6 +15,7 @@
 #include <QSqlQuery>
 #include <QDir>
 #include <QSettings>
+#include <QUuid>
 
 
 Crit1DProject::Crit1DProject()
@@ -456,7 +457,8 @@ int Crit1DProject::initializeProject(const QString &settingsFileName)
         logger.writeError(projectError);
         return ERROR_READ_UNITS;
     }
-    logger.writeInfo("Query result: " + QString::number(compUnitList.size()) + " distinct computational units.");
+    logger.writeInfo("Query result: " + QString::number(compUnitList.size())
+                     + " distinct computational units.\n");
 
     isProjectLoaded = true;
 
@@ -1533,7 +1535,8 @@ bool Crit1DProject::createDbState(QString &myError)
     {
         QFile::remove(dbStateName);
     }
-    dbState = QSqlDatabase::addDatabase("QSQLITE", "state");
+    dbState.close();
+    dbState = QSqlDatabase::addDatabase("QSQLITE", QUuid::createUuid().toString());
     dbState.setDatabaseName(dbStateName);
 
     if (! dbState.open())
@@ -1978,8 +1981,8 @@ int Crit1DProject::openAllDatabase()
         closeAllDatabase();
         return ERROR_DBPARAMETERS;
     }
-
-    dbCrop = QSqlDatabase::addDatabase("QSQLITE");
+    dbCrop.close();
+    dbCrop = QSqlDatabase::addDatabase("QSQLITE", QUuid::createUuid().toString());
     dbCrop.setDatabaseName(dbCropName);
     if (! dbCrop.open())
     {
@@ -1996,7 +1999,8 @@ int Crit1DProject::openAllDatabase()
         return ERROR_DBSOIL;
     }
 
-    dbSoil = QSqlDatabase::addDatabase("QSQLITE", "soil");
+    dbSoil.close();
+    dbSoil = QSqlDatabase::addDatabase("QSQLITE", QUuid::createUuid().toString());
     dbSoil.setDatabaseName(dbSoilName);
     if (! dbSoil.open())
     {
@@ -2031,7 +2035,8 @@ int Crit1DProject::openAllDatabase()
     }
     else
     {
-        dbMeteo = QSqlDatabase::addDatabase("QSQLITE", "meteo");
+        dbMeteo.close();
+        dbMeteo = QSqlDatabase::addDatabase("QSQLITE", QUuid::createUuid().toString());
         dbMeteo.setDatabaseName(dbMeteoName);
         if (! dbMeteo.open())
         {
@@ -2075,7 +2080,8 @@ int Crit1DProject::openAllDatabase()
         }
         else
         {
-            dbForecast = QSqlDatabase::addDatabase("QSQLITE", "forecast");
+            dbForecast.close();
+            dbForecast = QSqlDatabase::addDatabase("QSQLITE", QUuid::createUuid().toString());
             dbForecast.setDatabaseName(dbForecastName);
             if (! dbForecast.open())
             {
@@ -2098,7 +2104,9 @@ int Crit1DProject::openAllDatabase()
         }
         QFile::remove(dbOutputName);
         logger.writeInfo ("Output DB: " + dbOutputName);
-        dbOutput = QSqlDatabase::addDatabase("QSQLITE", "output");
+
+        dbOutput.close();
+        dbOutput = QSqlDatabase::addDatabase("QSQLITE", QUuid::createUuid().toString());
         dbOutput.setDatabaseName(dbOutputName);
 
         QString outputDbPath = getFilePath(dbOutputName);
