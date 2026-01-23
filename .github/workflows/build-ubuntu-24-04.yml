@@ -1,0 +1,26 @@
+name: Build on Ubuntu 24.04
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        image: ["ubuntu:24.04"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+      - name: Build
+        run: docker run -v ${{ github.workspace }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash .travis-build.sh ${{ matrix.image }}
+      - name: Check tag
+        id: check-tag
+        run: |
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9][0-9.]*$ ]]
+          then
+              echo "match=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: steps.check-tag.outputs.match == 'true'
+        with:
+          files: '*AppImage*'
