@@ -1,11 +1,11 @@
-name: Build on Ubuntu Xenial
+name: Build on Ubuntu Latest
 on: [push]
 
 jobs:
   build:
     strategy:
       matrix:
-        image: ["ubuntu:xenial"]
+        image: ["ubuntu:latest"]
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
