@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/arpa-simc/CRITERIA1D/actions/workflows/build-ubuntu-xenial.yml/badge.svg)](https://github.com/ARPA-SIMC/CRITERIA1D/actions/workflows/build-ubuntu-xenial.yml)
+[![Build Status](https://github.com/arpa-simc/CRITERIA1D/actions/workflows/build.yml/badge.svg)](https://github.com/ARPA-SIMC/CRITERIA1D/actions/workflows/build.yml)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/rocky8.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/rocky9.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/fedora40.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
