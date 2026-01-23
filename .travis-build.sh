@@ -54,7 +54,7 @@ then
     #export QMAKE=$QT_DIR/bin/qmake
     #apt-get install -y libnetcdf-dev libnetcdf11
     #apt-get install -y qt515charts-no-lgpl curl
-    apt-get install -y libgeos-3.5.0 libgeos-dev
+    #apt-get install -y libgeos-3.5.0 libgeos-dev
     add-apt-repository -y ppa:nextgis/ppa
     apt-get -y update
     apt-get -y install libgdal-dev
