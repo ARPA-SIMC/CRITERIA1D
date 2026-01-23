@@ -1,8 +1,4 @@
 #!/bin/bash
-
-# rendi sicura la directory del repo
-git config --global --add safe.directory /root/src
-
 set -exo pipefail
 
 image=$1
@@ -23,6 +19,8 @@ then
     dnf builddep -y fedora/SPECS/CRITERIA1D.spec
     pkgname=CRITERIA1D-HEAD
     mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+	# rendi sicura la directory del repo
+	git config --global --add safe.directory /root/src
     git archive --prefix=$pkgname/ --format=tar HEAD | gzip -c > ~/rpmbuild/SOURCES/$pkgname.tar.gz
     rpmbuild -ba --define "srcarchivename $pkgname" fedora/SPECS/CRITERIA1D.spec
 elif [[ $image =~ ^fedora: ]]
@@ -37,6 +35,8 @@ then
     dnf builddep -y fedora/SPECS/CRITERIA1D.spec
     pkgname=CRITERIA1D-HEAD
     mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+	# rendi sicura la directory del repo
+	git config --global --add safe.directory /root/src
     git archive --prefix=$pkgname/ --format=tar HEAD | gzip -c > ~/rpmbuild/SOURCES/$pkgname.tar.gz
     rpmbuild -ba --define "srcarchivename $pkgname" fedora/SPECS/CRITERIA1D.spec
 elif [[ $image =~ ^ubuntu: ]]
