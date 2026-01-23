@@ -1,11 +1,11 @@
-name: Build on Ubuntu 24.04
+name: Build on Ubuntu 22.04
 on: [push]
 
 jobs:
   build:
     strategy:
       matrix:
-        image: ["ubuntu:24.04"]
+        image: ["ubuntu:22.04"]
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
