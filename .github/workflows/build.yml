@@ -19,7 +19,7 @@ jobs:
             -v ${{ github.workspace }}:/root/src \
             -w /root/src \
             ${{ matrix.image }} \
-            /bin/bash .travis-build.sh
+            /bin/bash .travis-build.sh ${{ matrix.image }}
             
       - name: Check tag
         id: check-tag
