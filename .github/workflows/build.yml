@@ -1,4 +1,4 @@
-name: Build on fedora 39
+name: Build on centos stream9
 on: [push]
 
 jobs:
@@ -7,7 +7,7 @@ jobs:
     
     strategy:
       matrix:
-        image: ["fedora:39"]
+        image: ["centos:stream9"]
     
     steps:
       - name: Clone repo
