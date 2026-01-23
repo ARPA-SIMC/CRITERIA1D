@@ -42,27 +42,24 @@ then
     apt-get -y dist-upgrade
     apt-get -y install software-properties-common
     add-apt-repository -y ppa:ubuntu-toolchain-r/test
-    add-apt-repository -y ppa:beineri/opt-qt-5.15.2-xenial
-    apt-get -y update
-    apt-get install -y g++-8 gcc-8
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90
-    apt-get install -y qt515base
-    apt-get install -y libx11-xcb-dev libglu1-mesa-dev
-    update-alternatives --install /usr/bin/qmake qmake /opt/qt515/bin/qmake 90
-    export QT_DIR=/opt/qt515
-    export QMAKE=$QT_DIR/bin/qmake
+    #add-apt-repository -y ppa:beineri/opt-qt-5.15.2-xenial
+    #apt-get -y update
+    #apt-get install -y g++-8 gcc-8
+    #update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
+    #update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90
+    #apt-get install -y qt515base
+    #apt-get install -y libx11-xcb-dev libglu1-mesa-dev
+    #update-alternatives --install /usr/bin/qmake qmake /opt/qt515/bin/qmake 90
+    #export QT_DIR=/opt/qt515
+    #export QMAKE=$QT_DIR/bin/qmake
     apt-get install -y libnetcdf-dev libnetcdf11
-    apt-get install -y qt515charts-no-lgpl curl
+    #apt-get install -y qt515charts-no-lgpl curl
     apt-get install -y libgeos-3.5.0 libgeos-dev
     add-apt-repository -y ppa:nextgis/ppa
     apt-get -y update
     apt-get -y install libgdal-dev
     export CPLUS_INCLUDE_PATH=/usr/include/gdal
     export C_INCLUDE_PATH=/usr/include/gdal
-    apt-get install -y libc++-dev libc++abi-dev
-    export CXX=g++-8
-    export CC=gcc-8
     gcc --version
     g++ --version
     qmake -v
