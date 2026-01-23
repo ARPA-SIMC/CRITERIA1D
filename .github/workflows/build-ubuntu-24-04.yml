@@ -1,26 +1,37 @@
-name: Build on Ubuntu 24.04
+name: Build on fedora 39
 on: [push]
 
 jobs:
   build:
+    runs-on: ubuntu-latest
+    
     strategy:
       matrix:
-        image: ["ubuntu:24.04"]
-    runs-on: ubuntu-latest
+        image: ["fedora:39"]
+    
     steps:
       - name: Clone repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       - name: Build
-        run: docker run -v ${{ github.workspace }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash .travis-build.sh ${{ matrix.image }}
+        run: |
+            docker run --rm \
+            -v ${{ github.workspace }}:/root/src \
+            -w /root/src \
+            ${{ matrix.image }} \
+            /bin/bash .travis-build.sh
+            
       - name: Check tag
         id: check-tag
         run: |
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9][0-9.]*$ ]]
+          if [[ ${{ github.ref }} =~ ^refs/tags/v[0-9][0-9.]*$ ]] 
           then
-              echo "match=true" >> $GITHUB_OUTPUT
+            echo "match=true" >> $GITHUB_OUTPUT
           fi
+          
       - name: Release
         uses: softprops/action-gh-release@v1
         if: steps.check-tag.outputs.match == 'true'
         with:
           files: '*AppImage*'
+         
