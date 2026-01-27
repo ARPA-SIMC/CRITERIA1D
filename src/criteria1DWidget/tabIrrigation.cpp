@@ -68,7 +68,7 @@ TabIrrigation::TabIrrigation()
 
     axisY_dx->setTitleText("Precipitation - Irrigation [mm]");
     axisY_dx->setTitleFont(font);
-    axisY_dx->setRange(0,40);
+    axisY_dx->setRange(0, 80);
     axisY_dx->setTickCount(9);
 
     chart->addAxis(axisX, Qt::AlignBottom);
@@ -181,9 +181,7 @@ void TabIrrigation::computeIrrigation(Crit1DCase &myCase, int firstYear, int las
     // initialize crop and water
     myCase.crop.initialize(myCase.meteoPoint.latitude, nrLayers, totalSoilDepth, currentDoy);
     if (! myCase.initializeWaterContent(firstDate))
-    {
         return;
-    }
 
     std::string errorString;
     int step = formInfo.start("Compute model...", (lastYear-firstYear+2)*365);

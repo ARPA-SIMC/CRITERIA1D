@@ -2097,11 +2097,13 @@ int Crit1DProject::openAllDatabase()
     // output DB (not used in seasonal/monthly forecast)
     if ( !_isMonthlyStatistics && !_isSeasonalForecast && !_isEnsembleForecast)
     {
-        if (dbOutputName == "")
+        if (dbOutputName.isEmpty())
         {
-            logger.writeError("Missing output DB");
-                return ERROR_DBOUTPUT;
+            projectError = "Missing db_output in settings file.";
+            closeAllDatabase();
+            return ERROR_DBOUTPUT;
         }
+
         QFile::remove(dbOutputName);
         logger.writeInfo ("Output DB: " + dbOutputName);
 

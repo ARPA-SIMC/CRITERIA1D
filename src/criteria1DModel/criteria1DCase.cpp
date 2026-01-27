@@ -448,15 +448,15 @@ bool Crit1DCase::computeWaterFluxes(const Crit3DDate &myDate, std::string &error
 
 double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double precForecast, double maxTranspiration)
 {
-    // update days since last irrigation
+    // update the number of days since last irrigation
     if (crop.daysSinceIrrigation != NODATA)
         crop.daysSinceIrrigation++;
 
-    // check irrigated crop
+    // check if it's an irrigated crop
     if (crop.idCrop == "" || ! crop.isLiving || isEqual(crop.irrigationVolume, NODATA) || isEqual(crop.irrigationVolume, 0))
         return 0;
 
-    // check irrigation period
+    // check if it's in the irrigation period
     if (crop.doyStartIrrigation != NODATA && crop.doyEndIrrigation != NODATA)
     {
         if (doy < crop.doyStartIrrigation || doy > crop.doyEndIrrigation)
@@ -468,33 +468,32 @@ double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double pre
             return 0;
     }
 
-    // check prec forecast
-    double dailyWaterNeeds = crop.irrigationVolume / crop.irrigationShift;
-    double todayWater = currentPrec + soilLayers[0].waterContent;
-    if (todayWater >= dailyWaterNeeds)
-        return 0;
-    if ((todayWater + precForecast) >= 2*dailyWaterNeeds)
-        return 0;
-
-    // check water stress (before infiltration)
-    double threshold = 1. - crop.stressTolerance;
-
-    double waterStress = 0;
-    double waterExcessStress = 0;
-    crop.computeTranspiration(maxTranspiration, soilLayers, waterStress, waterExcessStress);
-    if (waterStress < threshold)
-        return 0;
-
-    // check irrigation shift
+    // check the irrigation shift
     if (crop.daysSinceIrrigation != NODATA)
     {
         if (crop.daysSinceIrrigation < crop.irrigationShift)
             return 0;
     }
 
+    // check current (today) and forecasted (tomorrow) precipitation
+    double dailyWaterNeeds = std::max(3., std::min(7., crop.irrigationVolume / double(crop.irrigationShift)));
+    double currentWater = currentPrec + soilLayers[0].waterContent;
+    if (currentWater >= dailyWaterNeeds)
+        return 0;
+    if ((currentWater + precForecast) >= 2*dailyWaterNeeds)
+        return 0;
+
+    // check water stress (before infiltration)
+    double stressThreshold = 1. - crop.stressTolerance;
+    double waterStress = 0;
+    double waterExcessStress = 0;
+    crop.computeTranspiration(maxTranspiration, soilLayers, waterStress, waterExcessStress);
+
+    if ((waterStress < stressThreshold) || (waterExcessStress > 0.1))
+        return 0;
+
     // Irrigation scheduled!
 
-    // irrigation quantity
     double irrigation = crop.irrigationVolume;
 
     // reset irrigation shift

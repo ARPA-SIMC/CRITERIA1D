@@ -38,6 +38,7 @@
 #include "basicMath.h"
 #include "root.h"
 #include "formInfo.h"
+#include "criteria1DError.h"
 
 #include <QFileInfo>
 #include <QFileDialog>
