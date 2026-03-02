@@ -179,15 +179,45 @@ Criteria1DWidget::Criteria1DWidget()
 
     infoCaseGroup->setFont(boldFont);
     infoCaseGroup->setTitle("Case study");
+    infoMeteoGroup->setFont(boldFont);
     infoMeteoGroup->setTitle("Meteo");
+    infoSoilGroup->setFont(boldFont);
     infoSoilGroup->setTitle("Soil");
+    infoCropGroup->setFont(boldFont);
     infoCropGroup->setTitle("Crop");
+    laiParametersGroup->setFont(boldFont);
     laiParametersGroup->setTitle("Crop parameters");
+    rootParametersGroup->setFont(boldFont);
     rootParametersGroup->setTitle("Root parameters");
+    irrigationParametersGroup->setFont(boldFont);
     irrigationParametersGroup->setTitle("Irrigation parameters");
+    waterStressParametersGroup->setFont(boldFont);
     waterStressParametersGroup->setTitle("Water Stress parameters");
+    waterContentGroup->setFont(boldFont);
     waterContentGroup->setTitle("Water Content variable");
+    carbonNitrogenGroup->setFont(boldFont);
     carbonNitrogenGroup->setTitle("Carbon Nitrogen variable");
+
+    QString style =  "QGroupBox {"
+                    "  border: 1px solid #d3d3d3;"
+                    "  border-radius: 5px;"
+                    "  margin-top: 10px;"
+                    "}"
+                    "QGroupBox::title {"
+                    "  subcontrol-origin: margin;"
+                    "  left: 10px;"
+                    "  padding: 0 3px 0 3px;"
+                    "}";
+    infoCaseGroup->setStyleSheet(style);
+    infoMeteoGroup->setStyleSheet(style);
+    infoSoilGroup->setStyleSheet(style);
+    infoCropGroup->setStyleSheet(style);
+    laiParametersGroup->setStyleSheet(style);
+    rootParametersGroup->setStyleSheet(style);
+    irrigationParametersGroup->setStyleSheet(style);
+    waterStressParametersGroup->setStyleSheet(style);
+    waterContentGroup->setStyleSheet(style);
+    carbonNitrogenGroup->setStyleSheet(style);
 
     caseListComboBox.setFont(normalFont);
     caseInfoLayout->addWidget(&caseListComboBox);
@@ -219,7 +249,7 @@ Criteria1DWidget::Criteria1DWidget()
 
     QLabel *LAImin = new QLabel(tr("LAI min [m2 m-2]: "));
     LAIminValue = new QDoubleSpinBox();
-    LAIminValue->setMaximumWidth(laiParametersGroup->width()/5);
+    LAIminValue->setMaximumWidth(laiParametersGroup->width()/3);
     LAIminValue->setMinimum(0);
     LAIminValue->setMaximum(10);
     LAIminValue->setDecimals(1);
@@ -227,7 +257,7 @@ Criteria1DWidget::Criteria1DWidget()
 
     QLabel *LAImax = new QLabel(tr("LAI max [m2 m-2]: "));
     LAImaxValue = new QDoubleSpinBox();
-    LAImaxValue->setMaximumWidth(laiParametersGroup->width()/5);
+    LAImaxValue->setMaximumWidth(laiParametersGroup->width()/3);
     LAImaxValue->setMinimum(0);
     LAImaxValue->setMaximum(10);
     LAImaxValue->setDecimals(1);
@@ -235,7 +265,7 @@ Criteria1DWidget::Criteria1DWidget()
 
     LAIgrass = new QLabel(tr("LAI grass [m2 m-2]: "));
     LAIgrassValue = new QLineEdit();
-    LAIgrassValue->setMaximumWidth(laiParametersGroup->width()/5);
+    LAIgrassValue->setMaximumWidth(laiParametersGroup->width()/4);
     QDoubleValidator* firstValidator = new QDoubleValidator(-99.0, 99.0, 3, this);
     QDoubleValidator* secondValidator = new QDoubleValidator(-9999.0, 9999.0, 3, this);
     QDoubleValidator* positiveValidator = new QDoubleValidator(0, 99999.0, 3, this);
@@ -246,42 +276,42 @@ Criteria1DWidget::Criteria1DWidget()
 
     QLabel *thermalThreshold = new QLabel(tr("thermal threshold [°C]: "));
     thermalThresholdValue = new QLineEdit();
-    thermalThresholdValue->setMaximumWidth(laiParametersGroup->width()/5);
+    thermalThresholdValue->setMaximumWidth(laiParametersGroup->width()/4);
     thermalThresholdValue->setValidator(firstValidator);
 
     QLabel *upperThermalThreshold = new QLabel(tr("upper thermal threshold [°C]: "));
     upperThermalThresholdValue = new QLineEdit();
-    upperThermalThresholdValue->setMaximumWidth(laiParametersGroup->width()/5);
+    upperThermalThresholdValue->setMaximumWidth(laiParametersGroup->width()/4);
     upperThermalThresholdValue->setValidator(firstValidator);
 
     QLabel *degreeDaysEmergence = new QLabel(tr("degree days emergence [°C]: "));
     degreeDaysEmergenceValue = new QLineEdit();
-    degreeDaysEmergenceValue->setMaximumWidth(laiParametersGroup->width()/5);
+    degreeDaysEmergenceValue->setMaximumWidth(laiParametersGroup->width()/4);
     degreeDaysEmergenceValue->setValidator(positiveValidator);
 
     QLabel *degreeDaysLAIinc = new QLabel(tr("degree days phase 1 [°C]: "));
     degreeDaysLaiIncreaseValue = new QLineEdit();
-    degreeDaysLaiIncreaseValue->setMaximumWidth(laiParametersGroup->width()/5);
+    degreeDaysLaiIncreaseValue->setMaximumWidth(laiParametersGroup->width()/4);
     degreeDaysLaiIncreaseValue->setValidator(positiveValidator);
 
     QLabel *degreeDaysLAIdec = new QLabel(tr("degree days phase 2 [°C]: "));
     degreeDaysLaiDecreaseValue = new QLineEdit();
-    degreeDaysLaiDecreaseValue->setMaximumWidth(laiParametersGroup->width()/5);
+    degreeDaysLaiDecreaseValue->setMaximumWidth(laiParametersGroup->width()/4);
     degreeDaysLaiDecreaseValue->setValidator(positiveValidator);
 
     QLabel *LAIcurveA = new QLabel(tr("LAI curve factor A [-]: "));
     LAIcurveAValue = new QLineEdit();
-    LAIcurveAValue->setMaximumWidth(laiParametersGroup->width()/5);
+    LAIcurveAValue->setMaximumWidth(laiParametersGroup->width()/4);
     LAIcurveAValue->setValidator(firstValidator);
 
     QLabel *LAIcurveB = new QLabel(tr("LAI curve factor B [-]: "));
     LAIcurveBValue = new QLineEdit();
-    LAIcurveBValue->setMaximumWidth(laiParametersGroup->width()/5);
+    LAIcurveBValue->setMaximumWidth(laiParametersGroup->width()/4);
     LAIcurveBValue->setValidator(firstValidator);
 
     QLabel * maxKc= new QLabel(tr("kc max [-]: "));
     maxKcValue = new QLineEdit();
-    maxKcValue->setMaximumWidth(laiParametersGroup->width()/5);
+    maxKcValue->setMaximumWidth(laiParametersGroup->width()/4);
     maxKcValue->setValidator(firstValidator);
 
     parametersLaiLayout->addWidget(LAImin, 0, 0);
@@ -309,12 +339,12 @@ Criteria1DWidget::Criteria1DWidget()
 
     QLabel *rootDepthZero = new QLabel(tr("root depth zero [m]: "));
     rootDepthZeroValue = new QLineEdit();
-    rootDepthZeroValue->setMaximumWidth(rootParametersGroup->width()/5);
+    rootDepthZeroValue->setMaximumWidth(rootParametersGroup->width()/4);
     rootDepthZeroValue->setValidator(firstValidator);
 
     QLabel *rootDepthMax = new QLabel(tr("root depth max [m]: "));
     rootDepthMaxValue = new QLineEdit();
-    rootDepthMaxValue->setMaximumWidth(rootParametersGroup->width()/5);
+    rootDepthMaxValue->setMaximumWidth(rootParametersGroup->width()/4);
     rootDepthMaxValue->setValidator(firstValidator);
 
     QLabel *rootShape = new QLabel(tr("root shape: "));
@@ -329,7 +359,7 @@ Criteria1DWidget::Criteria1DWidget()
 
     QLabel *shapeDeformation = new QLabel(tr("shape deformation [-]: "));
     shapeDeformationValue = new QDoubleSpinBox();
-    shapeDeformationValue->setMaximumWidth(rootParametersGroup->width()/5);
+    shapeDeformationValue->setMaximumWidth(rootParametersGroup->width()/4);
     shapeDeformationValue->setMinimum(0);
     shapeDeformationValue->setMaximum(2);
     shapeDeformationValue->setDecimals(1);
@@ -337,7 +367,7 @@ Criteria1DWidget::Criteria1DWidget()
 
     rootDegreeDaysGrowth = new QLabel(tr("degree days root inc [°C]: "));
     rootDegreeDaysGrowthValue = new QLineEdit();
-    rootDegreeDaysGrowthValue->setMaximumWidth(rootParametersGroup->width()/5);
+    rootDegreeDaysGrowthValue->setMaximumWidth(rootParametersGroup->width()/4);
     rootDegreeDaysGrowthValue->setValidator(positiveValidator);
 
     parametersRootDepthLayout->addWidget(rootDepthZero, 0, 0);
@@ -354,23 +384,23 @@ Criteria1DWidget::Criteria1DWidget()
     QLabel *irrigationVolume = new QLabel(tr("irrigation quantity [mm]:"));
     irrigationVolumeValue = new QLineEdit();
     irrigationVolumeValue->setText(QLocale().toString(0));
-    irrigationVolumeValue->setMaximumWidth(irrigationParametersGroup->width()/5);
+    irrigationVolumeValue->setMaximumWidth(irrigationParametersGroup->width()/4);
     irrigationVolumeValue->setValidator(positiveValidator);
     QLabel *irrigationShift = new QLabel(tr("irrigation shift [days]:"));
     irrigationShiftValue = new QSpinBox();
-    irrigationShiftValue->setMaximumWidth(irrigationParametersGroup->width()/5);
+    irrigationShiftValue->setMaximumWidth(irrigationParametersGroup->width()/4);
     irrigationShiftValue->setMinimum(0);
     irrigationShiftValue->setMaximum(365);
     irrigationShiftValue->setEnabled(false);
 
     QLabel *degreeDaysStart = new QLabel(tr("deg. days start irrigation [°C]:"));
     degreeDaysStartValue = new QLineEdit();
-    degreeDaysStartValue->setMaximumWidth(irrigationParametersGroup->width()/5);
+    degreeDaysStartValue->setMaximumWidth(irrigationParametersGroup->width()/4);
     degreeDaysStartValue->setValidator(positiveValidator);
     degreeDaysStartValue->setEnabled(false);
     QLabel *degreeDaysEnd = new QLabel(tr("deg. days end irrigation [°C]:"));
     degreeDaysEndValue = new QLineEdit();
-    degreeDaysEndValue->setMaximumWidth(irrigationParametersGroup->width()/5);
+    degreeDaysEndValue->setMaximumWidth(irrigationParametersGroup->width()/4);
     degreeDaysEndValue->setValidator(positiveValidator);
     degreeDaysEndValue->setEnabled(false);
 
@@ -385,12 +415,12 @@ Criteria1DWidget::Criteria1DWidget()
 
     QLabel *psiLeaf = new QLabel(tr("psi leaf [cm]: "));
     psiLeafValue = new QLineEdit();
-    psiLeafValue->setMaximumWidth(waterStressParametersGroup->width()/5);
+    psiLeafValue->setMaximumWidth(waterStressParametersGroup->width()/4);
     psiLeafValue->setValidator(positiveValidator);
 
     QLabel *rawFraction = new QLabel(tr("raw fraction [-]: "));
     rawFractionValue = new QDoubleSpinBox();
-    rawFractionValue->setMaximumWidth(waterStressParametersGroup->width()/5);
+    rawFractionValue->setMaximumWidth(waterStressParametersGroup->width()/4);
     rawFractionValue->setMinimum(0);
     rawFractionValue->setMaximum(1);
     rawFractionValue->setDecimals(2);
@@ -398,7 +428,7 @@ Criteria1DWidget::Criteria1DWidget()
 
     QLabel *stressTolerance = new QLabel(tr("stress tolerance [-]: "));
     stressToleranceValue = new QDoubleSpinBox();
-    stressToleranceValue->setMaximumWidth(waterStressParametersGroup->width()/5);
+    stressToleranceValue->setMaximumWidth(waterStressParametersGroup->width()/4);
     stressToleranceValue->setMinimum(0);
     stressToleranceValue->setMaximum(1);
     stressToleranceValue->setDecimals(2);
@@ -2206,10 +2236,10 @@ bool Criteria1DWidget::setMeteoSqlite(QString& errorStr)
         return false;
 
     QString queryString = "SELECT * FROM '" + _meteoTableName + "' ORDER BY [date]";
-    QSqlQuery query = myProject.dbMeteo.exec(queryString);
-    query.last();
+    QSqlQuery query(myProject.dbMeteo);
+    query.prepare(queryString);
 
-    if (! query.isValid())
+    if(! query.exec())
     {
         if (query.lastError().text() != "")
             errorStr = "dbMeteo errorStr: " + query.lastError().text();
