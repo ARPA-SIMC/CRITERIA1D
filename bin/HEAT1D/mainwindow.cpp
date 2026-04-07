@@ -121,16 +121,16 @@ void MainWindow::on_pushRunAllPeriod_clicked()
     myHeatOutput.nrLayers = nodesNr;
     myHeatOutput.layerThickness = ui->lineEditThickness->text().toFloat();
 
-    double myPIniHour, myPHours;
+    double precStartHour, precNrHours;
     double myT, myRH, myWS, myNR, myP;
 
-    myPIniHour = ui->lineEditPrecStart->text().toInt();
-    myPHours = ui->lineEditPrecHours->text().toInt();
+    precStartHour = ui->lineEditPrecStart->text().toInt();
+    precNrHours = ui->lineEditPrecHours->text().toInt();
 
     double outputTimeStep = std::min(HOUR_SECONDS, ui->lineEditTimeStep->text().toDouble());
 
     int hourFin;
-    if (!useInputMeteoData)
+    if (! useInputMeteoData)
         hourFin = ui->lineEditSimDuration->text().toInt();
     else
         hourFin = int(myHeat1D.meteoValues.size());
@@ -173,7 +173,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
             myWS = ui->lineEditAtmWS->text().toDouble();
             myNR = ui->lineEditAtmFlux->text().toDouble();
 
-            if ((indexHour >= myPIniHour) && (indexHour <= myPIniHour + myPHours))
+            if ((indexHour >= precStartHour) && (indexHour < precStartHour + precNrHours))
                 myP = ui->lineEditPrecHourlyAmount->text().toDouble();
             else
                 myP = 0.;
