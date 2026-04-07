@@ -145,7 +145,7 @@ void MainWindow::resizeEvent(QResizeEvent * event)
 
     ui->checkList->move(MAPBORDER/2, MAPBORDER);
     ui->checkList->resize(TOOLSWIDTH, this->height() - INFOHEIGHT - MAPBORDER*2);
-    this->updateMaps();
+    updateMaps();
 }
 
 
@@ -163,7 +163,7 @@ void MainWindow::updateMaps()
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (! this->isDoubleClick)
+    if (! isDoubleClick)
     {
         if (event->button() == Qt::LeftButton)
         {
@@ -171,7 +171,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         }
     }
 
-    this->isDoubleClick = false;
+    isDoubleClick = false;
+    updateMaps();
 }
 
 
