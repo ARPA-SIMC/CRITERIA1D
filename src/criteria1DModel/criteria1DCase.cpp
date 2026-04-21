@@ -142,20 +142,20 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
         return false;
     }
 
-    int lastLayer = nrLayers-1;
-    int nrlateralLinks = 0;
+    std::uint8_t nrlateralLinks = 0;
+    int nrSurfaceNodes = 1;
 
-    auto result = soilFluxes3D::initializeSF3D(nrLayers, nrLayers, nrlateralLinks, true, false, false);
+    auto result = soilFluxes3D::initializeSF3D(nrLayers, nrSurfaceNodes, nrlateralLinks, true, false, false);
     std::string errorName = "";
     if(soilFluxes3D::getSF3DerrorName(result, errorName))
     {
-        errorStr = "Error in initialize numerical fluxes: " + errorName;
+        errorStr = "Error during initialization of numerical fluxes: " + errorName;
         return false;
     }
 
-    // default ratio (derive from Montue case study)
-    float horizontalConductivityRatio = 4.0;
-    soilFluxes3D::setHydraulicProperties(soilFluxes3D::WRCModel::ModifiedVanGenuchten, soilFluxes3D::meanType_t::Logarithmic, horizontalConductivityRatio);
+    // default H/V ratio (derive from case study of Montue)
+    float hvConductivityRatio = 4.0;
+    soilFluxes3D::setHydraulicProperties(soilFluxes3D::WRCModel::ModifiedVanGenuchten, soilFluxes3D::meanType_t::Logarithmic, hvConductivityRatio);
     if (unit.useWaterTableData)
     {
         soilFluxes3D::setNumericalParameters(60, 3600, 200, 10, 10, 2);
@@ -164,6 +164,7 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
     {
         soilFluxes3D::setNumericalParameters(30, 3600, 200, 10, 10, 3);
     }
+
     soilFluxes3D::setThreadsNumber(1);
 
     // soil properties (units of measurement: MKS)
@@ -210,6 +211,7 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
 
     // soil nodes
     isSurface = false;
+    int lastLayer = nrLayers-1;
     for (int i = 1; i < nrLayers; i++)
     {
         double volume = _area * soilLayers[unsigned(i)].thickness;              // [m3]
@@ -230,7 +232,7 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
             if (unit.isComputeLateralDrainage)
             {
                 soilFluxes3D::setNode(i, x0, y0, z, volume, isSurface,
-                                      soilFluxes3D::boundaryType_t::FreeLateraleDrainage, unit.slope, boundaryArea);
+                                      soilFluxes3D::boundaryType_t::FreeLateralDrainage, unit.slope, boundaryArea);
             }
             else
             {
@@ -313,7 +315,7 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
     if ( (meteoPoint.latitude > 0 && myDate.month >= 5 && myDate.month <= 9)
         || (meteoPoint.latitude <= 0 && (myDate.month <= 3 || myDate.month >= 11)) )
     {
-        precDuration = 9;                                                       // [hours] summer
+        precDuration = 8;                                                       // [hours] summer
     }
 
     // first and last precipitation hour
@@ -364,7 +366,7 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
     }
 
     output.dailySurfaceRunoff = -(soilFluxes3D::getNodeBoundaryWaterFlow(long(surfaceIndex)) / _area) * 1000;
-    output.dailyLateralDrainage = -(soilFluxes3D::getTotalBoundaryWaterFlow(soilFluxes3D::boundaryType_t::FreeLateraleDrainage) / _area) * 1000;
+    output.dailyLateralDrainage = -(soilFluxes3D::getTotalBoundaryWaterFlow(soilFluxes3D::boundaryType_t::FreeLateralDrainage) / _area) * 1000;
 
     // drainage / capillary rise
     double fluxBottom = (soilFluxes3D::getNodeBoundaryWaterFlow(long(lastLayer)) / _area) * 1000;
