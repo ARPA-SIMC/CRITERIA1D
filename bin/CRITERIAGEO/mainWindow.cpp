@@ -1640,6 +1640,33 @@ void MainWindow::on_actionClipRaster_with_raster_triggered()
 }
 
 
+void MainWindow::on_actionSubstituteRaster_with_raster_triggered()
+{
+    // select raster
+    QString refRasterFileName;
+    bool isOk;
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Reference raster", refRasterFileName, isOk);
+    if (! isOk) return;
+
+    QString maskRasterFileName;
+    gis::Crit3DRasterGrid *maskRaster = selectRaster("Mask raster", maskRasterFileName, isOk);
+    if (! isOk) return;
+
+    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
+    if (! gis::substituteRasterWithRaster(refRaster, maskRaster, outputRaster))
+    {
+        myProject.logError("Error in clipping.");
+        return;
+    }
+
+    setDefaultScale(outputRaster->colorScale);
+    myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.gisSettings.utmZone);
+
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
+}
+
+
 void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
 {
     // select raster
@@ -1681,4 +1708,5 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
     addRasterObject(myProject.objectList.back());
     updateMaps();
 }
+
 

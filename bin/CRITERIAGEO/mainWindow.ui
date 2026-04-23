@@ -581,6 +581,7 @@
      </property>
      <addaction name="actionClipRaster_with_shape"/>
      <addaction name="actionClipRaster_with_raster"/>
+     <addaction name="actionSubstituteRaster_with_raster"/>
     </widget>
     <addaction name="menuRasterize_shape"/>
     <addaction name="menuClip_raster"/>
@@ -739,6 +740,11 @@
   <action name="actionDelete_a_range_of_values_raster">
    <property name="text">
     <string>Delete a range of values (raster)...</string>
+   </property>
+  </action>
+  <action name="actionSubstituteRaster_with_raster">
+   <property name="text">
+    <string>substitute with raster mask...</string>
    </property>
   </action>
  </widget>
