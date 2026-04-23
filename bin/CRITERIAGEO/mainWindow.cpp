@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("CRITERIA GEO  " + QString(CRITERIA_OUTPUT_VERSION));
+    setWindowTitle("CRITERIA GEO  " + QString(CRITERIA_GEO_VERSION));
 
     isDoubleClick = false;
 
@@ -1640,7 +1640,7 @@ void MainWindow::on_actionClipRaster_with_raster_triggered()
 }
 
 
-void MainWindow::on_actionSubstituteRaster_with_raster_triggered()
+void MainWindow::on_actionReplaceRaster_with_raster_triggered()
 {
     // select raster
     QString refRasterFileName;
@@ -1653,7 +1653,7 @@ void MainWindow::on_actionSubstituteRaster_with_raster_triggered()
     if (! isOk) return;
 
     gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
-    if (! gis::substituteRasterWithRaster(refRaster, maskRaster, outputRaster))
+    if (! gis::replaceRasterValues(refRaster, maskRaster, outputRaster))
     {
         myProject.logError("Error in clipping.");
         return;

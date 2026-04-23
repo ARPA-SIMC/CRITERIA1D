@@ -1,6 +1,8 @@
 #ifndef CRITERIA_GEO_PROJECT_H
 #define CRITERIA_GEO_PROJECT_H
 
+    #define CRITERIA_GEO_VERSION "v2.0.2 (2026)"
+
     #ifndef GIS_H
         #include "gis.h"
     #endif

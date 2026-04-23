@@ -581,7 +581,7 @@
      </property>
      <addaction name="actionClipRaster_with_shape"/>
      <addaction name="actionClipRaster_with_raster"/>
-     <addaction name="actionSubstituteRaster_with_raster"/>
+     <addaction name="actionReplaceRaster_with_raster"/>
     </widget>
     <addaction name="menuRasterize_shape"/>
     <addaction name="menuClip_raster"/>
@@ -589,6 +589,7 @@
     <addaction name="actionCreate_Shape_file_from_Csv"/>
     <addaction name="actionCompute_Ucm_intersection"/>
     <addaction name="separator"/>
+    <addaction name="actionAssign_shape_prevailing_value_raster"/>
     <addaction name="actionCompute_Ucm_prevailing"/>
     <addaction name="actionExtract_Unit_Crop_Map_list"/>
     <addaction name="separator"/>
@@ -742,9 +743,14 @@
     <string>Delete a range of values (raster)...</string>
    </property>
   </action>
-  <action name="actionSubstituteRaster_with_raster">
+  <action name="actionReplaceRaster_with_raster">
    <property name="text">
-    <string>substitute with raster mask...</string>
+    <string>replace values from raster mask...</string>
+   </property>
+  </action>
+  <action name="actionAssign_shape_prevailing_value_raster">
+   <property name="text">
+    <string>Assign prevailing value (raster) to the shape...</string>
    </property>
   </action>
  </widget>
