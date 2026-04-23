@@ -169,9 +169,7 @@ bool CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, g
 {
     FormInfo formInfo;
     if (showInfo)
-    {
         formInfo.start("Fill raster...", 0);
-    }
 
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
 
@@ -181,12 +179,14 @@ bool CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, g
         gis::updateMinMaxRasterGrid(newRaster);
         setDefaultScale(newRaster->colorScale);
 
-        if (showInfo) formInfo.setText("Add raster to map...");
+        if (showInfo)
+            formInfo.setText("Add raster to map...");
 
         addRaster(newRaster, outputName, shapeHandler.getUtmZone());
     }
 
-    if (showInfo) formInfo.close();
+    if (showInfo)
+        formInfo.close();
 
     return isOk;
 }

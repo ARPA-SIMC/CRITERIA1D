@@ -69,6 +69,8 @@
 
         void on_actionReplaceRaster_with_raster_triggered();
 
+        void on_actionAssign_shape_prevailing_value_raster_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

@@ -32,7 +32,8 @@ class DialogDbfTable : public QDialog
     QList<QString> m_DBFTableHeader;
 
     public:
-        DialogDbfTable(Crit3DShapeHandler *shapeHandler, QString fileName);
+    DialogDbfTable(Crit3DShapeHandler *shapeHandler, const QString &fileName);
+
         ~DialogDbfTable();
         void addRowClicked();
         void removeRowClicked();

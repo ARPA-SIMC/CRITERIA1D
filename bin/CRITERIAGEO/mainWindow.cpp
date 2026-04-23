@@ -223,7 +223,7 @@ void MainWindow::mouseMove(QPoint eventPos)
         infoStr += " Value: " + rasterValueStr;
     }
 
-    this->ui->statusBar->showMessage(infoStr);
+    ui->statusBar->showMessage(infoStr);
 }
 
 
@@ -231,6 +231,293 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
     // it doesn't work (control taken by mapGraphics)
+}
+
+
+void MainWindow::itemMenuRequested(const QPoint point)
+{
+    QPoint itemPoint = ui->checkList->mapToGlobal(point);
+    QListWidgetItem* item = ui->checkList->itemAt(point);
+    int pos = ui->checkList->row(item);
+    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+
+    QMenu submenu;
+    RasterUtmObject* myRasterObject = getRasterObject(myObject);
+    MapGraphicsShapeObject* myShapeObject = getShapeObject(myObject);
+
+    if (myObject->type == gisObjectShape)
+    {
+        if (myShapeObject != nullptr)
+        {
+            if (! myObject->projectName.isEmpty())
+            {
+                submenu.addAction("Close Project");
+                submenu.addSeparator();
+            }
+            else
+            {
+                submenu.addAction("Remove");
+                submenu.addSeparator();
+                submenu.addAction("Save as");
+                submenu.addSeparator();
+            }
+
+            submenu.addAction("Show data");
+            submenu.addAction("Attribute table");
+            submenu.addSeparator();
+            submenu.addAction("Set style");
+            submenu.addAction("Set grayscale");
+            submenu.addAction("Set default scale");
+            submenu.addAction("Reverse color scale");
+            submenu.addAction("Disable color scale");
+            submenu.addSeparator();
+            submenu.addAction("Export to raster (gdal)");
+            submenu.addAction("Export to NetCDF");
+            submenu.addSeparator();
+
+            if (myShapeObject->isSelectedRed())
+                submenu.addAction("Selected border black");
+            else
+                submenu.addAction("Selected border red");
+
+            if (myShapeObject->opacity() < 1)
+                submenu.addAction("Set opaque");
+            else
+                submenu.addAction("Set transparent");
+        }
+    }
+    if (myObject->type == gisObjectRaster)
+    {
+        if (myRasterObject != nullptr)
+        {
+            submenu.addAction("Remove");
+            submenu.addSeparator();
+            submenu.addAction("Save as");
+            submenu.addSeparator();
+            submenu.addAction("Set grayscale");
+            submenu.addAction("Set default scale");
+            submenu.addAction("Set dtm scale");
+            submenu.addAction("Reverse color scale");
+            submenu.addSeparator();
+            submenu.addAction("Statistical summary");
+            submenu.addSeparator();
+
+            if (myRasterObject->opacity() < 1)
+                submenu.addAction("Set opaque");
+            else
+                submenu.addAction("Set transparent");
+        }
+    }
+    if (myObject->type == gisObjectNetcdf)
+    {
+        submenu.addAction("Remove");
+        submenu.addSeparator();
+    }
+
+    QAction* rightClickItem = submenu.exec(itemPoint);
+
+    if (rightClickItem)
+    {
+        if (rightClickItem->text() == "Remove" )
+        {
+            if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
+            {
+                this->removeRaster(myObject);
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                this->removeShape(myObject);
+            }
+            myObject->close();
+            myProject.objectList.erase(myProject.objectList.begin()+pos);
+
+            ui->checkList->takeItem(ui->checkList->indexAt(point).row());
+        }
+        else if (rightClickItem->text() == "Close Project" )
+        {
+            on_actionClose_Project_triggered();
+        }
+        else if (rightClickItem->text().contains("Show data"))
+        {
+            DialogShapeProperties showData(myObject->getShapeHandler(), myObject->fileName);
+        }
+        else if (rightClickItem->text().contains("Attribute table"))
+        {
+            DialogDbfTable Table(myObject->getShapeHandler(), myObject->fileName);
+        }
+        else if (rightClickItem->text().contains("Set style"))
+        {
+            setShapeStyle_GUI(myObject);
+        }
+        else if (rightClickItem->text().contains("Export to raster (gdal)"))
+        {
+            exportShapeToRaster_gdal(myObject);
+        }
+        else if (rightClickItem->text().contains("Save as"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                this->saveRaster(myObject);
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                this->saveShape(myObject);
+            }
+        }
+        else if (rightClickItem->text().contains("Export to NetCDF"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                // TODO
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                this->exportToNetCDF(myObject);
+            }
+        }
+        else if (rightClickItem->text().contains("Set grayscale"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                setGrayScale(myObject->getRasterPointer()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            if (myObject->type == gisObjectShape)
+            {
+                setGrayScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Set default scale"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                setDefaultScale(myObject->getRasterPointer()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            if (myObject->type == gisObjectShape)
+            {
+                setDefaultScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Set dtm scale"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                setDTMScale(myObject->getRasterPointer()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            if (myObject->type == gisObjectShape)
+            {
+                setDTMScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Reverse color scale"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                reverseColorScale(myObject->getRasterPointer()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                reverseColorScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Disable color scale"))
+        {
+            if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setFill(false);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Statistical summary"))
+        {
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
+            {
+                this->rasterStatisticalSummary(myObject);
+            }
+        }
+        else if (rightClickItem->text().contains("Set opaque"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                myRasterObject->setOpacity(1.0);
+                emit myRasterObject->redrawRequested();
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setOpacity(1.0);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Set transparent"))
+        {
+            if (myObject->type == gisObjectRaster)
+            {
+                // TODO choose value
+                myRasterObject->setOpacity(0.5);
+                emit myRasterObject->redrawRequested();
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setOpacity(0.5);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Selected border black"))
+        {
+            if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setSelectedRed(false);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Selected border red"))
+        {
+            if (myObject->type == gisObjectShape)
+            {
+                myShapeObject->setSelectedRed(true);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+    }
+}
+
+
+void MainWindow::itemClicked(QListWidgetItem* item)
+{
+    int pos = ui->checkList->row(item);
+    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+
+    if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
+    {
+        int i = getRasterIndex(myObject);
+        if (i != NODATA)
+        {
+            myObject->isSelected = item->checkState();
+            rasterObjList.at(i)->setVisible(myObject->isSelected);
+        }
+    }
+    else if (myObject->type == gisObjectShape)
+    {
+        unsigned int i;
+        for (i = 0; i < shapeObjList.size(); i++)
+        {
+            if (shapeObjList.at(i)->getShapePointer() == myObject->getShapeHandler())
+                break;
+        }
+
+        if (i < shapeObjList.size())
+        {
+            myObject->isSelected = item->checkState();
+            shapeObjList.at(i)->setVisible(myObject->isSelected);
+        }
+    }
 }
 
 void MainWindow::on_actionMapOpenStreetMap_triggered()
@@ -526,38 +813,6 @@ int MainWindow::getRasterIndex(GisObject* myObject)
 }
 
 
-void MainWindow::itemClicked(QListWidgetItem* item)
-{
-    int pos = ui->checkList->row(item);
-    GisObject* myObject = myProject.objectList.at(unsigned(pos));
-
-    if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
-    {
-        int i = getRasterIndex(myObject);
-        if (i != NODATA)
-        {
-            myObject->isSelected = item->checkState();
-            rasterObjList.at(i)->setVisible(myObject->isSelected);
-        }
-    }
-    else if (myObject->type == gisObjectShape)
-    {
-        unsigned int i;
-        for (i = 0; i < shapeObjList.size(); i++)
-        {
-            if (shapeObjList.at(i)->getShapePointer() == myObject->getShapeHandler())
-                break;
-        }
-
-        if (i < shapeObjList.size())
-        {
-            myObject->isSelected = item->checkState();
-            shapeObjList.at(i)->setVisible(myObject->isSelected);
-        }
-    }
-}
-
-
 void MainWindow::saveRaster(GisObject* myObject)
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save raster Grid"), "", tr("ESRI grid files (*.flt)"));
@@ -809,261 +1064,6 @@ void MainWindow::rasterStatisticalSummary(GisObject* myObject)         //Qua den
     myDialog.setLayout(&mainLayout);
     myDialog.setFixedSize(500,170);
     myDialog.exec();
-}
-
-
-void MainWindow::itemMenuRequested(const QPoint point)
-{
-    QPoint itemPoint = ui->checkList->mapToGlobal(point);
-    QListWidgetItem* item = ui->checkList->itemAt(point);
-    int pos = ui->checkList->row(item);
-    GisObject* myObject = myProject.objectList.at(unsigned(pos));
-
-    QMenu submenu;
-    RasterUtmObject* myRasterObject = getRasterObject(myObject);
-    MapGraphicsShapeObject* myShapeObject = getShapeObject(myObject);
-
-    if (myObject->type == gisObjectShape)
-    {
-        if (myShapeObject != nullptr)
-        {
-            if (! myObject->projectName.isEmpty())
-            {
-                submenu.addAction("Close Project");
-                submenu.addSeparator();
-            }
-            else
-            {
-                submenu.addAction("Remove");
-                submenu.addSeparator();
-                submenu.addAction("Save as");
-                submenu.addSeparator();
-            }
-
-            submenu.addAction("Show data");
-            submenu.addAction("Attribute table");
-            submenu.addSeparator();
-            submenu.addAction("Set style");
-            submenu.addAction("Set grayscale");
-            submenu.addAction("Set default scale");
-            submenu.addAction("Reverse color scale");
-            submenu.addAction("Disable color scale");
-            submenu.addSeparator();
-            submenu.addAction("Export to raster (gdal)");
-            submenu.addAction("Export to NetCDF");
-            submenu.addSeparator();
-
-            if (myShapeObject->isSelectedRed())
-                submenu.addAction("Selected border black");
-            else
-                submenu.addAction("Selected border red");
-
-            if (myShapeObject->opacity() < 1)
-                submenu.addAction("Set opaque");
-            else
-                submenu.addAction("Set transparent");
-        }
-    }
-    if (myObject->type == gisObjectRaster)
-    {
-        if (myRasterObject != nullptr)
-        {
-            submenu.addAction("Remove");
-            submenu.addSeparator();
-            submenu.addAction("Save as");
-            submenu.addSeparator();
-            submenu.addAction("Set grayscale");
-            submenu.addAction("Set default scale");
-            submenu.addAction("Set dtm scale");
-            submenu.addAction("Reverse color scale");
-            submenu.addSeparator();
-            submenu.addAction("Statistical summary");
-            submenu.addSeparator();
-
-            if (myRasterObject->opacity() < 1)
-                submenu.addAction("Set opaque");
-            else
-                submenu.addAction("Set transparent");
-        }
-    }
-    if (myObject->type == gisObjectNetcdf)
-    {
-        submenu.addAction("Remove");
-        submenu.addSeparator();
-    }
-
-    QAction* rightClickItem = submenu.exec(itemPoint);
-
-    if (rightClickItem)
-    {
-        if (rightClickItem->text() == "Remove" )
-        {
-            if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
-            {
-                this->removeRaster(myObject);
-            }
-            else if (myObject->type == gisObjectShape)
-            {
-                this->removeShape(myObject);
-            }
-            myObject->close();
-            myProject.objectList.erase(myProject.objectList.begin()+pos);
-
-            ui->checkList->takeItem(ui->checkList->indexAt(point).row());
-        }
-        else if (rightClickItem->text() == "Close Project" )
-        {
-            on_actionClose_Project_triggered();
-        }
-        else if (rightClickItem->text().contains("Show data"))
-        {
-            DialogShapeProperties showData(myObject->getShapeHandler(), myObject->fileName);
-        }
-        else if (rightClickItem->text().contains("Attribute table"))
-        {
-            DialogDbfTable Table(myObject->getShapeHandler(), myObject->fileName);
-        }
-        else if (rightClickItem->text().contains("Set style"))
-        {
-            setShapeStyle_GUI(myObject);
-        }
-        else if (rightClickItem->text().contains("Export to raster (gdal)"))
-        {
-            exportShapeToRaster_gdal(myObject);
-        }
-        else if (rightClickItem->text().contains("Save as"))
-        {
-            if (myObject->type == gisObjectRaster)
-            {
-                this->saveRaster(myObject);
-            }
-            else if (myObject->type == gisObjectShape)
-            {
-                this->saveShape(myObject);
-            }
-        }
-        else if (rightClickItem->text().contains("Export to NetCDF"))
-        {
-            if (myObject->type == gisObjectRaster)
-            {
-                // TODO
-            }
-            else if (myObject->type == gisObjectShape)
-            {
-                this->exportToNetCDF(myObject);
-            }
-        }
-        else if (rightClickItem->text().contains("Set grayscale"))
-        {
-            if (myObject->type == gisObjectRaster)
-            {
-                setGrayScale(myObject->getRasterPointer()->colorScale);
-                emit myRasterObject->redrawRequested();
-            }
-            if (myObject->type == gisObjectShape)
-            {
-                setGrayScale(myShapeObject->colorScale);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Set default scale"))
-        {
-            if (myObject->type == gisObjectRaster)
-            {
-                setDefaultScale(myObject->getRasterPointer()->colorScale);
-                emit myRasterObject->redrawRequested();
-            }
-            if (myObject->type == gisObjectShape)
-            {
-                setDefaultScale(myShapeObject->colorScale);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Set dtm scale"))
-        {
-            if (myObject->type == gisObjectRaster)
-            {
-                setDTMScale(myObject->getRasterPointer()->colorScale);
-                emit myRasterObject->redrawRequested();
-            }
-            if (myObject->type == gisObjectShape)
-            {
-                setDTMScale(myShapeObject->colorScale);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Reverse color scale"))
-        {
-            if (myObject->type == gisObjectRaster)
-            {
-                reverseColorScale(myObject->getRasterPointer()->colorScale);
-                emit myRasterObject->redrawRequested();
-            }
-            else if (myObject->type == gisObjectShape)
-            {
-                reverseColorScale(myShapeObject->colorScale);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Disable color scale"))
-        {
-            if (myObject->type == gisObjectShape)
-            {
-                myShapeObject->setFill(false);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Statistical summary"))
-        {
-            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
-            {
-                this->rasterStatisticalSummary(myObject);
-            }
-        }
-        else if (rightClickItem->text().contains("Set opaque"))
-        {
-            if (myObject->type == gisObjectRaster)
-            {
-                myRasterObject->setOpacity(1.0);
-                emit myRasterObject->redrawRequested();
-            }
-            else if (myObject->type == gisObjectShape)
-            {
-                myShapeObject->setOpacity(1.0);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Set transparent"))
-        {
-            if (myObject->type == gisObjectRaster)
-            {
-                // TODO choose value
-                myRasterObject->setOpacity(0.5);
-                emit myRasterObject->redrawRequested();
-            }
-            else if (myObject->type == gisObjectShape)
-            {
-                myShapeObject->setOpacity(0.5);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Selected border black"))
-        {
-            if (myObject->type == gisObjectShape)
-            {
-                myShapeObject->setSelectedRed(false);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Selected border red"))
-        {
-            if (myObject->type == gisObjectShape)
-            {
-                myShapeObject->setSelectedRed(true);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-    }
 }
 
 
@@ -1593,17 +1593,39 @@ void MainWindow::on_actionRasterize_with_base_triggered()
         return;
 
     bool showInfo = true;
-    if ( myProject.fillRasterFromShape(*shapeHandler, *refRaster, numericField.getFieldSelected(),
+    if (! myProject.fillRasterFromShape(*shapeHandler, *refRaster, numericField.getFieldSelected(),
                                      numericField.getOutputName(), showInfo) )
-    {
-        addRasterObject(myProject.objectList.back());
-        updateMaps();
-    }
-    else
-    {
-        myProject.logError("Error in rasterize.");
-    }
+        myProject.logError("Error in fillRasterFromShape");
 
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
+}
+
+
+void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
+{
+    // select shapefile
+    int pos = getSelectedShapePos();
+    if (pos == NODATA) return;
+    GisObject* shapeObject = myProject.objectList.at(unsigned(pos));
+    Crit3DShapeHandler* shapeHandler = shapeObject->getShapeHandler();
+
+    // select raster
+    QString rasterFileName;
+    bool isOk;
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster", rasterFileName, isOk);
+    if (! isOk)
+        return;
+
+    // select shape field
+    bool isOnlyNumeric = true;
+    DialogSelectField numericField(shapeObject->getShapeHandler(), shapeObject->fileName, isOnlyNumeric, PREVAILING);
+
+    if (numericField.result() != QDialog::Accepted)
+        return;
+
+    //addRasterObject(myProject.objectList.back());
+    //updateMaps();
 }
 
 
@@ -1652,15 +1674,21 @@ void MainWindow::on_actionReplaceRaster_with_raster_triggered()
     gis::Crit3DRasterGrid *maskRaster = selectRaster("Mask raster", maskRasterFileName, isOk);
     if (! isOk) return;
 
-    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
-    if (! gis::replaceRasterValues(refRaster, maskRaster, outputRaster))
+    FormInfo formInfo;
+    formInfo.start("Clip raster...", 0);
     {
-        myProject.logError("Error in clipping.");
-        return;
-    }
+        gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
+        if (! gis::replaceRasterValues(refRaster, maskRaster, outputRaster))
+        {
+            myProject.logError("Error in clipping.");
+            formInfo.close();
+            return;
+        }
 
-    setDefaultScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.gisSettings.utmZone);
+        setDefaultScale(outputRaster->colorScale);
+        myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.gisSettings.utmZone);
+    }
+    formInfo.close();
 
     addRasterObject(myProject.objectList.back());
     updateMaps();

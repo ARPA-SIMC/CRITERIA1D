@@ -53,7 +53,6 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
         fields << "Edges only";
     }
 
-
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
     {
         typeField = shapeHandler->getFieldType(i);

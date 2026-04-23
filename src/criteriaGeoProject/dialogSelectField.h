@@ -6,7 +6,7 @@
     #include "shapeHandler.h"
 #endif
 
-enum dialogType {SHAPESTYLE, RASTERIZE, RASTERIZE_WITHBASE, GDALRASTER};
+enum dialogType {SHAPESTYLE, RASTERIZE, RASTERIZE_WITHBASE, GDALRASTER, PREVAILING};
 
     class DialogSelectField : public QDialog
     {

@@ -1,7 +1,7 @@
 #include "dialogDbfTable.h"
 #include "shapeUtilities.h"
 
-DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, QString fileName)
+DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& fileName)
     :shapeHandler(shapeHandler)
 {
     // make a copy of shapefile
