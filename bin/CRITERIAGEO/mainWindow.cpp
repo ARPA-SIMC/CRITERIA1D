@@ -41,6 +41,7 @@
 #include "formInfo.h"
 #include "formText.h"
 #include "gis.h"
+#include "zonalStatistic.h"
 
 
 #ifdef GDAL
@@ -1629,7 +1630,7 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     // select raster
     QString rasterFileName;
     bool isOk;
-    gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster", rasterFileName, isOk);
+    gis::Crit3DRasterGrid *rasterVal = selectRaster("Select the value raster", rasterFileName, isOk);
     if (! isOk)
         return;
 
@@ -1644,6 +1645,13 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     if (fieldName.isEmpty())
         fieldName = numericField.getFieldSelected();
 
+    std::vector<int> categories, vectorNull;
+    std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterVal, categories, vectorNull);
+
+    isOk = zonalStatisticsShapeMajority(shapeRef, shapeVal, matrix, vectorNull,
+                                        aggregationVariable.inputFieldName[i].toStdString(),
+                                        aggregationVariable.outputVarName[i].toStdString(),
+                                        threshold, error);
 
     //addRasterObject(myProject.objectList.back());
     //updateMaps();

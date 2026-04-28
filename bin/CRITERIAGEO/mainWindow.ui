@@ -590,6 +590,7 @@
     <addaction name="actionCompute_Ucm_intersection"/>
     <addaction name="separator"/>
     <addaction name="actionAssign_shape_prevailing_value_raster"/>
+    <addaction name="separator"/>
     <addaction name="actionCompute_Ucm_prevailing"/>
     <addaction name="actionExtract_Unit_Crop_Map_list"/>
     <addaction name="separator"/>
