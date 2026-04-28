@@ -1,6 +1,7 @@
 #include "dialogSelectField.h"
 
-DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString fileName, bool isOnlyNumeric, dialogType dialogType)    :shapeHandler(shapeHandler)
+DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString fileName, bool isOnlyNumeric, dialogType dialogType)
+    :_shapeHandler(shapeHandler)
 {
     if (isOnlyNumeric)
     {
@@ -13,31 +14,37 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
     setFixedSize(400, 300);
 
     QVBoxLayout* mainLayout = new QVBoxLayout;
-    listFields = new QListWidget();
-    mainLayout->addWidget(listFields);
+    _listFields = new QListWidget();
+    mainLayout->addWidget(_listFields);
 
     if (dialogType == RASTERIZE)
     {
-        cellSize = new QLineEdit();
-        cellSize->setPlaceholderText("cell size [m]");
-        cellSize->setValidator(new QDoubleValidator(0, 9999, 2)); //LC accetta double con 2 cifre decimali da 0 a 9999
-        outputName = new QLineEdit();
-        outputName->setPlaceholderText("Output Name");
-        mainLayout->addWidget(cellSize);
-        mainLayout->addWidget(outputName);
+        _cellSize = new QLineEdit();
+        _cellSize->setPlaceholderText("cell size [m]");
+        _cellSize->setValidator(new QDoubleValidator(0, 9999, 2));
+        _stringValue = new QLineEdit();
+        _stringValue->setPlaceholderText("Output Name");
+        mainLayout->addWidget(_cellSize);
+        mainLayout->addWidget(_stringValue);
     }
     else if (dialogType == GDALRASTER)
     {
-        cellSize = new QLineEdit();
-        cellSize->setPlaceholderText("cell size [m]");
-        cellSize->setValidator(new QDoubleValidator(0, 9999, 2)); //LC accetta double con 2 cifre decimali da 0 a 9999
-        mainLayout->addWidget(cellSize);
+        _cellSize = new QLineEdit();
+        _cellSize->setPlaceholderText("cell size [m]");
+        _cellSize->setValidator(new QDoubleValidator(0, 9999, 2)); //LC accetta double con 2 cifre decimali da 0 a 9999
+        mainLayout->addWidget(_cellSize);
     }
     else if (dialogType == RASTERIZE_WITHBASE)
     {
-        outputName = new QLineEdit();
-        outputName->setPlaceholderText("Output Name");
-        mainLayout->addWidget(outputName);
+        _stringValue = new QLineEdit();
+        _stringValue->setPlaceholderText("Output Name");
+        mainLayout->addWidget(_stringValue);
+    }
+    else if (dialogType == PREVAILING)
+    {
+        _stringValue = new QLineEdit();
+        _stringValue->setPlaceholderText("New field (numeric)");
+        mainLayout->addWidget(_stringValue);
     }
 
     DBFFieldType typeField;
@@ -65,12 +72,14 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
         }
         else fields << QString::fromStdString(shapeHandler->getFieldName(i));
     }
-    listFields->addItems(fields);
+    _listFields->addItems(fields);
 
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
     if (dialogType == RASTERIZE || dialogType == RASTERIZE_WITHBASE)
         connect(buttonBox, &QDialogButtonBox::accepted, [=](){ this->acceptRasterize(); });
+    else if (dialogType == PREVAILING)
+        connect(buttonBox, &QDialogButtonBox::accepted, [=](){ this->acceptPrevailing(); });
     else
         connect(buttonBox, &QDialogButtonBox::accepted, [=](){ this->acceptSelection(); });
 
@@ -84,24 +93,41 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
 
 void DialogSelectField::acceptRasterize()
 {
-    QListWidgetItem * itemSelected = listFields->currentItem();
+    QListWidgetItem * itemSelected = _listFields->currentItem();
     if (itemSelected == nullptr)
     {
         QMessageBox::information(nullptr, "No items selected", "Select a field");
         return;
     }
-    if (outputName->text().isEmpty())
+    if (_stringValue->text().isEmpty())
     {
         QMessageBox::information(nullptr, "Empty name", "Insert output name");
         return;
     }
+
+    QDialog::done(QDialog::Accepted);
+}
+
+
+void DialogSelectField::acceptPrevailing()
+{
+    if (_stringValue->text().isEmpty())
+    {
+        QListWidgetItem * itemSelected = _listFields->currentItem();
+        if (itemSelected == nullptr)
+        {
+            QMessageBox::information(nullptr, "No items selected", "Select a field or enter a new field.");
+            return;
+        }
+    }
+
     QDialog::done(QDialog::Accepted);
 }
 
 
 void DialogSelectField::acceptSelection()
 {
-    QListWidgetItem * itemSelected = listFields->currentItem();
+    QListWidgetItem *itemSelected = _listFields->currentItem();
     if (itemSelected == nullptr)
     {
         QMessageBox::information(nullptr, "No items selected", "Select a field");
@@ -109,22 +135,4 @@ void DialogSelectField::acceptSelection()
     }
 
     QDialog::done(QDialog::Accepted);
-}
-
-
-QString DialogSelectField::getOutputName()
-{
-    return outputName->text();
-}
-
-double DialogSelectField::getCellSize() const
-{
-    QString cellString = cellSize->text();
-    cellString.replace(",", ".");
-    return cellString.toDouble();
-}
-
-QString DialogSelectField::getFieldSelected()
-{
-    return listFields->currentItem()->text();
 }

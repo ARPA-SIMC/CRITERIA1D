@@ -377,12 +377,12 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Set grayscale"))
         {
-            if (myObject->type == gisObjectRaster)
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
                 setGrayScale(myObject->getRasterPointer()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
-            if (myObject->type == gisObjectShape)
+            if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 setGrayScale(myShapeObject->colorScale);
                 emit myShapeObject->redrawRequested();
@@ -390,12 +390,12 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Set default scale"))
         {
-            if (myObject->type == gisObjectRaster)
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
                 setDefaultScale(myObject->getRasterPointer()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
-            if (myObject->type == gisObjectShape)
+            if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 setDefaultScale(myShapeObject->colorScale);
                 emit myShapeObject->redrawRequested();
@@ -403,12 +403,12 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Set dtm scale"))
         {
-            if (myObject->type == gisObjectRaster)
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
                 setDTMScale(myObject->getRasterPointer()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
-            if (myObject->type == gisObjectShape)
+            if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 setDTMScale(myShapeObject->colorScale);
                 emit myShapeObject->redrawRequested();
@@ -416,12 +416,12 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Reverse color scale"))
         {
-            if (myObject->type == gisObjectRaster)
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
                 reverseColorScale(myObject->getRasterPointer()->colorScale);
                 emit myRasterObject->redrawRequested();
             }
-            else if (myObject->type == gisObjectShape)
+            else if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 reverseColorScale(myShapeObject->colorScale);
                 emit myShapeObject->redrawRequested();
@@ -429,7 +429,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Disable color scale"))
         {
-            if (myObject->type == gisObjectShape)
+            if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 myShapeObject->setFill(false);
                 emit myShapeObject->redrawRequested();
@@ -444,12 +444,12 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Set opaque"))
         {
-            if (myObject->type == gisObjectRaster)
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
                 myRasterObject->setOpacity(1.0);
                 emit myRasterObject->redrawRequested();
             }
-            else if (myObject->type == gisObjectShape)
+            else if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 myShapeObject->setOpacity(1.0);
                 emit myShapeObject->redrawRequested();
@@ -457,13 +457,13 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Set transparent"))
         {
-            if (myObject->type == gisObjectRaster)
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
                 // TODO choose value
                 myRasterObject->setOpacity(0.5);
                 emit myRasterObject->redrawRequested();
             }
-            else if (myObject->type == gisObjectShape)
+            else if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 myShapeObject->setOpacity(0.5);
                 emit myShapeObject->redrawRequested();
@@ -471,7 +471,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Selected border black"))
         {
-            if (myObject->type == gisObjectShape)
+            if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 myShapeObject->setSelectedRed(false);
                 emit myShapeObject->redrawRequested();
@@ -479,7 +479,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Selected border red"))
         {
-            if (myObject->type == gisObjectShape)
+            if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 myShapeObject->setSelectedRed(true);
                 emit myShapeObject->redrawRequested();
@@ -930,10 +930,13 @@ bool MainWindow::exportToNetCDF(GisObject* myObject)
     if (numericField.result() != QDialog::Accepted)
         return false;
 
-    QString field = numericField.getFieldSelected();
+    QString fieldName = numericField.getFieldSelected();
     double cellSize = numericField.getCellSize();
-    if (cellSize <= 0)
-        cellSize = 100;  // default [m]
+    if (cellSize <= 0 || cellSize == NODATA)
+    {
+        QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive cellsize.");
+        return false;
+    }
 
     QString outputFileName = QFileDialog::getSaveFileName(this, tr("Save NetCDF as"), "", tr("NetCDF files (*.nc)"));
     if (outputFileName == "")
@@ -945,10 +948,10 @@ bool MainWindow::exportToNetCDF(GisObject* myObject)
     FormInfo formInfo;
     formInfo.start("Export to NetCDF...", 0);
 
-    std::string variableName = field.toStdString();     // TODO
-    std::string unit = "";                              // TODO
+    std::string variableName = fieldName.toStdString();     // TODO
+    std::string unit = "";                                  // TODO
     bool isOK = myProject.output.convertShapeToNetcdf(*(myObject->getShapeHandler()), outputFileName.toStdString(),
-                                                      field.toStdString(), variableName, unit, cellSize, NO_DATE, 0);
+                                                      fieldName.toStdString(), variableName, unit, cellSize, NO_DATE, 0);
     formInfo.close();
 
     if (! isOK)
@@ -973,19 +976,18 @@ bool MainWindow::exportShapeToRaster_gdal(GisObject* myObject)
     std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
     QString shapeFileName = QString::fromStdString(shapeFilePath);
 
-    QString resolutionStr;
-    if (shapeFieldDialog.getCellSize() == 0)
+    double cellSize = shapeFieldDialog.getCellSize();
+    if (cellSize <= 0 || cellSize == NODATA)
     {
-        resolutionStr = "200";      // default resolution [m]
+        QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive cellsize.");
+        return false;
     }
-    else
-    {
-        resolutionStr = QString::number(shapeFieldDialog.getCellSize());
-    }
+
+    QString resolutionStr = QString::number(cellSize);
 
     QStringList gdalExt = getGdalRasterWriteExtension();
     QString outputName = QFileDialog::getSaveFileName(this, tr("Save raster as"), "", gdalExt.join(";\n"));
-    if (outputName == "")
+    if (outputName.isEmpty())
     {
         QMessageBox::information(nullptr, "Insert output name", "missing raster name");
         return false;
@@ -1514,15 +1516,22 @@ void MainWindow::on_actionRasterize_all_shape_triggered()
     if (numericField.result() != QDialog::Accepted)
         return;
 
-    double resolution = numericField.getCellSize();
-    if (resolution <= 0)
+    double cellSize = numericField.getCellSize();
+    if (cellSize <= 0 || cellSize == NODATA)
     {
-        resolution = 100;  // default [m]
+        QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive cellSize.");
+        return;
+    }
+
+    QString outputName = numericField.getStringValue();
+    if (outputName.isEmpty())
+    {
+        myProject.logError("Missing output name");
+        return;
     }
 
     bool showInfo = true;
-    if ( myProject.newRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(),
-                                     numericField.getOutputName(), resolution, showInfo) )
+    if ( myProject.newRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(), outputName, cellSize, showInfo) )
     {
         addRasterObject(myProject.objectList.back());
         updateMaps();
@@ -1593,8 +1602,14 @@ void MainWindow::on_actionRasterize_with_base_triggered()
         return;
 
     bool showInfo = true;
-    if (! myProject.fillRasterFromShape(*shapeHandler, *refRaster, numericField.getFieldSelected(),
-                                     numericField.getOutputName(), showInfo) )
+    QString outputName = numericField.getStringValue();
+    if (outputName.isEmpty())
+    {
+        myProject.logError("Missing output name");
+        return;
+    }
+
+    if (! myProject.fillRasterFromShape(*shapeHandler, *refRaster, numericField.getFieldSelected(), outputName, showInfo))
         myProject.logError("Error in fillRasterFromShape");
 
     addRasterObject(myProject.objectList.back());
@@ -1606,7 +1621,8 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
 {
     // select shapefile
     int pos = getSelectedShapePos();
-    if (pos == NODATA) return;
+    if (pos == NODATA)
+        return;
     GisObject* shapeObject = myProject.objectList.at(unsigned(pos));
     Crit3DShapeHandler* shapeHandler = shapeObject->getShapeHandler();
 
@@ -1623,6 +1639,11 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
 
     if (numericField.result() != QDialog::Accepted)
         return;
+
+    QString fieldName = numericField.getStringValue();
+    if (fieldName.isEmpty())
+        fieldName = numericField.getFieldSelected();
+
 
     //addRasterObject(myProject.objectList.back());
     //updateMaps();

@@ -750,7 +750,7 @@
   </action>
   <action name="actionAssign_shape_prevailing_value_raster">
    <property name="text">
-    <string>Assign prevailing value (raster) to the shape...</string>
+    <string>Assign prevailing value to shape (from raster)...</string>
    </property>
   </action>
  </widget>
