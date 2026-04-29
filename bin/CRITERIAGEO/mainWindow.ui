@@ -582,6 +582,8 @@
      <addaction name="actionClipRaster_with_shape"/>
      <addaction name="actionClipRaster_with_raster"/>
      <addaction name="actionReplaceRaster_with_raster"/>
+     <addaction name="separator"/>
+     <addaction name="actionClip_cut_null_values"/>
     </widget>
     <addaction name="menuRasterize_shape"/>
     <addaction name="menuClip_raster"/>
@@ -752,6 +754,11 @@
   <action name="actionAssign_shape_prevailing_value_raster">
    <property name="text">
     <string>Assign prevailing value to shape (from raster)...</string>
+   </property>
+  </action>
+  <action name="actionClip_cut_null_values">
+   <property name="text">
+    <string>cut null values...</string>
    </property>
   </action>
  </widget>

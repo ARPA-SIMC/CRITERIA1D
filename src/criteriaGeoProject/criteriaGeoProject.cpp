@@ -49,18 +49,18 @@ CriteriaGeoProject::CriteriaGeoProject()
 {}
 
 
-void CriteriaGeoProject::addRaster(gis::Crit3DRasterGrid *myRaster, QString fileNameWithPath, int utmZone)
+void CriteriaGeoProject::addRaster(gis::Crit3DRasterGrid *rasterPtr, QString fileNameWithPath, int utmZone)
 {
     GisObject* newObject = new(GisObject);
-    newObject->setRaster(fileNameWithPath, myRaster, utmZone);
+    newObject->setRaster(fileNameWithPath, rasterPtr, utmZone);
     this->objectList.push_back(newObject);
 }
 
 
-void CriteriaGeoProject::addShapeFile(Crit3DShapeHandler *myShape, QString fileNameWithPath, QString projectName, int utmZone)
+void CriteriaGeoProject::addShapeFile(Crit3DShapeHandler *shapePtr, QString fileNameWithPath, QString projectName, int utmZone)
 {
     GisObject* newObject = new(GisObject);
-    newObject->setShapeFile(fileNameWithPath, projectName, myShape, utmZone);
+    newObject->setShapeFile(fileNameWithPath, projectName, shapePtr, utmZone);
     this->objectList.push_back(newObject);
 }
 

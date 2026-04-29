@@ -71,6 +71,8 @@
 
         void on_actionAssign_shape_prevailing_value_raster_triggered();
 
+        void on_actionClip_cut_null_values_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

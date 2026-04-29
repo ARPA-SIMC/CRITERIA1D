@@ -1648,10 +1648,10 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     std::vector<int> categories, vectorNull;
     std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterVal, categories, vectorNull);
 
-    isOk = zonalStatisticsShapeMajority(shapeRef, shapeVal, matrix, vectorNull,
-                                        aggregationVariable.inputFieldName[i].toStdString(),
-                                        aggregationVariable.outputVarName[i].toStdString(),
-                                        threshold, error);
+    double threshold = 0.2;
+    std::string errorStr;
+    isOk = zonalStatisticsShapeMajorityCategories(*shapeHandler, categories, matrix, vectorNull,
+                                                fieldName.toStdString(), threshold, errorStr);
 
     //addRasterObject(myProject.objectList.back());
     //updateMaps();
@@ -1666,15 +1666,18 @@ void MainWindow::on_actionClipRaster_with_shape_triggered()
 
 void MainWindow::on_actionClipRaster_with_raster_triggered()
 {
+    bool isOk;
+
     // select raster
     QString refRasterFileName;
-    bool isOk;
     gis::Crit3DRasterGrid *refRaster = selectRaster("Reference raster", refRasterFileName, isOk);
-    if (! isOk) return;
+    if (! isOk)
+        return;
 
     QString maskRasterFileName;
     gis::Crit3DRasterGrid *maskRaster = selectRaster("Mask raster", maskRasterFileName, isOk);
-    if (! isOk) return;
+    if (! isOk)
+        return;
 
     gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
     if (! gis::clipRasterWithRaster(refRaster, maskRaster, outputRaster))
@@ -1691,11 +1694,38 @@ void MainWindow::on_actionClipRaster_with_raster_triggered()
 }
 
 
+void MainWindow::on_actionClip_cut_null_values_triggered()
+{
+    bool isOk;
+
+    // select raster
+    QString rasterFileName;
+    gis::Crit3DRasterGrid *inputRaster = selectRaster("Select raster to cut", rasterFileName, isOk);
+    if (! isOk)
+        return;
+
+    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
+    std::string errorStr;
+    if (! gis::resizeRasterCutEmptyFrame(inputRaster, outputRaster, errorStr))
+    {
+        myProject.logWarning(QString::fromStdString(errorStr));
+        return;
+    }
+
+    setDefaultScale(outputRaster->colorScale);
+    myProject.addRaster(outputRaster, rasterFileName + "_cut", myProject.gisSettings.utmZone);
+
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
+}
+
+
 void MainWindow::on_actionReplaceRaster_with_raster_triggered()
 {
+    bool isOk;
+
     // select raster
     QString refRasterFileName;
-    bool isOk;
     gis::Crit3DRasterGrid *refRaster = selectRaster("Reference raster", refRasterFileName, isOk);
     if (! isOk) return;
 
@@ -1729,7 +1759,7 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
     // select raster
     QString refRasterFileName;
     bool isOk;
-    gis::Crit3DRasterGrid *refRaster = selectRaster("Reference raster", refRasterFileName, isOk);
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster to cut", refRasterFileName, isOk);
     if (! isOk)
         return;
 
@@ -1760,7 +1790,7 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
         return;
 
     setDTMScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, refRasterFileName + "_rangeDeleted", myProject.gisSettings.utmZone);
+    myProject.addRaster(outputRaster, refRasterFileName + "_cut_range", myProject.gisSettings.utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
