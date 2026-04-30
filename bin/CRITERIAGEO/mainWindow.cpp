@@ -756,8 +756,8 @@ void MainWindow::on_actionLoadRaster_triggered()
         return;
     }
 
-    this->addRasterObject(myProject.objectList.back());
-    this->zoomOnLastRaster();
+    addRasterObject(myProject.objectList.back());
+    zoomOnLastRaster();
 }
 
 
