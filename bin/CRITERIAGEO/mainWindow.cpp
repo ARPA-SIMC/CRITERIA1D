@@ -980,7 +980,7 @@ bool MainWindow::exportShapeToRaster_gdal(GisObject* myObject)
     double cellSize = shapeFieldDialog.getCellSize();
     if (cellSize <= 0 || cellSize == NODATA)
     {
-        QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive cellsize.");
+        QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive value.");
         return false;
     }
 

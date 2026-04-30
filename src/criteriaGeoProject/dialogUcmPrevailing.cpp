@@ -178,7 +178,7 @@ void DialogUcmPrevailing::ucm()
     itemSelected = cropShape->currentItem();
     if (itemSelected == nullptr)
     {
-        QMessageBox::information(nullptr, "No crop shape selected", "Select a shape");
+        QMessageBox::warning(nullptr, "No crop shape selected", "Select a shape");
         return;
     }
     unsigned int pos = cropShape->row(itemSelected);
@@ -187,7 +187,7 @@ void DialogUcmPrevailing::ucm()
     itemSelected = soilShape->currentItem();
     if (itemSelected == nullptr)
     {
-        QMessageBox::information(nullptr, "No soil shape selected", "Select a shape");
+        QMessageBox::warning(nullptr, "No soil shape selected", "Select a shape");
         return;
     }
     pos = soilShape->row(itemSelected);
@@ -196,7 +196,7 @@ void DialogUcmPrevailing::ucm()
     itemSelected = meteoShape->currentItem();
     if (itemSelected == nullptr)
     {
-        QMessageBox::information(nullptr, "No meteo shape selected", "Select a shape");
+        QMessageBox::warning(nullptr, "No meteo shape selected", "Select a shape");
         return;
     }
     pos = meteoShape->row(itemSelected);
@@ -207,7 +207,7 @@ void DialogUcmPrevailing::ucm()
     itemSelected = cropField->currentItem();
     if (itemSelected == nullptr)
     {
-        QMessageBox::information(nullptr, "No id crop selected", "Select a field");
+        QMessageBox::warning(nullptr, "No id crop selected", "Select a field");
         return;
     }
     idCrop = itemSelected->text();
@@ -215,7 +215,7 @@ void DialogUcmPrevailing::ucm()
     itemSelected = soilField->currentItem();
     if (itemSelected == nullptr)
     {
-        QMessageBox::information(nullptr, "No id soil selected", "Select a field");
+        QMessageBox::warning(nullptr, "No id soil selected", "Select a field");
         return;
     }
     idSoil = itemSelected->text();
@@ -223,7 +223,7 @@ void DialogUcmPrevailing::ucm()
     itemSelected = meteoField->currentItem();
     if (itemSelected == nullptr)
     {
-        QMessageBox::information(nullptr, "No id meteo selected", "Select a field");
+        QMessageBox::warning(nullptr, "No id meteo selected", "Select a field");
         return;
     }
     idMeteo = itemSelected->text();
@@ -231,7 +231,7 @@ void DialogUcmPrevailing::ucm()
     // check cell Size
     if (cellSize->text().isEmpty())
     {
-        QMessageBox::information(nullptr, "Empty cellSize", "Insert cell size");
+        QMessageBox::warning(nullptr, "Missing cellSize", "Insert cell size");
         return;
     }
 
