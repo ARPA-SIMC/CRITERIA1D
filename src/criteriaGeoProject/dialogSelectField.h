@@ -18,7 +18,7 @@
             Crit3DShapeHandler* _shapeHandler;
             QListWidget* _listFields;
             QLineEdit* _stringValue;
-            QLineEdit* _cellSize;
+            QLineEdit* _numericValue;
 
         public:
             DialogSelectField(Crit3DShapeHandler *shapeHandler, QString fileName, bool isOnlyNumeric, dialogType dialogType);
@@ -37,11 +37,11 @@
                 return _listFields->currentItem()->text();
             }
 
-            double getCellSize() const
+            double getNumericValue() const
             {
                 bool isOk;
-                double cellSize = _cellSize->text().replace(",", ".").toDouble(&isOk);
-                return (isOk? cellSize: NODATA);
+                double value = _numericValue->text().replace(",", ".").toDouble(&isOk);
+                return (isOk? value: NODATA);
             }
     };
 

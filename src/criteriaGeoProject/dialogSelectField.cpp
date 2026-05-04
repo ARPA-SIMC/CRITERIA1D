@@ -17,22 +17,18 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
     _listFields = new QListWidget();
     mainLayout->addWidget(_listFields);
 
-    if (dialogType == RASTERIZE)
+    if (dialogType == RASTERIZE || dialogType == GDALRASTER)
     {
-        _cellSize = new QLineEdit();
-        _cellSize->setPlaceholderText("cell size [m]");
-        _cellSize->setValidator(new QDoubleValidator(0, 9999, 2));
-        _stringValue = new QLineEdit();
-        _stringValue->setPlaceholderText("Output Name");
-        mainLayout->addWidget(_cellSize);
-        mainLayout->addWidget(_stringValue);
-    }
-    else if (dialogType == GDALRASTER)
-    {
-        _cellSize = new QLineEdit();
-        _cellSize->setPlaceholderText("cell size [m]");
-        _cellSize->setValidator(new QDoubleValidator(0, 9999, 2)); //LC accetta double con 2 cifre decimali da 0 a 9999
-        mainLayout->addWidget(_cellSize);
+        _numericValue = new QLineEdit();
+        _numericValue->setPlaceholderText("cell size [m]");
+        _numericValue->setValidator(new QDoubleValidator(0, 9999, 2));
+        mainLayout->addWidget(_numericValue);
+        if (dialogType == RASTERIZE)
+        {
+            _stringValue = new QLineEdit();
+            _stringValue->setPlaceholderText("Output Name");
+            mainLayout->addWidget(_stringValue);
+        }
     }
     else if (dialogType == RASTERIZE_WITHBASE)
     {
@@ -42,6 +38,12 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
     }
     else if (dialogType == PREVAILING)
     {
+        _numericValue = new QLineEdit();
+        _numericValue->setPlaceholderText("Threshold ratio [-]");
+        _numericValue->setValidator(new QDoubleValidator(0, 1, 3));
+        _numericValue->setText("0.33");
+        mainLayout->addWidget(_numericValue);
+
         _stringValue = new QLineEdit();
         _stringValue->setPlaceholderText("New field (numeric)");
         mainLayout->addWidget(_stringValue);

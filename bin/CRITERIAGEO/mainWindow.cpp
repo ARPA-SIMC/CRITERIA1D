@@ -985,7 +985,7 @@ bool MainWindow::exportToNetCDF(GisObject* myObject)
         return false;
 
     QString fieldName = numericField.getFieldSelected();
-    double cellSize = numericField.getCellSize();
+    double cellSize = numericField.getNumericValue();
     if (cellSize <= 0 || cellSize == NODATA)
     {
         QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive cellsize.");
@@ -1030,7 +1030,7 @@ bool MainWindow::exportShapeToRaster_gdal(GisObject* myObject)
     std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
     QString shapeFileName = QString::fromStdString(shapeFilePath);
 
-    double cellSize = shapeFieldDialog.getCellSize();
+    double cellSize = shapeFieldDialog.getNumericValue();
     if (cellSize <= 0 || cellSize == NODATA)
     {
         QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive value.");
@@ -1572,7 +1572,7 @@ void MainWindow::on_actionRasterize_all_shape_triggered()
     if (numericField.result() != QDialog::Accepted)
         return;
 
-    double cellSize = numericField.getCellSize();
+    double cellSize = numericField.getNumericValue();
     if (cellSize <= 0 || cellSize == NODATA)
     {
         QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive cellSize.");
@@ -1700,13 +1700,19 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     if (fieldName.isEmpty())
         fieldName = numericField.getFieldSelected();
 
+    double threshold = numericField.getNumericValue();
+    if ((threshold < 0) || (threshold > 1.0) || (threshold == NODATA))
+    {
+        QMessageBox::information(nullptr, "Wrong threshold", "Insert a value in [0,1]");
+        return;
+    }
+
     FormInfo formInfo;
     formInfo.start("Assign prevailing...", 0);
 
     std::vector<int> categories, vectorNull;
     std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterVal, categories, vectorNull);
 
-    double threshold = 0.2;
     std::string errorStr;
     isOk = zonalStatisticsShapeMajorityCategories(*shapeHandler, categories, matrix, vectorNull,
                                                 fieldName.toStdString(), threshold, errorStr);
