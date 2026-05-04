@@ -6,6 +6,7 @@
 
     #include "tileSources/WebTileSource.h"
     #include "Position.h"
+    #include "rubberBand.h"
 
     #include "mapGraphicsRasterUtm.h"
     #include "mapGraphicsShapeObject.h"
@@ -73,6 +74,8 @@
 
         void on_actionClip_cut_null_values_triggered();
 
+        void on_actionCrop_raster_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -97,6 +100,10 @@
         QDialog shapeInfoDialog;
         QTextBrowser shapeInfoBrowser;
 
+        // rubber band
+        RubberBand *rubberBand;
+        QRect rubberBandRect;
+
         bool isDoubleClick;
 
         Position* startCenter;
@@ -106,6 +113,8 @@
         std::vector<MapGraphicsShapeObject *> shapeObjList;
 
         void setTileSource(WebTileSource::WebTileType tileType);
+
+        bool getRubberBandRect(const QPoint& position, QRect &rect);
 
         void addRasterObject(GisObject* myObject);
         void addNetcdfObject(GisObject* myObject);

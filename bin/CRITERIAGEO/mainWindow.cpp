@@ -81,6 +81,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapScene = new MapGraphicsScene(this);
     this->mapView = new MapGraphicsView(mapScene, this->ui->widgetMap);
 
+    // Set rubber band
+    rubberBand = new RubberBand(QRubberBand::Rectangle, mapView);
+
     // Set tiles source
     this->setTileSource(WebTileSource::OPEN_STREET_MAP);
 
@@ -164,63 +167,90 @@ void MainWindow::updateMaps()
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (! isDoubleClick)
+    if (isDoubleClick)
     {
-        if (event->button() == Qt::LeftButton)
-        {
-            selectShape(event->pos());
-        }
+        isDoubleClick = false;
+        return;
     }
 
-    isDoubleClick = false;
-    updateMaps();
+    if (event->button() == Qt::LeftButton)
+    {
+        selectShape(event->pos());
+        updateMaps();
+    }
+
+    if (event->button() == Qt::RightButton)
+    {
+        if (rubberBand->isVisible())
+        {
+            getRubberBandRect(event->pos(), rubberBandRect);
+            rubberBand->hide();
+        }
+    }
 }
 
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 {
-    this->isDoubleClick = true;
-
     QPoint mapPos = getMapPos(event->pos());
-    if (! isInsideMap(mapPos)) return;
+    if (! isInsideMap(mapPos))
+        return;
 
-    Position newCenter = this->mapView->mapToScene(mapPos);
-    this->ui->statusBar->showMessage(QString::number(newCenter.latitude()) + " " + QString::number(newCenter.longitude()));
+    isDoubleClick = true;
+
+    Position newCenter = mapView->mapToScene(mapPos);
+    ui->statusBar->showMessage("Set center: " + QString::number(newCenter.latitude()) + " " + QString::number(newCenter.longitude()));
 
     if (event->button() == Qt::LeftButton)
-        this->mapView->zoomIn();
+        mapView->zoomIn();
     else if (event->button() == Qt::RightButton)
-        this->mapView->zoomOut();
+        mapView->zoomOut();
 
-    this->mapView->centerOn(newCenter.lonLat());
+    mapView->centerOn(newCenter.lonLat());
 }
 
 
 void MainWindow::mouseMove(QPoint eventPos)
 {
-    if (! isInsideMap(eventPos)) return;
+    if (! isInsideMap(eventPos))
+        return;
 
-    Position pos = this->mapView->mapToScene(eventPos);
+    // rubber band
+    if (rubberBand != nullptr && rubberBand->isVisible())
+    {
+        QPoint widgetPos = eventPos + QPoint(MAPBORDER, MAPBORDER);
+        rubberBand->setGeometry(QRect(rubberBand->getOrigin(), widgetPos).normalized());
+        return;
+    }
+
+    Position geoPos = mapView->mapToScene(eventPos);
 
     int rasterIndex = getSelectedRasterPos(false);
     QString rasterValueStr = "";
-    if (rasterIndex != NODATA)
-    {
-        GisObject* myObject = myProject.objectList.at(unsigned(rasterIndex));
-        gis::Crit3DRasterGrid *myRaster = myObject->getRasterPointer();
 
-        double utmX, utmY;
-        gis::getUtmFromLatLon(myProject.gisSettings, pos.latitude(), pos.longitude(), &utmX, &utmY);
-        float value = myRaster->getValueFromXY(utmX, utmY);
-        if (! isEqual(value, myRaster->header->flag))
+    if (rasterIndex != NODATA && rasterIndex < myProject.objectList.size())
+    {
+        GisObject* myObject = myProject.objectList.at(rasterIndex);
+        gis::Crit3DRasterGrid *myRaster = myObject->getRasterPointer();
+        if (myRaster)
         {
-            rasterValueStr = QString::number(value);
+            double utmX, utmY;
+            gis::getUtmFromLatLon(myProject.gisSettings,
+                                  geoPos.latitude(), geoPos.longitude(),
+                                  &utmX, &utmY);
+
+            float value = myRaster->getValueFromXY(utmX, utmY);
+
+            if (! isEqual(value, myRaster->header->flag))
+                rasterValueStr = QString::number(value);
         }
     }
 
-    QString infoStr = "Lat:" + QString::number(pos.latitude()) + "  Lon:" + QString::number(pos.longitude());
-    if (rasterValueStr != "")
-    {
+    QString infoStr = QString("Lat:%1  Lon:%2")
+                          .arg(geoPos.latitude(), 0, 'f', 6)
+                          .arg(geoPos.longitude(), 0, 'f', 6);
+
+    if (! rasterValueStr.isEmpty()) {
         infoStr += " Value: " + rasterValueStr;
     }
 
@@ -230,8 +260,36 @@ void MainWindow::mouseMove(QPoint eventPos)
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event)
-    // it doesn't work (control taken by mapGraphics)
+    if (event->button() == Qt::RightButton && rubberBand)
+    {
+        QPoint mapPos = getMapPos(event->pos());
+        QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
+
+        // initialize Rect
+        rubberBandRect = QRect();
+
+        rubberBand->setOrigin(widgetPos);
+        rubberBand->setGeometry(QRect(widgetPos, QSize()));
+        rubberBand->show();
+
+        event->accept();
+    }
+}
+
+
+bool MainWindow::getRubberBandRect(const QPoint& position, QRect& rect)
+{
+    if (rubberBand == nullptr || !rubberBand->isVisible())
+    {
+        rect = QRect();
+        return false;
+    }
+
+    QPoint p1 = rubberBand->getOrigin() - QPoint(MAPBORDER, MAPBORDER);
+    QPoint p2 = getMapPos(position);
+
+    rect = QRect(p1, p2).normalized();
+    return true;
 }
 
 
@@ -619,13 +677,8 @@ QPoint MainWindow::getMapPos(const QPoint& screenPos)
 
 bool MainWindow::isInsideMap(const QPoint& pos)
 {
-    if (pos.x() > 0 && pos.y() > 0 &&
-        pos.x() < (mapView->width() - MAPBORDER*2) &&
-        pos.y() < (mapView->height() - MAPBORDER*2) )
-    {
-        return true;
-    }
-    else return false;
+    return ( pos.x() > 0 && pos.x() < (mapView->width() - MAPBORDER*2)
+            && pos.y() > 0 && pos.y() < (mapView->height() - MAPBORDER*2) );
 }
 
 
@@ -1468,8 +1521,9 @@ int MainWindow::getSelectedRasterPos(bool isInfo)
 {
     if (rasterObjList.empty())
     {
-        if (isInfo)
+        if (isInfo) {
             QMessageBox::information(nullptr, "No raster loaded", "Load a raster before.");
+        }
         return NODATA;
     }
 
@@ -1477,8 +1531,9 @@ int MainWindow::getSelectedRasterPos(bool isInfo)
 
     if (itemSelected == nullptr || ! itemSelected->text().contains("RASTER"))
     {
-        if (isInfo)
+        if (isInfo) {
             QMessageBox::information(nullptr, "No raster selected", "Select a raster before.");
+        }
         return NODATA;
     }
 
@@ -1630,7 +1685,7 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     // select raster
     QString rasterFileName;
     bool isOk;
-    gis::Crit3DRasterGrid *rasterVal = selectRaster("Select the value raster", rasterFileName, isOk);
+    gis::Crit3DRasterGrid *rasterVal = selectRaster("Select the raster of values", rasterFileName, isOk);
     if (! isOk)
         return;
 
@@ -1645,6 +1700,9 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     if (fieldName.isEmpty())
         fieldName = numericField.getFieldSelected();
 
+    FormInfo formInfo;
+    formInfo.start("Assign prevailing...", 0);
+
     std::vector<int> categories, vectorNull;
     std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterVal, categories, vectorNull);
 
@@ -1652,9 +1710,10 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     std::string errorStr;
     isOk = zonalStatisticsShapeMajorityCategories(*shapeHandler, categories, matrix, vectorNull,
                                                 fieldName.toStdString(), threshold, errorStr);
+    formInfo.close();
 
-    //addRasterObject(myProject.objectList.back());
-    //updateMaps();
+    if (! isOk)
+        myProject.logError(QString::fromStdString(errorStr));
 }
 
 
@@ -1759,7 +1818,7 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
     // select raster
     QString refRasterFileName;
     bool isOk;
-    gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster to cut", refRasterFileName, isOk);
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster to delete a range of values", refRasterFileName, isOk);
     if (! isOk)
         return;
 
@@ -1790,10 +1849,40 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
         return;
 
     setDTMScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, refRasterFileName + "_cut_range", myProject.gisSettings.utmZone);
+    myProject.addRaster(outputRaster, refRasterFileName + "_range_deleted", myProject.gisSettings.utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
 }
 
+
+void MainWindow::on_actionCrop_raster_triggered()
+{
+    if (rubberBandRect.size() == QSize(0, 0))
+    {
+        myProject.logWarning("First, select the bounding box (use the right mouse button)");
+        return;
+    }
+
+    // select raster
+    QString refRasterFileName;
+    bool isOk;
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster to crop", refRasterFileName, isOk);
+    if (! isOk)
+        return;
+
+    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
+    Position topLeft = mapView->mapToScene(rubberBandRect.topLeft());
+    Position bottomRight = mapView->mapToScene(rubberBandRect.bottomRight());
+    gis::Crit3DGeoPoint p1(bottomRight.latitude(), topLeft.longitude());
+    gis::Crit3DGeoPoint p2(topLeft.latitude(), bottomRight.longitude());
+    if (! gis::cropRaster(refRaster, outputRaster, myProject.gisSettings.utmZone, p1, p2))
+        return;
+
+    setDTMScale(outputRaster->colorScale);
+    myProject.addRaster(outputRaster, refRasterFileName + "_cropped", myProject.gisSettings.utmZone);
+
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
+}
 
