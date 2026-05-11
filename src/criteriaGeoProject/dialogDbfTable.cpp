@@ -1,6 +1,7 @@
 #include "dialogDbfTable.h"
 #include "shapeUtilities.h"
 
+
 DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& fileName)
     :shapeHandler(shapeHandler)
 {
@@ -8,7 +9,16 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
     QFileInfo filepathInfo(QString::fromStdString(shapeHandler->getFilepath()));
     QString file_temp = filepathInfo.absolutePath() + "/" + filepathInfo.baseName() + "_temp.dbf";
     QString file_origin = filepathInfo.absolutePath() + "/" + filepathInfo.baseName() + ".dbf";
-    QFile::copy(file_origin, file_temp);
+
+    if (QFile::exists(file_temp))
+        QFile::remove(file_temp);
+
+    if (! QFile::copy(file_origin, file_temp))
+    {
+        QMessageBox::critical(nullptr, "Error", "Unable to create temporary DBF");
+        close();
+        return;
+    }
 
     this->setWindowTitle(fileName);
     QVBoxLayout* mainLayout = new QVBoxLayout;
@@ -36,6 +46,9 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
     int colNumber = shapeHandler->getFieldNumbers();
     int rowNumber = shapeHandler->getDBFRecordCount();
 
+    m_DBFTableWidget->blockSignals(true);
+    m_DBFTableWidget->setUpdatesEnabled(false);
+
     m_DBFTableWidget->setRowCount(rowNumber);
     m_DBFTableWidget->setColumnCount(colNumber);
 
@@ -44,6 +57,13 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
 
     labels.clear();
     m_DBFTableHeader.clear();
+
+    // store deleted rows
+    std::vector<bool> isDeleted(rowNumber, false);
+    for (int j = 0; j < rowNumber; j++)
+    {
+        isDeleted[j] = shapeHandler->isDBFRecordDeleted(j);
+    }
 
     for (int i=0; i < colNumber; i++)
     {
@@ -65,9 +85,16 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
             {
                 m_DBFTableWidget->setItem(j, i, new QTableWidgetItem( QString::number(shapeHandler->readDoubleAttribute(j,i) )));
             }
-            if (shapeHandler->isDBFRecordDeleted(j))
+            else
             {
-                m_DBFTableWidget->item(j,i)->setBackground(Qt::yellow);    // mark as DELETED records
+                m_DBFTableWidget->setItem(j, i, new QTableWidgetItem("Not supported"));     // not supported types
+            }
+
+            if (isDeleted[j])
+            {
+                QTableWidgetItem* item = m_DBFTableWidget->item(j, i);
+                if (item)
+                    item->setBackground(Qt::yellow);                        // mark as DELETED records
             }
         }
     }
@@ -85,29 +112,33 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
     m_DBFTableWidget->setShowGrid(true);
     m_DBFTableWidget->setStyleSheet("QTableView {selection-background-color: red;}");
 
-    int offset = 100;
-    m_DBFTableWidget->setMinimumHeight(this->height() - offset);
-    m_DBFTableWidget->setMaximumHeight(this->height() - offset);
+    //int offset = 100;
+    //m_DBFTableWidget->setMinimumHeight(this->height() - offset);
+    //m_DBFTableWidget->setMaximumHeight(this->height() - offset);
+    m_DBFTableWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QLabel* labelLengend = new QLabel();
     labelLengend->setText("Deleted rows: yellow");
 
     mainLayout->addWidget(labelLengend);
 
-    connect(m_DBFTableWidget, &QTableWidget::cellChanged, [=](int row, int column){ this->cellChanged(row, column); });
-    connect(m_DBFTableWidget, &QTableWidget::customContextMenuRequested, [=](const QPoint point){ this->menuRequested(point); });
-    connect(addRow, &QAction::triggered, [=](){ this->addRowClicked(); });
-    connect(deleteRow, &QAction::triggered, [=](){ this->removeRowClicked(); });
-    connect(addCol, &QAction::triggered, [=](){ this->addColClicked(); });
-    connect(deleteCol, &QAction::triggered, [=](){ this->removeColClicked(); });
-    connect(copyAll, &QAction::triggered, [=](){ this->copyAllClicked(); });
-    connect(save, &QAction::triggered, [=](){ this->saveChangesClicked(); });
+    connect(m_DBFTableWidget, &QTableWidget::cellChanged, [this](int row, int column){ this->cellChanged(row, column); });
+    connect(m_DBFTableWidget, &QTableWidget::customContextMenuRequested, [this](const QPoint point){ this->menuRequested(point); });
+    connect(addRow, &QAction::triggered, [this](){ this->addRowClicked(); });
+    connect(deleteRow, &QAction::triggered, [this](){ this->removeRowClicked(); });
+    connect(addCol, &QAction::triggered, [this](){ this->addColClicked(); });
+    connect(deleteCol, &QAction::triggered, [this](){ this->removeColClicked(); });
+    connect(copyAll, &QAction::triggered, [this](){ this->copyAllClicked(); });
+    connect(save, &QAction::triggered, [this](){ this->saveChangesClicked(); });
 
-    connect(m_DBFTableWidget->horizontalHeader(), &QHeaderView::sectionClicked, [=](int index){ this->horizontalHeaderClick(index); });
-    connect(m_DBFTableWidget->verticalHeader(), &QHeaderView::sectionClicked, [=](int index){ this->verticalHeaderClick(index); });
+    connect(m_DBFTableWidget->horizontalHeader(), &QHeaderView::sectionClicked, [this](int index){ this->horizontalHeaderClick(index); });
+    connect(m_DBFTableWidget->verticalHeader(), &QHeaderView::sectionClicked, [this](int index){ this->verticalHeaderClick(index); });
+
+    // free table
+    m_DBFTableWidget->setUpdatesEnabled(true);
+    m_DBFTableWidget->blockSignals(false);
 
     setLayout(mainLayout);
-    exec();
 }
 
 

@@ -395,7 +395,6 @@ void MainWindow::itemMenuRequested(const QPoint point)
         else if (rightClickItem->text() == "Close Project" )
         {
             on_actionClose_Project_triggered();
-            emit myRasterObject->redrawRequested();
         }
         else if (rightClickItem->text().contains("Show data"))
         {
@@ -403,7 +402,8 @@ void MainWindow::itemMenuRequested(const QPoint point)
         }
         else if (rightClickItem->text().contains("Attribute table"))
         {
-            DialogDbfTable Table(myObject->getShapeHandler(), myObject->fileName);
+            DialogDbfTable dbfTable(myObject->getShapeHandler(), myObject->fileName);
+            dbfTable.exec();
         }
         else if (rightClickItem->text().contains("Set style"))
         {
@@ -1710,6 +1710,8 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
         return;
     }
 
+    bool isProportional = numericField.isChecked();
+
     FormInfo formInfo;
     formInfo.start("Assign prevailing...", 0);
 
@@ -1717,8 +1719,12 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterVal, categories, vectorNull);
 
     std::string errorStr;
-    isOk = zonalStatisticsShapeMajorityCategories(*shapeHandler, categories, matrix, vectorNull,
-                                                fieldName.toStdString(), threshold, errorStr);
+    if (isProportional)
+        isOk = zonalStatisticsShapeMajorityCategories_proportional(*shapeHandler, categories, matrix, vectorNull,
+                                                                   fieldName.toStdString(), threshold, errorStr);
+    else
+        isOk = zonalStatisticsShapeMajorityCategories(*shapeHandler, categories, matrix, vectorNull,
+                                                      fieldName.toStdString(), threshold, errorStr);
     formInfo.close();
 
     if (! isOk)

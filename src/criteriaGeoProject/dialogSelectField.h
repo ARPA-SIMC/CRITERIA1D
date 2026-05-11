@@ -19,6 +19,7 @@
             QListWidget* _listFields;
             QLineEdit* _stringValue;
             QLineEdit* _numericValue;
+            QCheckBox* _checkBox;
 
         public:
             DialogSelectField(Crit3DShapeHandler *shapeHandler, QString fileName, bool isOnlyNumeric, dialogType dialogType);
@@ -35,6 +36,14 @@
             QString getFieldSelected() const
             {
                 return _listFields->currentItem()->text();
+            }
+
+            bool isChecked() const
+            {
+                if (_checkBox)
+                    return _checkBox->isChecked();
+                else
+                    return false;
             }
 
             double getNumericValue() const

@@ -47,6 +47,10 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
         _stringValue = new QLineEdit();
         _stringValue->setPlaceholderText("New field (numeric)");
         mainLayout->addWidget(_stringValue);
+
+        _checkBox = new QCheckBox();
+        _checkBox->setText("Proportional distribution");
+        mainLayout->addWidget(_checkBox);
     }
 
     DBFFieldType typeField;
