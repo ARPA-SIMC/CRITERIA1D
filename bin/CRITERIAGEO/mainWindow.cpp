@@ -395,6 +395,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
         else if (rightClickItem->text() == "Close Project" )
         {
             on_actionClose_Project_triggered();
+            emit myRasterObject->redrawRequested();
         }
         else if (rightClickItem->text().contains("Show data"))
         {
@@ -407,6 +408,8 @@ void MainWindow::itemMenuRequested(const QPoint point)
         else if (rightClickItem->text().contains("Set style"))
         {
             setShapeStyle_GUI(myObject);
+            if (myShapeObject)
+                emit myShapeObject->redrawRequested();
         }
         else if (rightClickItem->text().contains("Export to raster (gdal)"))
         {
@@ -973,7 +976,7 @@ void MainWindow::setShapeStyle_GUI(GisObject* myObject)
     if (shapeFieldDialog.result() == QDialog::Accepted)
     {
         std::string fieldName = shapeFieldDialog.getFieldSelected().toStdString();
-        setShapeStyle(myObject, fieldName);
+        setShapeStyle(myObject, fieldName);   
     }
 }
 
@@ -1685,7 +1688,7 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     // select raster
     QString rasterFileName;
     bool isOk;
-    gis::Crit3DRasterGrid *rasterVal = selectRaster("Select the raster of values", rasterFileName, isOk);
+    gis::Crit3DRasterGrid *rasterVal = selectRaster("Select the value raster", rasterFileName, isOk);
     if (! isOk)
         return;
 

@@ -772,7 +772,7 @@
   </action>
   <action name="actionCrop_raster">
    <property name="text">
-    <string>[Raster] crop by bounding box...</string>
+    <string>[Raster] crop via bounding box...</string>
    </property>
   </action>
  </widget>
