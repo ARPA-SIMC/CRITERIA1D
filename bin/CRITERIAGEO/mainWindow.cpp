@@ -327,6 +327,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addAction("Set style");
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
+            submenu.addAction("Set random colors");
             submenu.addAction("Reverse color scale");
             submenu.addAction("Disable color scale");
             submenu.addSeparator();
@@ -355,6 +356,7 @@ void MainWindow::itemMenuRequested(const QPoint point)
             submenu.addSeparator();
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
+            submenu.addAction("Set random colors");
             submenu.addAction("Set dtm scale");
             submenu.addAction("Reverse color scale");
             submenu.addSeparator();
@@ -460,6 +462,19 @@ void MainWindow::itemMenuRequested(const QPoint point)
             if (myObject->type == gisObjectShape && myShapeObject != nullptr)
             {
                 setDefaultScale(myShapeObject->colorScale);
+                emit myShapeObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Set random colors"))
+        {
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
+            {
+                setRandomColors(myObject->getRasterPointer()->colorScale);
+                emit myRasterObject->redrawRequested();
+            }
+            if (myObject->type == gisObjectShape && myShapeObject != nullptr)
+            {
+                setRandomColors(myShapeObject->colorScale);
                 emit myShapeObject->redrawRequested();
             }
         }
@@ -1688,7 +1703,7 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     // select raster
     QString rasterFileName;
     bool isOk;
-    gis::Crit3DRasterGrid *rasterVal = selectRaster("Select the value raster", rasterFileName, isOk);
+    gis::Crit3DRasterGrid *rasterPtr = selectRaster("Select the value raster", rasterFileName, isOk);
     if (! isOk)
         return;
 
@@ -1716,14 +1731,16 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     formInfo.start("Assign prevailing...", 0);
 
     std::vector<int> categories, vectorNull;
-    std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterVal, categories, vectorNull);
+    std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterPtr, categories, vectorNull);
 
     std::string errorStr;
     if (isProportional)
-        isOk = zonalStatisticsShapeMajorityCategories_proportional(*shapeHandler, categories, matrix, vectorNull,
+        isOk = zonalStatisticsShapeCategories_proportional(*shapeHandler, categories, matrix,
+                                                                   rasterPtr->header->cellSize,
                                                                    fieldName.toStdString(), threshold, errorStr);
     else
-        isOk = zonalStatisticsShapeMajorityCategories(*shapeHandler, categories, matrix, vectorNull,
+        isOk = zonalStatisticsShapeCategories_majority(*shapeHandler, categories, matrix,
+                                                      rasterPtr->header->cellSize,
                                                       fieldName.toStdString(), threshold, errorStr);
     formInfo.close();
 
