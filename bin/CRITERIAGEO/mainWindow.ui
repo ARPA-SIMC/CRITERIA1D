@@ -590,6 +590,7 @@
     <addaction name="actionCompute_Ucm_intersection"/>
     <addaction name="separator"/>
     <addaction name="actionCompute_Ucm_prevailing"/>
+    <addaction name="actionAssign_IDCase"/>
     <addaction name="actionExtract_Unit_Crop_Map_list"/>
     <addaction name="separator"/>
     <addaction name="actionCompute_anomaly"/>
@@ -773,6 +774,11 @@
   <action name="actionCrop_raster">
    <property name="text">
     <string>[Raster] crop via bounding box...</string>
+   </property>
+  </action>
+  <action name="actionAssign_IDCase">
+   <property name="text">
+    <string>Assign ID Cases...</string>
    </property>
   </action>
  </widget>

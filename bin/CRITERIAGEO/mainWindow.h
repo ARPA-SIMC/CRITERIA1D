@@ -76,6 +76,8 @@
 
         void on_actionCrop_raster_triggered();
 
+        void on_actionAssign_IDCase_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

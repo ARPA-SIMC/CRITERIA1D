@@ -46,7 +46,9 @@
 
 
 CriteriaGeoProject::CriteriaGeoProject()
-{}
+{
+    _errorString = "";
+}
 
 
 void CriteriaGeoProject::addRaster(gis::Crit3DRasterGrid *rasterPtr, QString fileNameWithPath, int utmZone)
@@ -75,7 +77,7 @@ void CriteriaGeoProject::addNetcdf(NetCDFHandler *myNetcdf, QString fileName, in
 */
 
 
-bool CriteriaGeoProject::loadRaster(const QString &fileNameWithPath, QString &errorStr)
+bool CriteriaGeoProject::loadRaster(const QString &fileNameWithPath)
 {
     gis::Crit3DRasterGrid* newRaster = new(gis::Crit3DRasterGrid);
 
@@ -83,21 +85,21 @@ bool CriteriaGeoProject::loadRaster(const QString &fileNameWithPath, QString &er
     if (fileExtension == ".flt" || fileExtension == ".img")
     {
         std::string errorStdStr;
-        if (! gis::openRaster(fileNameWithPath.toStdString(), newRaster, gisSettings.utmZone, errorStdStr))
+        if (! gis::openRaster(fileNameWithPath.toStdString(), newRaster, _gisSettings.utmZone, errorStdStr))
         {
-            errorStr = "Wrong raster file: " + QString::fromStdString(errorStdStr);
+            _errorString = "Wrong raster file: " + QString::fromStdString(errorStdStr);
             return false;
         }
     }
 #ifdef GDAL
-    else if (! readGdalRaster(fileNameWithPath, newRaster, gisSettings.utmZone, errorStr))
+    else if (! readGdalRaster(fileNameWithPath, newRaster, _gisSettings.utmZone, _errorString))
     {
         return false;
     }
 #endif
 
     setDTMScale(newRaster->colorScale);
-    addRaster(newRaster, fileNameWithPath, gisSettings.utmZone);
+    addRaster(newRaster, fileNameWithPath, _gisSettings.utmZone);
 
     return true;
 }
@@ -108,7 +110,7 @@ bool CriteriaGeoProject::loadNetcdf(QString fileNameWithPath)
 {
     NetCDFHandler* netCDF = new NetCDFHandler();
 
-    netCDF->initialize(gisSettings.utmZone);
+    netCDF->initialize(_gisSettings.utmZone);
 
     if (! netCDF->readProperties(fileNameWithPath.toStdString()))
     {
@@ -116,18 +118,18 @@ bool CriteriaGeoProject::loadNetcdf(QString fileNameWithPath)
         return false;
     }
 
-    addNetcdf(netCDF, fileNameWithPath, gisSettings.utmZone);
+    addNetcdf(netCDF, fileNameWithPath, _gisSettings.utmZone);
     return true;
 }
 */
 
 
-bool CriteriaGeoProject::loadShapefile(QString fileNameWithPath, QString projectName)
+bool CriteriaGeoProject::loadShapefile(const QString &fileNameWithPath, const QString &projectName)
 {
     Crit3DShapeHandler *myShape = new(Crit3DShapeHandler);
-    if (!myShape->open(fileNameWithPath.toStdString()))
+    if (! myShape->open(fileNameWithPath.toStdString()))
     {
-        logError("Load shapefile failed.");
+        _errorString = "Load shapefile failed: " + fileNameWithPath;
         return false;
     }
 
@@ -193,15 +195,15 @@ bool CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, g
 
 
 bool CriteriaGeoProject::computeShapeAnomaly(Crit3DShapeHandler *shape1, Crit3DShapeHandler *shape2,
-                             std::string id, std::string field1, std::string field2, QString fileName)
+                                             const std::string &idStr, const std::string &field1,
+                                             const std::string &field2, const QString &fileName)
 {
-    QString errorStr;
     Crit3DShapeHandler *shapeAnomaly = new Crit3DShapeHandler();
 
     FormInfo formInfo;
     formInfo.start("Create shape...", 0);
 
-    if (computeAnomaly(shapeAnomaly, shape1, shape2, id, field1, field2, fileName, errorStr))
+    if (computeAnomaly(shapeAnomaly, shape1, shape2, idStr, field1, field2, fileName, _errorString))
     {
         addShapeFile(shapeAnomaly, fileName, "", shapeAnomaly->getUtmZone());
         formInfo.close();
@@ -210,23 +212,22 @@ bool CriteriaGeoProject::computeShapeAnomaly(Crit3DShapeHandler *shape1, Crit3DS
     else
     {
         formInfo.close();
-        logError(errorStr);
+        logError();
         return false;
     }
 }
 
 
-bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
-                                std::string idCrop, std::string idSoil, std::string idMeteo,
-                                double cellSize, double threshold,
-                                QString ucmFileName, bool isPrevailing)
+bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil,
+                                            Crit3DShapeHandler *shapeMeteo, const std::string &idCrop,
+                                            const std::string &idSoil, const std::string &idMeteo,
+                                            const QString &ucmFileName, double cellSize, double threshold, bool isPrevailing)
 {
-    std::string errorStr;
-
     if (isPrevailing)
     {
         Crit3DShapeHandler *shapeUCM = new Crit3DShapeHandler();
 
+        std::string errorStr;
         if (computeUcmPrevailing(*shapeUCM, *shapeCrop, *shapeSoil, *shapeMeteo, idCrop, idSoil, idMeteo,
                                  cellSize, threshold, ucmFileName, errorStr))
         {
@@ -235,7 +236,7 @@ bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3
         }
         else
         {
-            logError(QString::fromStdString(errorStr));
+            _errorString = QString::fromStdString(errorStr);
             return false;
         }
     }
@@ -245,14 +246,14 @@ bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3
             /*
             Crit3DShapeHandler *shapeUCM = new Crit3DShapeHandler();
 
-            if (computeUcmIntersection(shapeUCM, shapeCrop, shapeSoil, shapeMeteo, idCrop, idSoil, idMeteo, ucmFileName, &errorStr))
+            if (computeUcmIntersection(shapeUCM, shapeCrop, shapeSoil, shapeMeteo, idCrop, idSoil, idMeteo, ucmFileName, &_errorString))
             {
                 addShapeFile(shapeUCM, QString::fromStdString(shapeUCM->getFilepath()), "", shapeUCM->getUtmZone());
                 return true;
             }
             else
             {
-                logError(QString::fromStdString(errorStr));
+                logError(QString::fromStdString(_errorString));
                 return false;
             }*/
             logError("Function is not available.");
@@ -267,7 +268,11 @@ bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3
 
 bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bool showInfo)
 {
-    QString errorStr;
+    if (! shapeHandler)
+    {
+        _errorString = "Wrong shapefile.";
+        return false;
+    }
 
     int fieldRequired = 0;
     for (int i = 0; i < shapeHandler->getFieldNumbers(); i++)
@@ -276,13 +281,12 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
         if ( fieldName == "ID_CASE" || fieldName == "ID_SOIL" || fieldName == "ID_CROP" || fieldName == "ID_METEO"
             || (fieldName == "HECTARES" || fieldName == "HA") )
         {
-            fieldRequired = fieldRequired + 1;
+            fieldRequired++;
         }
     }
     if (fieldRequired < 5)
     {
-        errorStr = "Required fields: ID_CASE, ID_SOIL, ID_CROP, ID_METEO, HECTARES";
-        logError(errorStr);
+        _errorString = "Required fields: ID_CASE, ID_SOIL, ID_CROP, ID_METEO, HECTARES";
         return false;
     }
 
@@ -294,28 +298,96 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
     {
         if (!dbFile.remove())
         {
-            logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
+            _errorString = "Remove file failed: " + dbName + "\n" + dbFile.errorString();
             return false;
         }
     }
 
     FormInfo formInfo;
-    if (showInfo) formInfo.start("Extract computational units in: " + dbName, 0);
+    if (showInfo)
+        formInfo.start("Extract computational units in: " + dbName, 0);
 
-    bool result = writeUcmListToDb(*shapeHandler, dbName, errorStr);
+    bool result = writeUcmListToDb(*shapeHandler, dbName, _errorString);
 
     if (showInfo)
         formInfo.close();
-
-    if (! result)
-        logError(errorStr);
 
     return result;
 }
 
 
-bool CriteriaGeoProject::createShapeFromCsv(int shapeIndex, QString fileCsv, QString fileCsvFormat,
-                                            QString outputFileName, QString &errorStr)
+bool CriteriaGeoProject::assignIdCase(Crit3DShapeHandler* shapeHandler)
+{
+    if (! shapeHandler)
+        return false;
+
+    int fieldRequired = 0;
+    int fieldNumber = shapeHandler->getFieldNumbers();
+    for (int i = 0; i < fieldNumber; ++i)
+    {
+        QString fieldName = QString::fromStdString(shapeHandler->getFieldName(i)).toUpper();
+        if (fieldName == "ID_SOIL" || fieldName == "ID_CROP" || fieldName == "ID_METEO")
+        {
+            fieldRequired++;
+        }
+    }
+    if (fieldRequired < 3)
+    {
+        _errorString = "Required fields: ID_SOIL, ID_CROP, ID_METEO";
+        return false;
+    }
+
+    if (! shapeHandler->existField("ID_CASE"))
+    {
+        if (! shapeHandler->addField("ID_CASE", FTString, 20, 0))
+        {
+            _errorString = "Error creating ID_CASE field";
+            return false;
+        }
+    }
+
+    const int idCasePos = shapeHandler->getFieldPos("ID_CASE");
+    const int cropPos = shapeHandler->getFieldPos("ID_CROP");
+    const int soilPos = shapeHandler->getFieldPos("ID_SOIL");
+    const int meteoPos = shapeHandler->getFieldPos("ID_METEO");
+    const int nrShapes = shapeHandler->getShapeCount();
+
+    // fill ID_CASE
+    for (int shapeNr = 0; shapeNr < nrShapes; shapeNr++)
+    {
+        std::string cropStr = shapeHandler->readStringAttribute(shapeNr, cropPos);
+        if (cropStr == "-9999") cropStr = "";
+
+        std::string soilStr = shapeHandler->readStringAttribute(shapeNr, soilPos);
+        if (soilStr == "-9999") soilStr = "";
+
+        std::string meteoStr = shapeHandler->readStringAttribute(shapeNr, meteoPos);
+        if (meteoStr == "-9999") meteoStr = "";
+
+        // check ID CASE
+        std::string caseStr = "";
+        if (!meteoStr.empty() && !soilStr.empty() && !cropStr.empty())
+        {
+            caseStr =
+                "M" + meteoStr +
+                "S" + soilStr +
+                "C" + cropStr;
+        }
+
+        // write ID CASE
+        if (! shapeHandler->writeStringAttribute(shapeNr, idCasePos, caseStr.c_str()))
+        {
+            _errorString = "Error writing ID_CASE field for shape nr. " + QString::number(shapeNr);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+bool CriteriaGeoProject::createShapeFromCsv(int shapeIndex, const QString &fileCsv,
+                                            const QString &fileCsvFormat, const QString &outputFileName)
 {
     Crit3DShapeHandler* shapeHandler = (objectList.at(unsigned(shapeIndex)))->getShapeHandler();
 
@@ -329,14 +401,14 @@ bool CriteriaGeoProject::createShapeFromCsv(int shapeIndex, QString fileCsv, QSt
     }
     if (!found)
     {
-        errorStr = "Ivalid Computational Units Map - missing ID_CASE";
+        _errorString = "Ivalid Computational Units Map - missing ID_CASE";
         return false;
     }
 
     FormInfo formInfo;
     formInfo.start("Create shapefile...", 0);
 
-    bool isOk = shapeFromCsv(*shapeHandler, fileCsv, fileCsvFormat, outputFileName, errorStr);
+    bool isOk = shapeFromCsv(*shapeHandler, fileCsv, fileCsvFormat, outputFileName, _errorString);
 
     formInfo.close();
 
@@ -344,7 +416,7 @@ bool CriteriaGeoProject::createShapeFromCsv(int shapeIndex, QString fileCsv, QSt
 }
 
 
-int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputName)
+int CriteriaGeoProject::createShapeOutput(const QDate &dateComputation, const QString &outputName)
 {
     FormInfo formInfo;
     formInfo.start("Create CSV file...", 0);
@@ -380,13 +452,23 @@ int CriteriaGeoProject::createShapeOutput(QDate dateComputation, QString outputN
 // LOG
 //--------------------------------------------------------------
 
-void CriteriaGeoProject::logError(QString errorString)
+void CriteriaGeoProject::logError() const
 {
-    QMessageBox::critical(nullptr, "ERROR!", errorString);
+    logError(_errorString);
 }
 
-void CriteriaGeoProject::logWarning(QString errorString)
+void CriteriaGeoProject::logError(const QString &errorString) const
 {
-    QMessageBox::warning(nullptr, "WARNING", errorString);
+    QMessageBox::critical(nullptr, "ERROR", errorString);
+}
+
+void CriteriaGeoProject::logWarning(const QString &warningString) const
+{
+    QMessageBox::warning(nullptr, "WARNING", warningString);
+}
+
+void CriteriaGeoProject::logInfo(const QString &infoString) const
+{
+    QMessageBox::information(nullptr, "CRITERIA-GEO", infoString);
 }
 

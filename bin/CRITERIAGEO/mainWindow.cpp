@@ -88,8 +88,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setTileSource(WebTileSource::OPEN_STREET_MAP);
 
     // Set start size and position
-    this->startCenter = new Position (myProject.gisSettings.startLocation.longitude,
-                                     myProject.gisSettings.startLocation.latitude, 0.0);
+    this->startCenter = new Position (myProject.getGisSettings().startLocation.longitude,
+                                     myProject.getGisSettings().startLocation.latitude, 0.0);
     this->mapView->setZoomLevel(8);
     this->mapView->centerOn(startCenter->lonLat());
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
@@ -235,7 +235,7 @@ void MainWindow::mouseMove(QPoint eventPos)
         if (myRaster)
         {
             double utmX, utmY;
-            gis::getUtmFromLatLon(myProject.gisSettings,
+            gis::getUtmFromLatLon(myProject.getGisSettings(),
                                   geoPos.latitude(), geoPos.longitude(),
                                   &utmX, &utmY);
 
@@ -820,10 +820,9 @@ void MainWindow::on_actionLoadRaster_triggered()
 
     if (fileNameWithPath == "") return;
 
-    QString errorStr;
-    if (! myProject.loadRaster(fileNameWithPath, errorStr))
+    if (! myProject.loadRaster(fileNameWithPath))
     {
-        myProject.logError(errorStr);
+        myProject.logError();
         return;
     }
 
@@ -1079,9 +1078,9 @@ bool MainWindow::exportShapeToRaster_gdal(GisObject* myObject)
         return false;
     }
 
-    if (! myProject.loadRaster(outputName, errorStr))
+    if (! myProject.loadRaster(outputName))
     {
-        myProject.logError("Error in load raster " + errorStr);
+        myProject.logError();
         return false;
     }
 
@@ -1176,7 +1175,7 @@ bool MainWindow::selectShape(QPoint screenPos)
     Position geoPos = mapView->mapToScene(mapPos);
 
     double x, y;
-    gis::latLonToUtmForceZone(myProject.gisSettings.utmZone, geoPos.latitude(), geoPos.longitude(), &x, &y);
+    gis::latLonToUtmForceZone(myProject.getGisSettings().utmZone, geoPos.latitude(), geoPos.longitude(), &x, &y);
     int index = shapeHandler->getShapeIndexfromPoint(x, y);
 
     // update only if the index is changed
@@ -1210,21 +1209,26 @@ void MainWindow::on_actionCompute_Ucm_prevailing_triggered()
     }
 
     DialogUcmPrevailing ucmDialog(shapeList);
-    if (ucmDialog.result() == QDialog::Rejected) return;
+    if (ucmDialog.result() == QDialog::Rejected)
+        return;
 
     QString ucmFileName = QFileDialog::getSaveFileName(this, tr("Save Shapefile"), "", tr("shp files (*.shp)"));
-    if (ucmFileName == "") return;
+    if (ucmFileName.isEmpty())
+        return;
 
     bool isPrevailing = true;
     double threshold = 0.5;         // TODO aggiungere a ucmDialog
 
-    if (myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
-                                 ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
-                                 ucmDialog.getIdMeteo().toStdString(), ucmDialog.getCellSize(), threshold,
-                                 ucmFileName, isPrevailing))
+    if (! myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
+                                        ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
+                                        ucmDialog.getIdMeteo().toStdString(), ucmFileName,
+                                        ucmDialog.getCellSize(), threshold, isPrevailing))
     {
-        addShapeObject(myProject.objectList.back());
+        myProject.logError();
+        return;
     }
+
+    addShapeObject(myProject.objectList.back());
 }
 
 
@@ -1244,22 +1248,26 @@ void MainWindow::on_actionCompute_Ucm_intersection_triggered()
     }
 
     DialogUcmIntersection ucmDialog(shapeList);
-    if (ucmDialog.result() == QDialog::Rejected) return;
+    if (ucmDialog.result() == QDialog::Rejected)
+        return;
 
     QString ucmFileName = QFileDialog::getSaveFileName(this, tr("Save Shapefile"), "", tr("shp files (*.shp)"));
-    if (ucmFileName == "") return;
+    if (ucmFileName.isEmpty())
+        return;
 
     bool isPrevailing = false;
     double threshold = 0.5;
 
-    if (myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
-                                 ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
-                                 ucmDialog.getIdMeteo().toStdString(), NODATA, threshold,
-                                 ucmFileName, isPrevailing))
+    if (! myProject.computeUnitCropMap(ucmDialog.getCrop(), ucmDialog.getSoil(), ucmDialog.getMeteo(),
+                                        ucmDialog.getIdCrop().toStdString(), ucmDialog.getIdSoil().toStdString(),
+                                        ucmDialog.getIdMeteo().toStdString(), ucmFileName,
+                                        NODATA, threshold, isPrevailing))
     {
-        addShapeObject(myProject.objectList.back());
+        myProject.logError();
+        return;
     }
 
+    addShapeObject(myProject.objectList.back());
 }
 
 
@@ -1268,17 +1276,40 @@ void MainWindow::on_actionExtract_Unit_Crop_Map_list_triggered()
     QListWidgetItem * itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
     {
-        QMessageBox::information(nullptr, "No shape selected", "Select a Computational Units Map.");
+        QMessageBox::warning(nullptr, "No shape selected", "Select Computational Units Map shapefile.");
         return;
     }
-    else
-    {
-        int pos = ui->checkList->row(itemSelected);
-        GisObject* myObject = myProject.objectList.at(unsigned(pos));
-        Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
 
-        myProject.extractUcmListToDb(shapeHandler, true);
-     }
+    int pos = ui->checkList->row(itemSelected);
+    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+
+    if (! myProject.extractUcmListToDb(shapeHandler, true))
+        myProject.logError();
+}
+
+
+
+void MainWindow::on_actionAssign_IDCase_triggered()
+{
+    QListWidgetItem * itemSelected = ui->checkList->currentItem();
+    if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
+    {
+        QMessageBox::warning(nullptr, "No shape selected", "Select Computational Units Map shapefile.");
+        return;
+    }
+
+    int pos = ui->checkList->row(itemSelected);
+    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+
+    if (! myProject.assignIdCase(shapeHandler))
+    {
+        myProject.logError();
+        return;
+    }
+
+    myProject.logInfo("ID_CASE has been assigned.");
 }
 
 
@@ -1312,10 +1343,9 @@ void MainWindow::on_actionCreate_Shape_file_from_Csv_triggered()
         return;
     }
 
-    QString errorStr;
-    if (! myProject.createShapeFromCsv(shapeIndex, fileCsv, fileCsvFormat, outputFileName, errorStr))
+    if (! myProject.createShapeFromCsv(shapeIndex, fileCsv, fileCsvFormat, outputFileName))
     {
-        myProject.logError(errorStr);
+        myProject.logError();
     }
 }
 
@@ -1332,7 +1362,8 @@ void MainWindow::on_actionLoadProject_triggered()
         {
             closeGeoProject();
         }
-        else return;
+        else
+            return;
     }
 
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open GEO project"), "", tr("Settings files (*.ini)"));
@@ -1778,7 +1809,7 @@ void MainWindow::on_actionClipRaster_with_raster_triggered()
     }
 
     setDefaultScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.gisSettings.utmZone);
+    myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.getGisSettings().utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
@@ -1804,7 +1835,7 @@ void MainWindow::on_actionClip_cut_null_values_triggered()
     }
 
     setDefaultScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, rasterFileName + "_cut", myProject.gisSettings.utmZone);
+    myProject.addRaster(outputRaster, rasterFileName + "_cut", myProject.getGisSettings().utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
@@ -1836,7 +1867,7 @@ void MainWindow::on_actionReplaceRaster_with_raster_triggered()
         }
 
         setDefaultScale(outputRaster->colorScale);
-        myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.gisSettings.utmZone);
+        myProject.addRaster(outputRaster, refRasterFileName + "_clip", myProject.getGisSettings().utmZone);
     }
     formInfo.close();
 
@@ -1881,7 +1912,7 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
         return;
 
     setDTMScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, refRasterFileName + "_range_deleted", myProject.gisSettings.utmZone);
+    myProject.addRaster(outputRaster, refRasterFileName + "_range_deleted", myProject.getGisSettings().utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
@@ -1908,13 +1939,14 @@ void MainWindow::on_actionCrop_raster_triggered()
     Position bottomRight = mapView->mapToScene(rubberBandRect.bottomRight());
     gis::Crit3DGeoPoint p1(bottomRight.latitude(), topLeft.longitude());
     gis::Crit3DGeoPoint p2(topLeft.latitude(), bottomRight.longitude());
-    if (! gis::cropRaster(refRaster, outputRaster, myProject.gisSettings.utmZone, p1, p2))
+    if (! gis::cropRaster(refRaster, outputRaster, myProject.getGisSettings().utmZone, p1, p2))
         return;
 
     setDTMScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, refRasterFileName + "_cropped", myProject.gisSettings.utmZone);
+    myProject.addRaster(outputRaster, refRasterFileName + "_cropped", myProject.getGisSettings().utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
 }
+
 

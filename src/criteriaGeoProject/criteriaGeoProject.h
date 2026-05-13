@@ -22,16 +22,21 @@
     class CriteriaGeoProject
     {
     private:
+        QString _errorString;
+        gis::Crit3DGisSettings _gisSettings;
 
     public:
-        gis::Crit3DGisSettings gisSettings;
         std::vector<GisObject*> objectList;
         CriteriaOutputProject output;
 
         CriteriaGeoProject();
 
-        bool loadRaster(const QString &fileNameWithPath, QString &errorStr);
-        bool loadShapefile(QString fileNameWithPath, QString projectName);
+        gis::Crit3DGisSettings& getGisSettings()
+        { return _gisSettings; }
+
+        bool loadRaster(const QString &fileNameWithPath);
+
+        bool loadShapefile(const QString &fileNameWithPath, const QString &projectName);
         //bool loadNetcdf(QString fileNameWithPath);
 
         void addRaster(gis::Crit3DRasterGrid *myRaster, QString fileNameWithPath, int utmZone);
@@ -44,21 +49,27 @@
         bool fillRasterFromShape(Crit3DShapeHandler &shapeHandler, gis::Crit3DRasterGrid &refRaster,
                                  const QString &field, const QString &outputName, bool showInfo);
 
-        bool createShapeFromCsv(int shapeIndex, QString fileCsv, QString fileCsvFormat, QString outputFileName, QString &errorStr);
+        bool createShapeFromCsv(int shapeIndex, const QString &fileCsv, const QString &fileCsvFormat,
+                                const QString &outputFileName);
 
         bool extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bool showInfo);
 
+        bool assignIdCase(Crit3DShapeHandler* shapeHandler);
+
         bool computeShapeAnomaly(Crit3DShapeHandler *shape1, Crit3DShapeHandler *shape2,
-                            std::string id, std::string field1, std::string field2, QString fileName);
+                                 const std::string &idStr, const std::string &field1,
+                                 const std::string &field2, const QString &fileName);
 
         bool computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3DShapeHandler *shapeSoil, Crit3DShapeHandler *shapeMeteo,
-                            std::string idCrop, std::string idSoil, std::string idMeteo,
-                            double cellSize, double threshold, QString ucmFileName, bool isPrevailing);
+                            const std::string &idCrop, const std::string &idSoil, const std::string &idMeteo,
+                            const QString &ucmFileName, double cellSize, double threshold, bool isPrevailing);
 
-        void logError(QString errorString);
-        void logWarning(QString errorString);
+        void logError() const;
+        void logError(const QString &errorString) const;
+        void logWarning(const QString &warningString) const;
+        void logInfo(const QString &infoString) const;
 
-        int createShapeOutput(QDate dateComputation, QString outputName);
+        int createShapeOutput(const QDate &dateComputation, const QString &outputName);
     };
 
 
