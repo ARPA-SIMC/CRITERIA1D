@@ -165,7 +165,9 @@ bool initializeHeat1D(bool useInputSoils)
         else  depth[indexNode] = depth[indexNode-1] - myHeat1D.Thickness ;
     }
 
-    SF3Derror_t result = soilFluxes3D::initializeSF3D(myHeat1D.NodesNumber, (short)myHeat1D.NodesNumber, 0,
+    unsigned int nrSurfaceNodes = 1;
+    unsigned char nrLateralLinks = 0;
+    SF3Derror_t result = soilFluxes3D::initializeSF3D(myHeat1D.NodesNumber, nrSurfaceNodes, nrLateralLinks,
                                       myHeat1D.computeWater, myHeat1D.computeHeat, myHeat1D.computeSolutes, heatFluxSaveMode_t::All);
     if (result != SF3Derror_t::SF3Dok)
         printf("\n error in initialize");
@@ -178,7 +180,7 @@ bool initializeHeat1D(bool useInputSoils)
 
     soilFluxes3D::setHydraulicProperties(WRCModel::VanGenuchten, meanType_t::Logarithmic, 4.);
     soilFluxes3D::setSurfaceProperties(0, 0.05);
-    soilFluxes3D::setNumericalParameters(0.1, HOUR_SECONDS, 200, 10, 12, 5);
+    soilFluxes3D::setNumericalParameters(0.1, HOUR_SECONDS, 200, 10, 12, 4);
     soilFluxes3D::setThreadsNumber(1);
 
     boundaryType_t boundaryType;
