@@ -9,7 +9,7 @@
 QT       += widgets core charts printsupport
 
 TEMPLATE = app
-VERSION = 1.0
+VERSION = 1.1
 QMAKE_TARGET_COPYRIGHT = "\\251 2026 ARPAE ER - Climate Observatory"
 
 CONFIG += c++11 c++14 c++17
