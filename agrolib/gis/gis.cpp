@@ -1110,117 +1110,83 @@ namespace gis
     }
 
 
-    bool computeSlopeAspectMaps(const gis::Crit3DRasterGrid& dem,
-                                gis::Crit3DRasterGrid* slopeMap, gis::Crit3DRasterGrid* aspectMap)
+    bool computeSlopeAspectBoundary(const gis::Crit3DRasterGrid& dem, gis::Crit3DRasterGrid* slopeMap,
+                                    gis::Crit3DRasterGrid* aspectMap, float z, int row, int col)
     {
         if (!dem.isLoaded || !slopeMap || !aspectMap)
             return false;
 
-        double dz_dx, dz_dy;
-        double lateral_distance = dem.header->cellSize * sqrt(2);
+        float flag = dem.header->flag;
+        if (isEqual(z, flag))
+            return false;
 
-        slopeMap->initializeGrid(dem);
-        aspectMap->initializeGrid(dem);
+        const double cellSize = dem.header->cellSize;
 
-        for (int row = 0; row < dem.header->nrRows; row++)
-            for (int col = 0; col < dem.header->nrCols; col++)
+        // compute dz/dy
+        double dz = 0.0;
+        double dy = 0.0;
+        double dx = 0.0;
+        for (int i = -1; i <= 1; ++i)
+        {
+            if (i != 0)
             {
-                float z = dem.value[row][col];
-                if (! isEqual(z, dem.header->flag))
+                for(int j= -1; j <= 1; ++j)
                 {
-                    /*! compute dz/dy */
-                    double dz = 0;
-                    double dy = 0;
-                    for (int i=-1; i <=1; i++)
+                    float z1 = dem.getValueFromRowCol(row+i, col+j);
+                    if (! isEqual(z1, flag))
                     {
-                        if (i != 0)
-                        {
-                            for(int j=-1; j <=1; j++)
-                            {
-                                float z1 = dem.getValueFromRowCol(row+i, col+j);
-                                if (! isEqual(z1, dem.header->flag))
-                                {
-                                    dz += i * (z - z1);
-                                    if (j == 0)
-                                        dy += dem.header->cellSize;
-                                    else
-                                        dy += lateral_distance;
-                                }
-                            }
-                        }
+                        dz += i * (z - z1);
+                        dy += cellSize;
                     }
-
-                    if (dy > 0)
-                        dz_dy = dz / dy;
-                    else
-                        dz_dy = EPSILON;
-
-                    /*! compute dz/dx */
-                    dz = 0;
-                    double dx = 0;
-                    for (int j=-1; j <=1; j++)
-                    {
-                        if (j != 0)
-                        {
-                            for(int i=-1; i <=1; i++)
-                            {
-                                float z1 = dem.getValueFromRowCol(row+i, col+j);
-                                if (! isEqual(z1, dem.header->flag))
-                                {
-                                    dz = dz + j * (z - z1);
-                                    if (i == 0)
-                                        dx += dem.header->cellSize;
-                                    else
-                                        dx += lateral_distance;
-                                }
-                            }
-                        }
-                    }
-
-                    if (dx > 0)
-                        dz_dx = dz / dx;
-                    else
-                        dz_dx = EPSILON;
-
-                    /*! slope in degrees */
-                    double slope = atan(sqrt(dz_dx * dz_dx + dz_dy * dz_dy)) * RAD_TO_DEG;
-                    slopeMap->value[row][col] = float(slope);
-
-                    /*! avoid arctan to infinite */
-                    if (dz_dx == 0.) dz_dx = EPSILON;
-
-                    /*! compute with zero to east */
-                    double aspect = 0.0;
-                    if (dz_dx > 0)
-                    {
-                        aspect = atan(dz_dy / dz_dx);
-                    }
-                    else if (dz_dx < 0)
-                    {
-                        aspect = PI + atan(dz_dy / dz_dx);
-                    }
-
-                    /*! convert to zero from north and to degrees */
-                    aspect += (PI / 2.);
-                    aspect *= RAD_TO_DEG;
-
-                    aspectMap->value[row][col] = float(aspect);
                 }
             }
+        }
 
-        gis::updateMinMaxRasterGrid(slopeMap);
-        gis::updateMinMaxRasterGrid(aspectMap);
+        dy = std::max(dy, EPSILON);
+        const double dz_dy = dz / dy;
 
-        aspectMap->isLoaded = true;
-        slopeMap->isLoaded = true;
+        // compute dz/dx
+        dz = 0.0;
+        dx = 0.0;
+        for (int j=-1; j <=1; j++)
+        {
+            if (j != 0)
+            {
+                for(int i=-1; i <=1; i++)
+                {
+                    float z1 = dem.getValueFromRowCol(row+i, col+j);
+                    if (! isEqual(z1, flag))
+                    {
+                        dz += j * (z - z1);
+                        dx += cellSize;
+                    }
+                }
+            }
+        }
+
+        dx = std::max(dx, EPSILON);
+        double dz_dx = dz / dx;
+
+        // slope in degrees
+        double slope = atan(sqrt(dz_dx * dz_dx + dz_dy * dz_dy)) * RAD_TO_DEG;
+        slopeMap->value[row][col] = float(slope);
+
+        // compute with zero to east
+        double aspect = atan2(-dz_dy, dz_dx);
+
+        // aspect in degrees: 0° = north, clockwise
+        aspect = 90.0 - aspect * RAD_TO_DEG;
+        if (aspect < 0)
+            aspect += 360;
+
+        aspectMap->value[row][col] = float(aspect);
 
         return true;
     }
 
 
     // Horn (3x3 standard)
-    // TODO controllare
-    bool computeSlopeAspectMaps_NEW(const gis::Crit3DRasterGrid& dem,
+    bool computeSlopeAspectMaps(const gis::Crit3DRasterGrid& dem,
                                 gis::Crit3DRasterGrid* slopeMap,
                                 gis::Crit3DRasterGrid* aspectMap)
     {
@@ -1232,19 +1198,22 @@ namespace gis
         slopeMap->initializeGrid(dem);
         aspectMap->initializeGrid(dem);
 
-        double flag = double(dem.header->flag);
+        const float flag = dem.header->flag;
 
         for (int row = 0; row < dem.header->nrRows; ++row)
         {
             for (int col = 0; col < dem.header->nrCols; ++col)
             {
-                const double value = dem.value[row][col];
+                const float z = dem.value[row][col];
 
-                if (isEqual(value, flag))
+                if (isEqual(z, flag))
                     continue;
 
                 if (isBoundary(dem, row, col))
+                {
+                    computeSlopeAspectBoundary(dem, slopeMap, aspectMap, z, row, col);
                     continue;
+                }
 
                 const double z1 = dem.value[row-1][col-1];
                 const double z2 = dem.value[row-1][col];
@@ -1265,8 +1234,8 @@ namespace gis
 
                 if (std::abs(dzdx) < EPSILON && std::abs(dzdy) < EPSILON)
                 {
-                    slopeMap->value[row][col] = 0;
-                    aspectMap->value[row][col] = aspectMap->header->flag;
+                    slopeMap->value[row][col] = 0.0;
+                    aspectMap->value[row][col] = 0.0;
                     continue;
                 }
 
@@ -1279,7 +1248,7 @@ namespace gis
                 double aspect = std::atan2(dzdy, -dzdx);
 
                 // convert to GIS compass (0 = North, clockwise)
-                aspect = aspect * RAD_TO_DEG;
+                aspect = 90.0 - aspect * RAD_TO_DEG;
                 if (aspect < 0)
                     aspect += 360.0;
 
