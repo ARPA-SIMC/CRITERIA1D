@@ -286,7 +286,7 @@ bool CriteriaGeoProject::extractUcmListToDb(Crit3DShapeHandler* shapeHandler, bo
     }
     if (fieldRequired < 5)
     {
-        _errorString = "Required fields: ID_CASE, ID_SOIL, ID_CROP, ID_METEO, HECTARES";
+        _errorString = "Mandatory fields: ID_CASE, ID_SOIL, ID_CROP, ID_METEO, HECTARES";
         return false;
     }
 
