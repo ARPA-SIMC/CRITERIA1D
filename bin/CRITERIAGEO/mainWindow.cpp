@@ -297,7 +297,11 @@ void MainWindow::itemMenuRequested(const QPoint point)
 {
     QPoint itemPoint = ui->checkList->mapToGlobal(point);
     QListWidgetItem* item = ui->checkList->itemAt(point);
+
     int pos = ui->checkList->row(item);
+    if (pos < 0)
+        return;
+
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
 
     QMenu submenu;
