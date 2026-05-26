@@ -121,8 +121,11 @@
         void addRasterObject(GisObject* myObject);
         void addNetcdfObject(GisObject* myObject);
         bool addShapeObject(GisObject* myObject);
+
         void itemClicked(QListWidgetItem* item);
-        void itemMenuRequested(const QPoint point);
+        void contextMenuRequested(const QPoint &localPos);
+        void itemMenuRequested(const QPoint &point);
+
         void saveRaster(GisObject* myObject);
         void saveShape(GisObject* myObject);
         void removeRaster(GisObject* myObject);

@@ -129,7 +129,7 @@ bool CriteriaGeoProject::loadShapefile(const QString &fileNameWithPath, const QS
     Crit3DShapeHandler *myShape = new(Crit3DShapeHandler);
     if (! myShape->open(fileNameWithPath.toStdString()))
     {
-        _errorString = "Load shapefile failed: " + fileNameWithPath;
+        _errorString = QString::fromStdString(myShape->errorString);
         return false;
     }
 

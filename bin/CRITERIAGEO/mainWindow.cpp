@@ -173,19 +173,26 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
 
+    QPoint eventPos = event->pos();
+
     if (event->button() == Qt::LeftButton)
     {
-        selectShape(event->pos());
-        updateMaps();
+        if (selectShape(eventPos))
+            updateMaps();
     }
-
-    if (event->button() == Qt::RightButton)
+    else if (event->button() == Qt::RightButton)
     {
+        bool isContextMenu = true;
+
         if (rubberBand->isVisible())
         {
-            getRubberBandRect(event->pos(), rubberBandRect);
+            getRubberBandRect(eventPos, rubberBandRect);
             rubberBand->hide();
+            isContextMenu = (rubberBandRect.height() < 2);
         }
+
+        if (isContextMenu)
+            contextMenuRequested(event->pos());
     }
 }
 
@@ -260,7 +267,10 @@ void MainWindow::mouseMove(QPoint eventPos)
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton && rubberBand)
+    if (event->button() != Qt::RightButton)
+        return;
+
+    if (rubberBand)
     {
         QPoint mapPos = getMapPos(event->pos());
         QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
@@ -293,7 +303,115 @@ bool MainWindow::getRubberBandRect(const QPoint& position, QRect& rect)
 }
 
 
-void MainWindow::itemMenuRequested(const QPoint point)
+void MainWindow::contextMenuRequested(const QPoint &localPos)
+{
+    // Check mouse position
+    QPoint mapPos = getMapPos(localPos);
+    if (! isInsideMap(mapPos))
+        return;
+
+    // Get selected item
+    QListWidgetItem* itemSelected = ui->checkList->currentItem();
+    if (! itemSelected)
+        return;
+
+    int index = ui->checkList->row(itemSelected);
+    if (index < 0 || index >= myProject.objectList.size())
+        return;
+
+    // Get selected object
+    GisObject* myObject = myProject.objectList.at(index);
+    if (! myObject)
+        return;
+
+    // get utm (x,y)
+    Position geoPos = mapView->mapToScene(mapPos);
+    gis::Crit3DGeoPoint geoPoint(geoPos.latitude(), geoPos.longitude());
+    gis::Crit3DUtmPoint utmPoint;
+    gis::getUtmFromLatLon(myProject.getGisSettings().utmZone, geoPoint, &utmPoint);
+
+    QMenu contextMenu(this);
+    QAction* editShapeAction = nullptr;
+    QAction* editRasterPointAction = nullptr;
+    auto* shapeObject = getShapeObject(myObject);
+    auto* rasterObject = getRasterObject(myObject);
+
+    switch (myObject->type)
+    {
+        case gisObjectShape:
+        {
+            if (! shapeObject)
+                return;
+
+            editShapeAction = contextMenu.addAction("Edit Shape..");
+            break;
+        }
+
+        case gisObjectRaster:
+        {
+            if (! rasterObject)
+                return;
+
+            gis::Crit3DRasterGrid* rasterPointer = rasterObject->getRasterPointer();
+            if (! rasterPointer)
+                return;
+
+            int row, col;
+            rasterPointer->getRowCol(utmPoint.x, utmPoint.y, row, col);
+            if (rasterPointer->isOutOfGrid(row, col))
+                return;
+
+            editRasterPointAction = contextMenu.addAction("Edit raster point..");
+            break;
+        }
+
+        default:
+            return;
+    }
+
+    QAction* selectedAction = contextMenu.exec(mapToGlobal(localPos));
+
+    if (selectedAction == editShapeAction)
+    {
+        // TODO
+    }
+    else if (selectedAction == editRasterPointAction)
+    {
+        gis::Crit3DRasterGrid* rasterPointer = rasterObject->getRasterPointer();
+        if (! rasterPointer)
+            return;
+
+        // get row col
+        int row, col;
+        rasterPointer->getRowCol(utmPoint.x, utmPoint.y, row, col);
+        if (rasterPointer->isOutOfGrid(row, col))
+            return;
+
+        float currentValue = rasterPointer->value[row][col];
+
+        FormText f("Choose new value:", QString::number(currentValue));
+        if (f.exec() != QDialog::Accepted)
+        {
+            return;                         // Cancel or close
+        }
+
+        QString newValueStr = f.getText();
+
+        bool isOk;
+        float newValue = newValueStr.toFloat(&isOk);
+        if (! isOk)
+        {
+            myProject.logWarning("Wrong number!");
+            return;
+        }
+
+        rasterPointer->value[row][col] = newValue;
+        updateMaps();
+    }
+}
+
+
+void MainWindow::itemMenuRequested(const QPoint &point)
 {
     QPoint itemPoint = ui->checkList->mapToGlobal(point);
     QListWidgetItem* item = ui->checkList->itemAt(point);
@@ -858,7 +976,10 @@ void MainWindow::on_actionLoadShapefile_triggered()
     if (fileNameWithPath == "") return;
 
     if (! myProject.loadShapefile(fileNameWithPath, ""))
+    {
+        myProject.logError();
         return;
+    }
 
     GisObject* myObject = myProject.objectList.back();
 
@@ -1189,8 +1310,15 @@ bool MainWindow::selectShape(QPoint screenPos)
         emit myShapeObject->redrawRequested();
 
         // update shape info dialog
-        shapeInfoBrowser.setText(QString::fromStdString(shapeHandler->getAttributesList(index)));
-        shapeInfoDialog.show();
+        if (index == NODATA)
+        {
+            shapeInfoDialog.close();
+        }
+        else
+        {
+            shapeInfoBrowser.setText(QString::fromStdString(shapeHandler->getAttributesList(index)));
+            shapeInfoDialog.show();
+        }
     }
 
     return true;
@@ -1890,7 +2018,11 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
         return;
 
     FormText formMinimum("Choose minimum value:", QString::number(refRaster->minimum));
-    formMinimum.show();
+    if (formMinimum.exec() != QDialog::Accepted)
+    {
+        return;                         // Cancel or close
+    }
+
     QString minStr = formMinimum.getText();
     float minimum = minStr.toFloat(&isOk);
     if (! isOk)
@@ -1901,7 +2033,11 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
     formMinimum.close();
 
     FormText formMaximum("Choose maximum value:", QString::number(refRaster->maximum));
-    formMaximum.show();
+    if (formMaximum.exec() != QDialog::Accepted)
+    {
+        return;                         // Cancel or close
+    }
+
     QString maxStr = formMaximum.getText();
     float maximum = maxStr.toFloat(&isOk);
     if (! isOk)
@@ -1925,7 +2061,7 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
 
 void MainWindow::on_actionCrop_raster_triggered()
 {
-    if (rubberBandRect.size() == QSize(0, 0))
+    if (rubberBandRect.height() < 2 || rubberBandRect.width() < 2)
     {
         myProject.logWarning("First, select the bounding box (use the right mouse button)");
         return;
