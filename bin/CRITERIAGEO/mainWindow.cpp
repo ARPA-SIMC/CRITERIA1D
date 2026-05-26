@@ -438,23 +438,23 @@ void MainWindow::itemMenuRequested(const QPoint &point)
             else
             {
                 submenu.addAction("Remove");
-                submenu.addSeparator();
                 submenu.addAction("Save as");
                 submenu.addSeparator();
             }
 
+            submenu.addAction("Zoom to layer");
+            submenu.addSeparator();
+
             submenu.addAction("Show data");
             submenu.addAction("Attribute table");
             submenu.addSeparator();
+
             submenu.addAction("Set style");
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
             submenu.addAction("Set random colors");
             submenu.addAction("Reverse color scale");
             submenu.addAction("Disable color scale");
-            submenu.addSeparator();
-            submenu.addAction("Export to raster (gdal)");
-            submenu.addAction("Export to NetCDF");
             submenu.addSeparator();
 
             if (myShapeObject->isSelectedRed())
@@ -466,6 +466,11 @@ void MainWindow::itemMenuRequested(const QPoint &point)
                 submenu.addAction("Set opaque");
             else
                 submenu.addAction("Set transparent");
+
+            submenu.addSeparator();
+            submenu.addAction("Export to raster (gdal)");
+            submenu.addAction("Export to NetCDF");
+
         }
     }
     if (myObject->type == gisObjectRaster)
@@ -473,22 +478,26 @@ void MainWindow::itemMenuRequested(const QPoint &point)
         if (myRasterObject != nullptr)
         {
             submenu.addAction("Remove");
-            submenu.addSeparator();
             submenu.addAction("Save as");
             submenu.addSeparator();
+
+            submenu.addAction("Zoom to layer");
+            submenu.addSeparator();
+
             submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
             submenu.addAction("Set random colors");
             submenu.addAction("Set dtm scale");
             submenu.addAction("Reverse color scale");
             submenu.addSeparator();
-            submenu.addAction("Statistical summary");
-            submenu.addSeparator();
 
             if (myRasterObject->opacity() < 1)
                 submenu.addAction("Set opaque");
             else
                 submenu.addAction("Set transparent");
+
+            submenu.addSeparator();
+            submenu.addAction("Statistical summary");
         }
     }
     if (myObject->type == gisObjectNetcdf)
@@ -519,6 +528,17 @@ void MainWindow::itemMenuRequested(const QPoint &point)
         else if (rightClickItem->text() == "Close Project" )
         {
             on_actionClose_Project_triggered();
+        }
+        else if (rightClickItem->text().contains("Zoom to layer"))
+        {
+            if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
+            {
+                zoomToRaster(myObject);
+            }
+            else if (myObject->type == gisObjectShape)
+            {
+                zoomToShape(myObject);
+            }
         }
         else if (rightClickItem->text().contains("Show data"))
         {
@@ -909,18 +929,77 @@ bool MainWindow::addShapeObject(GisObject* myObject)
 }
 
 
-// resize and center map on last raster size
-void MainWindow::zoomOnLastRaster()
+void MainWindow::zoomToShape(GisObject* myObject)
 {
-    RasterUtmObject* myRaster = this->rasterObjList.back();
+    if (! myObject)
+        return;
 
-    Position center = myRaster->getRasterCenter();
-    float size = myRaster->getRasterMaxSize();
+    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+    if (! shapeHandler)
+        return;
 
-    this->mapView->setZoomLevel(quint8(log2(float(ui->widgetMap->width()) / size)));
-    this->mapView->centerOn(center.longitude(), center.latitude());
+    gis::Crit3DUtmPoint p0, p1;
+    if (! shapeHandler->getBounds(p0.x, p0.y, p1.x, p1.y))
+        return;
 
-    this->updateMaps();
+    gis::Crit3DGeoPoint g0, g1, center;
+    gis::getLatLonFromUtm(myProject.getGisSettings(), p0, g0);
+    gis::getLatLonFromUtm(myProject.getGisSettings(), p1, g1);
+
+    center.latitude = (g0.latitude + g1.latitude) * 0.5;
+    center.longitude = (g0.longitude + g1.longitude) * 0.5;
+
+    double latSize = std::abs(g0.latitude - g1.latitude);
+    const double cosLat = std::max(0.01, std::cos(center.latitude * DEG_TO_RAD));
+    double lonSize = std::abs(g0.longitude - g1.longitude) * cosLat;
+
+    // padding and avoid division by zero
+    latSize = std::max(latSize * 1.2, 1e-6);
+    lonSize = std::max(lonSize * 1.2, 1e-6);
+
+    const double viewW = double(ui->widgetMap->width());
+    const double viewH = double(ui->widgetMap->height());
+    const double scaleX = viewW / lonSize;
+    const double scaleY = viewH / latSize;
+
+    double zoom = std::log2(std::min(scaleX, scaleY));
+    zoom = std::clamp(zoom, 1.0, 20.0);
+
+    mapView->setZoomLevel(static_cast<quint8>(std::round(zoom)));
+    mapView->centerOn(center.longitude, center.latitude);
+
+    updateMaps();
+}
+
+
+void MainWindow::zoomToRaster(GisObject* myObject)
+{
+    if (! myObject)
+        return;
+
+    RasterUtmObject* rasterObj = getRasterObject(myObject);
+    if (! rasterObj)
+        return;
+
+    const Position center = rasterObj->getRasterCenter();
+
+    // degrees (padding)
+    const double lonSize = std::max(rasterObj->getSizeX() * 1.1, 1e-6);
+    const double latSize = std::max(rasterObj->getSizeY() * 1.1, 1e-6);
+
+    const double viewW = double(ui->widgetMap->width());
+    const double viewH = double(ui->widgetMap->height());
+
+    const double scaleX = viewW / lonSize;
+    const double scaleY = viewH / latSize;
+
+    double zoom = std::log2(std::min(scaleX, scaleY));
+    zoom = std::clamp(zoom, 1.0, 20.0);
+
+    mapView->setZoomLevel(static_cast<quint8>(std::round(zoom)));
+    mapView->centerOn(center.longitude(), center.latitude());
+
+    updateMaps();
 }
 
 
@@ -949,7 +1028,7 @@ void MainWindow::on_actionLoadRaster_triggered()
     }
 
     addRasterObject(myProject.objectList.back());
-    zoomOnLastRaster();
+    zoomToRaster(myProject.objectList.back());
 }
 
 

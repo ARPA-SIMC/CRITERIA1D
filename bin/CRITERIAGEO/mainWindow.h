@@ -147,7 +147,9 @@
         int getRasterIndex(GisObject *myObject);
         int getSelectedShapePos();
         int getSelectedRasterPos(bool isInfo);
-        void zoomOnLastRaster();
+
+        void zoomToRaster(GisObject* myObject);
+        void zoomToShape(GisObject* myObject);
 
         gis::Crit3DRasterGrid* selectRaster(const QString &title, QString &rasterFileName, bool &isOk);
     };
