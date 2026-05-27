@@ -1970,7 +1970,11 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     bool isProportional = numericField.isChecked();
 
     FormInfo formInfo;
-    formInfo.start("Assign prevailing...", 0);
+
+    formInfo.start("Open shapefile read/write..", 0);
+    shapeHandler->open(shapeHandler->getFilepath(), true);
+
+    formInfo.setText("Assign prevailing...");
 
     std::vector<int> categories, vectorNull;
     std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterPtr, categories, vectorNull);
