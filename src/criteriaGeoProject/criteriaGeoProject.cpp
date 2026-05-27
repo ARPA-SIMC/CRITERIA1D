@@ -127,7 +127,7 @@ bool CriteriaGeoProject::loadNetcdf(QString fileNameWithPath)
 bool CriteriaGeoProject::loadShapefile(const QString &fileNameWithPath, const QString &projectName)
 {
     Crit3DShapeHandler *myShape = new(Crit3DShapeHandler);
-    if (! myShape->open(fileNameWithPath.toStdString()))
+    if (! myShape->open(fileNameWithPath.toStdString(), false))
     {
         _errorString = QString::fromStdString(myShape->errorString);
         return false;

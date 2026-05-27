@@ -45,6 +45,7 @@ INCLUDEPATH +=  ../../mapGraphics \
                 ../../src/criteriaGeoProject
 
 CONFIG += debug_and_release
+CONFIG += c++11 c++14 c++17
 
 # comment to compile without GDAL library
 CONFIG += GDAL
