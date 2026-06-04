@@ -619,6 +619,9 @@ void Criteria1DWidget::on_actionOpenProject()
         return;
     }
 
+    QString title = "CRITERIA 1D PRO  " + QString(CRITERIA_VERSION) + " - " + myProject.getProjectName();
+    setWindowTitle(title);
+
     this->cropListComboBox.blockSignals(true);
     this->soilListComboBox.blockSignals(true);
     this->meteoListComboBox.blockSignals(true);

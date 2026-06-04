@@ -68,6 +68,8 @@
         void setIsXmlGrid(bool isGrid) { _isXmlMeteoGrid = isGrid; }
         bool isXmlMeteoGrid() { return _isXmlMeteoGrid; }
 
+        QString getProjectName() const { return projectName; }
+
     private:
         bool _computeAllSoilDepth;
         bool _isXmlMeteoGrid;
