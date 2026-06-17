@@ -1003,6 +1003,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
         return false;
 
     // watertable
+    myCase.waterTableParameters.initialize();
     if (myCase.unit.useWaterTableData && !dbWaterTableName.isEmpty() && !myCase.unit.idWaterTable.isEmpty())
     {
         projectError = "";

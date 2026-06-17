@@ -1107,6 +1107,7 @@ void Criteria1DWidget::on_actionChooseCase()
     myProject.myCase.fittingOptions.useWaterRetentionData = myProject.myCase.unit.useWaterRetentionData;
 
     // Read watertable parameters
+    myProject.myCase.waterTableParameters.initialize();
     if (myProject.myCase.unit.useWaterTableData &&  !myProject.dbWaterTableName.isEmpty() && !myProject.myCase.unit.idWaterTable.isEmpty())
     {
         WaterTableDb wtDataBase = WaterTableDb(myProject.dbWaterTableName, errorStr);
