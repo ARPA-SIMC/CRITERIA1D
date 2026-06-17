@@ -78,6 +78,8 @@
 
         void on_actionAssign_IDCase_triggered();
 
+        void on_action_Raster_map_algebra_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

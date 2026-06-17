@@ -2173,3 +2173,57 @@ void MainWindow::on_actionCrop_raster_triggered()
 }
 
 
+
+void MainWindow::on_action_Raster_map_algebra_triggered()
+{
+    bool isOk;
+    QString rasterFileName;
+
+    // select raster
+    gis::Crit3DRasterGrid *rasterX = selectRaster("Select raster X (reference)", rasterFileName, isOk);
+    if (! isOk)
+        return;
+
+    gis::Crit3DRasterGrid *rasterY = selectRaster("Select raster Y", rasterFileName, isOk);
+    if (! isOk)
+        return;
+
+    QStringList operationList = {"x + y", "x - y", "x * y", "x / y", "min(x,y)", "max(x,y)"};
+    FormSelection formSelection(operationList, "Select operation");
+    if (formSelection.result() != QDialog::Accepted)
+        return;
+
+    QString operationStr = formSelection.getSelection();
+    operationType operation;
+    if (operationStr == "x + y")
+        operation = operationSum;
+    else if (operationStr == "x - y")
+        operation = operationSubtract;
+    else if (operationStr == "x * y")
+        operation = operationProduct;
+    else if (operationStr == "x / y")
+        operation = operationDivide;
+    else if (operationStr == "min(x,y)")
+        operation = operationMin;
+    else if (operationStr == "max(x,y)")
+        operation = operationMax;
+    else
+    {
+        myProject.logWarning("Wrong operation: " + operationStr);
+        return;
+    }
+
+    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
+    if (! gis::mapAlgebra(rasterX, rasterY, outputRaster, operation))
+    {
+        myProject.logWarning("Error in map algebra.");
+        return;
+    }
+
+    setDTMScale(outputRaster->colorScale);
+    myProject.addRaster(outputRaster, operationStr, myProject.getGisSettings().utmZone);
+
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
+}
+

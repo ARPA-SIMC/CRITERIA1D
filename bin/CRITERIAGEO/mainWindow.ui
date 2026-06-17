@@ -603,6 +603,7 @@
     <addaction name="separator"/>
     <addaction name="actionCrop_raster"/>
     <addaction name="actionDelete_a_range_of_values_raster"/>
+    <addaction name="action_Raster_map_algebra"/>
     <addaction name="separator"/>
     <addaction name="actionCreate_Shape_file_from_Csv"/>
     <addaction name="actionAssign_shape_prevailing_value_raster"/>
@@ -779,6 +780,11 @@
   <action name="actionAssign_IDCase">
    <property name="text">
     <string>Assign ID Cases...</string>
+   </property>
+  </action>
+  <action name="action_Raster_map_algebra">
+   <property name="text">
+    <string>[Raster] raster algebra</string>
    </property>
   </action>
  </widget>
