@@ -1102,6 +1102,11 @@ void Criteria1DWidget::on_action_forceNumerical(bool isChecked)
         return;
 
     myProject.myCase.unit.isNumericalInfiltration = isChecked;
+
+    // re-initialize soil
+    on_actionChooseSoil(myProject.myCase.unit.idSoil);
+
+    on_actionUpdate();
 }
 
 
@@ -1125,6 +1130,7 @@ void Criteria1DWidget::on_actionChooseCase()
     myProject.myCase.unit = myProject.compUnitList[unsigned(index)];
     myProject.myCase.fittingOptions.useWaterRetentionData = myProject.myCase.unit.useWaterRetentionData;
 
+    // store information
     _isCaseNumerical = myProject.myCase.unit.isNumericalInfiltration;
 
     // Read watertable parameters
