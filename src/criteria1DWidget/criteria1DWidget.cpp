@@ -1103,10 +1103,8 @@ void Criteria1DWidget::on_action_forceNumerical(bool isChecked)
 
     myProject.myCase.unit.isNumericalInfiltration = isChecked;
 
-    // re-initialize soil
+    // update
     on_actionChooseSoil(myProject.myCase.unit.idSoil);
-
-    on_actionUpdate();
 }
 
 
