@@ -468,20 +468,26 @@ int Crit1DProject::initializeProject(const QString &settingsFileName)
 
 void Crit1DProject::checkSimulationDates()
 {
+    const QDate undefinedDate(1800, 1, 1);
+
     // first date
-    QString dateStr = firstSimulationDate.toString("yyyy-MM-dd");
-    if (dateStr == "1800-01-01")
+    QString dateStr;
+    if (firstSimulationDate == undefinedDate)
     {
         _isRestart = false;
         dateStr = "UNDEFINED";
     }
+    else
+    {
+        dateStr = firstSimulationDate.toString("yyyy-MM-dd");
+    }
+
     logger.writeInfo("First simulation date: " + dateStr);
     QString boolStr = _isRestart ? "TRUE" : "FALSE";
     logger.writeInfo("Restart: " + boolStr);
 
     // last date
-    dateStr = lastSimulationDate.toString("yyyy-MM-dd");
-    if (dateStr == "1800-01-01")
+    if (lastSimulationDate == undefinedDate)
     {
         if (_isXmlMeteoGrid)
         {
@@ -493,6 +499,10 @@ void Crit1DProject::checkSimulationDates()
             _isSaveState = false;
             dateStr = "UNDEFINED";
         }
+    }
+    else
+    {
+        dateStr = lastSimulationDate.toString("yyyy-MM-dd");
     }
 
     logger.writeInfo("Last simulation date: " + dateStr);
@@ -521,9 +531,8 @@ bool Crit1DProject::setSoil(const QString &soilCode, QString &errorStr)
     if (! loadSoil(dbSoil, soilCode, myCase.mySoil, texturalClassList, geotechnicsClassList, myCase.fittingOptions, errorStr))
         return false;
 
-    // cancel warnings (some soil data are wrong)
-    if (errorStr != "")
-        errorStr = "";
+    // Ignore non-fatal warnings returned by loadSoil()
+    errorStr.clear();
 
     // check soil depth (if fixed depth is required)
     if (! _computeAllSoilDepth)
@@ -531,10 +540,10 @@ bool Crit1DProject::setSoil(const QString &soilCode, QString &errorStr)
         myCase.mySoil.totalDepth = std::min(myCase.mySoil.totalDepth, _computationSoilDepth);
     }
 
-    std::string errorStdString;
-    if (! myCase.initializeSoil(errorStdString))
+    std::string errorStdStr;
+    if (! myCase.initializeSoil(errorStdStr))
     {
-        errorStr = QString::fromStdString(errorStdString);
+        errorStr = QString::fromStdString(errorStdStr);
         return false;
     }
 
