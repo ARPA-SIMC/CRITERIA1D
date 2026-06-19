@@ -49,6 +49,7 @@
             void on_actionUpdate();
             void on_actionViewWeather();
             void on_actionViewSoil();
+            void on_action_forceNumerical(bool isChecked);
             bool saveCrop();
             bool updateMeteoPointData();
             void updateCropParam(QString idCrop);
@@ -71,6 +72,7 @@
 
             QString _meteoTableName;
             bool _isCropChanged;
+            bool _isCaseNumerical;
 
             QList<QString> _yearList;
             bool _isOnlyOneYear;

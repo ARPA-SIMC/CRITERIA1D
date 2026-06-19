@@ -532,7 +532,11 @@ Criteria1DWidget::Criteria1DWidget()
 
     QAction* newCrop = new QAction(tr("&New Crop"), this);
     QAction* deleteCrop = new QAction(tr("&Delete Crop"), this);
-    restoreData = new QAction(tr("&Restore Data"), this);
+    restoreData = new QAction(tr("&Restore Crop data"), this);
+
+    QAction* forceNumericalFlag = new QAction(tr("&Force numerical solution"), this);
+    forceNumericalFlag->setCheckable(true);
+    forceNumericalFlag->setChecked(false);
 
     fileMenu->addAction(openProject);
     fileMenu->addAction(newProject);
@@ -548,6 +552,8 @@ Criteria1DWidget::Criteria1DWidget()
     editMenu->addAction(newCrop);
     editMenu->addAction(deleteCrop);
     editMenu->addAction(restoreData);
+    editMenu->addSeparator();
+    editMenu->addAction(forceNumericalFlag);
 
     viewWeather = new QAction(tr("&Weather"), this);
     viewSoil = new QAction(tr("&Soil"), this);
@@ -581,6 +587,8 @@ Criteria1DWidget::Criteria1DWidget()
     connect(deleteCrop, &QAction::triggered, this, &Criteria1DWidget::on_actionDeleteCrop);
     connect(restoreData, &QAction::triggered, this, &Criteria1DWidget::on_actionRestoreData);
 
+    connect(forceNumericalFlag, &QAction::changed, this, &Criteria1DWidget::on_action_forceNumerical(&QAction::isChecked()));
+
     connect(saveButton, &QPushButton::clicked, this, &Criteria1DWidget::on_actionSave);
     connect(updateButton, &QPushButton::clicked, this, &Criteria1DWidget::on_actionUpdate);
 
@@ -592,6 +600,7 @@ Criteria1DWidget::Criteria1DWidget()
     _isCropChanged = false;
     _isOnlyOneYear = false;
     _isRedraw = true;
+    _isCaseNumerical = false;
 }
 
 
@@ -1086,6 +1095,16 @@ void Criteria1DWidget::on_actionExecuteCase()
 }
 
 
+void Criteria1DWidget::on_action_forceNumerical(bool isChecked)
+{
+    // if case is already numerical, nothing to do
+    if (_isCaseNumerical)
+        return;
+
+    myProject.myCase.unit.isNumericalInfiltration = isChecked;
+}
+
+
 void Criteria1DWidget::on_actionChooseCase()
 {
     _isRedraw = false;
@@ -1105,6 +1124,8 @@ void Criteria1DWidget::on_actionChooseCase()
 
     myProject.myCase.unit = myProject.compUnitList[unsigned(index)];
     myProject.myCase.fittingOptions.useWaterRetentionData = myProject.myCase.unit.useWaterRetentionData;
+
+    _isCaseNumerical = myProject.myCase.unit.isNumericalInfiltration;
 
     // Read watertable parameters
     myProject.myCase.waterTableParameters.initialize();
