@@ -587,7 +587,7 @@ Criteria1DWidget::Criteria1DWidget()
     connect(deleteCrop, &QAction::triggered, this, &Criteria1DWidget::on_actionDeleteCrop);
     connect(restoreData, &QAction::triggered, this, &Criteria1DWidget::on_actionRestoreData);
 
-    connect(forceNumericalFlag, &QAction::changed, this, &Criteria1DWidget::on_action_forceNumerical(&QAction::isChecked()));
+    connect(forceNumericalFlag, &QAction::toggled, this, &Criteria1DWidget::on_action_forceNumerical);
 
     connect(saveButton, &QPushButton::clicked, this, &Criteria1DWidget::on_actionSave);
     connect(updateButton, &QPushButton::clicked, this, &Criteria1DWidget::on_actionUpdate);
