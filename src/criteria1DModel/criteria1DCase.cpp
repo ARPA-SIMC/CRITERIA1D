@@ -835,7 +835,7 @@ double Crit1DCase::getSoilWaterIndex(double computationDepth)
         i++;
     }
 
-    return currentWaterSum / potentialWaterSum;
+    return BOUNDFUNCTION(0.0, 1.0, currentWaterSum / potentialWaterSum);
 }
 
 
@@ -987,13 +987,13 @@ double Crit1DCase::getAvailableWaterSum(double computationDepth)
 
         if (lowerDepth < computationDepth)
         {
-            availableWaterSum += soilLayers[i].waterContent - soilLayers[i].WP;
+            availableWaterSum += std::max(0.0, soilLayers[i].waterContent - soilLayers[i].WP);
         }
         else
         {
             // fraction of last layer
             upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;
-            double layerAW = soilLayers[i].waterContent - soilLayers[i].WP;
+            double layerAW = std::max(0.0, soilLayers[i].waterContent - soilLayers[i].WP);
             double depthFraction = (computationDepth - upperDepth) / soilLayers[i].thickness;
             return availableWaterSum + layerAW * depthFraction;
         }
