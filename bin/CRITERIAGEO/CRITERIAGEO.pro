@@ -53,23 +53,21 @@ CONFIG += GDAL
 GDAL {
     DEFINES += USE_GDAL
     INCLUDEPATH += ../../agrolib/gdalHandler
-
-    CONFIG(debug, debug|release) {
-        LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
-    } else {
-        LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
-    }
     include(../../agrolib/gdal.pri)
 }
 
-
 CONFIG(debug, debug|release) {
+    GDAL:{
+        LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
+    }
     LIBS += -L../../src/criteriaGeoProject/debug -lcriteriaGeoProject
     LIBS += -L../../mapGraphics/debug -lMapGraphics
+
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/graphics/debug -lgraphics
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/debug -lnetcdfHandler
+
     win32:{
         LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
     }
@@ -88,12 +86,17 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
+    GDAL:{
+        LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
+    }
     LIBS += -L../../src/criteriaGeoProject/release -lcriteriaGeoProject
     LIBS += -L../../mapGraphics/release -lMapGraphics
+
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../../agrolib/graphics/release -lgraphics
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/release -lnetcdfHandler
+
     win32:{
         LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
     }
