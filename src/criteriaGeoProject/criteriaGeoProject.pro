@@ -46,9 +46,9 @@ INCLUDEPATH +=  ../../mapGraphics \
 
 
 # comment to compile without GDAL library
-CONFIG += GDAL
+CONFIG += USE_GDAL
 
-GDAL {
+USE_GDAL {
     DEFINES += USE_GDAL
     INCLUDEPATH += ../../agrolib/gdalHandler
     include(../../agrolib/gdal.pri)

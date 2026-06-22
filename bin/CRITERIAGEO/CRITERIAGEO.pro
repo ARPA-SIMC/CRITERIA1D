@@ -48,16 +48,16 @@ CONFIG += debug_and_release
 CONFIG += c++11 c++14 c++17
 
 # comment to compile without GDAL library
-CONFIG += GDAL
+CONFIG += USE_GDAL
 
-GDAL {
+USE_GDAL {
     DEFINES += USE_GDAL
     INCLUDEPATH += ../../agrolib/gdalHandler
     include(../../agrolib/gdal.pri)
 }
 
 CONFIG(debug, debug|release) {
-    GDAL:{
+    USE_GDAL:{
         LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
     }
     LIBS += -L../../src/criteriaGeoProject/debug -lcriteriaGeoProject
@@ -86,7 +86,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
-    GDAL:{
+    USE_GDAL:{
         LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
     }
     LIBS += -L../../src/criteriaGeoProject/release -lcriteriaGeoProject
