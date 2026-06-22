@@ -2,7 +2,7 @@
 %{!?srcarchivename: %global srcarchivename CRITERIA1D-%{version}}
 
 Name:           CRITERIA1D
-Version:        2.0.1
+Version:        2.0.2
 Release:        1%{?dist}
 Summary:        One-dimensional agro-hydrological model
 
@@ -72,6 +72,9 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
+* Mon Jun 22 2026 Fausto Tomei <ftomei@arpae.it> - 2.0.2-1
+- Release 2.0.2
+
 * Fri Jan 23 2026 Fausto Tomei <ftomei@arpae.it> - 2.0.1-1
 - Release 2.0.1
 
