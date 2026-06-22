@@ -34,7 +34,7 @@
 #include "formInfo.h"
 #include "netcdfHandler.h"
 
-#ifdef GDAL
+#ifdef USE_GDAL
     #include "gdalRasterFunctions.h"
     #include "gdalShapeFunctions.h"
 #endif
@@ -91,7 +91,7 @@ bool CriteriaGeoProject::loadRaster(const QString &fileNameWithPath)
             return false;
         }
     }
-#ifdef GDAL
+#ifdef USE_GDAL
     else if (! readGdalRaster(fileNameWithPath, newRaster, _gisSettings.utmZone, _errorString))
     {
         return false;
@@ -242,7 +242,7 @@ bool CriteriaGeoProject::computeUnitCropMap(Crit3DShapeHandler *shapeCrop, Crit3
     }
     else
     {
-        #ifdef GDAL
+        #ifdef USE_GDAL
             /*
             Crit3DShapeHandler *shapeUCM = new Crit3DShapeHandler();
 

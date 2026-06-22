@@ -49,7 +49,7 @@ INCLUDEPATH +=  ../../mapGraphics \
 CONFIG += GDAL
 
 GDAL {
-    DEFINES += GDAL
+    DEFINES += USE_GDAL
     INCLUDEPATH += ../../agrolib/gdalHandler
     include(../../agrolib/gdal.pri)
 }

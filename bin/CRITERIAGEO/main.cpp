@@ -15,7 +15,7 @@
 
 #include "mainWindow.h"
 
-#ifdef GDAL
+#ifdef USE_GDAL
     #include <gdal.h>
 #endif
 
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
     QApplication::setOverrideCursor(Qt::ArrowCursor);
 
-    #ifdef GDAL
+    #ifdef USE_GDAL
         GDALAllRegister();
     #endif
 

@@ -51,7 +51,7 @@ CONFIG += c++11 c++14 c++17
 CONFIG += GDAL
 
 GDAL {
-    DEFINES += GDAL
+    DEFINES += USE_GDAL
     INCLUDEPATH += ../../agrolib/gdalHandler
 
     CONFIG(debug, debug|release) {

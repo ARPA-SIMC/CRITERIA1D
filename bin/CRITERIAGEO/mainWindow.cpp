@@ -44,7 +44,7 @@
 #include "zonalStatistic.h"
 
 
-#ifdef GDAL
+#ifdef USE_GDAL
     #include "gdalExtensions.h"
     #include "gdalShapeFunctions.h"
 #endif
@@ -1005,7 +1005,7 @@ void MainWindow::zoomToRaster(GisObject* myObject)
 
 void MainWindow::on_actionLoadRaster_triggered()
 {
-    #ifdef GDAL
+    #ifdef USE_GDAL
         QStringList rasterFormats = getGdalRasterReadExtension();
 
         rasterFormats.sort();
@@ -1241,7 +1241,7 @@ bool MainWindow::exportToNetCDF(GisObject* myObject)
 
 bool MainWindow::exportShapeToRaster_gdal(GisObject* myObject)
 {
-#ifdef GDAL
+#ifdef USE_GDAL
     DialogSelectField shapeFieldDialog(myObject->getShapeHandler(), myObject->fileName, true, GDALRASTER);
 
     if (shapeFieldDialog.result() != QDialog::Accepted)
