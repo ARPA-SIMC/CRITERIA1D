@@ -56,16 +56,6 @@ USE_GDAL {
     include(../../agrolib/gdal.pri)
 }
 
-win32:{
-    LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
-}
-unix:{
-    LIBS += -lnetcdf
-    LIBS += -lstdc++fs
-}
-macx:{
-    LIBS += -L/usr/local/lib/ -lnetcdf
-}
 
 CONFIG(debug, debug|release) {
     LIBS += -L../../src/criteriaGeoProject/debug -lcriteriaGeoProject
@@ -108,6 +98,18 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/gis/release -lgis
     LIBS += -L../../agrolib/crit3dDate/release -lcrit3dDate
     LIBS += -L../../agrolib/mathFunctions/release -lmathFunctions
+}
+
+
+win32:{
+    LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
+}
+unix:{
+    LIBS += -lnetcdf
+    LIBS += -lstdc++fs
+}
+macx:{
+    LIBS += -L/usr/local/lib/ -lnetcdf
 }
 
 
