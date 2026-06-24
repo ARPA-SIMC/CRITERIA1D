@@ -56,27 +56,30 @@ USE_GDAL {
     include(../../agrolib/gdal.pri)
 }
 
+win32:{
+    LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
+}
+unix:{
+    LIBS += -lnetcdf
+    LIBS += -lstdc++fs
+}
+macx:{
+    LIBS += -L/usr/local/lib/ -lnetcdf
+}
+
 CONFIG(debug, debug|release) {
-    USE_GDAL:{
-        LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
-    }
     LIBS += -L../../src/criteriaGeoProject/debug -lcriteriaGeoProject
     LIBS += -L../../mapGraphics/debug -lMapGraphics
 
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/graphics/debug -lgraphics
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
-    LIBS += -L../../agrolib/netcdfHandler/debug -lnetcdfHandler
 
-    win32:{
-        LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
+    USE_GDAL:{
+        LIBS += -L../../agrolib/gdalHandler/debug -lgdalHandler
     }
-    unix:{
-        LIBS += -lnetcdf
-    }
-    macx:{
-        LIBS += -L/usr/local/lib/ -lnetcdf
-    }
+
+    LIBS += -L../../agrolib/netcdfHandler/debug -lnetcdfHandler
     LIBS += -L../../agrolib/shapeUtilities/debug -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/debug -lshapeHandler
     LIBS += -L../../agrolib/utilities/debug -lutilities
@@ -86,9 +89,6 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
-    USE_GDAL:{
-        LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
-    }
     LIBS += -L../../src/criteriaGeoProject/release -lcriteriaGeoProject
     LIBS += -L../../mapGraphics/release -lMapGraphics
 
@@ -97,15 +97,10 @@ CONFIG(debug, debug|release) {
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/release -lnetcdfHandler
 
-    win32:{
-        LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
+    USE_GDAL:{
+        LIBS += -L../../agrolib/gdalHandler/release -lgdalHandler
     }
-    unix:{
-        LIBS += -lnetcdf
-    }
-    macx:{
-        LIBS += -L/usr/local/lib/ -lnetcdf
-    }
+
     LIBS += -L../../agrolib/shapeUtilities/release -lshapeUtilities
     LIBS += -L../../agrolib/shapeHandler/release -lshapeHandler
     LIBS += -L../../agrolib/utilities/release -lutilities
