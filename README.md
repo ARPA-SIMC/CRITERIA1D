@@ -1,4 +1,5 @@
 [![Build Status](https://github.com/arpa-simc/CRITERIA1D/actions/workflows/build.yml/badge.svg)](https://github.com/ARPA-SIMC/CRITERIA1D/actions/workflows/build.yml)
+[![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/rocky8.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/rocky9.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/rocky10.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/fedora42.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
