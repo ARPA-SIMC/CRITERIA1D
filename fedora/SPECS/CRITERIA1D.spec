@@ -135,7 +135,7 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 * Thu Jan 05 2023 Fausto Tomei <ftomei@arpae.it> - 1.5.7-1
 - Release 1.5.7
 
-* Wed Nov 04 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.6-1
+* Fri Nov 04 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.6-1
 - Release 1.5.6
 
 * Mon Jul 25 2022 Fausto Tomei <ftomei@arpae.it> - 1.5.5-1
@@ -168,7 +168,7 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 * Mon Nov 02 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.3-1
 - Release 1.0.3
 
-* Wed Oct 22 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1-3
+* Thu Oct 22 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1-3
 - Application images (#6)
 
 * Wed Oct 21 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.1-2
