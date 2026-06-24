@@ -2,8 +2,8 @@
 %{!?srcarchivename: %global srcarchivename CRITERIA1D-%{version}}
 
 Name:           CRITERIA1D
-Version:        2.0.2
-Release:        3%{?dist}
+Version:        2.0.3
+Release:        1%{?dist}
 Summary:        One-dimensional agro-hydrological model
 
 URL:            https://github.com/ARPA-SIMC/CRITERIA1D
@@ -72,8 +72,8 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
-* Wed Jun 24 2026 Fausto Tomei <ftomei@arpae.it> - 2.0.2-3
-- risolto problema di compilazione su Rocky 8
+* Wed Jun 24 2026 Fausto Tomei <ftomei@arpae.it> - 2.0.3-1
+- risolto problema di compilazione Rocky 8
 
 * Mon Jun 22 2026 Fausto Tomei <ftomei@arpae.it> - 2.0.2-2
 - Release 2.0.2
