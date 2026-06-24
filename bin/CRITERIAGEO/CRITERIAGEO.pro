@@ -110,6 +110,7 @@ unix:{
 }
 macx:{
     LIBS += -L/usr/local/lib/ -lnetcdf
+    LIBS += -lstdc++fs
 }
 
 
