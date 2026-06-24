@@ -16,7 +16,7 @@ QT    += core gui network widgets sql
 greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TEMPLATE = app
-VERSION = 2.0.2
+VERSION = 2.0.3
 QMAKE_TARGET_COPYRIGHT = "\\251 2026 ARPAE ER - Climate Observatory"
 
 unix:{
