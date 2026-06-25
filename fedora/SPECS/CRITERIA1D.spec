@@ -72,7 +72,7 @@ cp -a deploy/appimage/usr/share/CRITERIA1D %{buildroot}/%{_datadir}/
 %{_datadir}/CRITERIA1D/*
 
 %changelog
-* Wed Jun 24 2026 Fausto Tomei <ftomei@arpae.it> - 2.0.3-1
+* Thu Jun 25 2026 Fausto Tomei <ftomei@arpae.it> - 2.0.3-1
 - risolto problema di compilazione Rocky 8
 
 * Mon Jun 22 2026 Fausto Tomei <ftomei@arpae.it> - 2.0.2-2

@@ -3,7 +3,6 @@
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/rocky9.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/rocky10.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/fedora42.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
-[![Build Status](https://simc.arpae.it/moncic-ci/CRITERIA1D/fedora44.png)](https://simc.arpae.it/moncic-ci/CRITERIA1D/)
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/CRITERIA1D/)
 
 # CRITERIA1D / GEO
