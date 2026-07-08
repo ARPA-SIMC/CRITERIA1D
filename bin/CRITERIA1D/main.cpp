@@ -134,7 +134,8 @@ int main(int argc, char *argv[])
     if (projectFileName.at(0) == '.')
         projectFileName = appPath + projectFileName;
 
-    int myResult = myProject.initializeProject(projectFileName);
+    bool isDeleteOutput = true;
+    int myResult = myProject.initializeProject(projectFileName, isDeleteOutput);
     if (myResult != CRIT1D_OK)
     {
         myProject.logger.writeError(myProject.projectError);

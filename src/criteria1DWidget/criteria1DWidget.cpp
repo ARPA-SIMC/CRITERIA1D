@@ -621,7 +621,8 @@ void Criteria1DWidget::on_actionOpenProject()
         return;
 
     myProject.initialize();
-    int myResult = myProject.initializeProject(projFileName);
+    bool isDeleteOutput = false;
+    int myResult = myProject.initializeProject(projFileName, isDeleteOutput);
     if (myResult != CRIT1D_OK)
     {
         QMessageBox::critical(nullptr, "Error", myProject.projectError);

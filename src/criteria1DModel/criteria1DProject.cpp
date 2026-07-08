@@ -406,7 +406,7 @@ bool Crit1DProject::readSettings()
 }
 
 
-int Crit1DProject::initializeProject(const QString &settingsFileName)
+int Crit1DProject::initializeProject(const QString &settingsFileName, bool isDeleteOutput)
 {
     if (settingsFileName == "")
     {
@@ -437,7 +437,7 @@ int Crit1DProject::initializeProject(const QString &settingsFileName)
 
     checkSimulationDates();
 
-    int myError = openAllDatabase();
+    int myError = openAllDatabase(isDeleteOutput);
     if (myError != CRIT1D_OK)
         return myError;
 
@@ -1980,7 +1980,7 @@ void Crit1DProject::closeAllDatabase()
 }
 
 
-int Crit1DProject::openAllDatabase()
+int Crit1DProject::openAllDatabase(bool isDeleteOutput)
 {
     closeAllDatabase();
 
@@ -2114,16 +2114,18 @@ int Crit1DProject::openAllDatabase()
             return ERROR_DBOUTPUT;
         }
 
-        QFile::remove(dbOutputName);
         logger.writeInfo ("Output DB: " + dbOutputName);
+
+        if (isDeleteOutput)
+            QFile::remove(dbOutputName);
+
+        QString outputDbPath = getFilePath(dbOutputName);
+        if (! QDir(outputDbPath).exists())
+            QDir().mkdir(outputDbPath);
 
         dbOutput.close();
         dbOutput = QSqlDatabase::addDatabase("QSQLITE", QUuid::createUuid().toString());
         dbOutput.setDatabaseName(dbOutputName);
-
-        QString outputDbPath = getFilePath(dbOutputName);
-        if (!QDir(outputDbPath).exists())
-             QDir().mkdir(outputDbPath);
 
         if (! dbOutput.open())
         {

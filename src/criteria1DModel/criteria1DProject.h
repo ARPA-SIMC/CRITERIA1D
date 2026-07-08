@@ -58,10 +58,10 @@
         Crit1DProject();
 
         void initialize();
-        int initializeProject(const QString &settingsFileName);
+        int initializeProject(const QString &settingsFileName, bool isDeleteOutput);
 
         int computeAllUnits();
-        bool computeUnit(const Crit1DCompUnit& myUnit);
+        bool computeUnit(const Crit1DCompUnit &myUnit);
 
         bool setSoil(const QString &soilCode, QString &errorStr);
 
@@ -125,7 +125,7 @@
         void closeProject();
         bool readSettings();
         void closeAllDatabase();
-        int openAllDatabase();
+        int openAllDatabase(bool isDeleteOutput);
         void checkSimulationDates();
 
         bool setMeteoSqlite(const QString &idMeteo, const QString &idForecast);
