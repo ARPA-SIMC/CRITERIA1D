@@ -78,19 +78,16 @@ Criteria1DWidget::Criteria1DWidget()
     QVBoxLayout *waterContentLayout = new QVBoxLayout();
     QVBoxLayout *carbonNitrogenLayout = new QVBoxLayout();
 
-    // check save button pic
-    QString docPath, saveButtonPath, updateButtonPath;
-    if (searchDocPath(docPath))
+    // search save/update button images
+    QString docPath;
+    if (! searchDocPath(docPath))
     {
-        saveButtonPath = docPath + "img/saveButton.png";
-        updateButtonPath = docPath + "img/updateButton.png";
+        docPath = QFileDialog::getExistingDirectory(this, tr("Search CRITERIA1D/DOC directory"), QDir::currentPath(),
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     }
-    else
-    {
-        // default appimage linux
-        saveButtonPath = QCoreApplication::applicationDirPath() + "/../share/CRITERIA1D/images/saveButton.png";
-        updateButtonPath = QCoreApplication::applicationDirPath() + "/../share/CRITERIA1D/images/updateButton.png";
-    }
+
+    QString saveButtonPath = docPath + "/img/saveButton.png";
+    QString updateButtonPath = docPath + "/img/updateButton.png";
 
     QPixmap savePixmap;
     QPixmap updatePixmap;
