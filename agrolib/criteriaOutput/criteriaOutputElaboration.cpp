@@ -310,7 +310,6 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
     QDate firstDate, lastDate;
     std::vector<float> resultVector;
 
-    double result = NODATA;
     int periodTDX = NODATA;
     nrMissingData = 0;
 
@@ -331,8 +330,7 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
             if (outputVariable.nrDays[i].isEmpty())
             {
                 // if nrDays is missing write NODATA
-                result = NODATA;
-                resultList.append(QString::number(result));
+                resultList.append(QString::number(NODATA));
                 continue;
             }
             else
@@ -392,12 +390,13 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
 
         // QUERY
         // All cases except DTX
+        double queryResult = NODATA;
         if (varName.left(2) != "DT")
         {
             int selectRes = selectSimpleVar(dbData, idCase, varName, computation, firstDate, lastDate, irriRatio, resultVector, errorStr);
             if (selectRes == ERROR_DB_INCOMPLETE_DATA)
             {
-                result = NODATA;
+                queryResult = NODATA;
                 ++nrMissingData;
             }
             else if(selectRes != CRIT1D_OK)
@@ -406,7 +405,7 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
             }
             else
             {
-                result = double(resultVector[0]);
+                queryResult = double(resultVector[0]);
             }
         }
         else
@@ -423,7 +422,7 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
             // check errors in computeDTX
             if (DTXRes == ERROR_DB_INCOMPLETE_DATA)
             {
-                result = NODATA;
+                queryResult = NODATA;
                 ++nrMissingData;
             }
             else if (DTXRes != CRIT1D_OK)
@@ -432,13 +431,13 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
             }
             else
             {
-                result = double(resultVector[0]);
+                queryResult = double(resultVector[0]);
             }
         }
 
-        if (isEqual(result, NODATA))
+        if (isEqual(queryResult, NODATA))
         {
-            resultList.append(QString::number(result));
+            resultList.append(QString::number(queryResult));
         }
         else
         {
@@ -449,17 +448,17 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
                 QString varName = outputVariable.varNameList[i];
                 if (varName == "FRACTION_AW" || varName.left(3) == "FAW" || varName.left(3) == "SWI")
                 {
-                    resultList.append(QString::number(result,'f', 3));
+                    resultList.append(QString::number(queryResult,'f', 3));
                 }
                 else
                 {
-                    resultList.append(QString::number(result,'f', 1));
+                    resultList.append(QString::number(queryResult,'f', 1));
                 }
             }
             else
             {
                 // first parameter for  climate analysis (threshold)
-                if (outputVariable.param1[i] != NODATA && result < outputVariable.param1[i])
+                if (outputVariable.param1[i] != NODATA && queryResult < outputVariable.param1[i])
                 {
                     // skip climate analysis
                     resultList.append(QString::number(NODATA));
@@ -537,7 +536,7 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
                             {
                                 allYearsVector.insert(std::end(allYearsVector), std::begin(resultVector), std::end(resultVector));
                             }
-                            year = year+1;
+                            year++;
                         }
 
                         resultVector.clear();
@@ -553,8 +552,8 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
                             {
                                 // compute percentile
                                 bool sortValues = true;
-                                result = double(sorting::percentileRank(allYearsVector, float(result), sortValues));
-                                resultList.append(QString::number(result,'f',1));
+                                double percentile = double(sorting::percentileRank(allYearsVector, float(queryResult), sortValues));
+                                resultList.append(QString::number(percentile,'f',1));
                             }
                         }
                     }
@@ -569,7 +568,7 @@ int writeCsvOutputUnit(const QString &idCase, const QString &idCropClass, const 
     if (! outputFile.open(QIODevice::ReadWrite | QIODevice::Append))
     {
         errorStr = "Open failure: " + csvFileName;
-        return false;
+        return ERROR_PARSERCSV;
     }
 
     QTextStream out(&outputFile);

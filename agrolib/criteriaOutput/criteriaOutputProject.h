@@ -109,6 +109,8 @@
         void initialize();
         void closeProject();
 
+        int fail(int errorType, const QString &errorString);
+
         int initializeProject(const QString &settingsFileName, const QString &operationStr,
                               const QDate &_dateComputation, bool isLog);
 
