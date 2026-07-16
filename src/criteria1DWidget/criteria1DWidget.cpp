@@ -1090,13 +1090,18 @@ void Criteria1DWidget::on_actionExecuteCase()
         return;
     }
 
-    if (! myProject.computeUnit(myProject.myCase.unit))
-    {
-        QMessageBox::critical(nullptr, "Error!", myProject.projectError);
+    FormInfo formInfo;
+    formInfo.start("Compute case: " + myProject.myCase.unit.idCase + "...", 0);
+
+    bool isOk = myProject.computeUnit(myProject.myCase.unit);
+    formInfo.close();
+
+    if (isOk) {
+        QMessageBox::information(nullptr, "Case executed: " + myProject.myCase.unit.idCase,
+                                 "Output:\n" + QDir().cleanPath(myProject.dbOutputName));
     }
-    else
-    {
-        QMessageBox::warning(nullptr, "Case executed: "+ myProject.myCase.unit.idCase, "Output:\n" + QDir().cleanPath(myProject.dbOutputName));
+    else {
+        QMessageBox::critical(nullptr, "Error!", myProject.projectError);
     }
 }
 
