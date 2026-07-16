@@ -78,19 +78,15 @@ Criteria1DWidget::Criteria1DWidget()
     QVBoxLayout *waterContentLayout = new QVBoxLayout();
     QVBoxLayout *carbonNitrogenLayout = new QVBoxLayout();
 
-    // check save button pic
-    QString docPath, saveButtonPath, updateButtonPath;
-    if (searchDocPath(docPath))
+    // search button images
+    if (! searchPath("DOC", QDir::currentPath(), _docPath))
     {
-        saveButtonPath = docPath + "img/saveButton.png";
-        updateButtonPath = docPath + "img/updateButton.png";
+        _docPath = QFileDialog::getExistingDirectory(this, tr("Select CRITERIA1D/DOC directory"), QDir::currentPath(),
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     }
-    else
-    {
-        // default appimage linux
-        saveButtonPath = QCoreApplication::applicationDirPath() + "/../share/CRITERIA1D/images/saveButton.png";
-        updateButtonPath = QCoreApplication::applicationDirPath() + "/../share/CRITERIA1D/images/updateButton.png";
-    }
+
+    QString saveButtonPath = _docPath + "/img/saveButton.png";
+    QString updateButtonPath = _docPath + "/img/updateButton.png";
 
     QPixmap savePixmap;
     QPixmap updatePixmap;
@@ -609,8 +605,8 @@ void Criteria1DWidget::on_actionOpenProject()
     _isRedraw = false;
     QString dataPath, projectPath;
 
-    if (searchDataPath(&dataPath))
-        projectPath = dataPath + PATH_PROJECT;
+    if (searchPath("DATA", _docPath, dataPath))
+        projectPath = dataPath + "/" + PATH_PROJECT;
     else
         projectPath = "";
 
@@ -684,132 +680,141 @@ void Criteria1DWidget::on_actionNewProject()
         QString dataPath;
         QString projectName = dialog.getProjectName();
         projectName = projectName.simplified().remove(' ');
-        if (searchDataPath(&dataPath))
+        if (! searchPath("DATA", _docPath, dataPath))
         {
-            QString completePath = dataPath+PATH_PROJECT+projectName;
-            if(!QDir().mkdir(completePath))
-            {
-                QMessageBox::StandardButton confirm;
-                QString msg = "Project " + completePath + " already exists, do you want to overwrite it?";
-                confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+            QMessageBox::critical(nullptr, "failed", "Missing CRITERIA1D/DATA directory.");
+            return;
+        }
 
-                if (confirm == QMessageBox::Yes)
-                {
-                    clearDir(completePath);
-                    QDir().mkdir(completePath + "/data");
-                }
-                else
-                {
-                    return;
-                }
+        dataPath += "/";
+        QString completePath = dataPath + PATH_PROJECT + projectName;
+        if(!QDir().mkdir(completePath))
+        {
+            QMessageBox::StandardButton confirm;
+            QString msg = "Project " + completePath + " already exists, do you want to overwrite it?";
+            confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+
+            if (confirm == QMessageBox::Yes)
+            {
+                clearDir(completePath);
+                QDir().mkdir(completePath + "/data");
             }
             else
             {
-                QDir().mkdir(completePath + "/data");
-            }
-            // copy template computational units
-            if (!QFile::copy(dataPath + PATH_TEMPLATE + "template_comp_units.db",
-                             completePath + "/data/" + "comp_units.db"))
-            {
-                QMessageBox::critical(nullptr, "Copy failed", "Error in copying template_comp_units.db");
                 return;
             }
-            QString db_soil, db_meteo, db_crop;
-            // db soil
-            if (dialog.getSoilDbOption() == NEW_DB)
-            {
-                db_soil = "soil.db";
-                if (!QFile::copy(dataPath + PATH_TEMPLATE + "template_soil.db", completePath + "/data/" + db_soil))
-                {
-                    QMessageBox::critical(nullptr, "Copy failed", "Error in copying template_soil.db");
-                    return;
-                }
-            }
-            else if (dialog.getSoilDbOption() == DEFAULT_DB)
-            {
-                db_soil = "soil_ER_2021.db";
-                if (! QFile::copy(dataPath + "SOIL/soil_ER_2021.db", completePath + "/data/" + db_soil))
-                {
-                    QMessageBox::critical(nullptr, "Copy failed", "Error in copying soil_ER_2021.db");
-                    return;
-                }
-            }
-            else if (dialog.getSoilDbOption() == CHOOSE_DB)
-            {
-                QString soilPath = dialog.getDbSoilCompletePath();
-                db_soil = QFileInfo(soilPath).baseName()+".db";
-                if (!QFile::copy(soilPath, completePath+"/data/"+db_soil))
-                {
-                    QMessageBox::critical(nullptr, "Copy failed", "Error in copying " + soilPath);
-                    return;
-                }
-            }
-            // db meteo
-            if (dialog.getMeteoDbOption() == NEW_DB)
-            {
-                db_meteo = "meteo.db";
-                if (!QFile::copy(dataPath  +PATH_TEMPLATE + "template_meteo.db", completePath + "/data/" + db_meteo))
-                {
-                    QMessageBox::critical(nullptr, "Copy failed", "Error in copying template_meteo.db");
-                    return;
-                }
-            }
-            else if (dialog.getMeteoDbOption() == DEFAULT_DB)
-            {
-                db_meteo = "meteo.db";
-                if (!QFile::copy(dataPath+PATH_PROJECT+"test/data/meteo.db", completePath+"/data/"+db_meteo))
-                {
-                    QMessageBox::critical(nullptr, "Copy failed", "Error in copying meteo.db");
-                    return;
-                }
-            }
-            else if (dialog.getMeteoDbOption() == CHOOSE_DB)
-            {
-                QString meteoPath = dialog.getDbMeteoCompletePath();
-                db_meteo = QFileInfo(meteoPath).baseName() + ".db";
-                if (!QFile::copy(meteoPath, completePath + "/data/" + db_meteo))
-                {
-                    QMessageBox::critical(nullptr, "Copy failed", "Error in copying " + meteoPath);
-                    return;
-                }
-            }
-            // db crop
-            if (dialog.getCropDbOption() == DEFAULT_DB)
-            {
-                db_crop = "crop.db";
-                if (!QFile::copy(dataPath + PATH_TEMPLATE + "crop_default.db", completePath + "/data/" + "crop.db"))
-                {
-                    QMessageBox::critical(nullptr, "Copy failed", "Error in copying crop_default.db");
-                    return;
-                }
-            }
-            else if (dialog.getCropDbOption() == CHOOSE_DB)
-            {
-                QString cropPath = dialog.getDbCropCompletePath();
-                db_crop = QFileInfo(cropPath).baseName()+".db";
-                if (!QFile::copy(cropPath, completePath+"/data/"+db_crop))
-                {
-                    QMessageBox::critical(nullptr, "Copy failed", "Error in copying " + cropPath);
-                    return;
-                }
-            }
-
-            // write .ini
-            QSettings* projectSetting = new QSettings(dataPath+PATH_PROJECT+projectName+"/"+projectName+".ini", QSettings::IniFormat);
-            projectSetting->beginGroup("software");
-                    projectSetting->setValue("software", "CRITERIA1D");
-            projectSetting->endGroup();
-            projectSetting->beginGroup("project");
-                    projectSetting->setValue("path", "./");
-                    projectSetting->setValue("name", projectName);
-                    projectSetting->setValue("db_soil", "./data/" + db_soil);
-                    projectSetting->setValue("db_meteo", "./data/" + db_meteo);
-                    projectSetting->setValue("db_crop", "./data/" + db_crop);
-                    projectSetting->setValue("db_comp_units", "./data/comp_units.db");
-                    projectSetting->setValue("db_output", "./output/" + projectName + ".db");
-            projectSetting->endGroup();
-            projectSetting->sync();
         }
+        else
+        {
+            QDir().mkdir(completePath + "/data");
+        }
+        // copy template computational units
+        if (!QFile::copy(dataPath + PATH_TEMPLATE + "template_comp_units.db",
+                         completePath + "/data/" + "comp_units.db"))
+        {
+            QMessageBox::critical(nullptr, "Copy failed", "Error in copying template_comp_units.db");
+            return;
+        }
+
+        // db soil
+        QString dbSoilFileName;
+        if (dialog.getSoilDbOption() == NEW_DB)
+        {
+            dbSoilFileName = "soil.db";
+            if (! QFile::copy(dataPath + PATH_TEMPLATE + "template_soil.db", completePath + "/data/" + dbSoilFileName))
+            {
+                QMessageBox::critical(nullptr, "Copy failed", "Error in copying template_soil.db");
+                return;
+            }
+        }
+        else if (dialog.getSoilDbOption() == DEFAULT_DB)
+        {
+            dbSoilFileName = "soil_ER_2021.db";
+            if (! QFile::copy(dataPath + "SOIL/soil_ER_2021.db", completePath + "/data/" + dbSoilFileName))
+            {
+                QMessageBox::critical(nullptr, "Copy failed", "Error in copying soil_ER_2021.db");
+                return;
+            }
+        }
+        else if (dialog.getSoilDbOption() == CHOOSE_DB)
+        {
+            QString soilPath = dialog.getDbSoilCompletePath();
+            dbSoilFileName = QFileInfo(soilPath).baseName()+".db";
+            if (! QFile::copy(soilPath, completePath+"/data/" + dbSoilFileName))
+            {
+                QMessageBox::critical(nullptr, "Copy failed", "Error in copying " + soilPath);
+                return;
+            }
+        }
+
+        // db meteo
+        QString dbMeteoFileName;
+        if (dialog.getMeteoDbOption() == NEW_DB)
+        {
+            dbMeteoFileName = "meteo.db";
+            if (! QFile::copy(dataPath  +PATH_TEMPLATE + "template_meteo.db", completePath + "/data/" + dbMeteoFileName))
+            {
+                QMessageBox::critical(nullptr, "Copy failed", "Error in copying template_meteo.db");
+                return;
+            }
+        }
+        else if (dialog.getMeteoDbOption() == DEFAULT_DB)
+        {
+            dbMeteoFileName = "meteo.db";
+            if (! QFile::copy(dataPath+PATH_PROJECT+"test/data/meteo.db", completePath+"/data/" + dbMeteoFileName))
+            {
+                QMessageBox::critical(nullptr, "Copy failed", "Error in copying meteo.db");
+                return;
+            }
+        }
+        else if (dialog.getMeteoDbOption() == CHOOSE_DB)
+        {
+            QString meteoPath = dialog.getDbMeteoCompletePath();
+            dbMeteoFileName = QFileInfo(meteoPath).baseName() + ".db";
+            if (! QFile::copy(meteoPath, completePath + "/data/" + dbMeteoFileName))
+            {
+                QMessageBox::critical(nullptr, "Copy failed", "Error in copying " + meteoPath);
+                return;
+            }
+        }
+
+        // db crop
+        QString dbCropFileName;
+        if (dialog.getCropDbOption() == DEFAULT_DB)
+        {
+            dbCropFileName = "crop.db";
+            if (! QFile::copy(dataPath + PATH_TEMPLATE + "crop_default.db", completePath + "/data/" + "crop.db"))
+            {
+                QMessageBox::critical(nullptr, "Copy failed", "Error in copying crop_default.db");
+                return;
+            }
+        }
+        else if (dialog.getCropDbOption() == CHOOSE_DB)
+        {
+            QString cropPath = dialog.getDbCropCompletePath();
+            dbCropFileName = QFileInfo(cropPath).baseName()+".db";
+            if (! QFile::copy(cropPath, completePath+"/data/" + dbCropFileName))
+            {
+                QMessageBox::critical(nullptr, "Copy failed", "Error in copying " + cropPath);
+                return;
+            }
+        }
+
+        // write .ini
+        QSettings* projectSetting = new QSettings(dataPath+PATH_PROJECT+projectName+"/"+projectName+".ini", QSettings::IniFormat);
+        projectSetting->beginGroup("software");
+                projectSetting->setValue("software", "CRITERIA1D");
+        projectSetting->endGroup();
+        projectSetting->beginGroup("project");
+                projectSetting->setValue("path", "./");
+                projectSetting->setValue("name", projectName);
+                projectSetting->setValue("db_soil", "./data/" + dbSoilFileName);
+                projectSetting->setValue("db_meteo", "./data/" + dbMeteoFileName);
+                projectSetting->setValue("db_crop", "./data/" + dbCropFileName);
+                projectSetting->setValue("db_comp_units", "./data/comp_units.db");
+                projectSetting->setValue("db_output", "./output/" + projectName + ".db");
+        projectSetting->endGroup();
+        projectSetting->sync();
 
         QMessageBox::information(nullptr, "Success!", "project created: " + dataPath + PATH_PROJECT + projectName);
     }
@@ -2342,14 +2347,13 @@ void Criteria1DWidget::on_actionViewWeather()
 
 void Criteria1DWidget::on_actionViewSoil()
 {
-    QString docPath;
-    if (! searchDocPath(docPath))
+    if (_docPath.isEmpty())
     {
         QMessageBox::critical(nullptr, "", "/DOC/img/ directory is missing.");
         return;
     }
 
-    QString imgPath = docPath + "/img/";
+    QString imgPath = _docPath + "/img/";
     Crit3DSoilWidget* soilWidget = new Crit3DSoilWidget(imgPath);
     soilWidget->setDbSoil(myProject.dbSoil, soilListComboBox.currentText());
 }

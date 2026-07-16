@@ -8,7 +8,7 @@
 QT       += widgets charts sql xml printsupport
 
 TEMPLATE = app
-VERSION = 2.0.3
+VERSION = 2.0.4
 QMAKE_TARGET_COPYRIGHT = "\\251 2026 ARPAE ER - Climate Observatory"
 
 CONFIG += debug_and_release
