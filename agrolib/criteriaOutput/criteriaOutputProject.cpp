@@ -404,7 +404,7 @@ bool CriteriaOutputProject::readSettings()
         outputAggrCsvFileName += ".csv";
     }
 
-    if (outputAggrCsvFileName == outputCsvFileName)
+    if (!outputCsvFileName.isEmpty() && outputAggrCsvFileName == outputCsvFileName)
     {
         projectError = "'aggregation_output' is equal to 'csv_output'";
         return false;
