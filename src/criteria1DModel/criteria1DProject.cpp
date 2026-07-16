@@ -73,6 +73,7 @@ void Crit1DProject::initialize()
 
     // specific outputs
     isClimateOutput = false;
+    isDetailedTranspiration = false;
     waterDeficitDepth.clear();
     waterContentDepth.clear();
     degreeOfSaturationDepth.clear();
@@ -100,20 +101,25 @@ void Crit1DProject::closeProject()
 }
 
 
+/*!
+ * \brief readSettings
+ * read settings file (.ini) for CRITERIA-1D model
+ */
 bool Crit1DProject::readSettings()
 {
     QSettings* projectSettings;
     projectSettings = new QSettings(configFileName, QSettings::IniFormat);
 
-    // PROJECT
     projectSettings->beginGroup("project");
 
         projectName = projectSettings->value("name", "CRITERIA1D").toString();
         path += projectSettings->value("path", "").toString();
 
+        // db crop
         dbCropName = projectSettings->value("db_crop", "").toString();
         if (dbCropName == "")
         {
+            // checks alternative name
             dbCropName = projectSettings->value("crop_db", "").toString();
         }
         if (dbCropName.left(1) == ".")
@@ -121,9 +127,11 @@ bool Crit1DProject::readSettings()
             dbCropName = QDir::cleanPath(path + dbCropName);
         }
 
+        // db soil
         dbSoilName = projectSettings->value("db_soil", "").toString();
         if (dbSoilName == "")
         {
+            // checks alternative name
             dbSoilName = projectSettings->value("soil_db", "").toString();
         }
         if (dbSoilName.left(1) == ".")
@@ -131,6 +139,7 @@ bool Crit1DProject::readSettings()
             dbSoilName = QDir::cleanPath(path + dbSoilName);
         }
 
+        // db meteo and forecast
         dbMeteoName = projectSettings->value("db_meteo", "").toString();
         if (dbMeteoName.left(1) == ".")
         {
@@ -147,16 +156,18 @@ bool Crit1DProject::readSettings()
             dbForecastName = QDir::cleanPath(path + dbForecastName);
         }
 
+        // db watertable
         dbWaterTableName = projectSettings->value("db_waterTable", "").toString();
         if (dbWaterTableName.left(1) == ".")
         {
             dbWaterTableName = QDir::cleanPath(path + dbWaterTableName);
         }
 
+        // db computation units
         dbComputationUnitsName = projectSettings->value("db_comp_units", "").toString();
         if (dbComputationUnitsName == "")
         {
-            // checks the old name
+            // checks alternative name
             dbComputationUnitsName = projectSettings->value("db_units", "").toString();
         }
         if (dbComputationUnitsName == "")
@@ -169,7 +180,7 @@ bool Crit1DProject::readSettings()
             dbComputationUnitsName = QDir::cleanPath(path + dbComputationUnitsName);
         }
 
-        // output db
+        // db output
         dbOutputName = projectSettings->value("db_output", "").toString();
         if (dbOutputName.left(1) == ".")
         {
@@ -316,11 +327,12 @@ bool Crit1DProject::readSettings()
 
     projectSettings->endGroup();
 
-    // OUTPUT variables (optional)
+    // OUTPUT (optional output variables)
     QList<QString> depthList;
     projectSettings->beginGroup("output");
 
         isClimateOutput = projectSettings->value("isClimateOutput", false).toBool();
+        isDetailedTranspiration = projectSettings->value("isDetailedTranspiration", false).toBool();
 
         depthList = projectSettings->value("waterContent").toStringList();
         if (! setVariableDepth(depthList, waterContentDepth))
@@ -1746,6 +1758,9 @@ bool Crit1DProject::createOutputTable(QString &myError)
                   + " RUNOFF REAL, DRAINAGE REAL, LATERAL_DRAINAGE REAL, CAPILLARY_RISE REAL, "
                   + " ET0 REAL, TRANSP_MAX, TRANSP REAL, EVAP_MAX REAL, EVAP REAL, "
                   + " LAI REAL, ROOT_DEPTH REAL, BALANCE REAL";
+
+        if (isDetailedTranspiration)
+                queryString += ", TR_S REAL, TR_E REAL";
     }
 
     // specific depth variables
@@ -1826,6 +1841,9 @@ void Crit1DProject::updateOutput(const Crit3DDate &myDate, bool isFirst)
                        + " AVAILABLE_WATER, READILY_AW, FRACTION_AW, "
                        + " RUNOFF, DRAINAGE, LATERAL_DRAINAGE, CAPILLARY_RISE, ET0, "
                        + " TRANSP_MAX, TRANSP, EVAP_MAX, EVAP, LAI, ROOT_DEPTH, BALANCE";
+
+            if (isDetailedTranspiration)
+                    outputString += ", TR_S, TR_E";
         }
 
         // specific depth variables
@@ -1911,6 +1929,10 @@ void Crit1DProject::updateOutput(const Crit3DDate &myDate, bool isFirst)
                     + "," + getOutputStringNullZero(myCase.crop.LAI)
                     + "," + getOutputStringNullZero(myCase.crop.roots.rootDepth)
                     + "," + QString::number(myCase.output.dailyBalance, 'g', 3);
+
+        if (isDetailedTranspiration)
+                outputString += "," + QString::number(myCase.output.dailyTranspiration_onlyStress)
+                             + "," + QString::number(myCase.output.dailyTranspiration_onlyExcess);
     }
 
     // specific depth variables

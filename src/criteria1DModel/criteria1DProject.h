@@ -16,7 +16,7 @@
 
     #include <fstream>
 
-    #define CRITERIA_VERSION "v2.0.3 (2026)"
+    #define CRITERIA_VERSION "v2.0.4 (2026)"
 
     class Crit1DProject
     {
@@ -103,8 +103,9 @@
         QString outputCsvFileName;
         std::ofstream outputCsvFile;
 
-        // specific output
+        // optional output variables
         bool isClimateOutput;
+        bool isDetailedTranspiration;
         std::vector<int> waterContentDepth;             // [cm]
         std::vector<int> degreeOfSaturationDepth;       // [cm]
         std::vector<int> waterPotentialDepth;           // [cm]

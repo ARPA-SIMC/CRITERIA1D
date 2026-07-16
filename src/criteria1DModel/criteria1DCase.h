@@ -42,6 +42,8 @@
         double dailyEvaporation;
         double dailyMaxTranspiration;
         double dailyTranspiration;
+        double dailyTranspiration_onlyStress;
+        double dailyTranspiration_onlyExcess;
         double dailyAvailableWater;
         double dailyFractionAW;
         double dailyReadilyAW;

@@ -47,23 +47,25 @@ Crit1DOutput::Crit1DOutput()
 
 void Crit1DOutput::initialize()
 {
-    this->dailyPrec = NODATA;
-    this->dailyDrainage = NODATA;
-    this->dailySurfaceRunoff = NODATA;
-    this->dailyLateralDrainage = NODATA;
-    this->dailyIrrigation = NODATA;
-    this->dailySoilWaterContent = NODATA;
-    this->dailySurfaceWaterContent = NODATA;
-    this->dailyEt0 = NODATA;
-    this->dailyEvaporation = NODATA;
-    this->dailyMaxTranspiration = NODATA;
-    this->dailyMaxEvaporation = NODATA;
-    this->dailyTranspiration = NODATA;
-    this->dailyAvailableWater = NODATA;
-    this->dailyFractionAW = NODATA;
-    this->dailyReadilyAW = NODATA;
-    this->dailyCapillaryRise = NODATA;
-    this->dailyWaterTable = NODATA;
+    dailyPrec = NODATA;
+    dailyDrainage = NODATA;
+    dailySurfaceRunoff = NODATA;
+    dailyLateralDrainage = NODATA;
+    dailyIrrigation = NODATA;
+    dailySoilWaterContent = NODATA;
+    dailySurfaceWaterContent = NODATA;
+    dailyEt0 = NODATA;
+    dailyEvaporation = NODATA;
+    dailyMaxTranspiration = NODATA;
+    dailyMaxEvaporation = NODATA;
+    dailyTranspiration = NODATA;
+    dailyTranspiration_onlyStress = NODATA;
+    dailyTranspiration_onlyExcess = NODATA;
+    dailyAvailableWater = NODATA;
+    dailyFractionAW = NODATA;
+    dailyReadilyAW = NODATA;
+    dailyCapillaryRise = NODATA;
+    dailyWaterTable = NODATA;
 }
 
 
@@ -486,16 +488,18 @@ double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double pre
         return 0;
 
     // check water stress (before infiltration)
-    double stressThreshold = 1. - crop.stressTolerance;
-    double waterStress = 0;
-    double waterExcessStress = 0;
-    crop.computeTranspiration(maxTranspiration, soilLayers, waterStress, waterExcessStress);
+    double transpStressOnly = 0;
+    double transpExcessOnly = 0;
+    crop.computeTranspiration(maxTranspiration, soilLayers, transpStressOnly, transpExcessOnly);
 
-    if ((waterStress < stressThreshold) || (waterExcessStress > 0.1))
+    double waterStressScarsity = 1 - (transpStressOnly  / maxTranspiration);
+    double waterStressExcess = 1 - (transpExcessOnly / maxTranspiration);
+    double stressThreshold = 1. - crop.stressTolerance;
+
+    if ((waterStressScarsity < stressThreshold) || (waterStressExcess > 0.1))
         return 0;
 
-    // Irrigation scheduled!
-
+    // all conditions have been met -> irrigation scheduled
     double irrigation = crop.irrigationVolume;
 
     // reset irrigation shift
@@ -689,9 +693,9 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
     output.dailyEvaporation = computeEvaporation(soilLayers, output.dailyMaxEvaporation);
 
     // Transpiration
-    double waterStress = 0;
-    double waterExcessStress = 0;
-    output.dailyTranspiration = crop.computeTranspiration(output.dailyMaxTranspiration, soilLayers, waterStress, waterExcessStress);
+    output.dailyTranspiration = crop.computeTranspiration(output.dailyMaxTranspiration, soilLayers,
+                                                          output.dailyTranspiration_onlyStress,
+                                                          output.dailyTranspiration_onlyExcess);
 
     // assign transpiration
     if (output.dailyTranspiration > 0)
