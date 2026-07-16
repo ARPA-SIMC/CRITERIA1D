@@ -456,6 +456,9 @@ double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double pre
     if (crop.daysSinceIrrigation != NODATA)
         crop.daysSinceIrrigation++;
 
+    if (maxTranspiration <= EPSILON)
+        return 0;
+
     // check if it's an irrigated crop
     if (crop.idCrop == "" || ! crop.isLiving || isEqual(crop.irrigationVolume, NODATA) || isEqual(crop.irrigationVolume, 0))
         return 0;

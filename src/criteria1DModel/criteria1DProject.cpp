@@ -1931,8 +1931,8 @@ void Crit1DProject::updateOutput(const Crit3DDate &myDate, bool isFirst)
                     + "," + QString::number(myCase.output.dailyBalance, 'g', 3);
 
         if (isDetailedTranspiration)
-                outputString += "," + QString::number(myCase.output.dailyTranspiration_onlyStress)
-                             + "," + QString::number(myCase.output.dailyTranspiration_onlyExcess);
+                outputString += "," + QString::number(myCase.output.dailyTranspiration_onlyStress, 'g', 3)
+                             + "," + QString::number(myCase.output.dailyTranspiration_onlyExcess, 'g', 3);
     }
 
     // specific depth variables
