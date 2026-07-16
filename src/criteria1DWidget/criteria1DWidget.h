@@ -71,6 +71,7 @@
             Crit3DCrop myCropFromDB;
 
             QString _meteoTableName;
+            QString _docPath;
             bool _isCropChanged;
             bool _isCaseNumerical;
 
