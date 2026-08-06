@@ -1756,7 +1756,7 @@ bool Crit1DProject::createOutputTable(QString &myError)
                   + " ( DATE TEXT, PREC REAL, IRRIGATION REAL, WATER_CONTENT REAL, SURFACE_WC REAL, "
                   + " AVAILABLE_WATER REAL, READILY_AW REAL, FRACTION_AW REAL, "
                   + " RUNOFF REAL, DRAINAGE REAL, LATERAL_DRAINAGE REAL, CAPILLARY_RISE REAL, "
-                  + " ET0 REAL, TRANSP_MAX, TRANSP REAL, EVAP_MAX REAL, EVAP REAL, "
+                  + " ET0 REAL, TRANSP_MAX REAL, TRANSP REAL, EVAP_MAX REAL, EVAP REAL, "
                   + " LAI REAL, ROOT_DEPTH REAL, BALANCE REAL";
 
         if (isDetailedTranspiration)
@@ -1931,8 +1931,10 @@ void Crit1DProject::updateOutput(const Crit3DDate &myDate, bool isFirst)
                     + "," + QString::number(myCase.output.dailyBalance, 'g', 3);
 
         if (isDetailedTranspiration)
-                outputString += "," + QString::number(myCase.output.dailyTranspiration_onlyStress, 'g', 3)
-                             + "," + QString::number(myCase.output.dailyTranspiration_onlyExcess, 'g', 3);
+        {
+            outputString += "," + QString::number(myCase.output.dailyTranspiration_onlyStress, 'g', 4)
+                             + "," + QString::number(myCase.output.dailyTranspiration_onlyExcess, 'g', 4);
+        }
     }
 
     // specific depth variables
