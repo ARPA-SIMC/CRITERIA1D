@@ -1904,8 +1904,8 @@ void Crit1DProject::updateOutput(const Crit3DDate &myDate, bool isFirst)
     {
         outputString += "('" + QString::fromStdString(myDate.toISOString()) + "'"
                         + "," + QString::number(myCase.output.dailyAvailableWater, 'g', 4)
-                        + "," + QString::number(myCase.output.dailyMaxTranspiration, 'g', 3)
-                        + "," + QString::number(myCase.output.dailyTranspiration, 'g', 3);
+                        + "," + QString::number(myCase.output.dailyMaxTranspiration, 'g', 4)
+                        + "," + QString::number(myCase.output.dailyTranspiration_onlyStress, 'g', 4);
     }
     else
     {
