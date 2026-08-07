@@ -18,7 +18,8 @@
             Crit3DShapeHandler* _shapeHandler;
             QListWidget* _listFields;
             QLineEdit* _stringValue;
-            QLineEdit* _numericValue;
+            QLineEdit* _cellSizeValue;
+            QLineEdit* _thresholdValue;
             QCheckBox* _checkBox;
 
         public:
@@ -46,10 +47,23 @@
                     return false;
             }
 
-            double getNumericValue() const
+            double getThresholdValue() const
             {
+                if (! _thresholdValue)
+                    return NODATA;
+
                 bool isOk;
-                double value = _numericValue->text().replace(",", ".").toDouble(&isOk);
+                double value = _thresholdValue->text().replace(",", ".").toDouble(&isOk);
+                return (isOk? value: NODATA);
+            }
+
+            double getCellSizeValue() const
+            {
+                if (! _cellSizeValue)
+                    return NODATA;
+
+                bool isOk;
+                double value = _cellSizeValue->text().replace(",", ".").toDouble(&isOk);
                 return (isOk? value: NODATA);
             }
     };

@@ -138,8 +138,8 @@ bool CriteriaGeoProject::loadShapefile(const QString &fileNameWithPath, const QS
 }
 
 
-bool CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QString &field, const QString &outputName,
-                                            double cellSize, bool showInfo)
+bool CriteriaGeoProject::newRasterFromShape(const Crit3DShapeHandler &shapeHandler, const QString &fieldName,
+                                            const QString &outputName, double cellSize, double threshold, bool showInfo)
 {
     FormInfo formInfo;
     if (showInfo)
@@ -149,20 +149,30 @@ bool CriteriaGeoProject::newRasterFromShape(Crit3DShapeHandler &shape, const QSt
 
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
 
-    bool isOk = rasterizeShape(shape, *newRaster, field.toStdString(), cellSize);
-    if (isOk)
+    const int sampleGrid = 5;
+    const bool useReferenceRaster = false;
+    if (! rasterizeShape(nullptr, *newRaster, shapeHandler, fieldName.toStdString(),
+                        cellSize, sampleGrid, threshold, useReferenceRaster))
     {
-        gis::updateMinMaxRasterGrid(newRaster);
-        setDefaultScale(newRaster->colorScale);
+        delete newRaster;
 
-        if (showInfo) formInfo.setText("Add raster to map...");
+        if (showInfo) formInfo.close();
 
-        addRaster(newRaster, outputName, shape.getUtmZone());
+        return false;
     }
 
-    if (showInfo) formInfo.close();
+    gis::updateMinMaxRasterGrid(newRaster);
+    setDefaultScale(newRaster->colorScale);
 
-    return isOk;
+    if (showInfo)
+        formInfo.setText("Add raster to map...");
+
+    addRaster(newRaster, outputName, shapeHandler.getUtmZone());
+
+    if (showInfo)
+        formInfo.close();
+
+    return true;
 }
 
 
@@ -175,7 +185,14 @@ bool CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, g
 
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
 
-    bool isOk = rasterizeShapeWithRef(refRaster, *newRaster, shapeHandler, field.toStdString());
+    double cellSize = NODATA;           // use cellSize of refRaster
+    int sample = 5;                     // 5 x 5 points
+    double coverageThreshold = 0.1;
+    bool useReferenceRaster = true;
+
+    bool isOk = rasterizeShape(&refRaster, *newRaster, shapeHandler, field.toStdString(),
+                               cellSize, sample, coverageThreshold, useReferenceRaster);
+
     if (isOk)
     {
         gis::updateMinMaxRasterGrid(newRaster);

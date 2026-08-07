@@ -489,7 +489,13 @@ void MainWindow::itemMenuRequested(const QPoint &point)
             submenu.addAction("Set random colors");
             submenu.addAction("Set dtm scale");
             submenu.addAction("Reverse color scale");
+
             submenu.addSeparator();
+
+            if (myRasterObject->getRasterPointer()->colorScale->isFixedRange())
+                submenu.addAction("Set variable range");
+            else
+                submenu.addAction("Set fixed range");
 
             if (myRasterObject->opacity() < 1)
                 submenu.addAction("Set opaque");
@@ -497,6 +503,7 @@ void MainWindow::itemMenuRequested(const QPoint &point)
                 submenu.addAction("Set transparent");
 
             submenu.addSeparator();
+
             submenu.addAction("Statistical summary");
         }
     }
@@ -659,6 +666,22 @@ void MainWindow::itemMenuRequested(const QPoint &point)
             if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
                 this->rasterStatisticalSummary(myObject);
+            }
+        }
+        else if (rightClickItem->text().contains("Set fixed range"))
+        {
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
+            {
+                myRasterObject->getRasterPointer()->colorScale->setFixedRange(true);
+                emit myRasterObject->redrawRequested();
+            }
+        }
+        else if (rightClickItem->text().contains("Set variable range"))
+        {
+            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
+            {
+                myRasterObject->getRasterPointer()->colorScale->setFixedRange(false);
+                emit myRasterObject->redrawRequested();
             }
         }
         else if (rightClickItem->text().contains("Set opaque"))
@@ -1021,11 +1044,16 @@ void MainWindow::on_actionLoadRaster_triggered()
 
     if (fileNameWithPath == "") return;
 
+    FormInfo formInfo;
+    formInfo.start("Load raster...", 0);
+
     if (! myProject.loadRaster(fileNameWithPath))
     {
         myProject.logError();
         return;
     }
+
+    formInfo.close();
 
     addRasterObject(myProject.objectList.back());
     zoomToRaster(myProject.objectList.back());
@@ -1206,7 +1234,7 @@ bool MainWindow::exportToNetCDF(GisObject* myObject)
         return false;
 
     QString fieldName = numericField.getFieldSelected();
-    double cellSize = numericField.getNumericValue();
+    double cellSize = numericField.getCellSizeValue();
     if (cellSize <= 0 || cellSize == NODATA)
     {
         QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive cellsize.");
@@ -1251,7 +1279,7 @@ bool MainWindow::exportShapeToRaster_gdal(GisObject* myObject)
     std::string shapeFilePath = (myObject->getShapeHandler())->getFilepath();
     QString shapeFileName = QString::fromStdString(shapeFilePath);
 
-    double cellSize = shapeFieldDialog.getNumericValue();
+    double cellSize = shapeFieldDialog.getCellSizeValue();
     if (cellSize <= 0 || cellSize == NODATA)
     {
         QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive value.");
@@ -1824,18 +1852,36 @@ int MainWindow::getSelectedShapePos()
 void MainWindow::on_actionRasterize_all_shape_triggered()
 {
     int pos = getSelectedShapePos();
-    if (pos == NODATA) return;
+    if (pos == NODATA)
+        return;
 
     GisObject* myObject = myProject.objectList.at(unsigned(pos));
+    if (! myObject)
+        return;
 
-    DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, true, RASTERIZE);
+    const bool isOnlyNumeric = true;
+    DialogSelectField numericField(myObject->getShapeHandler(), myObject->fileName, isOnlyNumeric, RASTERIZE);
     if (numericField.result() != QDialog::Accepted)
         return;
 
-    double cellSize = numericField.getNumericValue();
-    if (cellSize <= 0 || cellSize == NODATA)
+    const QString fieldName = numericField.getFieldSelected();
+    if (fieldName.isEmpty())
     {
-        QMessageBox::information(nullptr, "Wrong cellSize", "Insert a positive cellSize.");
+        myProject.logError("Missing field name");
+        return;
+    }
+
+    double cellSize = numericField.getCellSizeValue();
+    if (cellSize <= 0 || isEqual(cellSize, NODATA))
+    {
+        myProject.logError("Insert a positive cellSize.");
+        return;
+    }
+
+    double threshold = numericField.getThresholdValue();
+    if (threshold <= 0 || threshold > 1)
+    {
+        myProject.logError("Insert a coverage threshold in (0,1].");
         return;
     }
 
@@ -1846,16 +1892,31 @@ void MainWindow::on_actionRasterize_all_shape_triggered()
         return;
     }
 
-    bool showInfo = true;
-    if ( myProject.newRasterFromShape(*(myObject->getShapeHandler()), numericField.getFieldSelected(), outputName, cellSize, showInfo) )
+    Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+    if (! shapeHandler)
     {
-        addRasterObject(myProject.objectList.back());
-        updateMaps();
+        myProject.logError("Wrong shapefile");
+        return;
     }
-    else
+
+    const int oldObjectSize = myProject.objectList.size();
+
+    const bool showInfo = true;
+    if (! myProject.newRasterFromShape(*shapeHandler, fieldName, outputName,
+                                      cellSize, threshold, showInfo) )
     {
-        myProject.logError("Error in rasterize.");
+        myProject.logError("Error in rasterize shape.");
+        return;
     }
+
+    if (myProject.objectList.size() <= oldObjectSize)
+    {
+        myProject.logError("Raster created but not added.");
+        return;
+    }
+
+    addRasterObject(myProject.objectList.back());
+    updateMaps();
 }
 
 
@@ -1939,6 +2000,7 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     int pos = getSelectedShapePos();
     if (pos == NODATA)
         return;
+
     GisObject* shapeObject = myProject.objectList.at(unsigned(pos));
     Crit3DShapeHandler* shapeHandler = shapeObject->getShapeHandler();
 
@@ -1950,8 +2012,8 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
         return;
 
     // select shape field
-    bool isOnlyNumeric = true;
-    DialogSelectField numericField(shapeObject->getShapeHandler(), shapeObject->fileName, isOnlyNumeric, PREVAILING);
+    const bool isOnlyNumeric = true;
+    DialogSelectField numericField(shapeHandler, shapeObject->fileName, isOnlyNumeric, PREVAILING);
 
     if (numericField.result() != QDialog::Accepted)
         return;
@@ -1960,21 +2022,21 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     if (fieldName.isEmpty())
         fieldName = numericField.getFieldSelected();
 
-    double threshold = numericField.getNumericValue();
+    const double threshold = numericField.getThresholdValue();
     if ((threshold < 0) || (threshold > 1.0) || (threshold == NODATA))
     {
         QMessageBox::information(nullptr, "Wrong threshold", "Insert a value in [0,1]");
         return;
     }
 
-    bool isProportional = numericField.isChecked();
+    const bool isProportional = numericField.isChecked();
 
     FormInfo formInfo;
 
     formInfo.start("Open shapefile read/write..", 0);
     shapeHandler->open(shapeHandler->getFilepath(), true);
 
-    formInfo.setText("Assign prevailing...");
+    formInfo.setText("Compute prevailing...");
 
     std::vector<int> categories, vectorNull;
     std::vector <std::vector<int>> matrix = computeMatrixAnalysisRaster(*shapeHandler, *rasterPtr, categories, vectorNull);

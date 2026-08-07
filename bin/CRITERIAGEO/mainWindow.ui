@@ -737,11 +737,6 @@
     <string>with base (raster)...</string>
    </property>
   </action>
-  <action name="actionFrom_other_raster">
-   <property name="text">
-    <string>From other raster</string>
-   </property>
-  </action>
   <action name="actionClipRaster_with_shape">
    <property name="text">
     <string>with shape mask...</string>

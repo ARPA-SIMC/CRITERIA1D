@@ -19,31 +19,30 @@ DialogSelectField::DialogSelectField(Crit3DShapeHandler* shapeHandler, QString f
 
     if (dialogType == RASTERIZE || dialogType == GDALRASTER)
     {
-        _numericValue = new QLineEdit();
-        _numericValue->setPlaceholderText("cell size [m]");
-        _numericValue->setValidator(new QDoubleValidator(0, 9999, 2));
-        mainLayout->addWidget(_numericValue);
-        if (dialogType == RASTERIZE)
-        {
-            _stringValue = new QLineEdit();
-            _stringValue->setPlaceholderText("Output Name");
-            mainLayout->addWidget(_stringValue);
-        }
+        _cellSizeValue = new QLineEdit();
+        _cellSizeValue->setPlaceholderText("cell size [m]");
+        _cellSizeValue->setValidator(new QDoubleValidator(0, 9999, 2));
+        mainLayout->addWidget(_cellSizeValue);
     }
-    else if (dialogType == RASTERIZE_WITHBASE)
+
+    if (dialogType != SHAPESTYLE)
+    {
+        _thresholdValue = new QLineEdit();
+        _thresholdValue->setPlaceholderText("coverage threshold [-]");
+        _thresholdValue->setValidator(new QDoubleValidator(0, 1, 3));
+        _thresholdValue->setText("0.33");
+        mainLayout->addWidget(_thresholdValue);
+    }
+
+    if (dialogType == RASTERIZE || dialogType == RASTERIZE_WITHBASE)
     {
         _stringValue = new QLineEdit();
         _stringValue->setPlaceholderText("Output Name");
         mainLayout->addWidget(_stringValue);
     }
-    else if (dialogType == PREVAILING)
-    {
-        _numericValue = new QLineEdit();
-        _numericValue->setPlaceholderText("Threshold ratio [-]");
-        _numericValue->setValidator(new QDoubleValidator(0, 1, 3));
-        _numericValue->setText("0.33");
-        mainLayout->addWidget(_numericValue);
 
+    if (dialogType == PREVAILING)
+    {
         _stringValue = new QLineEdit();
         _stringValue->setPlaceholderText("New field (numeric)");
         mainLayout->addWidget(_stringValue);
