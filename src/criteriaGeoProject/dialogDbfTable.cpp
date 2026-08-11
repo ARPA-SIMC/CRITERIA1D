@@ -5,24 +5,37 @@
 DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& fileName)
     :shapeHandler(shapeHandler)
 {
-    // make a copy of shapefile
-    QFileInfo filepathInfo(QString::fromStdString(shapeHandler->getFilepath()));
-    QString file_temp = filepathInfo.absolutePath() + "/" + filepathInfo.baseName() + "_temp.dbf";
-    QString file_origin = filepathInfo.absolutePath() + "/" + filepathInfo.baseName() + ".dbf";
-
-    if (QFile::exists(file_temp))
-        QFile::remove(file_temp);
-
-    if (! QFile::copy(file_origin, file_temp))
+    if (shapeHandler == nullptr)
     {
-        QMessageBox::critical(nullptr, "Error", "Unable to create temporary DBF");
-        close();
+        QMessageBox::critical(nullptr, tr("Error"), tr("Invalid shapefile handler."));
         return;
     }
 
-    this->setWindowTitle(fileName);
+    // Create a temporary copy of the DBF file
+    const QFileInfo filepathInfo(QString::fromStdString(shapeHandler->getFilepath()));
+
+    const QString fileOrigin = filepathInfo.absolutePath() + "/"
+                               + filepathInfo.baseName() + ".dbf";
+
+    const QString fileTemp = filepathInfo.absolutePath() + "/"
+                             + filepathInfo.baseName() + "_temp.dbf";
+
+    if (QFile::exists(fileTemp) && ! QFile::remove(fileTemp))
+    {
+        QMessageBox::critical(nullptr, tr("Error"), tr("Unable to remove temporary DBF file."));
+        return;
+    }
+
+    if (! QFile::copy(fileOrigin, fileTemp))
+    {
+        QMessageBox::critical( nullptr, tr("Error"), tr("Unable to create temporary DBF."));
+        return;
+    }
+
+    setWindowTitle(fileName);
+    resize(800, 600);
+
     QVBoxLayout* mainLayout = new QVBoxLayout;
-    this->resize(800, 600);
 
     // set menu bar
     menuBar = new QMenuBar;
@@ -40,11 +53,12 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
 
     mainLayout->setMenuBar(menuBar);
 
+    // DBF table
     m_DBFTableWidget = new TableDbf();
     mainLayout->addWidget(m_DBFTableWidget);
 
-    int colNumber = shapeHandler->getFieldNumbers();
-    int rowNumber = shapeHandler->getDBFRecordCount();
+    const int colNumber = shapeHandler->getFieldNumbers();
+    const int rowNumber = shapeHandler->getDBFRecordCount();
 
     m_DBFTableWidget->blockSignals(true);
     m_DBFTableWidget->setUpdatesEnabled(false);
@@ -52,57 +66,62 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
     m_DBFTableWidget->setRowCount(rowNumber);
     m_DBFTableWidget->setColumnCount(colNumber);
 
-    std::string nameField;
-    DBFFieldType typeField;
-
     labels.clear();
     m_DBFTableHeader.clear();
 
     // store deleted rows
     std::vector<bool> isDeleted(rowNumber, false);
-    for (int j = 0; j < rowNumber; j++)
-    {
-        isDeleted[j] = shapeHandler->isDBFRecordDeleted(j);
-    }
 
-    for (int i=0; i < colNumber; i++)
+    for (int row = 0; row < rowNumber; ++row)
+        isDeleted[row] = shapeHandler->isDBFRecordDeleted(row);
+
+    // Read DBF fields.
+    for (int col = 0; col < colNumber; ++col)
     {
-        nameField = shapeHandler->getFieldName(i);
-        typeField = shapeHandler->getFieldType(i);
+        const std::string nameField = shapeHandler->getFieldName(col);
+
+        const DBFFieldType typeField = shapeHandler->getFieldType(col);
+
         m_DBFTableHeader << QString::fromStdString(nameField);
 
-        for (int j = 0; j < rowNumber; j++)
-        {  
-            if (typeField == FTString)
+        for (int row = 0; row < rowNumber; ++row)
+        {
+            QTableWidgetItem* item = nullptr;
+
+            switch (typeField)
             {
-                m_DBFTableWidget->setItem(j, i, new QTableWidgetItem( QString::fromStdString(shapeHandler->readStringAttribute(j,i) )));
-            }
-            else if (typeField == FTInteger)
-            {
-                m_DBFTableWidget->setItem(j, i, new QTableWidgetItem( QString::number(shapeHandler->readIntAttribute(j,i) )));
-            }
-            else if (typeField == FTDouble)
-            {
-                m_DBFTableWidget->setItem(j, i, new QTableWidgetItem( QString::number(shapeHandler->readDoubleAttribute(j,i) )));
-            }
-            else
-            {
-                m_DBFTableWidget->setItem(j, i, new QTableWidgetItem("Not supported"));     // not supported types
+            case FTString:
+                item = new QTableWidgetItem(
+                    QString::fromStdString(shapeHandler->readStringAttribute(row, col)));
+                break;
+
+            case FTInteger:
+                item = new QTableWidgetItem(
+                    QString::number(shapeHandler->readIntAttribute(row, col)));
+                break;
+
+            case FTDouble:
+                item = new QTableWidgetItem(
+                    QString::number(shapeHandler->readDoubleAttribute(row, col)));
+                break;
+
+            default:
+                item = new QTableWidgetItem(tr("Not supported"));
+                break;
             }
 
-            if (isDeleted[j])
-            {
-                QTableWidgetItem* item = m_DBFTableWidget->item(j, i);
-                if (item)
-                    item->setBackground(Qt::yellow);                        // mark as DELETED records
-            }
+            if (isDeleted[row])
+                item->setBackground(Qt::yellow); // mark as DELETED records
+
+            m_DBFTableWidget->setItem(row, col, item);
         }
     }
 
-    for (int j = 0; j < rowNumber; j++)
-    {
-        labels << QString::number(j);
-    }
+    // Vertical header labels
+    labels.reserve(rowNumber);
+
+    for (int row = 0; row < rowNumber; ++row)
+        labels << QString::number(row);
 
     m_DBFTableWidget->setVerticalHeaderLabels(labels);
     m_DBFTableWidget->setHorizontalHeaderLabels(m_DBFTableHeader);
@@ -110,11 +129,10 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
     m_DBFTableWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);
     m_DBFTableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     m_DBFTableWidget->setShowGrid(true);
-    m_DBFTableWidget->setStyleSheet("QTableView {selection-background-color: red;}");
 
-    //int offset = 100;
-    //m_DBFTableWidget->setMinimumHeight(this->height() - offset);
-    //m_DBFTableWidget->setMaximumHeight(this->height() - offset);
+    m_DBFTableWidget->setStyleSheet(
+        "QTableView { selection-background-color: red; }");
+
     m_DBFTableWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QLabel* labelLengend = new QLabel();
@@ -122,6 +140,7 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
 
     mainLayout->addWidget(labelLengend);
 
+    // Connections
     connect(m_DBFTableWidget, &QTableWidget::cellChanged, [this](int row, int column){ this->cellChanged(row, column); });
     connect(m_DBFTableWidget, &QTableWidget::customContextMenuRequested, [this](const QPoint point){ this->menuRequested(point); });
     connect(addRow, &QAction::triggered, [this](){ this->addRowClicked(); });
@@ -134,7 +153,6 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
     connect(m_DBFTableWidget->horizontalHeader(), &QHeaderView::sectionClicked, [this](int index){ this->horizontalHeaderClick(index); });
     connect(m_DBFTableWidget->verticalHeader(), &QHeaderView::sectionClicked, [this](int index){ this->verticalHeaderClick(index); });
 
-    // free table
     m_DBFTableWidget->setUpdatesEnabled(true);
     m_DBFTableWidget->blockSignals(false);
 
@@ -143,12 +161,10 @@ DialogDbfTable::DialogDbfTable(Crit3DShapeHandler* shapeHandler, const QString& 
 
 
 DialogDbfTable::~DialogDbfTable()
-{
-}
+{ }
 
 void DialogDbfTable::addRowClicked()
 {
-
     m_DBFTableWidget->insertRow(m_DBFTableWidget->rowCount());
     labels << QString::number(labels.size());
     m_DBFTableWidget->setVerticalHeaderLabels(labels);
@@ -158,7 +174,6 @@ void DialogDbfTable::addRowClicked()
 
 void DialogDbfTable::removeRowClicked()
 {
-
     if (m_DBFTableWidget->selectionBehavior() == QAbstractItemView::SelectColumns)
     {
         m_DBFTableWidget->clearSelection();
@@ -198,7 +213,6 @@ void DialogDbfTable::removeRowClicked()
                         m_DBFTableWidget->removeRow(row);
                     }
                 }
-
             }
         }
         else
@@ -211,8 +225,8 @@ void DialogDbfTable::removeRowClicked()
     {
         QMessageBox::information(nullptr, "Select a row", "no row selected");
     }
-
 }
+
 
 void DialogDbfTable::addColClicked()
 {
@@ -308,8 +322,8 @@ void DialogDbfTable::cellChanged(int row, int column)
     {
         shapeHandler->writeDoubleAttribute(row,column, data.toDouble());
     }
-
 }
+
 
 void DialogDbfTable::closeEvent(QCloseEvent *event)
 {
@@ -317,25 +331,32 @@ void DialogDbfTable::closeEvent(QCloseEvent *event)
 
     QString filepath = QString::fromStdString(shapeHandler->getFilepath());
     QFileInfo filepathInfo(filepath);
-    QString file_temp = filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+"_temp.dbf";
+
+    QString fileName = filepathInfo.absolutePath() + "/"
+                       + filepathInfo.baseName();
+
+    QString fileNameTmp = fileName + "_temp";
 
     // dbf
-    QFile::remove(filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+".dbf");
-    QFile::copy(file_temp, filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+".dbf");    // file temp to .dbf
-    QFile::remove(file_temp);
+    QString dbf_backup = fileNameTmp + ".dbf";
+
+    QFile::remove(fileName + ".dbf");
+    QFile::copy(dbf_backup, fileName + ".dbf");
+    QFile::remove(dbf_backup);
 
     // shp
-    QString shp_temp = filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+"_temp.shp";
-    QString shx_temp = filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+"_temp.shx";
-    if (QFile::exists(shp_temp) && QFile::exists(shx_temp))
-    {
-        QFile::remove(filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+".shp");
-        QFile::copy(shp_temp, filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+".shp");
-        QFile::remove(shp_temp);
+    QString shp_backup = fileNameTmp + ".shp";
+    QString shx_backup = fileNameTmp + ".shx";
 
-        QFile::remove(filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+".shx");
-        QFile::copy(shx_temp, filepathInfo.absolutePath()+"/"+filepathInfo.baseName()+".shx");
-        QFile::remove(shx_temp);
+    if (QFile::exists(shp_backup) && QFile::exists(shx_backup))
+    {
+        QFile::remove(fileName + ".shp");
+        QFile::copy(shp_backup, fileName + ".shp");
+        QFile::remove(shp_backup);
+
+        QFile::remove(fileName + ".shx");
+        QFile::copy(shx_backup, fileName + ".shx");
+        QFile::remove(shx_backup);
     }
 
     // re-open shapefile
@@ -356,14 +377,21 @@ void DialogDbfTable::saveChangesClicked()
 {
     const QString filepath = QString::fromStdString(shapeHandler->getFilepath());
     QFileInfo filepathInfo(filepath);
-    QString file_temp = filepathInfo.absolutePath() + "/" + filepathInfo.baseName() + "_temp.dbf";
 
-    QFile::remove(file_temp);       // remove previous file_temp
+    const QString backupBaseName = filepathInfo.absolutePath() + "/"
+                                   + filepathInfo.baseName() + "_temp";
+
+    const QString backupDbf = backupBaseName + ".dbf";
+
+    // remove previous backup
+    QFile::remove(backupDbf);
 
     if (shapeHandler->existRecordDeleted())
     {
-        shapeHandler->packSHP(file_temp.toStdString());
-        shapeHandler->packDBF(file_temp.toStdString());
+        // create packed backup
+        shapeHandler->packSHP(backupBaseName.toStdString());
+        shapeHandler->packDBF(backupBaseName.toStdString());
+
         shapeHandler->close();
     }
     else
@@ -371,10 +399,16 @@ void DialogDbfTable::saveChangesClicked()
         shapeHandler->close();
 
         // copy modified file
-        const QString dbfFileName = filepathInfo.absolutePath() + "/" + filepathInfo.baseName() + ".dbf";
-        QFile::copy(dbfFileName, file_temp);
+        const QString dbfFileName = filepathInfo.absolutePath()
+                                    + "/" + filepathInfo.baseName() + ".dbf";
+
+        if (! QFile::copy(dbfFileName, backupDbf))
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Unable to create DBF backup."));
+        }
     }
 
+    // re-open shapefile
     shapeHandler->open(shapeHandler->getFilepath(), false);
 }
 

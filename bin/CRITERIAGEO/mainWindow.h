@@ -38,7 +38,6 @@
 
         void on_actionLoadRaster_triggered();
         void on_actionLoadShapefile_triggered();
-        void on_actionRasterize_all_shape_triggered();
 
         void on_actionCompute_Ucm_prevailing_triggered();
         void on_actionCompute_Ucm_intersection_triggered();
@@ -60,25 +59,24 @@
 
         void on_actionCompute_anomaly_triggered();
 
-        void on_actionRasterize_with_base_triggered();
+        void on_actionAssign_IDCase_triggered();
 
-        void on_actionClipRaster_with_shape_triggered();
+        // raster
+        void on_action_Raster_map_algebra_triggered();
 
-        void on_actionClipRaster_with_raster_triggered();
+        void on_actionClipRaster_cut_null_values_triggered();
+        void on_actionClipRaster_with_raster_mask_triggered();
+        void on_actionClipRaster_via_bounding_box_triggered();
 
+        void on_actionReplace_values_with_raster_mask_triggered();
         void on_actionDelete_a_range_of_values_raster_triggered();
 
-        void on_actionReplaceRaster_with_raster_triggered();
+        // shape
+        void on_actionRasterizeShape_whole_shapefile_triggered();
+        void on_actionRasterizeShape_with_raster_mask_triggered();
 
         void on_actionAssign_shape_prevailing_value_raster_triggered();
 
-        void on_actionClip_cut_null_values_triggered();
-
-        void on_actionCrop_raster_triggered();
-
-        void on_actionAssign_IDCase_triggered();
-
-        void on_action_Raster_map_algebra_triggered();
 
     protected:
         /*!

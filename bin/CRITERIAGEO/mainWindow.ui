@@ -541,11 +541,11 @@
     <addaction name="actionLoadProject"/>
     <addaction name="actionClose_Project"/>
     <addaction name="separator"/>
-    <addaction name="actionLoadShapefile"/>
     <addaction name="actionLoadRaster"/>
+    <addaction name="actionLoadShapefile"/>
     <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="menuGIS_settings">
+   <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Settin&amp;gs</string>
     </property>
@@ -566,29 +566,9 @@
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>Tools</string>
+     <string>Criteria tools</string>
     </property>
-    <widget class="QMenu" name="menuRasterize_shape">
-     <property name="title">
-      <string>Rasterize shape</string>
-     </property>
-     <addaction name="actionRasterize_all_shape"/>
-     <addaction name="actionRasterize_with_base"/>
-    </widget>
-    <widget class="QMenu" name="menuClip_raster">
-     <property name="title">
-      <string>Clip raster</string>
-     </property>
-     <addaction name="actionClipRaster_with_shape"/>
-     <addaction name="actionClipRaster_with_raster"/>
-     <addaction name="actionReplaceRaster_with_raster"/>
-     <addaction name="separator"/>
-     <addaction name="actionClip_cut_null_values"/>
-    </widget>
-    <addaction name="menuRasterize_shape"/>
-    <addaction name="menuClip_raster"/>
     <addaction name="actionCompute_Ucm_intersection"/>
-    <addaction name="separator"/>
     <addaction name="actionCompute_Ucm_prevailing"/>
     <addaction name="actionAssign_IDCase"/>
     <addaction name="actionExtract_Unit_Crop_Map_list"/>
@@ -596,23 +576,47 @@
     <addaction name="actionCompute_anomaly"/>
     <addaction name="actionOutput_Map"/>
    </widget>
-   <widget class="QMenu" name="menuEdit">
+   <widget class="QMenu" name="menuShape">
     <property name="title">
-     <string>Edit</string>
+     <string>Shape</string>
     </property>
+    <widget class="QMenu" name="menuRasterize_shape_2">
+     <property name="title">
+      <string>Rasterize shape</string>
+     </property>
+     <addaction name="actionRasterizeShape_whole_shapefile"/>
+     <addaction name="actionRasterizeShape_with_raster_mask"/>
+    </widget>
+    <addaction name="menuRasterize_shape_2"/>
     <addaction name="separator"/>
-    <addaction name="actionCrop_raster"/>
-    <addaction name="actionDelete_a_range_of_values_raster"/>
+    <addaction name="actionAssign_shape_prevailing_value_raster"/>
+    <addaction name="actionCreate_Shape_file_from_Csv"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuRaster">
+    <property name="title">
+     <string>Raster</string>
+    </property>
+    <widget class="QMenu" name="menuClipRaster">
+     <property name="title">
+      <string>Clip raster</string>
+     </property>
+     <addaction name="actionClipRaster_cut_null_values"/>
+     <addaction name="actionClipRaster_with_raster_mask"/>
+     <addaction name="actionClipRaster_via_bounding_box"/>
+    </widget>
+    <addaction name="menuClipRaster"/>
     <addaction name="action_Raster_map_algebra"/>
     <addaction name="separator"/>
-    <addaction name="actionCreate_Shape_file_from_Csv"/>
-    <addaction name="actionAssign_shape_prevailing_value_raster"/>
+    <addaction name="actionReplace_values_with_raster_mask"/>
+    <addaction name="actionDelete_a_range_of_values_raster"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
+   <addaction name="menuRaster"/>
+   <addaction name="menuShape"/>
    <addaction name="menuTools"/>
-   <addaction name="menuGIS_settings"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoadRaster">
@@ -664,7 +668,7 @@
   </action>
   <action name="actionCreate_Shape_file_from_Csv">
    <property name="text">
-    <string>[Shape] assign data from CSV...</string>
+    <string>Assign data from CSV...</string>
    </property>
   </action>
   <action name="actionCompute_Ucm_intersection">
@@ -727,49 +731,14 @@
     <string>Compute anomaly...</string>
    </property>
   </action>
-  <action name="actionRasterize_all_shape">
-   <property name="text">
-    <string>Whole shapefile...</string>
-   </property>
-  </action>
-  <action name="actionRasterize_with_base">
-   <property name="text">
-    <string>with base (raster)...</string>
-   </property>
-  </action>
-  <action name="actionClipRaster_with_shape">
-   <property name="text">
-    <string>with shape mask...</string>
-   </property>
-  </action>
-  <action name="actionClipRaster_with_raster">
-   <property name="text">
-    <string>with raster mask...</string>
-   </property>
-  </action>
   <action name="actionDelete_a_range_of_values_raster">
    <property name="text">
-    <string>[Raster] delete a range of values...</string>
-   </property>
-  </action>
-  <action name="actionReplaceRaster_with_raster">
-   <property name="text">
-    <string>replace values from raster mask...</string>
+    <string>Delete a range of values...</string>
    </property>
   </action>
   <action name="actionAssign_shape_prevailing_value_raster">
    <property name="text">
-    <string>[Shape] assign prevailing value from raster...</string>
-   </property>
-  </action>
-  <action name="actionClip_cut_null_values">
-   <property name="text">
-    <string>cut null values...</string>
-   </property>
-  </action>
-  <action name="actionCrop_raster">
-   <property name="text">
-    <string>[Raster] crop via bounding box...</string>
+    <string>Assign prevailing value from raster...</string>
    </property>
   </action>
   <action name="actionAssign_IDCase">
@@ -779,7 +748,37 @@
   </action>
   <action name="action_Raster_map_algebra">
    <property name="text">
-    <string>[Raster] raster algebra</string>
+    <string>Raster algebra...</string>
+   </property>
+  </action>
+  <action name="actionReplace_values_with_raster_mask">
+   <property name="text">
+    <string>Replace values with raster mask...</string>
+   </property>
+  </action>
+  <action name="actionRasterizeShape_whole_shapefile">
+   <property name="text">
+    <string>whole shapefile...</string>
+   </property>
+  </action>
+  <action name="actionRasterizeShape_with_raster_mask">
+   <property name="text">
+    <string>with raster mask...</string>
+   </property>
+  </action>
+  <action name="actionClipRaster_cut_null_values">
+   <property name="text">
+    <string>cut null values</string>
+   </property>
+  </action>
+  <action name="actionClipRaster_with_raster_mask">
+   <property name="text">
+    <string>with raster mask...</string>
+   </property>
+  </action>
+  <action name="actionClipRaster_via_bounding_box">
+   <property name="text">
+    <string>via bounding box...</string>
    </property>
   </action>
  </widget>

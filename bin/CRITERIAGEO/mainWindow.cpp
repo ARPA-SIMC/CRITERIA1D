@@ -1849,7 +1849,7 @@ int MainWindow::getSelectedShapePos()
 }
 
 
-void MainWindow::on_actionRasterize_all_shape_triggered()
+void MainWindow::on_actionRasterizeShape_whole_shapefile_triggered()
 {
     int pos = getSelectedShapePos();
     if (pos == NODATA)
@@ -1899,7 +1899,7 @@ void MainWindow::on_actionRasterize_all_shape_triggered()
         return;
     }
 
-    const int oldObjectSize = myProject.objectList.size();
+    size_t oldObjectSize = myProject.objectList.size();
 
     const bool showInfo = true;
     if (! myProject.newRasterFromShape(*shapeHandler, fieldName, outputName,
@@ -1956,7 +1956,7 @@ gis::Crit3DRasterGrid* MainWindow::selectRaster(const QString &title, QString &r
 }
 
 
-void MainWindow::on_actionRasterize_with_base_triggered()
+void MainWindow::on_actionRasterizeShape_with_raster_mask_triggered()
 {
     // select shapefile
     int pos = getSelectedShapePos();
@@ -2057,13 +2057,7 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
 }
 
 
-void MainWindow::on_actionClipRaster_with_shape_triggered()
-{
-    myProject.logWarning("This feature is not yet available.");
-}
-
-
-void MainWindow::on_actionClipRaster_with_raster_triggered()
+void MainWindow::on_actionClipRaster_with_raster_mask_triggered()
 {
     bool isOk;
 
@@ -2093,7 +2087,7 @@ void MainWindow::on_actionClipRaster_with_raster_triggered()
 }
 
 
-void MainWindow::on_actionClip_cut_null_values_triggered()
+void MainWindow::on_actionClipRaster_cut_null_values_triggered()
 {
     bool isOk;
 
@@ -2112,14 +2106,14 @@ void MainWindow::on_actionClip_cut_null_values_triggered()
     }
 
     setDefaultScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, rasterFileName + "_cut", myProject.getGisSettings().utmZone);
+    myProject.addRaster(outputRaster, "Cut_Null_" + rasterFileName, myProject.getGisSettings().utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
 }
 
 
-void MainWindow::on_actionReplaceRaster_with_raster_triggered()
+void MainWindow::on_actionReplace_values_with_raster_mask_triggered()
 {
     bool isOk;
 
@@ -2204,36 +2198,47 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
 }
 
 
-void MainWindow::on_actionCrop_raster_triggered()
+void MainWindow::on_actionClipRaster_via_bounding_box_triggered()
 {
-    if (rubberBandRect.height() < 2 || rubberBandRect.width() < 2)
+    QString refRasterFileName;
+    bool isOk = false;
+    gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster to crop", refRasterFileName, isOk);
+
+    if (!isOk || refRaster == nullptr)
+        return;
+
+    myProject.logWarning("Select the bounding box (use the right mouse button)");
+
+    rubberBandRect.setSize(QSize(0, 0));
+
+    // Wait for the user to define the bounding box.
+    while (rubberBandRect.width() < 2 || rubberBandRect.height() < 2)
     {
-        myProject.logWarning("First, select the bounding box (use the right mouse button)");
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+    }
+
+    const QRect normalizedRect = rubberBandRect.normalized();
+
+    const Position topLeft = mapView->mapToScene(normalizedRect.topLeft());
+    const Position bottomRight = mapView->mapToScene(normalizedRect.bottomRight());
+
+    const gis::Crit3DGeoPoint p1(topLeft.latitude(), topLeft.longitude());
+    const gis::Crit3DGeoPoint p2(bottomRight.latitude(), bottomRight.longitude());
+
+    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
+    if (! gis::cropRaster(refRaster, outputRaster, myProject.getGisSettings().utmZone, p1, p2))
+    {
+        delete outputRaster;
+        myProject.logWarning("Unable to crop raster.");
         return;
     }
 
-    // select raster
-    QString refRasterFileName;
-    bool isOk;
-    gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster to crop", refRasterFileName, isOk);
-    if (! isOk)
-        return;
-
-    gis::Crit3DRasterGrid* outputRaster = new gis::Crit3DRasterGrid();
-    Position topLeft = mapView->mapToScene(rubberBandRect.topLeft());
-    Position bottomRight = mapView->mapToScene(rubberBandRect.bottomRight());
-    gis::Crit3DGeoPoint p1(bottomRight.latitude(), topLeft.longitude());
-    gis::Crit3DGeoPoint p2(topLeft.latitude(), bottomRight.longitude());
-    if (! gis::cropRaster(refRaster, outputRaster, myProject.getGisSettings().utmZone, p1, p2))
-        return;
-
     setDTMScale(outputRaster->colorScale);
-    myProject.addRaster(outputRaster, refRasterFileName + "_cropped", myProject.getGisSettings().utmZone);
+    myProject.addRaster(outputRaster, "Crop_" + refRasterFileName, myProject.getGisSettings().utmZone);
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
 }
-
 
 
 void MainWindow::on_action_Raster_map_algebra_triggered()
@@ -2288,4 +2293,5 @@ void MainWindow::on_action_Raster_map_algebra_triggered()
     addRasterObject(myProject.objectList.back());
     updateMaps();
 }
+
 
