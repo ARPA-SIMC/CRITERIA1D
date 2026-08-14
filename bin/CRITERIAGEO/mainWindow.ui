@@ -566,7 +566,7 @@
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>Criteria tools</string>
+     <string>Tools</string>
     </property>
     <addaction name="actionCompute_Ucm_intersection"/>
     <addaction name="actionCompute_Ucm_prevailing"/>
@@ -710,7 +710,7 @@
   </action>
   <action name="actionLoadProject">
    <property name="text">
-    <string>Load Project...</string>
+    <string>Load Criteria project...</string>
    </property>
   </action>
   <action name="actionOutput_Map">
@@ -723,7 +723,7 @@
   </action>
   <action name="actionClose_Project">
    <property name="text">
-    <string>Close Project...</string>
+    <string>Close Criteria Project</string>
    </property>
   </action>
   <action name="actionCompute_anomaly">
@@ -743,7 +743,7 @@
   </action>
   <action name="actionAssign_IDCase">
    <property name="text">
-    <string>Assign ID Cases...</string>
+    <string>Assign Criteria ID Cases...</string>
    </property>
   </action>
   <action name="action_Raster_map_algebra">

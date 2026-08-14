@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // initialize info dialog for shape
     shapeInfoDialog.setWindowTitle("Shape info");
-    shapeInfoBrowser.setFixedSize(300,500);
+    shapeInfoBrowser.setFixedSize(300, 300);
     QVBoxLayout shapeLayout;
     shapeLayout.addWidget(&shapeInfoBrowser);
     shapeInfoDialog.setLayout(&shapeLayout);
@@ -149,19 +149,24 @@ void MainWindow::resizeEvent(QResizeEvent * event)
 
     ui->checkList->move(MAPBORDER/2, MAPBORDER);
     ui->checkList->resize(TOOLSWIDTH, this->height() - INFOHEIGHT - MAPBORDER*2);
+
     updateMaps();
 }
 
 
 void MainWindow::updateMaps()
 {
-    if (! rasterObjList.empty())
-        for (unsigned int i = 0; i < rasterObjList.size(); i++)
-            rasterObjList[i]->updateCenter();
+    for (auto* object : shapeObjList)
+    {
+        if (object != nullptr)
+            object->updateCenter();
+    }
 
-    if (! shapeObjList.empty())
-        for (unsigned int i = 0; i < shapeObjList.size(); i++)
-            shapeObjList[i]->updateCenter();
+    for (auto* object : rasterObjList)
+    {
+        if (object != nullptr)
+            object->updateCenter();
+    }
 }
 
 
@@ -306,107 +311,160 @@ bool MainWindow::getRubberBandRect(const QPoint& position, QRect& rect)
 void MainWindow::contextMenuRequested(const QPoint &localPos)
 {
     // Check mouse position
-    QPoint mapPos = getMapPos(localPos);
+    const QPoint mapPos = getMapPos(localPos);
     if (! isInsideMap(mapPos))
         return;
 
     // Get selected item
-    QListWidgetItem* itemSelected = ui->checkList->currentItem();
-    if (! itemSelected)
+    QListWidgetItem *itemSelected = ui->checkList->currentItem();
+    if (itemSelected == nullptr)
         return;
 
-    int index = ui->checkList->row(itemSelected);
+    const int index = ui->checkList->row(itemSelected);
     if (index < 0 || index >= myProject.objectList.size())
         return;
 
     // Get selected object
-    GisObject* myObject = myProject.objectList.at(index);
-    if (! myObject)
+    GisObject *myObject = myProject.objectList.at(index);
+    if (myObject == nullptr)
         return;
 
-    // get utm (x,y)
-    Position geoPos = mapView->mapToScene(mapPos);
+    QMenu contextMenu(this);
+
+    QAction *editShapeAction = nullptr;
+    QAction *editRasterPointAction = nullptr;
+    QAction *deleteRasterPointAction = nullptr;
+
+    MapGraphicsShapeObject *shapeObject = nullptr;
+    RasterUtmObject *rasterObject = nullptr;
+
+    int row = NODATA;
+    int col = NODATA;
+
+    gis::Crit3DRasterGrid *rasterPointer = nullptr;
+
+    // Get geographic position
+    const Position geoPos = mapView->mapToScene(mapPos);
+
     gis::Crit3DGeoPoint geoPoint(geoPos.latitude(), geoPos.longitude());
+
     gis::Crit3DUtmPoint utmPoint;
     gis::getUtmFromLatLon(myProject.getGisSettings().utmZone, geoPoint, &utmPoint);
 
-    QMenu contextMenu(this);
-    QAction* editShapeAction = nullptr;
-    QAction* editRasterPointAction = nullptr;
-    auto* shapeObject = getShapeObject(myObject);
-    auto* rasterObject = getRasterObject(myObject);
-
     switch (myObject->type)
     {
-        case gisObjectShape:
-        {
-            if (! shapeObject)
-                return;
-
-            editShapeAction = contextMenu.addAction("Edit Shape..");
-            break;
-        }
-
-        case gisObjectRaster:
-        {
-            if (! rasterObject)
-                return;
-
-            gis::Crit3DRasterGrid* rasterPointer = rasterObject->getRasterPointer();
-            if (! rasterPointer)
-                return;
-
-            int row, col;
-            rasterPointer->getRowCol(utmPoint.x, utmPoint.y, row, col);
-            if (rasterPointer->isOutOfGrid(row, col))
-                return;
-
-            editRasterPointAction = contextMenu.addAction("Edit raster point..");
-            break;
-        }
-
-        default:
-            return;
-    }
-
-    QAction* selectedAction = contextMenu.exec(mapToGlobal(localPos));
-
-    if (selectedAction == editShapeAction)
+    case gisObjectShape:
     {
-        // TODO
-    }
-    else if (selectedAction == editRasterPointAction)
-    {
-        gis::Crit3DRasterGrid* rasterPointer = rasterObject->getRasterPointer();
-        if (! rasterPointer)
+        shapeObject = getShapeObject(myObject);
+        if (shapeObject == nullptr)
             return;
 
-        // get row col
-        int row, col;
-        rasterPointer->getRowCol(utmPoint.x, utmPoint.y, row, col);
+        editShapeAction = contextMenu.addAction("Edit Shape..");
+        break;
+    }
+
+    case gisObjectRaster:
+    {
+        rasterObject = getRasterObject(myObject);
+        if (rasterObject == nullptr)
+            return;
+
+        rasterPointer = rasterObject->getRasterPointer();
+        if (rasterPointer == nullptr ||
+            rasterPointer->header == nullptr)
+        {
+            return;
+        }
+
+        rasterPointer->getRowCol(
+            utmPoint.x,
+            utmPoint.y,
+            row,
+            col);
+
         if (rasterPointer->isOutOfGrid(row, col))
             return;
 
-        float currentValue = rasterPointer->value[row][col];
+        editRasterPointAction =
+            contextMenu.addAction("Edit raster point..");
 
-        FormText f("Choose new value:", QString::number(currentValue));
+        deleteRasterPointAction =
+            contextMenu.addAction("Delete raster point");
+
+        break;
+    }
+
+    default:
+        return;
+    }
+
+    QAction *selectedAction =
+        contextMenu.exec(mapToGlobal(localPos));
+
+    if (selectedAction == nullptr)
+        return;
+
+    // ---------------------------------------------------------
+    // Edit shape
+    // ---------------------------------------------------------
+    if (selectedAction == editShapeAction)
+    {
+        // TODO
+        return;
+    }
+
+    // ---------------------------------------------------------
+    // Edit raster point
+    // ---------------------------------------------------------
+    if (selectedAction == editRasterPointAction)
+    {
+        const float currentValue = rasterPointer->value[row][col];
+
+        FormText f(
+            "Choose new value:",
+            QString::number(currentValue));
+
         if (f.exec() != QDialog::Accepted)
-        {
-            return;                         // Cancel or close
-        }
+            return;
 
-        QString newValueStr = f.getText();
+        const QString newValueStr = f.getText();
 
-        bool isOk;
-        float newValue = newValueStr.toFloat(&isOk);
-        if (! isOk)
+        bool isOk = false;
+        const float newValue = newValueStr.toFloat(&isOk);
+
+        if (!isOk)
         {
             myProject.logWarning("Wrong number!");
             return;
         }
 
         rasterPointer->value[row][col] = newValue;
+
         updateMaps();
+        return;
+    }
+
+    // ---------------------------------------------------------
+    // Delete raster point
+    // ---------------------------------------------------------
+    if (selectedAction == deleteRasterPointAction)
+    {
+        const QMessageBox::StandardButton confirm =
+            QMessageBox::question(
+                this,
+                "Warning",
+                "Are you sure?",
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No);
+
+        if (confirm != QMessageBox::Yes)
+            return;
+
+        rasterPointer->value[row][col] =
+            rasterPointer->header->flag;
+
+        updateMaps();
+        return;
     }
 }
 
@@ -416,11 +474,11 @@ void MainWindow::itemMenuRequested(const QPoint &point)
     QPoint itemPoint = ui->checkList->mapToGlobal(point);
     QListWidgetItem* item = ui->checkList->itemAt(point);
 
-    int pos = ui->checkList->row(item);
-    if (pos < 0)
+    int currentPosition = ui->checkList->row(item);
+    if (currentPosition < 0)
         return;
 
-    GisObject* myObject = myProject.objectList.at(unsigned(pos));
+    GisObject* myObject = myProject.objectList.at(unsigned(currentPosition));
 
     QMenu submenu;
     RasterUtmObject* myRasterObject = getRasterObject(myObject);
@@ -442,6 +500,8 @@ void MainWindow::itemMenuRequested(const QPoint &point)
                 submenu.addSeparator();
             }
 
+            submenu.addAction("move up ↑");
+            submenu.addAction("move down ↓");
             submenu.addAction("Zoom to layer");
             submenu.addSeparator();
 
@@ -450,8 +510,8 @@ void MainWindow::itemMenuRequested(const QPoint &point)
             submenu.addSeparator();
 
             submenu.addAction("Set style");
-            submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
+            submenu.addAction("Set grayscale");
             submenu.addAction("Set random colors");
             submenu.addAction("Reverse color scale");
             submenu.addAction("Disable color scale");
@@ -462,10 +522,7 @@ void MainWindow::itemMenuRequested(const QPoint &point)
             else
                 submenu.addAction("Selected border red");
 
-            if (myShapeObject->opacity() < 1)
-                submenu.addAction("Set opaque");
-            else
-                submenu.addAction("Set transparent");
+            submenu.addAction("Set opacity");
 
             submenu.addSeparator();
             submenu.addAction("Export to raster (gdal)");
@@ -481,13 +538,15 @@ void MainWindow::itemMenuRequested(const QPoint &point)
             submenu.addAction("Save as");
             submenu.addSeparator();
 
+            submenu.addAction("move up ↑");
+            submenu.addAction("move down ↓");
             submenu.addAction("Zoom to layer");
             submenu.addSeparator();
 
-            submenu.addAction("Set grayscale");
             submenu.addAction("Set default scale");
+            submenu.addAction("Set DTM scale");
+            submenu.addAction("Set grayscale");
             submenu.addAction("Set random colors");
-            submenu.addAction("Set dtm scale");
             submenu.addAction("Reverse color scale");
 
             submenu.addSeparator();
@@ -497,10 +556,7 @@ void MainWindow::itemMenuRequested(const QPoint &point)
             else
                 submenu.addAction("Set fixed range");
 
-            if (myRasterObject->opacity() < 1)
-                submenu.addAction("Set opaque");
-            else
-                submenu.addAction("Set transparent");
+            submenu.addAction("Set opacity");
 
             submenu.addSeparator();
 
@@ -517,7 +573,15 @@ void MainWindow::itemMenuRequested(const QPoint &point)
 
     if (rightClickItem)
     {
-        if (rightClickItem->text() == "Remove" )
+        if (rightClickItem->text() == "move up ↑" )
+        {
+            moveObject(currentPosition, UP);
+        }
+        else if (rightClickItem->text() == "move down ↓" )
+        {
+            moveObject(currentPosition, DOWN);
+        }
+        else if (rightClickItem->text() == "Remove" )
         {
             if (myObject->type == gisObjectRaster || myObject->type == gisObjectNetcdf)
             {
@@ -528,7 +592,7 @@ void MainWindow::itemMenuRequested(const QPoint &point)
                 this->removeShape(myObject);
             }
             myObject->close();
-            myProject.objectList.erase(myProject.objectList.begin()+pos);
+            myProject.objectList.erase(myProject.objectList.begin() + currentPosition);
 
             ui->checkList->takeItem(ui->checkList->indexAt(point).row());
         }
@@ -627,7 +691,7 @@ void MainWindow::itemMenuRequested(const QPoint &point)
                 emit myShapeObject->redrawRequested();
             }
         }
-        else if (rightClickItem->text().contains("Set dtm scale"))
+        else if (rightClickItem->text().contains("Set DTM scale"))
         {
             if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
@@ -684,30 +748,38 @@ void MainWindow::itemMenuRequested(const QPoint &point)
                 emit myRasterObject->redrawRequested();
             }
         }
-        else if (rightClickItem->text().contains("Set opaque"))
+        else if (rightClickItem->text().contains("Set opacity"))
         {
+            float currentOpacity = 0.5f;
+
             if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
+                currentOpacity = myRasterObject->opacity();
+            else if (myObject->type == gisObjectShape && myShapeObject != nullptr)
+                currentOpacity = myShapeObject->opacity();
+            else
+                return;
+
+            FormText f("Choose opacity:", QString::number(currentOpacity));
+            if (f.exec() != QDialog::Accepted)
+                return;
+
+            bool isOk = false;
+            const float opacity = f.getText().toFloat(&isOk);
+
+            if (!isOk || (opacity < 0.0f) || opacity > 1.0f)
             {
-                myRasterObject->setOpacity(1.0);
+                myProject.logWarning("Wrong number! (it must be in 0-1)");
+                return;
+            }
+
+            if (myObject->type == gisObjectRaster)
+            {
+                myRasterObject->setOpacity(opacity);
                 emit myRasterObject->redrawRequested();
             }
-            else if (myObject->type == gisObjectShape && myShapeObject != nullptr)
+            else // gisObjectShape
             {
-                myShapeObject->setOpacity(1.0);
-                emit myShapeObject->redrawRequested();
-            }
-        }
-        else if (rightClickItem->text().contains("Set transparent"))
-        {
-            if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
-            {
-                // TODO choose value
-                myRasterObject->setOpacity(0.5);
-                emit myRasterObject->redrawRequested();
-            }
-            else if (myObject->type == gisObjectShape && myShapeObject != nullptr)
-            {
-                myShapeObject->setOpacity(0.5);
+                myShapeObject->setOpacity(opacity);
                 emit myShapeObject->redrawRequested();
             }
         }
@@ -867,18 +939,97 @@ bool MainWindow::isInsideMap(const QPoint& pos)
 
 void MainWindow::addRasterObject(GisObject* myObject)
 {
-    QListWidgetItem* item = new QListWidgetItem("[RASTER] " + myObject->fileName);
+    if (myObject == nullptr)
+        return;
+
+    // Create raster object
+    auto* rasterObject = new RasterUtmObject(mapView);
+    rasterObject->setOpacity(0.66);
+    if (! rasterObject->initialize(myObject->getRasterPointer(), myObject->gisSettings))
+    {
+        delete rasterObject;
+        return;
+    }
+
+    // Set Z order before adding the object to the scene
+    rasterObject->setZValue(qreal(myProject.lastZOrder++));
+
+    // Store object
+    rasterObjList.push_back(rasterObject);
+
+    // Add object to scene
+    mapView->scene()->addObject(rasterObject);
+
+    // Add item to GUI
+    auto* item = new QListWidgetItem("[RASTER] " + myObject->fileName);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(Qt::Checked);
     ui->checkList->addItem(item);
 
-    RasterUtmObject* newRasterObj = new RasterUtmObject(mapView);
-    newRasterObj->setOpacity(0.66);
-    newRasterObj->initialize(myObject->getRasterPointer(), myObject->gisSettings);
-    this->rasterObjList.push_back(newRasterObj);
+    updateMaps();
+}
 
-    this->mapView->scene()->addObject(newRasterObj);
-    this->updateMaps();
+
+bool MainWindow::moveObject(int index, int direction)
+{
+    if (myProject.objectList.size() != ui->checkList->count())
+    {
+        myProject.logWarning(
+            "Unable to move the item.\n"
+            "The number of objects in memory differs from the number of items.");
+        return false;
+    }
+
+    const int objectCount = static_cast<int>(myProject.objectList.size());
+
+    if (index < 0 || index >= objectCount)
+        return false;
+
+    int newIndex;
+
+    if (direction == UP)
+        newIndex = index - 1;
+    else if (direction == DOWN)
+        newIndex = index + 1;
+    else
+    {
+        myProject.logWarning("Wrong direction.");
+        return false;
+    }
+
+    if (newIndex < 0 || newIndex >= objectCount)
+        return false;
+
+    // get objects before changing the list
+    GisObject* obj1 = myProject.objectList[index];
+    GisObject* obj2 = myProject.objectList[newIndex];
+
+    if (obj1 == nullptr || obj2 == nullptr)
+    {
+        myProject.logWarning("Unable to move the item.");
+        return false;
+    }
+
+    // remove item from the list widget
+    QListWidgetItem* item = ui->checkList->takeItem(index);
+
+    if (item == nullptr)
+    {
+        myProject.logWarning("Unable to move the item.");
+        return false;
+    }
+
+    // swap objects in the project list
+    std::swap(myProject.objectList[index], myProject.objectList[newIndex]);
+
+    // swap drawing order
+    swapZValue(obj1, obj2);
+
+    // move item in the UI
+    ui->checkList->insertItem(newIndex, item);
+    ui->checkList->setCurrentRow(newIndex);
+
+    return true;
 }
 
 
@@ -890,7 +1041,7 @@ void MainWindow::addNetcdfObject(GisObject* myObject)
     item->setCheckState(Qt::Checked);
     ui->checkList->addItem(item);
 
-    RasterObject* netcdfObj = new RasterObject(this->mapView);
+    RasterUtmObject* netcdfObj = new RasterUtmObject(mapView);
     netcdfObj->setOpacity(0.66);
 
     NetCDFHandler* netcdfPtr = myObject->getNetcdfHandler();
@@ -904,49 +1055,59 @@ void MainWindow::addNetcdfObject(GisObject* myObject)
         netcdfObj->initializeUTM(netcdfPtr->getRasterPointer(), myObject->gisSettings, true);
     }
 
-    this->rasterObjList.push_back(netcdfObj);
+    rasterObjList.push_back(netcdfObj);
 
-    this->mapView->scene()->addObject(netcdfObj);
-    this->updateMaps();
+    mapView->scene()->addObject(netcdfObj);
+    updateMaps();
 }
 */
 
 
 bool MainWindow::addShapeObject(GisObject* myObject)
 {
-    // check zoneNumber
-    int zoneNumber = myObject->getShapeHandler()->getUtmZone();
+    if (myObject == nullptr)
+        return false;
+
+    // Check UTM zone
+    const int zoneNumber = myObject->getShapeHandler()->getUtmZone();
     if ((zoneNumber < 1) || (zoneNumber > 60))
     {
         QMessageBox::critical(nullptr, "ERROR!", "Wrong UTM zone.");
         return false;
     }
 
-    // name
-    QString itemName;
-    if (myObject->projectName != "")
+    // Set name
+    const QString itemName = !myObject->projectName.isEmpty()
+                                 ? "[PROJECT] " + myObject->projectName
+                                 : "[SHAPE] " + myObject->fileName;
+
+    // Create shape object
+    auto* shapeObject = new MapGraphicsShapeObject(mapView);
+
+    if (! shapeObject->initializeUTM(myObject->getShapeHandler()))
     {
-        itemName = "[PROJECT] " + myObject->projectName;
-    }
-    else
-    {
-        itemName = "[SHAPE] " + myObject->fileName;
+        delete shapeObject;
+        return false;
     }
 
-    // add item
-    QListWidgetItem* item = new QListWidgetItem(itemName);
+    shapeObject->setOpacity(0.66);
+
+    // Set Z order
+    shapeObject->setZValue(qreal(myProject.lastZOrder++));
+
+    // Store object
+    shapeObjList.push_back(shapeObject);
+
+    // Add object to scene
+    mapView->scene()->addObject(shapeObject);
+
+    // Add item to GUI
+    auto* item = new QListWidgetItem(itemName);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(Qt::Checked);
     ui->checkList->addItem(item);
 
-    // add shapeObject
-    MapGraphicsShapeObject* newShapeObj = new MapGraphicsShapeObject(this->mapView);
-    newShapeObj->initializeUTM(myObject->getShapeHandler());
-    newShapeObj->setOpacity(0.8);
-
-    this->shapeObjList.push_back(newShapeObj);
-    this->mapView->scene()->addObject(newShapeObj);
-    this->updateMaps();
+    updateMaps();
 
     return true;
 }
@@ -1094,25 +1255,120 @@ void MainWindow::on_actionLoadShapefile_triggered()
 }
 
 
-int MainWindow::getRasterIndex(GisObject* myObject)
+int MainWindow::getShapeIndex(GisObject* myObject)
 {
-    for (unsigned int i = 0; i < rasterObjList.size(); i++)
+    if (myObject == nullptr || myObject->type != gisObjectShape)
+        return NODATA;
+
+    const Crit3DShapeHandler* shapeHandler = myObject->getShapeHandler();
+
+    for (size_t i = 0; i < shapeObjList.size(); ++i)
     {
-        if (myObject->type == gisObjectRaster)
-        {
-            if (rasterObjList.at(i)->getRasterPointer() == myObject->getRasterPointer())
-                return i;
-        }
-        /*
-        else if (myObject->type == gisObjectNetcdf)
-        {
-            if (rasterObjList.at(i)->getRasterPointer() == myObject->getNetcdfHandler()->getRasterPointer())
-                return i;
-        }
-        */
+        if (shapeObjList[i]->getShapePointer() == shapeHandler)
+            return static_cast<int>(i);
     }
 
     return NODATA;
+}
+
+
+int MainWindow::getRasterIndex(GisObject* myObject)
+{
+    if (myObject == nullptr || myObject->type != gisObjectRaster)
+        return NODATA;
+
+    const gis::Crit3DRasterGrid* rasterPointer = myObject->getRasterPointer();
+
+    for (size_t i = 0; i < rasterObjList.size(); ++i)
+    {
+        if (rasterObjList[i]->getRasterPointer() == rasterPointer)
+            return static_cast<int>(i);
+    }
+
+    return NODATA;
+}
+
+
+int MainWindow::getObjectIndex(GisObject * obj)
+{
+    if (obj == nullptr)
+        return NODATA;
+
+    switch (obj->type)
+    {
+    case gisObjectRaster:
+        return getRasterIndex(obj);
+
+    case gisObjectShape:
+        return getShapeIndex(obj);
+
+    default:
+        return NODATA;
+    }
+}
+
+
+qreal MainWindow::getZValue(GisObject* obj)
+{
+    if (obj == nullptr)
+        return NODATA;
+
+    const int index = getObjectIndex(obj);
+
+    if (index == NODATA)
+        return NODATA;
+
+    switch (obj->type)
+    {
+    case gisObjectRaster:
+        return rasterObjList[index]->zValue();
+
+    case gisObjectShape:
+        return shapeObjList[index]->zValue();
+
+    default:
+        return NODATA;
+    }
+}
+
+bool MainWindow::setZValue(GisObject* obj, qreal zValue)
+{
+    if (obj == nullptr)
+        return false;
+
+    const int index = getObjectIndex(obj);
+
+    if (index == NODATA)
+        return false;
+
+    switch (obj->type)
+    {
+    case gisObjectRaster:
+        rasterObjList[index]->setZValue(zValue);
+        return true;
+
+    case gisObjectShape:
+        shapeObjList[index]->setZValue(zValue);
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+
+bool MainWindow::swapZValue(GisObject* obj1, GisObject* obj2)
+{
+    if (obj1 == nullptr || obj2 == nullptr || obj1 == obj2)
+        return false;
+
+    const qreal z1 = getZValue(obj1);
+    const qreal z2 = getZValue(obj2);
+
+    if (z1 == NODATA || z2 == NODATA)
+        return false;
+
+    return setZValue(obj1, z2) && setZValue(obj2, z1);
 }
 
 
@@ -1372,60 +1628,65 @@ void MainWindow::rasterStatisticalSummary(GisObject* myObject)         //Qua den
 }
 
 
-bool MainWindow::selectShape(QPoint screenPos)
+bool MainWindow::selectShape(const QPoint &screenPos)
 {
-    // check if there is an item selected
-    QListWidgetItem* itemSelected = ui->checkList->currentItem();
+    // Check if there is an item selected
+    QListWidgetItem *itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr)
-    {
         return false;
-    }
 
-    // check if the selected element is a shape
-    int row = ui->checkList->row(itemSelected);
-    GisObject* myGisObject = myProject.objectList.at(unsigned(row));
-    if (myGisObject->type != gisObjectShape)
-    {
+    // Check if the selected element is a shape
+    const int row = ui->checkList->row(itemSelected);
+    if (row < 0 || row >= myProject.objectList.size())
         return false;
-    }
 
-    // check shape object
-    MapGraphicsShapeObject *myShapeObject = getShapeObject(myGisObject);
-    if (myShapeObject == nullptr)
-    {
+    GisObject *gisObject = myProject.objectList.at(row);
+    if (gisObject == nullptr || gisObject->type != gisObjectShape)
         return false;
-    }
 
-    // check position
-    QPoint mapPos = getMapPos(screenPos);
+    // Check shape object
+    MapGraphicsShapeObject *shapeObject = getShapeObject(gisObject);
+    if (shapeObject == nullptr)
+        return false;
+
+    // Check position
+    const QPoint mapPos = getMapPos(screenPos);
     if (! isInsideMap(mapPos))
-    {
         return false;
-    }
 
-    Crit3DShapeHandler* shapeHandler = myGisObject->getShapeHandler();
-    Position geoPos = mapView->mapToScene(mapPos);
+    // Convert screen position to UTM coordinates
+    const Position geoPos = mapView->mapToScene(mapPos);
 
-    double x, y;
-    gis::latLonToUtmForceZone(myProject.getGisSettings().utmZone, geoPos.latitude(), geoPos.longitude(), &x, &y);
-    int index = shapeHandler->getShapeIndexfromPoint(x, y);
+    double x = 0.0;
+    double y = 0.0;
 
-    // update only if the index is changed
-    if (index != myShapeObject->getSelected())
+    gis::latLonToUtmForceZone(myProject.getGisSettings().utmZone,
+                              geoPos.latitude(), geoPos.longitude(), &x, &y);
+
+    // Find the shape containing the point
+    Crit3DShapeHandler *shapeHandler = gisObject->getShapeHandler();
+    if (shapeHandler == nullptr)
+        return false;
+
+    const int index = shapeHandler->getShapeIndexfromPoint(x, y);
+
+    // Update only if the selected shape has changed
+    if (index == shapeObject->getSelected())
+        return true;
+
+    shapeObject->setSelected(index);
+    emit shapeObject->redrawRequested();
+
+    // Update shape information dialog
+    if (index == NODATA)
     {
-        myShapeObject->setSelected(index);
-        emit myShapeObject->redrawRequested();
+        shapeInfoDialog.close();
+    }
+    else
+    {
+        shapeInfoBrowser.setText(QString::fromStdString(shapeHandler->getAttributesList(index)));
 
-        // update shape info dialog
-        if (index == NODATA)
-        {
-            shapeInfoDialog.close();
-        }
-        else
-        {
-            shapeInfoBrowser.setText(QString::fromStdString(shapeHandler->getAttributesList(index)));
-            shapeInfoDialog.show();
-        }
+        shapeInfoDialog.show();
     }
 
     return true;
@@ -1534,7 +1795,7 @@ void MainWindow::on_actionAssign_IDCase_triggered()
     QListWidgetItem * itemSelected = ui->checkList->currentItem();
     if (itemSelected == nullptr || !itemSelected->text().contains("SHAPE"))
     {
-        QMessageBox::warning(nullptr, "No shape selected", "Select Computational Units Map shapefile.");
+        QMessageBox::warning(nullptr, "No UCM selected", "Select Computational Units Map shapefile.");
         return;
     }
 
@@ -1675,23 +1936,20 @@ void MainWindow::closeGeoProject()
 
 void MainWindow::on_actionClose_Project_triggered()
 {
-    if ( !myProject.output.isProjectLoaded )
+    if (! myProject.output.isProjectLoaded )
         return;
 
     QMessageBox::StandardButton confirm;
     QString msg = "This operation will close the project: " + myProject.output.projectName + "\nAre you sure?";
+
     confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
     if (confirm == QMessageBox::No)
-    {
         return;
-    }
 
     closeGeoProject();
 
     // disable output map action
     ui->actionOutput_Map->setEnabled(false);
-
-    return;
 }
 
 
@@ -1810,17 +2068,17 @@ int MainWindow::getSelectedRasterPos(bool isInfo)
     if (rasterObjList.empty())
     {
         if (isInfo) {
-            QMessageBox::information(nullptr, "No raster loaded", "Load a raster before.");
+            QMessageBox::warning(nullptr, "No raster loaded", "Load a raster before.");
         }
         return NODATA;
     }
 
     QListWidgetItem * itemSelected = ui->checkList->currentItem();
 
-    if (itemSelected == nullptr || ! itemSelected->text().contains("RASTER"))
+    if (itemSelected == nullptr || !itemSelected->text().contains("RASTER"))
     {
         if (isInfo) {
-            QMessageBox::information(nullptr, "No raster selected", "Select a raster before.");
+            QMessageBox::warning(nullptr, "No raster selected", "Select a raster before.");
         }
         return NODATA;
     }
@@ -1833,7 +2091,7 @@ int MainWindow::getSelectedShapePos()
 {
     if (shapeObjList.empty())
     {
-        QMessageBox::information(nullptr, "No shape loaded", "Load a shapefile before.");
+        QMessageBox::warning(nullptr, "No shape loaded", "Load a shapefile before.");
         return NODATA;
     }
 
@@ -1841,7 +2099,7 @@ int MainWindow::getSelectedShapePos()
 
     if (itemSelected == nullptr || ! itemSelected->text().contains("SHAPE"))
     {
-        QMessageBox::information(nullptr, "No shape selected", "Select a shapefile before.");
+        QMessageBox::warning(nullptr, "No shape selected", "Select a shapefile before.");
         return NODATA;
     }
 
@@ -2061,7 +2319,6 @@ void MainWindow::on_actionClipRaster_with_raster_mask_triggered()
 {
     bool isOk;
 
-    // select raster
     QString refRasterFileName;
     gis::Crit3DRasterGrid *refRaster = selectRaster("Reference raster", refRasterFileName, isOk);
     if (! isOk)
@@ -2091,7 +2348,6 @@ void MainWindow::on_actionClipRaster_cut_null_values_triggered()
 {
     bool isOk;
 
-    // select raster
     QString rasterFileName;
     gis::Crit3DRasterGrid *inputRaster = selectRaster("Select raster to cut", rasterFileName, isOk);
     if (! isOk)
@@ -2117,7 +2373,6 @@ void MainWindow::on_actionReplace_values_with_raster_mask_triggered()
 {
     bool isOk;
 
-    // select raster
     QString refRasterFileName;
     gis::Crit3DRasterGrid *refRaster = selectRaster("Reference raster", refRasterFileName, isOk);
     if (! isOk) return;
@@ -2149,7 +2404,6 @@ void MainWindow::on_actionReplace_values_with_raster_mask_triggered()
 
 void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
 {
-    // select raster
     QString refRasterFileName;
     bool isOk;
     gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster to delete a range of values", refRasterFileName, isOk);
@@ -2158,9 +2412,7 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
 
     FormText formMinimum("Choose minimum value:", QString::number(refRaster->minimum));
     if (formMinimum.exec() != QDialog::Accepted)
-    {
-        return;                         // Cancel or close
-    }
+        return;
 
     QString minStr = formMinimum.getText();
     float minimum = minStr.toFloat(&isOk);
@@ -2199,7 +2451,7 @@ void MainWindow::on_actionDelete_a_range_of_values_raster_triggered()
 
 
 void MainWindow::on_actionClipRaster_via_bounding_box_triggered()
-{
+{       
     QString refRasterFileName;
     bool isOk = false;
     gis::Crit3DRasterGrid *refRaster = selectRaster("Select raster to crop", refRasterFileName, isOk);
@@ -2207,7 +2459,7 @@ void MainWindow::on_actionClipRaster_via_bounding_box_triggered()
     if (!isOk || refRaster == nullptr)
         return;
 
-    myProject.logWarning("Select the bounding box (use the right mouse button)");
+    myProject.logInfo("Select the bounding box (use the right mouse button)");
 
     rubberBandRect.setSize(QSize(0, 0));
 

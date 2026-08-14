@@ -55,7 +55,7 @@ void CriteriaGeoProject::addRaster(gis::Crit3DRasterGrid *rasterPtr, QString fil
 {
     GisObject* newObject = new(GisObject);
     newObject->setRaster(fileNameWithPath, rasterPtr, utmZone);
-    this->objectList.push_back(newObject);
+    objectList.push_back(newObject);
 }
 
 
@@ -63,7 +63,7 @@ void CriteriaGeoProject::addShapeFile(Crit3DShapeHandler *shapePtr, QString file
 {
     GisObject* newObject = new(GisObject);
     newObject->setShapeFile(fileNameWithPath, projectName, shapePtr, utmZone);
-    this->objectList.push_back(newObject);
+    objectList.push_back(newObject);
 }
 
 

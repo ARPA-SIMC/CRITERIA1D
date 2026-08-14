@@ -1,7 +1,7 @@
 #ifndef CRITERIA_GEO_PROJECT_H
 #define CRITERIA_GEO_PROJECT_H
 
-    #define CRITERIA_GEO_VERSION "v2.0.5 (2026)"
+    #define CRITERIA_GEO_VERSION "v2.0.6 (2026)"
 
     #ifndef GIS_H
         #include "gis.h"
@@ -27,6 +27,8 @@
 
     public:
         std::vector<GisObject*> objectList;
+        int lastZOrder = 1;
+
         CriteriaOutputProject output;
 
         CriteriaGeoProject();

@@ -132,7 +132,7 @@
         void removeShape(GisObject* myObject);
         void setShapeStyle(GisObject* myObject, std::string fieldName);
         void setShapeStyle_GUI(GisObject* myObject);
-        bool selectShape(QPoint screenPos);
+        bool selectShape(const QPoint &screenPos);
         bool exportShapeToRaster_gdal(GisObject* myObject);
         bool exportToNetCDF(GisObject* myObject);
 
@@ -144,7 +144,16 @@
         QPoint getMapPos(const QPoint& screenPos);
         bool isInsideMap(const QPoint& pos);
 
+        bool moveObject(int index, int direction);
+
         int getRasterIndex(GisObject *myObject);
+        int getShapeIndex(GisObject* myObject);
+        int getObjectIndex(GisObject * obj);
+
+        qreal getZValue(GisObject* obj);
+        bool setZValue(GisObject* obj, qreal zValue);
+        bool swapZValue(GisObject* obj1, GisObject* obj2);
+
         int getSelectedShapePos();
         int getSelectedRasterPos(bool isInfo);
 
