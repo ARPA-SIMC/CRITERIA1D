@@ -82,7 +82,10 @@ bool CriteriaGeoProject::loadRaster(const QString &fileNameWithPath)
     gis::Crit3DRasterGrid* newRaster = new(gis::Crit3DRasterGrid);
 
     QString fileExtension = fileNameWithPath.right(4);
-    if (fileExtension == ".flt" || fileExtension == ".img")
+    if (fileExtension == ".flt"
+        || fileExtension == ".img"
+        || fileExtension == ".bil"
+        || fileExtension == ".asc")
     {
         std::string errorStdStr;
         if (! gis::openRaster(fileNameWithPath.toStdString(), newRaster, _gisSettings.utmZone, errorStdStr))

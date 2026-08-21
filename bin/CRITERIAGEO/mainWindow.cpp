@@ -1195,12 +1195,13 @@ void MainWindow::on_actionLoadRaster_triggered()
         rasterFormats.sort();
         rasterFormats.insert(0, tr("all files (*.*)"));
         rasterFormats.insert(1, tr("ESRI float (*.flt)"));
+        rasterFormats.insert(1, tr("ESRI bil (*.bil)"));
         rasterFormats.insert(2, tr("ENVI IMG (*.img)"));
 
         QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "", rasterFormats.join(";;"));
     #else
          QString fileNameWithPath = QFileDialog::getOpenFileName(this, tr("Open raster file"), "",
-                                                            tr("ESRI FLT (*.flt);;ENVI IMG (*.img)"));
+                                                            tr("ESRI FLT (*.flt);;"ESRI BIL (*.bil);;ENVI IMG (*.img)"));
     #endif
 
     if (fileNameWithPath == "") return;
