@@ -78,20 +78,20 @@ MainWindow::MainWindow(QWidget *parent) :
     shapeInfoDialog.setWindowFlag(Qt::WindowStaysOnTopHint);
 
     // Set the MapGraphics Scene and View
-    this->mapScene = new MapGraphicsScene(this);
-    this->mapView = new MapGraphicsView(mapScene, this->ui->widgetMap);
+    mapScene = new MapGraphicsScene(this);
+    mapView = new MapGraphicsView(mapScene, ui->widgetMap);
 
     // Set rubber band
     rubberBand = new RubberBand(QRubberBand::Rectangle, mapView);
 
     // Set tiles source
-    this->setTileSource(WebTileSource::OPEN_STREET_MAP);
+    setTileSource(WebTileSource::GOOGLE_Terrain);
 
     // Set start size and position
-    this->startCenter = new Position (myProject.getGisSettings().startLocation.longitude,
+    startCenter = new Position (myProject.getGisSettings().startLocation.longitude,
                                      myProject.getGisSettings().startLocation.latitude, 0.0);
-    this->mapView->setZoomLevel(8);
-    this->mapView->centerOn(startCenter->lonLat());
+    mapView->setZoomLevel(8);
+    mapView->centerOn(startCenter->lonLat());
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
     connect(this->mapView, SIGNAL(mouseMoveSignal(QPoint)), this, SLOT(mouseMove(QPoint)));
 
@@ -99,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->checkList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->checkList, &QListWidget::customContextMenuRequested, [=](const QPoint point){ this->itemMenuRequested(point); });
 
-    this->setMouseTracking(true);
+    setMouseTracking(true);
 }
 
 

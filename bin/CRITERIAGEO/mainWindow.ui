@@ -240,6 +240,7 @@
    <font>
     <family>Arial</family>
     <pointsize>10</pointsize>
+    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -278,6 +279,7 @@
      <font>
       <family>Arial</family>
       <pointsize>10</pointsize>
+      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -302,7 +304,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>25</height>
+     <height>19</height>
     </rect>
    </property>
    <property name="palette">
@@ -704,6 +706,9 @@
    </property>
   </action>
   <action name="actionMapGoogleTerrain">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Google terrain</string>
    </property>
