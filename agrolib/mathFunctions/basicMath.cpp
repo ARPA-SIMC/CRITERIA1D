@@ -27,6 +27,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <charconv>
+#include <string>
 
 #include "commonConstants.h"
 #include "basicMath.h"
@@ -536,5 +538,88 @@
 
             return res;
         }
+    }
+
+
+    std::string trim(const std::string& str)
+    {
+        const size_t first = str.find_first_not_of(" \t\r\n");
+
+        if (first == std::string::npos)
+            return "";
+
+        const size_t last = str.find_last_not_of(" \t\r\n");
+
+        return str.substr(first, last - first + 1);
+    }
+
+
+    bool parseInt(const std::string& str, int& value)
+    {
+        try
+        {
+            const std::string s = trim(str);
+
+            if (s.empty())
+                return false;
+
+            size_t pos = 0;
+            const int parsed = stoi(s, &pos);
+
+            if (pos != s.size())
+                return false;
+
+            value = parsed;
+            return true;
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
+
+
+    bool parseDouble(const std::string& str, double& value)
+    {
+        std::string normalizedStr = trim(str);
+
+        if (normalizedStr.empty())
+            return false;
+
+        // accept both ',' and '.' as decimal separator
+        std::replace(normalizedStr.begin(), normalizedStr.end(), ',', '.');
+
+        char* end = nullptr;
+        errno = 0;
+
+        const double parsed = std::strtod(normalizedStr.c_str(), &end);
+
+        // no number found
+        if (end == normalizedStr.c_str())
+            return false;
+
+        // overflow / underflow
+        if (errno == ERANGE)
+            return false;
+
+        // no other characters after the number
+        if (*end != '\0')
+            return false;
+
+        value = parsed;
+
+        return true;
+    }
+
+
+    bool parseFloat(const std::string& str, float& value)
+    {
+        double parsed;
+
+        if (! parseDouble(str, parsed))
+            return false;
+
+        value = static_cast<float>(parsed);
+        return true;
     }
 
