@@ -44,9 +44,9 @@ bool setProxy(QString hostName, unsigned short port)
 
 int main(int argc, char *argv[])
 {
-    QApplication myApp(argc, argv);
-
     QNetworkProxyFactory::setUseSystemConfiguration(true);
+
+    QApplication myApp(argc, argv);
 
     QApplication::setOverrideCursor(Qt::ArrowCursor);
 
