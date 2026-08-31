@@ -171,7 +171,7 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
 
     // soil properties (units of measurement: MKS)
     int soilIndex = 0;
-    for (unsigned int horizonIndex = 0; horizonIndex < mySoil.nrHorizons; horizonIndex++)
+    for (int horizonIndex = 0; horizonIndex < mySoil.nrHorizons(); horizonIndex++)
     {
         soil::Crit3DHorizon horizon = mySoil.horizon[horizonIndex];
 

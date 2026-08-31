@@ -16,7 +16,7 @@
 
     #include <fstream>
 
-    #define CRITERIA_VERSION "v2.0.4 (2026)"
+    #define CRITERIA_VERSION "v2.0.4 (2026.09)"
 
     class Crit1DProject
     {
