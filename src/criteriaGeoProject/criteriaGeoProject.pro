@@ -37,6 +37,9 @@ win32:{
     TARGET = criteriaGeoProject
 }
 
+# parallel computing settings
+include($$absolute_path(../../agrolib/parallel.pri))
+
 
 INCLUDEPATH +=  ../../mapGraphics \
                 ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo   \

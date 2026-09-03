@@ -37,6 +37,10 @@ win32:{
     TARGET = CRITERIA_GEO
 }
 
+
+# parallel computing settings
+include($$absolute_path(../../agrolib/parallel.pri))
+
 INCLUDEPATH +=  ../../mapGraphics \
                 ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo   \
                 ../../agrolib/utilities ../../agrolib/shapeUtilities  \
@@ -59,10 +63,18 @@ USE_GDAL {
 
 CONFIG(debug, debug|release) {
     LIBS += -L../../src/criteriaGeoProject/debug -lcriteriaGeoProject
-    LIBS += -L../../mapGraphics/debug -lMapGraphics
 
     LIBS += -L../../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../../agrolib/graphics/debug -lgraphics
+
+    # mapGraphics
+    win32:{
+        LIBS += -L../../mapGraphics/debug -lMapGraphics
+    }
+    unix:{
+        LIBS += -L../../mapGraphics/release -lMapGraphics
+    }
+
     LIBS += -L../../agrolib/criteriaOutput/debug -lcriteriaOutput
 
     USE_GDAL:{
@@ -80,10 +92,13 @@ CONFIG(debug, debug|release) {
 
 } else {
     LIBS += -L../../src/criteriaGeoProject/release -lcriteriaGeoProject
-    LIBS += -L../../mapGraphics/release -lMapGraphics
 
     LIBS += -L../../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../../agrolib/graphics/release -lgraphics
+
+    # mapGraphics
+    LIBS += -L../../mapGraphics/release -lMapGraphics
+
     LIBS += -L../../agrolib/criteriaOutput/release -lcriteriaOutput
     LIBS += -L../../agrolib/netcdfHandler/release -lnetcdfHandler
 

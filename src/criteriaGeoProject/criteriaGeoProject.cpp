@@ -141,76 +141,33 @@ bool CriteriaGeoProject::loadShapefile(const QString &fileNameWithPath, const QS
 }
 
 
-bool CriteriaGeoProject::newRasterFromShape(const Crit3DShapeHandler &shapeHandler, const QString &fieldName,
-                                            const QString &outputName, double cellSize, double threshold, bool showInfo)
+bool CriteriaGeoProject::newRasterFromShape(const Crit3DShapeHandler &shapeHandler,
+                                            const gis::Crit3DRasterGrid *refRaster,
+                                            const QString &fieldName, const QString &outputName,
+                                            double cellSize, double coverageThreshold, bool showInfo)
 {
-    FormInfo formInfo;
-    if (showInfo)
-    {
-        formInfo.start("Create raster...", 0);
-    }
-
+    const bool useReferenceRaster = (refRaster != nullptr);
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
 
-    const int sampleGrid = 5;
-    const bool useReferenceRaster = false;
-    if (! rasterizeShape(nullptr, *newRaster, shapeHandler, fieldName.toStdString(),
-                        cellSize, sampleGrid, threshold, useReferenceRaster))
+    coverageThreshold = std::clamp(coverageThreshold, 0.02, 1.0);
+
+    int nrSamples = 5;                      // default: 5 x 5 points
+    if (coverageThreshold >= 0.3)
+        nrSamples = 3;
+
+    if (! rasterizeShape(refRaster, *newRaster, shapeHandler, fieldName.toStdString(),
+                        cellSize, nrSamples, coverageThreshold, useReferenceRaster, showInfo))
     {
         delete newRaster;
-
-        if (showInfo) formInfo.close();
-
         return false;
     }
 
     gis::updateMinMaxRasterGrid(newRaster);
     setDefaultScale(newRaster->colorScale);
 
-    if (showInfo)
-        formInfo.setText("Add raster to map...");
-
     addRaster(newRaster, outputName, shapeHandler.getUtmZone());
 
-    if (showInfo)
-        formInfo.close();
-
     return true;
-}
-
-
-bool CriteriaGeoProject::fillRasterFromShape(Crit3DShapeHandler &shapeHandler, gis::Crit3DRasterGrid &refRaster,
-                                             const QString &field, const QString &outputName, bool showInfo)
-{
-    FormInfo formInfo;
-    if (showInfo)
-        formInfo.start("Fill raster...", 0);
-
-    gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
-
-    double cellSize = NODATA;           // use cellSize of refRaster
-    int sample = 5;                     // 5 x 5 points
-    double coverageThreshold = 0.1;
-    bool useReferenceRaster = true;
-
-    bool isOk = rasterizeShape(&refRaster, *newRaster, shapeHandler, field.toStdString(),
-                               cellSize, sample, coverageThreshold, useReferenceRaster);
-
-    if (isOk)
-    {
-        gis::updateMinMaxRasterGrid(newRaster);
-        setDefaultScale(newRaster->colorScale);
-
-        if (showInfo)
-            formInfo.setText("Add raster to map...");
-
-        addRaster(newRaster, outputName, shapeHandler.getUtmZone());
-    }
-
-    if (showInfo)
-        formInfo.close();
-
-    return isOk;
 }
 
 

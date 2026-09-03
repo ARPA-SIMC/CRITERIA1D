@@ -1,7 +1,7 @@
 #ifndef CRITERIA_GEO_PROJECT_H
 #define CRITERIA_GEO_PROJECT_H
 
-    #define CRITERIA_GEO_VERSION "v2.0.6 (2026)"
+    #define CRITERIA_GEO_VERSION "v2.0.6 (2026.09)"
 
     #ifndef GIS_H
         #include "gis.h"
@@ -47,11 +47,9 @@
 
         //void addNetcdf(NetCDFHandler *myNetcdf, QString fileNameWithPath, int utmZone);
 
-        bool newRasterFromShape(const Crit3DShapeHandler &shapeHandler, const QString &fieldName,
-                                const QString &outputName, double cellSize, double threshold, bool showInfo);
-
-        bool fillRasterFromShape(Crit3DShapeHandler &shapeHandler, gis::Crit3DRasterGrid &refRaster,
-                                 const QString &field, const QString &outputName, bool showInfo);
+        bool newRasterFromShape(const Crit3DShapeHandler &shapeHandler, const gis::Crit3DRasterGrid *refRaster,
+                                const QString &fieldName, const QString &outputName,
+                                double cellSize, double coverageThreshold, bool showInfo);
 
         bool createShapeFromCsv(int shapeIndex, const QString &fileCsv, const QString &fileCsvFormat,
                                 const QString &outputFileName);

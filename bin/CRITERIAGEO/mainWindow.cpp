@@ -2137,8 +2137,8 @@ void MainWindow::on_actionRasterizeShape_whole_shapefile_triggered()
         return;
     }
 
-    double threshold = numericField.getThresholdValue();
-    if (threshold <= 0 || threshold > 1)
+    double coverageThreshold = numericField.getThresholdValue();
+    if (coverageThreshold <= 0 || coverageThreshold > 1)
     {
         myProject.logError("Insert a coverage threshold in (0,1].");
         return;
@@ -2161,8 +2161,8 @@ void MainWindow::on_actionRasterizeShape_whole_shapefile_triggered()
     size_t oldObjectSize = myProject.objectList.size();
 
     const bool showInfo = true;
-    if (! myProject.newRasterFromShape(*shapeHandler, fieldName, outputName,
-                                      cellSize, threshold, showInfo) )
+    if (! myProject.newRasterFromShape(*shapeHandler, nullptr, fieldName, outputName,
+                                      cellSize, coverageThreshold, showInfo) )
     {
         myProject.logError("Error in rasterize shape.");
         return;
@@ -2245,8 +2245,20 @@ void MainWindow::on_actionRasterizeShape_with_raster_mask_triggered()
         return;
     }
 
-    if (! myProject.fillRasterFromShape(*shapeHandler, *refRaster, numericField.getFieldSelected(), outputName, showInfo))
-        myProject.logError("Error in fillRasterFromShape");
+    double coverageThreshold = numericField.getThresholdValue();
+    if (coverageThreshold <= 0 || coverageThreshold > 1)
+    {
+        myProject.logError("Insert a coverage threshold in (0,1].");
+        return;
+    }
+
+    double cellSize = NODATA;
+    if (! myProject.newRasterFromShape(*shapeHandler, refRaster, numericField.getFieldSelected(),
+                                      outputName, cellSize, coverageThreshold, showInfo))
+    {
+        myProject.logError("Error in newRasterFromShape");
+        return;
+    }
 
     addRasterObject(myProject.objectList.back());
     updateMaps();
