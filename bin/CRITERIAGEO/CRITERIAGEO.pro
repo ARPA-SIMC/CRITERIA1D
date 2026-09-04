@@ -19,6 +19,11 @@ TEMPLATE = app
 VERSION = 2.0.6
 QMAKE_TARGET_COPYRIGHT = "\\251 2026 ARPAE ER - Climate Observatory"
 
+CONFIG += debug_and_release
+CONFIG += c++11 c++14 c++17
+
+DEFINES += _CRT_SECURE_NO_WARNINGS
+
 unix:{
     CONFIG(debug, debug|release) {
         TARGET = debug/CRITERIA_GEO
@@ -40,6 +45,7 @@ win32:{
 
 # parallel computing settings
 include($$absolute_path(../../agrolib/parallel.pri))
+
 
 INCLUDEPATH +=  ../../mapGraphics \
                 ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo   \

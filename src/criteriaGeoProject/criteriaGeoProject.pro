@@ -13,10 +13,10 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 TEMPLATE = lib
 CONFIG += staticlib
 
+CONFIG += debug_and_release
+CONFIG += c++11 c++14 c++17
 
 DEFINES += _CRT_SECURE_NO_WARNINGS
-
-CONFIG += debug_and_release
 
 
 unix:{
