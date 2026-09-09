@@ -233,7 +233,7 @@ bool Crit3DCrop::updateLAI(double latitude, unsigned int nrLayers, int currentDo
                 return true;
             }
 
-            if ((currentDoy - sowingDoy) < MIN_EMERGENCE_DAYS)
+            if (getDaysFromSowing(currentDoy) < MIN_EMERGENCE_DAYS)
             {
                 LAIpreviousDay = LAI;
                 LAI = 0.0;
@@ -795,10 +795,14 @@ double Crit3DCrop::computeTranspiration(const double maxTranspiration, const std
 
     for (int i = roots.firstRootLayer; i <= roots.lastRootLayer; ++i)
     {
+        if (soilLayers[i].horizonPtr == nullptr)
+            continue;
+        const auto horizon = *(soilLayers[i].horizonPtr);
+
         // [mm]
         waterSurplusThreshold = soilLayers[i].SAT - (WSS * (soilLayers[i].SAT - soilLayers[i].FC));
         // [-]
-        thetaWP = soil::thetaFromSignPsi(-soil::cmTokPa(psiLeaf), *(soilLayers[i].horizonPtr));
+        thetaWP = soil::thetaFromSignPsi(-soil::cmTokPa(psiLeaf), horizon);
         // [mm]
         cropWP = thetaWP * soilLayers[i].thickness * soilLayers[i].soilFraction * 1000.;
 
@@ -915,7 +919,7 @@ speciesType getCropType(std::string cropType)
     else if (cropType == "bare" || cropType == "bare_soil")
         return BARESOIL;
     else
-        return HERBACEOUS_ANNUAL;
+        return BARESOIL;
 }
 
 
