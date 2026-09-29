@@ -1417,33 +1417,7 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
         }
 
         int pos = 0;
-        if (myProject.observedMeteoGrid->gridStructure().isFixedFields())
-        {
-            QString fieldTmin = myProject.observedMeteoGrid->getDailyVarField(dailyAirTemperatureMin);
-            QString fieldTmax = myProject.observedMeteoGrid->getDailyVarField(dailyAirTemperatureMax);
-            QString fieldPrec = myProject.observedMeteoGrid->getDailyVarField(dailyPrecipitation);
-
-            // last year can be incomplete
-            for (int i = 0; i < _yearList.size()-1; i++)
-            {
-                if (! checkYearMeteoGridFixedFields(myProject.dbMeteo, _meteoTableName,
-                                                   myProject.observedMeteoGrid->tableDaily().fieldTime,
-                                                   fieldTmin, fieldTmax, fieldPrec, _yearList[i], errorStr))
-                {
-                    _yearList.removeAt(pos);
-                    i--;
-                }
-                else
-                {
-                    pos++;
-                }
-            }
-
-            // store last Date
-            getLastDateGrid(myProject.dbMeteo, _meteoTableName, myProject.observedMeteoGrid->tableDaily().fieldTime,
-                            _yearList[_yearList.size()-1], myProject.lastSimulationDate, errorStr);
-        }
-        else
+        if (! myProject.observedMeteoGrid->gridStructure().isFixedFields())
         {
             int varCodeTmin = myProject.observedMeteoGrid->getDailyVarCode(dailyAirTemperatureMin);
             int varCodeTmax = myProject.observedMeteoGrid->getDailyVarCode(dailyAirTemperatureMax);

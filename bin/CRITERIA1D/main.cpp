@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         QString projectPath = dataPath + PATH_PROJECT;
 
         #ifdef TEST
-            projectFileName = projectPath + "test/test.ini";
+            projectFileName = projectPath + "montue/montue.ini";
         #endif
 
         #ifdef TEST_WATERTABLE
