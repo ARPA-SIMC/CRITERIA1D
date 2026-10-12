@@ -248,7 +248,7 @@ bool initializeHeat1D(bool useInputSoils)
 
                 if (myHeat1D.computeHeat)
                 {
-                    result = soilFluxes3D::setNodeBoundaryFixedTemperature(indexNode, 273.16 + myHeat1D.bottomTemperature,
+                    result = soilFluxes3D::setNodeBoundaryFixedTemperature(indexNode, ZEROCELSIUS + myHeat1D.bottomTemperature,
                                                                            myHeat1D.bottomTemperatureDepth);
                     if (result != SF3Derror_t::SF3Dok)
                         printf("\n error in setNodeBoundaryFixedTemperature!");
@@ -297,7 +297,7 @@ bool initializeHeat1D(bool useInputSoils)
 
             if (myHeat1D.computeHeat)
 			{
-                result = soilFluxes3D::setNodeTemperature(indexNode, 273.16 + ((indexNode-1) *(myHeat1D.initialTemperatureBottom - myHeat1D.initialTemperatureTop)
+                result = soilFluxes3D::setNodeTemperature(indexNode, ZEROCELSIUS + ((indexNode-1) *(myHeat1D.initialTemperatureBottom - myHeat1D.initialTemperatureTop)
                                                                     / (myHeat1D.NodesNumber-2) + myHeat1D.initialTemperatureTop));
                 if (result != SF3Derror_t::SF3Dok)
                     printf("\n error in setNodeTemperature!");
@@ -392,7 +392,7 @@ void getOutputAllPeriod(long firstIndex, long lastIndex, Crit3DOut *output, doub
 
         double myValue = soilFluxes3D::getNodeTemperature(myIndex);
         if (isValid(myValue))
-            myValue -= 273.16;
+            myValue -= ZEROCELSIUS;
         else
             myValue = NODATA;
         myPoint.setY(myValue);

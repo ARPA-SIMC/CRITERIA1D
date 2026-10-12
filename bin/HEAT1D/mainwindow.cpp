@@ -160,7 +160,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
 
         if (useInputMeteoData)
         {
-            myT = myHeat1D.meteoValues[indexHour - 1].airTemperature + 273.16;
+            myT = myHeat1D.meteoValues[indexHour - 1].airTemperature + ZEROCELSIUS;
             myP = myHeat1D.meteoValues[indexHour - 1].precipitation;
             myRH = myHeat1D.meteoValues[indexHour - 1].relativeHumidity;
             myWS = myHeat1D.meteoValues[indexHour - 1].windSpeed;
@@ -168,7 +168,7 @@ void MainWindow::on_pushRunAllPeriod_clicked()
         }
         else
         {
-            myT = ui->lineEditAtmT->text().toDouble() + 273.16;
+            myT = ui->lineEditAtmT->text().toDouble() + ZEROCELSIUS;
             myRH = ui->lineEditAtmRH->text().toDouble();
             myWS = ui->lineEditAtmWS->text().toDouble();
             myNR = ui->lineEditAtmFlux->text().toDouble();
