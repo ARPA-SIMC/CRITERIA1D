@@ -88,6 +88,9 @@ void LinearGraph::draw(Crit3DColorScale colorScale, Crit3DOut* out, outputGroup 
         curve->setColor(color);
         curve->setName(myCurveNames[i]);
         mySeries = getSingleSeries(myOut, outputVar(i+startIndex), minSeries, maxSeries);
+        if (mySeries.empty())
+            continue;
+
         axisX->setRange(0, mySeries[mySeries.size()-1].x());
         for (int j = 0; j < mySeries.size(); j++)
         {

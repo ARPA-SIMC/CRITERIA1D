@@ -1,8 +1,9 @@
 #ifndef GRAPHFUNCTIONS_H
 #define GRAPHFUNCTIONS_H
 
+#include <vector>
+
 #include <QString>
-#include <QVector>
 #include <QPointF>
 #include <qdatetime.h>
 
@@ -62,18 +63,18 @@ enum outputType
 };
 
 struct profileStatus{
-    QVector<QPointF> temperature;
-    QVector<QPointF> waterContent;
-    QVector<QPointF> heatConductivity;
-    QVector<QPointF> totalHeatFlux;
-    QVector<QPointF> diffusiveHeatFlux;
-    QVector<QPointF> isothermalLatentHeatFlux;
-    QVector<QPointF> thermalLatentHeatFlux;
-    QVector<QPointF> advectiveheatFlux;
-    QVector<QPointF> waterIsothermalLiquidFlux;
-    QVector<QPointF> waterThermalLiquidFlux;
-    QVector<QPointF> waterIsothermalVaporFlux;
-    QVector<QPointF> waterThermalVaporFlux;
+    std::vector<QPointF> temperature;
+    std::vector<QPointF> waterContent;
+    std::vector<QPointF> heatConductivity;
+    std::vector<QPointF> totalHeatFlux;
+    std::vector<QPointF> diffusiveHeatFlux;
+    std::vector<QPointF> isothermalLatentHeatFlux;
+    std::vector<QPointF> thermalLatentHeatFlux;
+    std::vector<QPointF> advectiveheatFlux;
+    std::vector<QPointF> waterIsothermalLiquidFlux;
+    std::vector<QPointF> waterThermalLiquidFlux;
+    std::vector<QPointF> waterIsothermalVaporFlux;
+    std::vector<QPointF> waterThermalVaporFlux;
 };
 
 struct landSurfaceStatus{
