@@ -257,7 +257,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.5</string>
+        <string>0.6</string>
        </property>
       </widget>
      </widget>
@@ -1077,7 +1077,7 @@
         <string>latent</string>
        </property>
        <property name="checked">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
       <widget class="QCheckBox" name="chkBoxAdvective">
@@ -1096,7 +1096,7 @@
         <string>advective</string>
        </property>
        <property name="checked">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </widget>

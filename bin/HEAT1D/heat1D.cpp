@@ -181,7 +181,7 @@ bool initializeHeat1D(bool useInputSoils)
         printf("\n error in setSoilProperties");
 
     soilFluxes3D::setHydraulicProperties(WRCModel::VanGenuchten, meanType_t::Logarithmic, 4.);
-    soilFluxes3D::setNumericalParameters(0.1, HOUR_SECONDS, 200, 10, 12, 4);
+    soilFluxes3D::setNumericalParameters(0.1, HOUR_SECONDS, 200, 10, 12, 5);
     soilFluxes3D::setThreadsNumber(1);
 
     boundaryType_t boundaryType;

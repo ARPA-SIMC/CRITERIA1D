@@ -286,21 +286,21 @@ void MainWindow::on_pushLoadFileMeteo_clicked()
 
     if (myFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        //headers
-        QString myLine = myStream.readLine();
+        //header
+        myStream.readLine();
 
         while (!myStream.atEnd())
         {
             QString myLine = myStream.readLine();
             myWords = myLine.split(",");
 
-            meteo* myMeteo = new meteo();
-
             if (myWords[1] == "" || myWords[2] == "" || myWords[3] == "" || myWords[4] == "" || myWords[5] == "")
             {
                 QMessageBox::information(nullptr, "No data", "Missing weather data in line " + QString::number(myHeat1D.meteoValues.size() + 1));
                 return;
             }
+
+            meteo* myMeteo = new meteo();
 
             myMeteo->airTemperature = myWords.at(1).toDouble();
             myMeteo->precipitation = myWords.at(2).toDouble();
