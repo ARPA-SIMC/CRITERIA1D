@@ -97,6 +97,12 @@ mkdir DATA\TEMPLATE
 cd DATA\TEMPLATE
 xcopy /Y ..\..\..\..\DATA\TEMPLATE\*.*
 
+:: copy Heat1D data
+cd ..\..\
+mkdir DATA\HEAT1D_EXPERIMENTS
+cd DATA\HEAT1D_EXPERIMENTS
+xcopy /Y ..\..\..\..\DATA\HEAT1D_EXPERIMENTS\*.*
+
 :: copy test project
 cd ..\
 mkdir PROJECT\test
