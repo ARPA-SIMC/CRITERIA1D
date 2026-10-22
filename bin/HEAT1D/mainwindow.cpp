@@ -216,8 +216,11 @@ void MainWindow::on_pushLoadFileSoil_clicked()
 {
     myInputSoils = nullptr;
 
-    QString myFilename = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                     "",
+    QString dataPath;
+    myHeat1D.searchDataPath(dataPath);
+
+    QString myFilename = QFileDialog::getOpenFileName(this, tr("Open soil data"),
+                                                     dataPath,
                                                      tr("Files (*.*)"));
 
     myInputNumber = 0;
@@ -271,13 +274,15 @@ void MainWindow::on_pushLoadFileSoil_clicked()
 }
 
 
-
 void MainWindow::on_pushLoadFileMeteo_clicked()
 {
     myHeat1D.cleanMeteo();
 
-    QString myFilename = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                     "",
+    QString dataPath;
+    myHeat1D.searchDataPath(dataPath);
+
+    QString myFilename = QFileDialog::getOpenFileName(this, tr("Open meteo data"),
+                                                     dataPath,
                                                      tr("Files (*.*)"));
 
     QFile myFile(myFilename);

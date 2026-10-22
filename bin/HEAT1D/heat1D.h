@@ -54,6 +54,8 @@ struct Heat1DSimulation {
     //soils
     int myHorizonNumber;
     double ThetaS, ThetaR, Clay, OrganicMatter;
+
+    bool searchDataPath(QString& dataPath);
 };
 
 struct Qsoil{

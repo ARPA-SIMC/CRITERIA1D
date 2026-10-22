@@ -6,6 +6,7 @@
 #include <qglobal.h>
 #include <functional>
 #include <vector>
+#include <QDir>
 
 #include "commonConstants.h"
 #include "basicMath.h"
@@ -24,9 +25,43 @@ meteo::meteo()
     netIrradiance = NODATA;
 }
 
+
 void Heat1DSimulation::cleanMeteo()
 {
     meteoValues.clear();
+}
+
+
+bool Heat1DSimulation::searchDataPath(QString &dataPath)
+{
+    dataPath = "";
+
+    QString myPath = QDir::currentPath();
+    QString myRoot = QDir::rootPath();
+
+    // only for win: application can run on a different drive (i.e. D:\)
+    QString winRoot = myPath.left(3);
+
+    bool isFound = false;
+    while (! isFound)
+    {
+        if (myPath == myRoot || myPath == winRoot)
+            break;
+
+        if (QDir(myPath + "/DATA").exists())
+        {
+            isFound = true;
+            break;
+        }
+
+        myPath = QFileInfo(myPath).dir().absolutePath();
+    }
+
+    if (! isFound)
+        return false;
+
+    dataPath = QDir::cleanPath(myPath) + "/DATA/";
+    return true;
 }
 
 
