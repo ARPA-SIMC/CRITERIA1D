@@ -715,10 +715,6 @@ bool runHeat1D(double hourlyTemperature,  double hourlyRelativeHumidity,
                double hourlyWindSpeed, double hourlyNetIrradiance,
                double hourlyPrec, int maxTimeStepSeconds)
 {
-    //double currentRoughness;
-    //double surfaceWaterHeight;
-    //double roughnessWater = 0.005;
-
     setSinkSources(hourlyPrec);
 
     if (myHeat1D.computeHeat)
