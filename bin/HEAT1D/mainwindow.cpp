@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setWindowTitle(HEAT1D_VERSION);
 
     outLinearPlot = new LinearGraph();
     ui->layoutPlot->addWidget(outLinearPlot);

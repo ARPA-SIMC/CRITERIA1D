@@ -378,7 +378,7 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
 double computeEvaporation(std::vector<soil::Crit1DLayer> &soilLayers, double maxEvaporation)
 {
     // surface evaporation
-    double surfaceEvaporation = MINVALUE(maxEvaporation, soilLayers[0].waterContent);
+    const double surfaceEvaporation = std::min(maxEvaporation, soilLayers[0].waterContent);
     soilLayers[0].waterContent -= surfaceEvaporation;
 
     double actualEvaporation = surfaceEvaporation;
@@ -393,16 +393,15 @@ double computeEvaporation(std::vector<soil::Crit1DLayer> &soilLayers, double max
     int nrEvapLayers = int(floor(MAX_EVAPORATION_DEPTH / soilLayers[1].thickness)) +1;
     nrEvapLayers = std::min(nrEvapLayers, int(soilLayers.size()-1));
 
-    std::vector<double> coeffEvap;
-    coeffEvap.resize(nrEvapLayers);
+    std::vector<double> coeffEvap(nrEvapLayers, 0.0);
 
-    double minDepth = soilLayers[1].depth + soilLayers[1].thickness / 2;
+    const double minDepth = soilLayers[1].depth + soilLayers[1].thickness / 2;
     double sumCoeff = 0;
     for (int i=1; i <= nrEvapLayers; i++)
     {
-        double layerDepth = soilLayers[i].depth + soilLayers[i].thickness / 2.0;
+        const double layerDepth = soilLayers[i].depth + soilLayers[i].thickness / 2.0;
 
-        double coeffDepth = MAXVALUE((layerDepth - minDepth) / (MAX_EVAPORATION_DEPTH - minDepth), 0);
+        const double coeffDepth = MAXVALUE((layerDepth - minDepth) / (MAX_EVAPORATION_DEPTH - minDepth), 0);
         // evaporation coefficient: 1 at depthMin, ~0.1 at maximum depth for evaporation
         coeffEvap[i-1] = exp(-2 * coeffDepth);
 
@@ -410,8 +409,8 @@ double computeEvaporation(std::vector<soil::Crit1DLayer> &soilLayers, double max
     }
 
     // normalize
-    std::vector<double> coeffThreshold;
-    coeffThreshold.resize(nrEvapLayers);
+    std::vector<double> coeffThreshold(nrEvapLayers, 0.0);
+
     for (int i=0; i < nrEvapLayers; i++)
     {
         coeffThreshold[i] = (1.0 - coeffEvap[i]) * 0.5;

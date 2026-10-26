@@ -32,6 +32,7 @@
 #include "cropDbTools.h"
 #include "water1D.h"
 #include "criteria1DCase.h"
+#include "criteria1DMeteo.h"
 #include "soilFluxes3D.h"
 #include "soil.h"
 #include "crop.h"
@@ -155,7 +156,7 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
         return false;
     }
 
-    // default H/V ratio (derive from case study of Montue)
+    // default H/V ratio (it derives from Montue case study)
     float hvConductivityRatio = 4.0;
     soilFluxes3D::setHydraulicProperties(soilFluxes3D::WRCModel::ModifiedVanGenuchten, soilFluxes3D::meanType_t::Logarithmic, hvConductivityRatio);
     if (unit.useWaterTableData)
@@ -264,8 +265,8 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
  */
 bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &error)
 {
-    unsigned int nrLayers = unsigned(soilLayers.size());
-    unsigned int lastLayer = nrLayers - 1;
+    size_t nrLayers = soilLayers.size();
+    size_t lastLayer = nrLayers - 1;
     error = "";
 
     // set bottom boundary conditions (water table)
@@ -294,7 +295,7 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
 
     // set soil profile
     // use previous waterPotential when saturated
-    for (unsigned long i=1; i < nrLayers; i++)
+    for (unsigned int i=1; i < nrLayers; i++)
     {
         double currentPsi = soilLayers[i].getWaterPotential();                  // [kPa]
 
@@ -313,12 +314,7 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
     soilFluxes3D::initializeBalance();
 
     // precipitation
-    int precDuration = 24;                                                      // [hours] winter
-    if ( (meteoPoint.latitude > 0 && myDate.month >= 5 && myDate.month <= 9)
-        || (meteoPoint.latitude <= 0 && (myDate.month <= 3 || myDate.month >= 11)) )
-    {
-        precDuration = 8;                                                       // [hours] summer
-    }
+    int precDuration = getDurationOfPrecipitation(myDate.month, meteoPoint.latitude);
 
     // first and last precipitation hour
     int precH0 = int(13 - precDuration * 0.5);
@@ -483,8 +479,14 @@ double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double pre
     }
 
     // check current (today) and forecasted (tomorrow) precipitation
-    double dailyWaterNeeds = std::max(3., std::min(7., crop.irrigationVolume / double(crop.irrigationShift)));
-    double currentWater = currentPrec + soilLayers[0].waterContent;
+    double dailyWaterNeeds = crop.irrigationVolume;
+    if (crop.irrigationShift > 0)
+        dailyWaterNeeds /= double(crop.irrigationShift);
+
+    dailyWaterNeeds = std::clamp(dailyWaterNeeds, 3., 7.);
+
+    const double currentWater = currentPrec + soilLayers[0].waterContent;
+
     if (currentWater >= dailyWaterNeeds)
         return 0;
     if ((currentWater + precForecast) >= 2*dailyWaterNeeds)
@@ -495,9 +497,9 @@ double Crit1DCase::checkIrrigationDemand(int doy, double currentPrec, double pre
     double transpExcessOnly = 0;
     crop.computeTranspiration(maxTranspiration, soilLayers, transpStressOnly, transpExcessOnly);
 
-    double waterStressScarsity = 1 - (transpStressOnly  / maxTranspiration);
-    double waterStressExcess = 1 - (transpExcessOnly / maxTranspiration);
-    double stressThreshold = 1. - crop.stressTolerance;
+    const double waterStressScarsity = 1 - (transpStressOnly  / maxTranspiration);
+    const double waterStressExcess = 1 - (transpExcessOnly / maxTranspiration);
+    const double stressThreshold = 1. - crop.stressTolerance;
 
     if ((waterStressScarsity < stressThreshold) || (waterStressExcess > 0.1))
         return 0;
@@ -590,7 +592,8 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
     }
 
     // check prec
-    if (prec < 0) prec = 0;
+    if (prec < 0.0)
+        prec = 0.0;
     output.dailyPrec = prec;
 
     // check water table [m]
@@ -603,9 +606,11 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
 
     // prec forecast
     double prec01 = double(meteoPoint.getMeteoPointValueD(myDate.addDays(1), dailyPrecipitation));
-    if (isEqual(prec01, NODATA)) prec01 = 0;
+    if (isEqual(prec01, NODATA))
+        prec01 = 0.;
     double prec02 = double(meteoPoint.getMeteoPointValueD(myDate.addDays(2), dailyPrecipitation));
-    if (isEqual(prec02, NODATA)) prec02 = 0;
+    if (isEqual(prec02, NODATA))
+        prec02 = 0.;
 
     double precForecast = prec01 + prec02;
 
@@ -650,7 +655,7 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
     if (computeFactorOfSafety)
     {
         unsigned int nrLayers = unsigned(soilLayers.size());
-        double rootDensityMax = 0;
+        double rootDensityMax = 0.;
         for (unsigned int l = 1; l < nrLayers; l++)
         {
             rootDensityMax = std::max(rootDensityMax, crop.roots.rootDensity[l]);
@@ -659,9 +664,9 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
         for (unsigned int l = 1; l < nrLayers; l++)
         {
             double rootDensityNorm;
-            if (rootDensityMax == 0)
+            if (rootDensityMax == 0.)
             {
-                rootDensityNorm = 0;
+                rootDensityNorm = 0.;
             }
             else
             {
@@ -671,7 +676,7 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
             double rootCohesion;
             if (isEqual(crop.roots.rootsAdditionalCohesion, NODATA))
             {
-                rootCohesion = 0;
+                rootCohesion = 0.;
             }
             else
             {
@@ -687,8 +692,9 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
     {
         if ((output.dailySurfaceRunoff > 1) && (output.dailyIrrigation > 0))
         {
-            output.dailyIrrigation -= floor(output.dailySurfaceRunoff);
-            output.dailySurfaceRunoff -= floor(output.dailySurfaceRunoff);
+            double runoffLoss = std::min(output.dailyIrrigation, std::floor(output.dailySurfaceRunoff));
+            output.dailyIrrigation -= runoffLoss;
+            output.dailySurfaceRunoff -= runoffLoss;
         }
     }
 
@@ -701,7 +707,7 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
                                                           output.dailyTranspiration_onlyExcess);
 
     // assign transpiration
-    if (output.dailyTranspiration > 0)
+    if (output.dailyTranspiration > 0.)
     {
         for (int i = crop.roots.firstRootLayer; i <= crop.roots.lastRootLayer; i++)
         {
@@ -715,13 +721,15 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
                                 - output.dailyTranspiration - output.dailyEvaporation - output.dailySurfaceRunoff
                                 - output.dailyLateralDrainage - output.dailyDrainage);
     if (fabs(output.dailyBalance) < EPSILON)
-        output.dailyBalance = 0;
+        output.dailyBalance = 0.;
 
     // output variables
     output.dailySurfaceWaterContent = soilLayers[0].waterContent;
-    output.dailySoilWaterContent = getSoilWaterContentSum(soilLayers, 100);
-    output.dailyAvailableWater = getAvailableWaterSum(100);
-    output.dailyFractionAW = getAvailableWaterFraction(100);
+
+    const double outputOneMeter = 100.0;      // [cm]
+    output.dailySoilWaterContent = getSoilWaterContentSum(soilLayers, outputOneMeter);
+    output.dailyAvailableWater = getAvailableWaterSum(outputOneMeter);
+    output.dailyFractionAW = getAvailableWaterFraction(outputOneMeter);
     output.dailyReadilyAW = getReadilyAvailableWater(crop, soilLayers);
 
     return true;
@@ -1023,21 +1031,18 @@ double Crit1DCase::getAvailableWaterFraction(double computationDepth)
         return NODATA;
     }
 
-    double lowerDepth, upperDepth;      // [m]
-    double depthFraction;               // [-]
-    double availableWaterSum = 0;       // [mm]
-    double potentialAWSum = 0;          // [mm]
+    double availableWaterSum = 0;           // [mm]
+    double potentialAWSum = 0;              // [mm]
 
     unsigned int i = 1;
     bool isLastComputationLayer = false;
     while (i < soilLayers.size() && ! isLastComputationLayer)
     {
-        upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;
-        lowerDepth = soilLayers[i].depth + soilLayers[i].thickness * 0.5;
+        const double upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;      // [m]
+        const double lowerDepth = soilLayers[i].depth + soilLayers[i].thickness * 0.5;      // [m]
 
-        if (lowerDepth < computationDepth)
-            depthFraction = 1;
-        else
+        double depthFraction = 1.0;         // [-]
+        if (lowerDepth > computationDepth)
         {
             depthFraction = (computationDepth - upperDepth) / soilLayers[i].thickness;
             isLastComputationLayer = true;
@@ -1048,5 +1053,8 @@ double Crit1DCase::getAvailableWaterFraction(double computationDepth)
         i++;
     }
 
-    return availableWaterSum / potentialAWSum;
+    if (potentialAWSum <= 0.)
+        return 0.0;
+    else
+        return availableWaterSum / potentialAWSum;
 }

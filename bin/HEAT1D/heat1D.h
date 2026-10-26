@@ -6,6 +6,8 @@
 #include <qdatetime.h>
 #include "graphFunctions.h"
 
+#define HEAT1D_VERSION "HEAT 1D  V1.2 (2016.10)"
+
 class meteo
 {
 public:

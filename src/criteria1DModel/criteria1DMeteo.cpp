@@ -1025,3 +1025,46 @@ bool readDailyDataCriteria1D(QSqlQuery &query, Crit3DMeteoPoint &meteoPoint, int
     return true;
 }
 
+
+// typical duration of precipitation [hours]
+int getDurationOfPrecipitation(int month, double latitude)
+{
+    int precDuration = 16;      // [hours] winter
+
+    if (latitude > 0)
+    {
+        switch (month)
+        {
+        case 5:     // May
+        case 9:     // September
+            precDuration = 8;
+            break;
+        case 6:     // June
+            precDuration = 4;
+            break;
+        case 7:     // July
+        case 8:     // August
+            precDuration = 2;   // summer convective thunderstorms
+            break;
+        }
+    }
+    else
+    {
+        // south emisphere
+        switch (month)
+        {
+        case 11: case 3:
+            precDuration = 8;
+            break;
+        case 12:
+            precDuration = 4;
+            break;
+        case 1: case 2:
+            precDuration = 2;
+            break;
+        }
+    }
+
+    return precDuration;
+}
+

@@ -44,5 +44,7 @@
 
     bool readDailyDataCriteria1D(QSqlQuery &query, Crit3DMeteoPoint &meteoPoint, int maxNrDays, QString &errorStr);
 
+    int getDurationOfPrecipitation(int month, double latitude);
+
 
 #endif // DBMETEOCRITERIA1D_H
