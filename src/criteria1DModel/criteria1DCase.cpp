@@ -533,7 +533,7 @@ bool Crit1DCase::fillWaterTableData()
     myWaterTable.setParameters(waterTableParameters.nrDaysPeriod, waterTableParameters.alpha,
                                waterTableParameters.h0, waterTableParameters.avgDailyCWB);
 
-    for (int i = 0; i < meteoPoint.nrObsDataDaysD; i++)
+    for (int i = 0; i < meteoPoint.obsDataD.size(); i++)
     {
         QDate currentDate = getQDate(meteoPoint.obsDataD[i].date);
         if (! myWaterTable.setMeteoData(currentDate, meteoPoint.obsDataD[i].tMin, meteoPoint.obsDataD[i].tMax, meteoPoint.obsDataD[i].prec))
@@ -584,7 +584,7 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
     {
         prec = 0;
         nrMissingPrec++;
-        if ((nrMissingPrec / meteoPoint.nrObsDataDaysD) > 0.02)
+        if ((nrMissingPrec / meteoPoint.obsDataD.size()) > 0.02)
         {
             error = "Too many precipitation data are missing (> 2%)";
             return false;

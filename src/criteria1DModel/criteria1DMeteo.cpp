@@ -988,7 +988,7 @@ bool readDailyDataCriteria1D(QSqlQuery &query, Crit3DMeteoPoint &meteoPoint, int
             }
 
             date = getCrit3DDate(myDate);
-            if (meteoPoint.obsDataD[0].date.daysTo(date) < meteoPoint.nrObsDataDaysD)
+            if (meteoPoint.obsDataD[0].date.daysTo(date) < meteoPoint.obsDataD.size())
             {
                 meteoPoint.setMeteoPointValueD(date, dailyAirTemperatureMin, float(tmin));
                 meteoPoint.setMeteoPointValueD(date, dailyAirTemperatureMax, float(tmax));

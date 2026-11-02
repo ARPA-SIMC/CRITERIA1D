@@ -930,11 +930,7 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
         if (firstForecastDate != lastDate.addDays(1))
         {
             // previsioni indietro di un giorno: accettato ma tolgo un giorno
-            if (firstForecastDate == lastDate)
-            {
-                myCase.meteoPoint.nrObsDataDaysD--;
-            }
-            else
+            if (firstForecastDate != lastDate)
             {
                 projectError = "The forecast date doesn't match with observed data.";
                 return false;
@@ -958,7 +954,7 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
         float previousTmin = NODATA;
         float previousTmax = NODATA;
         long lastIndex = long(firstDate.daysTo(lastDate));
-        for (unsigned long i = unsigned(lastIndex); i < unsigned(myCase.meteoPoint.nrObsDataDaysD); i++)
+        for (unsigned long i = unsigned(lastIndex); i < unsigned(myCase.meteoPoint.obsDataD.size()); i++)
         {
             // tmin
             if (int(myCase.meteoPoint.obsDataD[i].tMin) != int(NODATA))
@@ -977,7 +973,7 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
     // fill watertable (all data)
     // estende il dato precedente se mancante
     float previousWatertable = NODATA;
-    for (unsigned long i = 0; i < unsigned(myCase.meteoPoint.nrObsDataDaysD); i++)
+    for (unsigned long i = 0; i < unsigned(myCase.meteoPoint.obsDataD.size()); i++)
     {
         if (! isEqual(myCase.meteoPoint.obsDataD[i].waterTable, NODATA))
         {
@@ -1052,7 +1048,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
     }
 
     // check meteo data
-    if (myCase.meteoPoint.nrObsDataDaysD == 0)
+    if (myCase.meteoPoint.obsDataD.size() == 0)
     {
         projectError = "Missing meteo data: " + QString::fromStdString(myCase.meteoPoint.name);
         return false;
@@ -1076,7 +1072,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
     }
 
     // set computation period
-    unsigned long lastIndex = unsigned(myCase.meteoPoint.nrObsDataDaysD-1);
+    unsigned long lastIndex = unsigned(myCase.meteoPoint.obsDataD.size()-1);
 
     Crit3DDate firstDate = myCase.meteoPoint.obsDataD[0].date;
     if (firstSimulationDate.isValid() && firstSimulationDate != QDate(1800,1,1))
