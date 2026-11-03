@@ -881,8 +881,6 @@ bool readDailyDataCriteria1D(QSqlQuery &query, Crit3DMeteoPoint &meteoPoint, int
     const int MAX_MISSING_DAYS = 3;
 
     const QString meteoID = QString::fromStdString(meteoPoint.id);
-    if (meteoID.isEmpty())
-        return false;
 
     // first date
     query.first();

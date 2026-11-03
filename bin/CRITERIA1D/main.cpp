@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
         #endif
 
         #ifdef TEST_GEO
-            projectFileName = projectPath + "INCOLTO/incolto.ini";
+            projectFileName = "C:\\SOFTWARE\\AGRO\\CRITERIA\\PROJECT\\INCOLTO\\incolto.ini";
         #endif
 
         #ifdef TEST_FIRSTRUN

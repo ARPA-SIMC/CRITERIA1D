@@ -793,9 +793,9 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
         return false;
     }
 
-    QString tableName = query.value("table_name").toString();
+    const QString tableName = query.value("table_name").toString();
 
-    double myLat, myLon;
+    double myLat;
     if (getValue(query.value(("latitude")), &myLat))
     {
         myCase.meteoPoint.latitude = myLat;
@@ -806,6 +806,7 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
         return false;
     }
 
+    double myLon;
     if (getValue(query.value(("longitude")), &myLon))
     {
         myCase.meteoPoint.longitude = myLon;
@@ -817,7 +818,7 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
     }
 
     queryString = "SELECT * FROM '" + tableName + "' ORDER BY [date]";
-    query = this->dbMeteo.exec(queryString);
+    query = dbMeteo.exec(queryString);
     query.last();
 
     if (! query.isValid())
@@ -826,6 +827,7 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
             projectError = "dbMeteo error: " + query.lastError().text();
         else
             projectError = "Missing meteo table:" + tableName;
+
         return false;
     }
 
@@ -833,11 +835,12 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
     QDate firstDate = query.value("date").toDate();
     query.last();
     QDate lastDate = query.value("date").toDate();
-    unsigned nrDays;
+
     bool subQuery = false;
 
     // check dates
-    if (firstSimulationDate.toString("yyyy-MM-dd") != "1800-01-01")
+    QDate NODATE = QDate(1800, 1, 1);
+    if (firstSimulationDate.isValid() && firstSimulationDate != NODATE)
     {
         if (firstSimulationDate < firstDate)
         {
@@ -846,12 +849,20 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
         }
         else
         {
-            // data not reduced for watertable computation
-            //firstDate = firstSimulationDate;
+            QDate firstRequiredDate = firstSimulationDate;
+
+            // load previous meteo data to compute watertable
+            if(myCase.unit.useWaterTableData && myCase.waterTableParameters.isLoaded)
+            {
+                firstRequiredDate = firstSimulationDate.addDays(-myCase.waterTableParameters.nrDaysPeriod);
+            }
+
+            firstDate = std::max(firstDate, firstRequiredDate);
             subQuery = true;
         }
     }
-    if (lastSimulationDate.toString("yyyy-MM-dd") != "1800-01-01")
+
+    if (lastSimulationDate.isValid() && lastSimulationDate != NODATE)
     {
         if (lastSimulationDate > lastDate)
         {
@@ -865,34 +876,40 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
         }
     }
 
-    nrDays = unsigned(firstDate.daysTo(lastDate)) + 1;
+    unsigned nrDays = unsigned(firstDate.daysTo(lastDate)) + 1;
     if (subQuery)
     {
         query.clear();
         queryString = "SELECT * FROM '" + tableName + "' WHERE date BETWEEN '"
                     + firstDate.toString("yyyy-MM-dd") + "' AND '" + lastDate.toString("yyyy-MM-dd") + "'"
                     + " ORDER BY date";
-        query = this->dbMeteo.exec(queryString);
+        query = dbMeteo.exec(queryString);
     }
 
     // Forecast: increase nr of days
     if (_isShortTermForecast)
-        nrDays += unsigned(_daysOfForecast);
-
-    // Initialize data
-    myCase.meteoPoint.initializeObsDataD(nrDays, getCrit3DDate(firstDate));
-
-    // Read observed data
-    int maxNrDays = NODATA; // all data
-    if (! readDailyDataCriteria1D(query, myCase.meteoPoint, maxNrDays, projectError))
     {
-        return false;
+        if (idForecast.isEmpty())
+        {
+            projectError = "Missing idForecast.";
+            return false;
+        }
+        nrDays += unsigned(_daysOfForecast);
     }
 
+    // initialize data
+    myCase.meteoPoint.initializeObsDataD(nrDays, getCrit3DDate(firstDate));
+    myCase.meteoPoint.id = idMeteo.toStdString();
+
+    // read observed data
+    int maxNrDays = NODATA; // all data
+    if (! readDailyDataCriteria1D(query, myCase.meteoPoint, maxNrDays, projectError))
+        return false;
+
     // write missing meteo data on log
-    if (projectError != "")
+    if (! projectError.isEmpty())
     {
-        this->logger.writeInfo(projectError);
+        logger.writeInfo(projectError);
         projectError = "";
     }
 
@@ -935,7 +952,7 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
             if (query.lastError().text() != "")
                 projectError = "dbForecast error: " + query.lastError().text();
             else
-                projectError = "Missing forecast table:" + tableName;
+                projectError = "Missing forecast table:" + tableNameForecast;
             return false;
         }
 
@@ -1223,7 +1240,6 @@ int Crit1DProject::computeAllUnits()
     {
         for (unsigned int i = 0; i < compUnitList.size(); i++)
         {
-            // is numerical infiltration
             if (compUnitList[i].isNumericalInfiltration)
             {
                 logger.writeInfo(compUnitList[i].idCase + " - numerical computation...");
