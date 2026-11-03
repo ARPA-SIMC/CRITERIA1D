@@ -805,6 +805,7 @@ bool fillDailyDataCriteria1D(const QSqlDatabase &dbMeteo, const QString &table,
         tmin = meteoPoint.getMeteoPointValueD(currentDate, dailyAirTemperatureMin);
         tmax = meteoPoint.getMeteoPointValueD(currentDate, dailyAirTemperatureMax);
         tavg = meteoPoint.getMeteoPointValueD(currentDate, dailyAirTemperatureAvg);
+        prec = meteoPoint.getMeteoPointValueD(currentDate, dailyPrecipitation);
 
         if (isEqual(tmin, NODATA))
         {
