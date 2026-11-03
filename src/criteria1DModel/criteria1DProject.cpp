@@ -16,6 +16,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QUuid>
+#include <memory>
 
 
 Crit1DProject::Crit1DProject()
@@ -107,8 +108,7 @@ void Crit1DProject::closeProject()
  */
 bool Crit1DProject::readSettings()
 {
-    QSettings* projectSettings;
-    projectSettings = new QSettings(configFileName, QSettings::IniFormat);
+    auto projectSettings = std::make_unique<QSettings>(configFileName, QSettings::IniFormat);
 
     projectSettings->beginGroup("project");
 
@@ -543,13 +543,16 @@ bool Crit1DProject::setSoil(const QString &soilCode, QString &errorStr)
     if (! loadSoil(dbSoil, soilCode, myCase.mySoil, texturalClassList, geotechnicsClassList, myCase.fittingOptions, errorStr))
         return false;
 
-    // Ignore non-fatal warnings returned by loadSoil()
+    // ignore non-fatal warnings returned by loadSoil()
     errorStr.clear();
 
     // check soil depth (if fixed depth is required)
     if (! _computeAllSoilDepth)
     {
-        myCase.mySoil.totalDepth = std::min(myCase.mySoil.totalDepth, _computationSoilDepth);
+        if (! isEqual(_computationSoilDepth, NODATA))
+        {
+            myCase.mySoil.totalDepth = std::min(myCase.mySoil.totalDepth, _computationSoilDepth);
+        }
     }
 
     std::string errorStdStr;
@@ -578,7 +581,13 @@ bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, const QString &idForecast, 
         return false;
     }
 
-    // check id
+    if (idMeteo.isEmpty())
+    {
+        projectError = "Missing ID meteo.";
+        return false;
+    }
+
+    // check id meteo
     unsigned row, col;
     bool isMeteoCellFound = false;
     if (observedMeteoGrid->meteoGrid()->findMeteoPointFromId(&row, &col, idMeteo.toStdString()))
@@ -597,7 +606,7 @@ bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, const QString &idForecast, 
 
     if (! isMeteoCellFound)
     {
-        projectError = "Missing observed meteo cell: " + idMeteo;
+        projectError = "Wrong ID meteo: " + idMeteo;
         return false;
     }
 
@@ -759,6 +768,12 @@ bool Crit1DProject::setMeteoXmlGrid(QString idMeteo, const QString &idForecast, 
 
 bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idForecast)
 {
+    if (idMeteo.isEmpty())
+    {
+        projectError = "Missing ID meteo.";
+        return false;
+    }
+
     QString queryString = "SELECT * FROM point_properties WHERE id_meteo='" + idMeteo + "'";
     QSqlQuery query = dbMeteo.exec(queryString);
     query.last();
@@ -888,7 +903,7 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
     }
 
     // Add Short-Term forecast
-    if (this->_isShortTermForecast)
+    if (_isShortTermForecast && ! idForecast.isEmpty())
     {
         queryString = "SELECT * FROM point_properties WHERE id_meteo='" + idForecast + "'";
         query = dbForecast.exec(queryString);
@@ -930,7 +945,11 @@ bool Crit1DProject::setMeteoSqlite(const QString &idMeteo, const QString &idFore
         if (firstForecastDate != lastDate.addDays(1))
         {
             // previsioni indietro di un giorno: accettato ma tolgo un giorno
-            if (firstForecastDate != lastDate)
+            if (firstForecastDate == lastDate)
+            {
+                myCase.meteoPoint.obsDataD.pop_back();
+            }
+            else
             {
                 projectError = "The forecast date doesn't match with observed data.";
                 return false;
@@ -1059,11 +1078,16 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
         if (! createOutputTable(projectError))
             return false;
     }
+
     // get irri ratio
     if (_isYearlyStatistics || _isMonthlyStatistics || _isSeasonalForecast)
     {
         float irriRatio = getIrriRatioFromCropClass(dbCrop, "crop_class", "id_class",
                                                 myCase.unit.idCropClass, projectError);
+
+        if (isEqual(irriRatio, NODATA))
+            return false;
+
         if (irriRatio < EPSILON)
         {
             // No irrigation: nothing to do
@@ -1414,7 +1438,7 @@ bool Crit1DProject::computeEnsembleForecast(unsigned int unitIndex, float irriRa
 
     _irriSeries.resize(unsigned(_nrComputationYears));
     _precSeries.resize(unsigned(_nrComputationYears));
-    for (unsigned int memberNr = 1; memberNr < unsigned(_nrComputationYears); memberNr++)
+    for (unsigned int memberNr = 0; memberNr < unsigned(_nrComputationYears); memberNr++)
     {
         if (! computeUnit(unitIndex, memberNr))
         {

@@ -6,10 +6,10 @@
     #define MAX_MISSING_CONSECUTIVE_DAYS_PREC 7
 
     #include <QString>
+    #include <QDate>
 
     class QSqlDatabase;
     class QSqlQuery;
-    class QDate;
     class Crit3DMeteoPoint;
 
     bool openDbMeteo(const QString &dbName, QSqlDatabase &dbMeteo, QString &errorStr);
@@ -39,7 +39,7 @@
     bool getLastDateGrid(const QSqlDatabase &dbMeteo, const QString &table, const QString &fieldTime,
                          const QString &year, QDate &lastDate, QString &errorStr);
 
-    bool fillDailyTempPrecCriteria1D(const QSqlDatabase &dbMeteo, const QString &table,
+    bool fillDailyDataCriteria1D(const QSqlDatabase &dbMeteo, const QString &table,
                                      Crit3DMeteoPoint &meteoPoint, int year, QString &errorStr);
 
     bool readDailyDataCriteria1D(QSqlQuery &query, Crit3DMeteoPoint &meteoPoint, int maxNrDays, QString &errorStr);

@@ -870,14 +870,15 @@ void Criteria1DWidget::openComputationUnitsDB(QString dbComputationUnitsName)
         return;
     }
 
-    // unit list
-    this->caseListComboBox.blockSignals(true);
-    this->caseListComboBox.clear();
-    this->caseListComboBox.blockSignals(false);
+    // clear combo
+    caseListComboBox.blockSignals(true);
+    caseListComboBox.clear();
+    caseListComboBox.blockSignals(false);
 
-    for (unsigned int i = 0; i < myProject.compUnitList.size(); i++)
+    // add units
+    for (size_t i = 0; i < myProject.compUnitList.size(); i++)
     {
-        this->caseListComboBox.addItem(myProject.compUnitList[i].idCase);
+        caseListComboBox.addItem(myProject.compUnitList[i].idCase);
     }
 }
 
@@ -1133,7 +1134,7 @@ void Criteria1DWidget::on_actionChooseCase()
         isFirstCase = false;
     }
 
-    int index = caseListComboBox.currentIndex();
+    const int index = caseListComboBox.currentIndex();
     QString errorStr;
 
     myProject.myCase.unit = myProject.compUnitList[unsigned(index)];
@@ -1142,7 +1143,7 @@ void Criteria1DWidget::on_actionChooseCase()
     // store information
     _isCaseNumerical = myProject.myCase.unit.isNumericalInfiltration;
 
-    // Read watertable parameters
+    // read watertable parameters
     myProject.myCase.waterTableParameters.initialize();
     if (myProject.myCase.unit.useWaterTableData &&  !myProject.dbWaterTableName.isEmpty() && !myProject.myCase.unit.idWaterTable.isEmpty())
     {
@@ -1383,12 +1384,12 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
         return;
 
     // clear prev year list
-    this->firstYearListComboBox.blockSignals(true);
-    this->lastYearListComboBox.blockSignals(true);
-    this->firstYearListComboBox.clear();
-    this->lastYearListComboBox.clear();
-    this->_yearList.clear();
-    this->firstYearListComboBox.blockSignals(false);
+    firstYearListComboBox.blockSignals(true);
+    lastYearListComboBox.blockSignals(true);
+    firstYearListComboBox.clear();
+    lastYearListComboBox.clear();
+    _yearList.clear();
+    firstYearListComboBox.blockSignals(false);
 
     myProject.myCase.meteoPoint.setId(idMeteo.toStdString());
     QString errorStr;
@@ -1486,8 +1487,14 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
                 pos++;
             }
         }
+
         // store last Date
-        getLastDateDbMeteo(myProject.dbMeteo, _meteoTableName, _yearList[_yearList.size()-1], myProject.lastSimulationDate, errorStr);
+        if (! getLastDateDbMeteo(myProject.dbMeteo, _meteoTableName,
+                                _yearList[_yearList.size()-1], myProject.lastSimulationDate, errorStr))
+        {
+            QMessageBox::critical(nullptr, "Error!", "Error in getLastDateDbMeteo: " + errorStr);
+            return;
+        }
     }
 
     if (_yearList.size() == 1)
@@ -1509,25 +1516,25 @@ void Criteria1DWidget::on_actionChooseMeteo(QString idMeteo)
         }
     }
 
-    this->lastYearListComboBox.blockSignals(false);
+    lastYearListComboBox.blockSignals(false);
 }
 
 
 void Criteria1DWidget::on_actionChooseFirstYear(QString year)
 {
-    this->lastYearListComboBox.blockSignals(true);
-    this->lastYearListComboBox.clear();
+    lastYearListComboBox.blockSignals(true);
+    lastYearListComboBox.clear();
 
     // add first year
-    this->lastYearListComboBox.addItem(year);
-    int index = _yearList.indexOf(year);
+    lastYearListComboBox.addItem(year);
+    const int index = _yearList.indexOf(year);
 
     // add consecutive valid years
-    for (int i = index+1; i<_yearList.size(); i++)
+    for (int i = index+1; i < _yearList.size(); i++)
     {
         if (_yearList[i].toInt() == _yearList[i-1].toInt()+1)
         {
-            this->lastYearListComboBox.addItem(_yearList[i]);
+            lastYearListComboBox.addItem(_yearList[i]);
         }
         else
         {
@@ -1536,7 +1543,7 @@ void Criteria1DWidget::on_actionChooseFirstYear(QString year)
     }
 
     updateMeteoPointData();
-    this->lastYearListComboBox.blockSignals(false);
+    lastYearListComboBox.blockSignals(false);
 }
 
 
@@ -1653,7 +1660,7 @@ bool Criteria1DWidget::updateMeteoPointData()
     {
         if (_isOnlyOneYear)
         {
-            if (! fillDailyTempPrecCriteria1D(myProject.dbMeteo, _meteoTableName, myProject.myCase.meteoPoint, lastYear, errorStr))
+            if (! fillDailyDataCriteria1D(myProject.dbMeteo, _meteoTableName, myProject.myCase.meteoPoint, lastYear, errorStr))
             {
                 QMessageBox::critical(nullptr, "Error! ", errorStr + " year: " + QString::number(lastYear));
                 return false;
@@ -1677,7 +1684,7 @@ bool Criteria1DWidget::updateMeteoPointData()
         {
             for (int year = firstYear; year <= lastYear; year++)
             {
-                if (! fillDailyTempPrecCriteria1D(myProject.dbMeteo, _meteoTableName, myProject.myCase.meteoPoint, year, errorStr))
+                if (! fillDailyDataCriteria1D(myProject.dbMeteo, _meteoTableName, myProject.myCase.meteoPoint, year, errorStr))
                 {
                     QMessageBox::critical(nullptr, "Error! ", errorStr + " year: " + QString::number(year));
                     return false;

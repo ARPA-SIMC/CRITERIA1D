@@ -9,7 +9,7 @@
 
     class Crit3DCrop;
 
-    void initializeWater(std::vector<soil::Crit1DLayer> &soilLayers);
+    bool initializeWater(std::vector<soil::Crit1DLayer> &soilLayers);
 
     double computeInfiltration(std::vector<soil::Crit1DLayer> &soilLayers, double inputWater, double ploughedSoilDepth);
 
@@ -23,8 +23,6 @@
     double getSoilWaterContentSum(const std::vector<soil::Crit1DLayer> &soilLayers, double computationDepth);
 
     double getReadilyAvailableWater(const Crit3DCrop &myCrop, const std::vector<soil::Crit1DLayer> &soilLayers);
-    
-    // test
 
 #endif // WATER1D_H
 

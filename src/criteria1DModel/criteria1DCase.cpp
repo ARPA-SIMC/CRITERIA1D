@@ -107,7 +107,8 @@ bool Crit1DCase::initializeSoil(std::string &error)
             return false;
     }
 
-    initializeWater(soilLayers);
+    if (! initializeWater(soilLayers))
+        return false;
 
     return true;
 }
@@ -118,7 +119,8 @@ bool Crit1DCase::initializeWaterContent(const Crit3DDate &myDate)
     if (soilLayers.empty())
         return false;
 
-    initializeWater(soilLayers);
+    if (! initializeWater(soilLayers))
+        return false;
 
     // water table
     if (unit.useWaterTableData)
@@ -325,18 +327,22 @@ bool Crit1DCase::computeNumericalFluxes(const Crit3DDate &myDate, std::string &e
     int irrH0 = 0;
     int irrH1 = 0;
     double irrFlux = 0;
-    if (output.dailyIrrigation > 0 && !unit.isOptimalIrrigation)
+    if (output.dailyIrrigation > 0 && ! unit.isOptimalIrrigation)
     {
-        irrH0 = 5;                                                              // morning
-        int maxDuration = 24 - irrH0 + 1;                                       // [hours]
-        float mmHour = 3;
+        irrH0 = 5;                                      // morning
+        const int maxDuration = 24 - irrH0 + 1;         // [hours]
+
+        float typicalIrrPerHour = 3.0;                  // [mm hour-1] micro irrigation
         if (output.dailyIrrigation >= 10)
         {
-            mmHour = 10;
+            typicalIrrPerHour = 10.0;                   // [mm hour-1]
         }
-        int irrDuration = std::min(int(output.dailyIrrigation / mmHour), maxDuration);
+
+        const int irrHours = std::max(1, int(output.dailyIrrigation / typicalIrrPerHour));
+        const int irrDuration = std::min(irrHours, maxDuration);
 
         irrH1 = irrH0 + irrDuration - 1;
+
         // [m3 s-1]
         irrFlux = (_area * output.dailyIrrigation * 0.001) / (HOUR_SECONDS * irrDuration);
     }
@@ -584,7 +590,7 @@ bool Crit1DCase::computeDailyModel(const Crit3DDate &myDate, std::string &error)
     {
         prec = 0;
         nrMissingPrec++;
-        if ((nrMissingPrec / meteoPoint.obsDataD.size()) > 0.02)
+        if ((double(nrMissingPrec) / meteoPoint.obsDataD.size()) > 0.02)
         {
             error = "Too many precipitation data are missing (> 2%)";
             return false;
@@ -993,12 +999,12 @@ double Crit1DCase::getWaterCapacitySum(double computationDepth)
 double Crit1DCase::getAvailableWaterSum(double computationDepth)
 {
     computationDepth /= 100;                // [cm] --> [m]
-    double lowerDepth, upperDepth;          // [m]
+
     double availableWaterSum = 0;           // [mm]
 
     for (unsigned int i = 1; i < soilLayers.size(); i++)
     {
-        lowerDepth = soilLayers[i].depth + soilLayers[i].thickness * 0.5;
+        const double lowerDepth = soilLayers[i].depth + soilLayers[i].thickness * 0.5;      // [m]
 
         if (lowerDepth < computationDepth)
         {
@@ -1007,9 +1013,9 @@ double Crit1DCase::getAvailableWaterSum(double computationDepth)
         else
         {
             // fraction of last layer
-            upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;
-            double layerAW = std::max(0.0, soilLayers[i].waterContent - soilLayers[i].WP);
-            double depthFraction = (computationDepth - upperDepth) / soilLayers[i].thickness;
+            const double upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;          // [m]
+            const double layerAW = std::max(0.0, soilLayers[i].waterContent - soilLayers[i].WP);    // [mm]
+            double depthFraction = (computationDepth - upperDepth) / soilLayers[i].thickness;       // [-]
             return availableWaterSum + layerAW * depthFraction;
         }
     }
@@ -1025,7 +1031,7 @@ double Crit1DCase::getAvailableWaterSum(double computationDepth)
  */
 double Crit1DCase::getAvailableWaterFraction(double computationDepth)
 {
-    computationDepth /= 100;            // [cm] --> [m]
+    computationDepth /= 100;                // [cm] --> [m]
     if (computationDepth <= 0 || mySoil.totalDepth < (computationDepth * 0.25))
     {
         return NODATA;
@@ -1038,8 +1044,8 @@ double Crit1DCase::getAvailableWaterFraction(double computationDepth)
     bool isLastComputationLayer = false;
     while (i < soilLayers.size() && ! isLastComputationLayer)
     {
-        const double upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;      // [m]
-        const double lowerDepth = soilLayers[i].depth + soilLayers[i].thickness * 0.5;      // [m]
+        const double upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;          // [m]
+        const double lowerDepth = soilLayers[i].depth + soilLayers[i].thickness * 0.5;          // [m]
 
         double depthFraction = 1.0;         // [-]
         if (lowerDepth > computationDepth)
@@ -1048,7 +1054,8 @@ double Crit1DCase::getAvailableWaterFraction(double computationDepth)
             isLastComputationLayer = true;
         }
 
-        availableWaterSum += (soilLayers[i].waterContent - soilLayers[i].WP) * depthFraction;
+        const double layerAW = std::max(0.0, soilLayers[i].waterContent - soilLayers[i].WP);    // [mm]
+        availableWaterSum += layerAW * depthFraction;
         potentialAWSum += (soilLayers[i].FC - soilLayers[i].WP) * depthFraction;
         i++;
     }
