@@ -170,6 +170,7 @@ bool Crit1DCase::initializeNumericalFluxes(std::string &errorStr)
         soilFluxes3D::setNumericalParameters(30, 3600, 200, 10, 10, 3);
     }
 
+    soilFluxes3D::setCurrentDeltaT(3600);
     soilFluxes3D::setThreadsNumber(1);
 
     // soil properties (units of measurement: MKS)
