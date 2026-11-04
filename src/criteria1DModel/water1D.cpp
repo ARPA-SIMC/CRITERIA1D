@@ -314,7 +314,7 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
     double capillaryRiseSum = 0.0;                      // [mm]
 
     // boundary layer: last layer with the center above the water table
-    // (0 means that all the soil layers are below the water table)
+    // (zero means that all the soil layers are below the water table)
     int boundaryLayer = lastLayer;
     while (boundaryLayer > 0 && waterTableDepth <= soilLayers[boundaryLayer].depth)
         boundaryLayer--;
@@ -338,7 +338,7 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
     // air entry point of the boundary layer
     const double he_boundary = soilLayers[boundaryLayer].horizonPtr->vanGenuchten.he;       // [kPa]
 
-    // above the water table: threshold for vertical drainage
+    // layers above the water table: threshold for vertical drainage
     for (int i = 1; i <= boundaryLayer; i++)
     {
         const double dz = waterTableDepth - soilLayers[i].depth;                            // [m]
@@ -352,7 +352,7 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
         }
     }
 
-    // above the water table: capillary rise, from the boundary layer upwards.
+    // layers above the water table: capillary rise, from the boundary layer upwards.
     // Each layer is evaluated with its own suction and conductivity:
     // a layer in equilibrium does NOT stop the rise towards the drier layers above.
     double previousPsi = soilLayers[boundaryLayer].getWaterPotential();                     // [kPa]
@@ -391,120 +391,6 @@ double computeCapillaryRise(std::vector<soil::Crit1DLayer> &soilLayers, double w
         }
 
         previousPsi = currentPsi;
-    }
-
-    return capillaryRiseSum;
-}
-
-
-/*!
- * \brief compute capillary rise due to watertable
- * and compute current threshold for vertical drainage (soilLayers[i].critical)
- * \param soilLayers
- * \param waterTableDepth [m]
- * \return capillary rise
- */
-double computeCapillaryRise_old(std::vector<soil::Crit1DLayer> &soilLayers, double waterTableDepth)
-{
-    double psi, previousPsi;             // [kPa] water potential
-    double he_boundary;                  // [kPa] air entry point boundary soilLayers
-    double k_psi;                        // [cm day-1] water conductivity
-
-    double capillaryRiseSum = 0;         // [mm day-1]
-
-    const double REDUCTION_FACTOR = 0.5;
-
-    const unsigned nrLayers = unsigned(soilLayers.size());
-    const int lastLayer = nrLayers-1;
-    if (nrLayers == 0)
-        return 0;
-
-    // No WaterTable, wrong data or watertable too depth
-    if ( isEqual(waterTableDepth, NODATA) || waterTableDepth <= 0
-            || waterTableDepth > (soilLayers[lastLayer].depth + 5.0) )
-    {
-        // re-initialize threshold for vertical drainage
-        for (unsigned int i = 1; i < nrLayers; i++)
-            soilLayers[i].critical = soilLayers[i].FC;
-
-        return 0;
-    }
-
-    // search boundary layer: first soil layer over watertable
-    // depth is assigned at center of layer
-    int boundaryLayer = lastLayer;
-    while ((boundaryLayer > 1) && (waterTableDepth <= soilLayers[boundaryLayer].depth))
-            boundaryLayer--;
-
-    boundaryLayer = std::max(boundaryLayer, 1);
-
-    // layer below watertable: saturated
-    if (boundaryLayer < lastLayer)
-    {
-        for (int i = boundaryLayer+1; i <= lastLayer; i++)
-        {
-            soilLayers[i].critical = soilLayers[i].SAT;
-
-            if (soilLayers[i].waterContent < soilLayers[i].SAT)
-            {
-                capillaryRiseSum += (soilLayers[i].SAT - soilLayers[i].waterContent);
-                soilLayers[i].waterContent = soilLayers[i].SAT;
-            }
-        }
-    }
-
-    // air entry point of the boundary layer
-    he_boundary = soilLayers[boundaryLayer].horizonPtr->vanGenuchten.he;       // [kPa]
-
-    // above watertable: assign water content threshold for vertical drainage
-    for (int i = 1; i <= boundaryLayer; i++)
-    {
-        const double dz = (waterTableDepth - soilLayers[i].depth);                       // [m]
-        const double psi = soil::metersTokPa(dz) + he_boundary;                          // [kPa]
-
-        soilLayers[i].critical = soil::getWaterContentFromPsi(psi, soilLayers[i]);
-
-        if (soilLayers[i].critical < soilLayers[i].FC)
-        {
-            soilLayers[i].critical = soilLayers[i].FC;
-        }
-    }
-
-    // above watertable: capillary rise
-    previousPsi = soilLayers[boundaryLayer].getWaterPotential();
-    for (int i = boundaryLayer; i > 0; i--)
-    {
-        psi = soilLayers[i].getWaterPotential();                        // [kPa]
-
-        if (i < boundaryLayer && psi < previousPsi)
-            break;
-
-        const double dPsi = soil::kPaToMeters(psi - he_boundary);                    // [m]
-        const double dz = std::max(EPSILON, waterTableDepth - soilLayers[i].depth);  // [m]
-
-        if (dPsi > dz)
-        {
-            // [mm day-1]
-            k_psi = soilLayers[i].getWaterConductivity() * 10.;
-            // reduce capillary rise to consider the soil inertia
-            k_psi *= REDUCTION_FACTOR;
-            // [mm day-1]
-            double capillaryRise = k_psi * ((dPsi / dz) - 1);
-            // [mm day-1]
-            const double maxCapillaryRise = std::max(0.0, soilLayers[i].critical - soilLayers[i].waterContent);
-
-            capillaryRise = std::min(capillaryRise, maxCapillaryRise);
-
-            // update water content
-            soilLayers[i].waterContent += capillaryRise;
-            capillaryRiseSum += capillaryRise;
-
-            previousPsi = soilLayers[i].getWaterPotential();            // [kPa]
-        }
-        else
-        {
-            previousPsi = psi;
-        }
     }
 
     return capillaryRiseSum;
