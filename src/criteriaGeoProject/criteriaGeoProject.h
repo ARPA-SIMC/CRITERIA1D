@@ -1,7 +1,7 @@
 #ifndef CRITERIA_GEO_PROJECT_H
 #define CRITERIA_GEO_PROJECT_H
 
-    #define CRITERIA_GEO_VERSION "v2.0.6 (2026.09)"
+    #define CRITERIA_GEO_VERSION "v2.0.8 (2026.11)"
 
     #ifndef GIS_H
         #include "gis.h"
@@ -49,7 +49,7 @@
 
         bool newRasterFromShape(const Crit3DShapeHandler &shapeHandler, const gis::Crit3DRasterGrid *refRaster,
                                 const QString &fieldName, const QString &outputName,
-                                double cellSize, double coverageThreshold, bool showInfo);
+                                double cellSize, double coverageThreshold);
 
         bool createShapeFromCsv(int shapeIndex, const QString &fileCsv, const QString &fileCsvFormat,
                                 const QString &outputFileName);

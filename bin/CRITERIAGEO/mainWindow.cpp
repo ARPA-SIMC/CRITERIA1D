@@ -1123,7 +1123,7 @@ void MainWindow::zoomToShape(GisObject* myObject)
         return;
 
     gis::Crit3DUtmPoint p0, p1;
-    if (! shapeHandler->getBounds(p0.x, p0.y, p1.x, p1.y))
+    if (! shapeHandler->getBounds(p0.x, p1.x, p0.y, p1.y))
         return;
 
     gis::Crit3DGeoPoint g0, g1, center;
@@ -2160,9 +2160,8 @@ void MainWindow::on_actionRasterizeShape_whole_shapefile_triggered()
 
     size_t oldObjectSize = myProject.objectList.size();
 
-    const bool showInfo = true;
     if (! myProject.newRasterFromShape(*shapeHandler, nullptr, fieldName, outputName,
-                                      cellSize, coverageThreshold, showInfo) )
+                                      cellSize, coverageThreshold) )
     {
         myProject.logError("Error in rasterize shape.");
         return;
@@ -2237,7 +2236,6 @@ void MainWindow::on_actionRasterizeShape_with_raster_mask_triggered()
     if (numericField.result() != QDialog::Accepted)
         return;
 
-    bool showInfo = true;
     QString outputName = numericField.getStringValue();
     if (outputName.isEmpty())
     {
@@ -2254,7 +2252,7 @@ void MainWindow::on_actionRasterizeShape_with_raster_mask_triggered()
 
     double cellSize = NODATA;
     if (! myProject.newRasterFromShape(*shapeHandler, refRaster, numericField.getFieldSelected(),
-                                      outputName, cellSize, coverageThreshold, showInfo))
+                                      outputName, cellSize, coverageThreshold))
     {
         myProject.logError("Error in newRasterFromShape");
         return;

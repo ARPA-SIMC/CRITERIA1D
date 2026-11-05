@@ -144,7 +144,7 @@ bool CriteriaGeoProject::loadShapefile(const QString &fileNameWithPath, const QS
 bool CriteriaGeoProject::newRasterFromShape(const Crit3DShapeHandler &shapeHandler,
                                             const gis::Crit3DRasterGrid *refRaster,
                                             const QString &fieldName, const QString &outputName,
-                                            double cellSize, double coverageThreshold, bool showInfo)
+                                            double cellSize, double coverageThreshold)
 {
     const bool useReferenceRaster = (refRaster != nullptr);
     gis::Crit3DRasterGrid *newRaster = new gis::Crit3DRasterGrid();
@@ -156,7 +156,7 @@ bool CriteriaGeoProject::newRasterFromShape(const Crit3DShapeHandler &shapeHandl
         nrSamples = 3;
 
     if (! rasterizeShape(refRaster, *newRaster, shapeHandler, fieldName.toStdString(),
-                        cellSize, nrSamples, coverageThreshold, useReferenceRaster, showInfo))
+                        cellSize, nrSamples, coverageThreshold, useReferenceRaster))
     {
         delete newRaster;
         return false;
