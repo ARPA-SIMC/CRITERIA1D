@@ -304,6 +304,16 @@ namespace gis
         if (nrRows <= 0 || nrCols <= 0)
             return false;
 
+        // release a previous allocation (restore header after clear)
+        if (value != nullptr)
+        {
+            const Crit3DRasterHeader oldHeader = header;
+
+            clear();
+
+            header = oldHeader;
+        }
+
         try
         {
             value = new float*[nrRows]();       // () zero-initializes
