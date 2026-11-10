@@ -253,7 +253,7 @@ void MainWindow::mouseMove(QPoint eventPos)
 
             float value = myRaster->getValueFromXY(utmX, utmY);
 
-            if (! isEqual(value, myRaster->header->flag))
+            if (! isEqual(value, myRaster->header.flag))
                 rasterValueStr = QString::number(value);
         }
     }
@@ -461,7 +461,7 @@ void MainWindow::contextMenuRequested(const QPoint &localPos)
             return;
 
         rasterPointer->value[row][col] =
-            rasterPointer->header->flag;
+            rasterPointer->header.flag;
 
         updateMaps();
         return;
@@ -1606,7 +1606,7 @@ void MainWindow::rasterStatisticalSummary(GisObject* myObject)         //Qua den
 
     gis::updateMinMaxRasterGrid(myObject->getRasterPointer());
 
-    float area = nrValidCells * myObject->getRasterPointer()->header->cellSize * myObject->getRasterPointer()->header->cellSize / 1000000;
+    float area = nrValidCells * myObject->getRasterPointer()->header.cellSize * myObject->getRasterPointer()->header.cellSize / 1000000;
 
     QDialog myDialog;
     myDialog.setWindowTitle("Raster statistics");
@@ -2313,11 +2313,11 @@ void MainWindow::on_actionAssign_shape_prevailing_value_raster_triggered()
     std::string errorStr;
     if (isProportional)
         isOk = zonalStatisticsShapeCategories_proportional(*shapeHandler, categories, matrix,
-                                                                   rasterPtr->header->cellSize,
+                                                                   rasterPtr->header.cellSize,
                                                                    fieldName.toStdString(), threshold, errorStr);
     else
         isOk = zonalStatisticsShapeCategories_majority(*shapeHandler, categories, matrix,
-                                                      rasterPtr->header->cellSize,
+                                                      rasterPtr->header.cellSize,
                                                       fieldName.toStdString(), threshold, errorStr);
     formInfo.close();
 
