@@ -120,7 +120,7 @@ TabMap::TabMap(QList<QString> varList, QDate firstDbDate, QDate lastDbDate)
     outputNameLayout->addWidget(fileNameLabel);
     outputNameLayout->addWidget(fileNameEdit);
 
-    connect(climateComp, &QCheckBox::stateChanged, [=](int state){ this->climateComputation(state); });
+    connect(climateComp, &QCheckBox::checkStateChanged, [=](int state){ this->climateComputation(state); });
     connect(elabList, &QComboBox::currentTextChanged, [=](const QString &newVar){ this->listElaboration(newVar); });
 
     mainLayout->addLayout(varLayout);

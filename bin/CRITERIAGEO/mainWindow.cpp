@@ -370,11 +370,8 @@ void MainWindow::contextMenuRequested(const QPoint &localPos)
             return;
 
         rasterPointer = rasterObject->getRasterPointer();
-        if (rasterPointer == nullptr ||
-            rasterPointer->header == nullptr)
-        {
+        if (rasterPointer == nullptr)
             return;
-        }
 
         rasterPointer->getRowCol(
             utmPoint.x,
@@ -551,7 +548,7 @@ void MainWindow::itemMenuRequested(const QPoint &point)
 
             submenu.addSeparator();
 
-            if (myRasterObject->getRasterPointer()->colorScale->isFixedRange())
+            if (myRasterObject->getRasterPointer()->colorScale.isFixedRange())
                 submenu.addAction("Set variable range");
             else
                 submenu.addAction("Set fixed range");
@@ -736,7 +733,7 @@ void MainWindow::itemMenuRequested(const QPoint &point)
         {
             if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
-                myRasterObject->getRasterPointer()->colorScale->setFixedRange(true);
+                myRasterObject->getRasterPointer()->colorScale.setFixedRange(true);
                 emit myRasterObject->redrawRequested();
             }
         }
@@ -744,7 +741,7 @@ void MainWindow::itemMenuRequested(const QPoint &point)
         {
             if (myObject->type == gisObjectRaster && myRasterObject != nullptr)
             {
-                myRasterObject->getRasterPointer()->colorScale->setFixedRange(false);
+                myRasterObject->getRasterPointer()->colorScale.setFixedRange(false);
                 emit myRasterObject->redrawRequested();
             }
         }
