@@ -62,7 +62,8 @@ int main(int argc, char *argv[])
         #endif
 
         #ifdef TEST_GEO
-            projectFileName = "C:\\SOFTWARE\\AGRO\\CRITERIA\\PROJECT\\INCOLTO\\incolto.ini";
+            projectFileName = "\\\\icolt2-smr.smr.arpa.emr.net\\CRITERIA1D\\PROJECTS\\sub_seasonal\\monthly_C4.ini";
+            myProject.lastSimulationDate = QDate::fromString("2026-11-10", "yyyy-MM-dd");
         #endif
 
         #ifdef TEST_FIRSTRUN

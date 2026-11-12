@@ -1039,7 +1039,7 @@ bool Crit1DProject::computeUnit(unsigned int unitIndex, unsigned int memberNr)
 }
 
 
-// use memberNr = 0 for deterministic run
+// use member nr = 0 for deterministic run
 bool Crit1DProject::computeCase(unsigned int memberNr)
 {
     // initialize
@@ -1452,9 +1452,10 @@ bool Crit1DProject::computeEnsembleForecast(unsigned int unitIndex, float irriRa
         return false;
     }
 
-    _irriSeries.resize(unsigned(_nrComputationYears));
-    _precSeries.resize(unsigned(_nrComputationYears));
-    for (unsigned int memberNr = 0; memberNr < unsigned(_nrComputationYears); memberNr++)
+    _irriSeries.resize(_nrComputationYears, NODATA);
+    _precSeries.resize(_nrComputationYears, NODATA);
+    // members start from 1 (zero is for deterministic run)
+    for (unsigned int memberNr = 1; memberNr < unsigned(_nrComputationYears); memberNr++)
     {
         if (! computeUnit(unitIndex, memberNr))
         {
